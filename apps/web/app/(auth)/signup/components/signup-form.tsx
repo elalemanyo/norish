@@ -54,7 +54,7 @@ export function SignupForm({ callbackUrl = APP_ROOT }: SignupFormProps) {
           } else {
             // A full page load, like sign-in's redirect, so app/layout.tsx types it `sign-in`.
             setIsLeaving(true);
-            location.assign(safeOrigin(callbackUrl) ?? "/");
+            location.assign(safeOrigin(callbackUrl) ?? APP_ROOT);
           }
         })
         .catch(() => setError(t("errors.generic")))
