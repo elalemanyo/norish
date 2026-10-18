@@ -59,6 +59,50 @@ Norish tells visitors apart by the `X-Forwarded-For` header your proxy adds, so 
 should be able to reach Norish's port. A visitor who connects to the port directly can set that
 header themselves and get a sign-in rate limit of their own.
 
+## Base path
+
+Serve Norish under a URL prefix, for example `https://example.com/norish`,
+when a reverse proxy already owns the domain root.
+
+| Variable                | Description                     | Default              |
+| ----------------------- | ------------------------------- | -------------------- |
+| `NEXT_PUBLIC_BASE_PATH` | URL prefix the app is built for | (empty, domain root) |
+
+The value is baked into the image at build time because Next.js inlines it.
+Build the image with the prefix:
+
+```bash
+docker build -f docker/Dockerfile \
+  --build-arg NEXT_PUBLIC_BASE_PATH=/norish \
+  --build-arg NORISH_VERSION_REPORT_JSON="$(node tooling/monorepo/scripts/print-package-versions.mjs)" \
+  -t norish:base-path .
+```
+
+Set `AUTH_URL` to the same prefix:
+
+```dotenv
+AUTH_URL=https://example.com/norish
+```
+
+The reverse proxy forwards the prefixed path unchanged:
+
+```nginx
+location /norish {
+  proxy_pass http://127.0.0.1:3000;
+  proxy_set_header Host $host;
+  proxy_set_header X-Forwarded-Proto $scheme;
+  proxy_set_header Upgrade $http_upgrade;
+  proxy_set_header Connection "upgrade";
+}
+```
+
+The app, its static assets, the manifest, the service worker scope and the
+realtime socket all follow the prefix. The prefix must start with `/` and must
+not end with `/`. The published image is built for the root; rebuilding is the
+only way to change the prefix.
+
+![Norish served under /norish](/img/screenshots/base-path.png)
+
 ## Auth rate limiting
 
 | Variable                  | Description                        | Default |
