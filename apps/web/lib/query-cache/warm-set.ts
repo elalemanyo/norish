@@ -23,6 +23,7 @@ import {
   cookbookRecipesInput,
   libraryListInput,
 } from "@norish/shared-react/list-queries";
+import { addBasePathToUrl } from "@norish/shared/lib/base-path";
 import { dateKey } from "@norish/shared/lib/helpers";
 
 const WARM_RECIPE_LIST_LIMIT = 100;
@@ -286,7 +287,7 @@ function sameOriginImageUrl(image: string | null | undefined): string | null {
   }
 
   try {
-    const url = new URL(image, location.href);
+    const url = new URL(addBasePathToUrl(image), location.href);
 
     return url.origin === location.origin ? url.toString() : null;
   } catch {
