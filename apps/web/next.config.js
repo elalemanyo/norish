@@ -49,10 +49,17 @@ const workspacePackages = Array.from(
 
 const withNextIntl = createNextIntlPlugin(getNextIntlRequestConfigPath());
 
+// Next.js requires the prefix at build time, so the image is built for one
+// base path and the runtime carries the same value (ADR-0040). At the root,
+// the value is empty and neither option is set, which is the current behavior.
+const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
+
 export default withSerwist(
   withNextIntl({
     // Infer mode, through the Babel plugin (not the experimental Rust one).
     reactCompiler: true,
+    basePath: basePath || undefined,
+    assetPrefix: basePath || undefined,
     transpilePackages: workspacePackages,
     turbopack: {
       root: resolve(configDirectory, "../.."),
@@ -72,6 +79,7 @@ export default withSerwist(
     devIndicators: false,
     env: {
       NEXT_PUBLIC_APP_VERSION: packageJson.version,
+      NEXT_PUBLIC_BASE_PATH: basePath,
     },
     serverExternalPackages: ["pino", "pino-pretty", "thread-stream", "playwright-core"],
     async headers() {

@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 
 import { isPasswordAuthEnabled } from "@norish/auth/providers";
 import { isRegistrationEnabled } from "@norish/shared-server/config/server-config-loader";
+import { APP_ROOT } from "@norish/shared/lib/base-path";
 
 import { SignupClient } from "./components/signup-client";
 
@@ -22,5 +23,5 @@ export default async function SignupPage({ searchParams }: PageProps<"/signup">)
   const { callbackUrl } = await searchParams;
 
   // A repeated parameter arrives as a list; only a single one is a destination.
-  return <SignupClient callbackUrl={typeof callbackUrl === "string" ? callbackUrl : "/"} />;
+  return <SignupClient callbackUrl={typeof callbackUrl === "string" ? callbackUrl : APP_ROOT} />;
 }

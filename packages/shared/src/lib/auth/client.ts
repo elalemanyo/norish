@@ -3,8 +3,13 @@
 import { apiKeyClient } from "@better-auth/api-key/client";
 import { createAuthClient } from "better-auth/react";
 
-// Create auth client with React hooks support
+import { BASE_PATH } from "../base-path";
+
+// The browser calls the auth routes at their public path, so a prefixed
+// instance reaches /norish/api/auth; Next.js strips the prefix before the
+// Route Handler sees it (ADR-0040).
 const authClient = createAuthClient({
+  basePath: `${BASE_PATH}/api/auth`,
   plugins: [apiKeyClient()],
 });
 
