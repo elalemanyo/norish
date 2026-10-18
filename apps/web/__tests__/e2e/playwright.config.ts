@@ -5,6 +5,11 @@ import { prepareRepositoryEnvironment } from "./harness/environment";
 // Workers load this file before any spec, so the environment is set before a repository is imported.
 prepareRepositoryEnvironment();
 
+// A base-path build carries NEXT_PUBLIC_BASE_PATH at build time. The project
+// only exists when the build was made for that prefix, so the default
+// `pnpm test:e2e` against a root build never picks up its specs (ADR-0040).
+const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
+
 export default defineConfig({
   testDir: ".",
   timeout: 120_000,
@@ -29,5 +34,6 @@ export default defineConfig({
     { name: "offline", testMatch: "offline/**/*.e2e.ts" },
     { name: "ai", testMatch: "ai/**/*.e2e.ts" },
     { name: "realtime", testMatch: "realtime/**/*.e2e.ts" },
+    ...(basePath ? [{ name: "base-path", testMatch: "base-path/**/*.e2e.ts" }] : []),
   ],
 });
