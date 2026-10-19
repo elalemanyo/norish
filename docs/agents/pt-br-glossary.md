@@ -146,6 +146,7 @@ Retirados dos JSON de `packages/i18n/src/messages/pt-BR`. Entre parênteses, a c
 | Favorites                              | Favoritos                                | `common.filters.favorites`                                                      |
 | Allergies                              | Alergias                                 | `settings.user.allergies.title`                                                 |
 | Nutrition                              | Nutrição                                 | `recipes.nutrition.title`                                                       |
+| Glance Bar                             | Barra de resumo                          | `recipes.glanceBar` (sem rótulo próprio na interface)                           |
 | Timer                                  | Temporizador                             | `common.timer.one`                                                              |
 | Settings                               | Configurações                            | `settings.page.title`                                                           |
 | Profile                                | Perfil                                   | `settings.user.profile.title`                                                   |

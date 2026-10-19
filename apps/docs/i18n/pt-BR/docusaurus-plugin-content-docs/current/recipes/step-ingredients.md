@@ -33,7 +33,7 @@ vincular as etapas que ainda não têm ingredientes. As etapas que você vinculo
 mão nunca são alteradas.
 
 O administrador pode ativar a **Vinculação de ingredientes** para receitas novas
-em **Configurações => Admin => IA**. Ela vem desligada por padrão.
+em **Configurações => Admin => IA e processamento**. Ela vem desligada por padrão.
 
 A única execução que substitui vínculos existentes é a de um administrador em
 **Enriquecer todas as receitas** com **Sobrescrever os dados existentes**

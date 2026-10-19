@@ -54,7 +54,7 @@ suporta nenhum dos dois não funciona.
 
 ### Enriquecimento automático {#automatic-enrichment}
 
-Em **Configurações => Admin => IA** você escolhe quais
+Em **Configurações => Admin => IA e processamento** você escolhe quais
 [enriquecimentos](/recipes/enrichment) são executados em toda receita nova. O
 que cada um deixa como está aparece em
 [O que o enriquecimento não altera](/recipes/enrichment#what-enrichment-leaves-alone).

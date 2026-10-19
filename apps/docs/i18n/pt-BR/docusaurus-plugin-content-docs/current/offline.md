@@ -33,13 +33,13 @@ fila.
 
 ## Alterações feitas offline {#changes-made-offline}
 
-As alterações que você faz offline esperam na caixa de saída e aparecem como
+As alterações que você faz offline ficam na fila e aparecem como
 **Na fila**. O Norish as envia quando o servidor volta. Você não precisa manter
 a página aberta.
 
 Uma alteração na fila pode ter os seguintes estados:
 
-- **Sincronizando**: aguardando envio ou sendo enviada.
+- **Sincronizando**: a alteração está aguardando envio ou sendo enviada.
 - **Requer atenção**: o envio falhou várias vezes e o Norish parou de tentar.
 - **Conflito**: a mesma coisa foi alterada antes no servidor. Confira e tente
   de novo se ainda quiser a sua alteração.
@@ -50,6 +50,6 @@ novamente** reenvia as alterações que requerem atenção ou estão em conflito
 
 ## Contas e dispositivos compartilhados {#accounts-and-shared-devices}
 
-O cache offline e a caixa de saída pertencem à conta conectada naquele
+O cache offline e a fila pertencem à conta conectada naquele
 navegador. Sair da conta descarta as alterações não enviadas e limpa o cache
 offline.

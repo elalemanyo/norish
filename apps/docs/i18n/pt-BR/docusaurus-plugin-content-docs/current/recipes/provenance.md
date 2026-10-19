@@ -45,7 +45,7 @@ escolher entre as que já existem.
 ## Como executar {#running-it}
 
 - O administrador pode ativar **Procedência da receita** para receitas novas em
-  **Configurações => Admin => IA**. Vem desligado por padrão.
+  **Configurações => Admin => IA e processamento**. Vem desligado por padrão.
 - **Descobrir a procedência**, no menu de ações da receita, executa a qualquer
   momento e substitui de uma vez o país, a região, as culinárias e a nota.
 

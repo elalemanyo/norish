@@ -30,12 +30,12 @@ alterações vale na hora. As configurações que exigem reinicialização têm 
 Norish ignora ao associar o nome de um ingrediente a um alimento. A lista é por
 idioma:
 
-- `preparation`: como um alimento é preparado, como "picado" ou "em cubos"
+- `preparation`: como um alimento é preparado, como "cortado" ou "ralado"
 - `sizes`: como "grande" ou "pequeno"
-- `approximately`: como "cerca de"
+- `approximately`: como "cerca"
 - `connectors`: palavras entre uma medida e o alimento, como "de" em "uma pitada
   de noz-moscada"
-- `joiners`: palavras entre duas preparações, como "e" em "descascado e picado"
+- `joiners`: palavras entre duas preparações, como "e" em "descascado e cortado"
 - `servedWith`: aquilo em que o alimento vem, como "em" em "atum em azeite", que
   é atum
 - `notFoods`: palavras que nunca são um alimento sozinhas, como "e" ou "com"
