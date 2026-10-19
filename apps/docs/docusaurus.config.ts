@@ -78,7 +78,10 @@ const config: Config = {
 
   i18n: {
     defaultLocale: "en",
-    locales: ["en"],
+    locales: ["en", "pt-BR"],
+    localeConfigs: {
+      "pt-BR": { label: "Português (Brasil)", htmlLang: "pt-BR" },
+    },
   },
 
   presets: [
