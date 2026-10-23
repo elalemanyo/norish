@@ -3,7 +3,7 @@
 import type { ReactNode } from "react";
 import { useEffect, useState } from "react";
 import { useTRPC } from "@/app/providers/trpc-provider";
-import Panel, { PanelPortal } from "@/components/Panel/Panel";
+import Panel, { PanelComboBoxPopover } from "@/components/Panel/Panel";
 import { ActionButton, ActionButtonGroup } from "@/components/shared/action-button";
 import { showSafeErrorToast } from "@/lib/ui/safe-error-toast";
 import {
@@ -586,31 +586,29 @@ function DatasetFoodPicker({
         placeholder={t("searchFood")}
         variant="secondary"
       />
-      <PanelPortal>
-        <ComboBox.Popover>
-          <ListBox
-            renderEmptyState={() => (
-              <p className="text-muted px-3 py-2 text-sm">
-                {term.trim().length < 2
-                  ? t("foodHint")
-                  : isFetching || search !== term.trim()
-                    ? t("searchingFoods")
-                    : t("noFoods")}
-              </p>
-            )}
-          >
-            {(option: { id: string; name: string; detail: string }) => (
-              <ListBox.Item
-                data-testid="nutrition-food-option"
-                id={option.id}
-                textValue={option.name}
-              >
-                <FoodOption detail={option.detail}>{option.name}</FoodOption>
-              </ListBox.Item>
-            )}
-          </ListBox>
-        </ComboBox.Popover>
-      </PanelPortal>
+      <PanelComboBoxPopover>
+        <ListBox
+          renderEmptyState={() => (
+            <p className="text-muted px-3 py-2 text-sm">
+              {term.trim().length < 2
+                ? t("foodHint")
+                : isFetching || search !== term.trim()
+                  ? t("searchingFoods")
+                  : t("noFoods")}
+            </p>
+          )}
+        >
+          {(option: { id: string; name: string; detail: string }) => (
+            <ListBox.Item
+              data-testid="nutrition-food-option"
+              id={option.id}
+              textValue={option.name}
+            >
+              <FoodOption detail={option.detail}>{option.name}</FoodOption>
+            </ListBox.Item>
+          )}
+        </ListBox>
+      </PanelComboBoxPopover>
     </ComboBox>
   );
 }

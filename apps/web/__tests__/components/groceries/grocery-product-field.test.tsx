@@ -114,7 +114,9 @@ vi.mock("next-intl", () => ({
   useLocale: () => "en",
 }));
 
-vi.mock("@/components/Panel/Panel", () => {
+vi.mock("@/hooks/use-is-mobile", () => ({ useIsMobile: () => false }));
+
+vi.mock("@/components/Panel/Panel", async () => {
   // The details panel is a nested Panel; here it is always open, so the
   // fields behind it are reachable without a tap.
   const Panel = ({ children }: { children: ReactNode }) => <div>{children}</div>;
@@ -122,7 +124,13 @@ vi.mock("@/components/Panel/Panel", () => {
   Panel.Body = ({ children }: { children: ReactNode }) => <div>{children}</div>;
   Panel.Footer = ({ children }: { children: ReactNode }) => <div>{children}</div>;
 
-  return { PanelPortal: ({ children }: { children: React.ReactNode }) => children, default: Panel };
+  return {
+    PanelPortal: ({ children }: { children: React.ReactNode }) => children,
+    default: Panel,
+    PanelComboBoxPopover: (
+      await vi.importActual<typeof import("@/components/Panel/Panel")>("@/components/Panel/Panel")
+    ).PanelComboBoxPopover,
+  };
 });
 
 function store(id: string, name: string, searchAddress: string | null): StoreDto {
