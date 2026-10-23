@@ -103,10 +103,7 @@ export const IngredientRow = memo(function IngredientRow({
             <span className="sr-only">{t("drawIcons.drawing")}</span>
           </span>
         ) : (
-          // A food with no icon keeps the slot empty, so every name in the list starts in line.
-          <span className="size-6 shrink-0 md:size-8">
-            <IngredientIcon src={item.icon ?? null} />
-          </span>
+          <IngredientIcon placeholder src={item.icon ?? null} />
         )}
         <div className="flex min-w-0 flex-1 flex-col gap-1">
           <div className="flex min-w-0 flex-wrap items-center gap-2">

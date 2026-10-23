@@ -1,7 +1,7 @@
 /**
  * An Ingredient Icon beside a food's name: the icon the surface read for the
  * food, or one given outright, else nothing (an empty slot only while the
- * read is on its way, a muted placeholder only where asked for); and nothing
+ * read is on its way, a muted food glyph only where asked for); and nothing
  * at all, slot included, for a reader who hid Ingredient Icons.
  */
 import type { ReactNode } from "react";
@@ -91,7 +91,7 @@ describe("IngredientIcon", () => {
     expect(mocks.asked).toEqual([]);
   });
 
-  it("shows a muted placeholder for no icon only where asked, as the panel field does", () => {
+  it("shows a muted food glyph for no icon only where asked, as the list and panel do", () => {
     const { container } = onSurface(
       [],
       <>
@@ -102,6 +102,7 @@ describe("IngredientIcon", () => {
 
     expect(container.childElementCount).toBe(1);
     expect(screen.getByTestId("ingredient-icon-placeholder")).toHaveClass("size-16");
+    expect(screen.getByTestId("ingredient-icon-placeholder").querySelector("svg")).not.toBeNull();
   });
 
   it("shows nothing, placeholder and slot included, to a reader who hid Ingredient Icons", () => {
