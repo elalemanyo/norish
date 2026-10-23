@@ -16,3 +16,7 @@ Spec: Solution 4
 - Both scopes' food sets tested, including that a whole run asks about a person-parented food and a food with an undone change, and never deletes a seeded food.
 - Running recipe foods after ticket 01 gives the same changes the old boot pass gave.
 - E2E (`ai` project): a recipe-foods run from the admin section changes a food and lists it under Changed by AI.
+
+## Comments
+
+- 2026-10-24, implemented in f2d056062. Differences: the run option is an AsyncLocalStorage scope (`overridingDecisions` in `ai-changes.ts`) that the worker opens for a whole-catalogue run, read where the markers and undos are checked, rather than a parameter threaded through every AI Change. A whole run also gives a person-named or undone-rename food its Plain Name again (the settled name is overridden, `renameToPlainName({ evenSettled })`). On a seeded food a split or not-a-food answer is skipped (`reason: "seeded"`), it gets no Plain Name, and AI's "no parent" does not drop its parent. A Clean up run (job name `clean-up`) draws no icons, which is Fill gaps' work; otherwise recipe foods is the old boot pass. The unused `addSpellingCheckJob`, `check: "spellings"` and `listSeededFoodsWithOwnSpellings` went: `checkSpellingsOf` skips a seeded food with no added spellings without asking. The spelling-check prompt's description now says it runs in a whole-catalogue Clean up.
