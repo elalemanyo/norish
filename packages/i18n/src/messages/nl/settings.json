@@ -897,6 +897,24 @@
           "conversionsDescription": "Dichtheid en stukgewicht schatten waar het ingrediënt die niet heeft",
           "icon": "Ontbrekende iconen tekenen",
           "iconDescription": "Alleen voor een ingrediënt zonder icoon, ook niet dat van zijn ouder"
+        },
+        "cleanUpCatalogue": {
+          "title": "Catalogus opschonen",
+          "description": "Vraag AI naar de ingrediënten die al in de catalogus staan.",
+          "running": "Er loopt een opschoning. Volg die in de takenwachtrij.",
+          "button": "Catalogus opschonen",
+          "intro": "AI voegt spellingen samen, kiest ouders en gewone namen en verwijdert wat geen voedsel is. Elke wijziging staat onder Gewijzigd door AI, met Ongedaan maken.",
+          "scopeLabel": "Welke ingrediënten",
+          "scopes": {
+            "recipe-foods": "Receptingrediënten",
+            "recipe-foods-description": "Ingrediënten uit recepten waarover nog niemand heeft beslist",
+            "whole-catalogue": "Hele catalogus",
+            "whole-catalogue-description": "Elk ingrediënt, ook de ingebouwde, ongeacht wat mensen kozen of ongedaan maakten. Ingebouwde worden nooit verwijderd."
+          },
+          "count": "{count, plural, one {AI vraagt naar # ingrediënt.} other {AI vraagt naar # ingrediënten.}}",
+          "start": "Opschonen",
+          "started": "{count, plural, one {# ingrediënt wordt opgeschoond} other {# ingrediënten worden opgeschoond}}",
+          "error": "Opschonen kon niet starten"
         }
       }
     },
@@ -1116,7 +1134,7 @@
       "ingredientPlainNameDescription": "Wordt naar het taalmodel gestuurd als AI de naam van een ingrediënt opschoont, met de naam en de andere schrijfwijzen erachter. Zegt wat er van een naam af moet en wat blijft.",
       "ingredientPlainNamePlaceholder": "Prompt voor het opschonen van ingrediëntnamen...",
       "ingredientSpellingCheck": "Prompt voor het controleren van vertalingen",
-      "ingredientSpellingCheckDescription": "Wordt één keer naar het taalmodel gestuurd, bij de eerste start met AI aan, voor elk ingrediënt uit de catalogus met vertalingen die mensen, imports of samenvoegingen toevoegden, met het ingrediënt, die vertalingen en per vertaling een receptregel erachter. Zegt welke het ingrediënt noemen, geen ingrediënt noemen of een ander ingrediënt noemen.",
+      "ingredientSpellingCheckDescription": "Wordt naar het taalmodel gestuurd bij het opschonen van de hele catalogus, voor elk ingrediënt uit de catalogus met vertalingen die mensen, imports of samenvoegingen toevoegden, met het ingrediënt, die vertalingen en per vertaling een receptregel erachter. Zegt welke het ingrediënt noemen, geen ingrediënt noemen of een ander ingrediënt noemen.",
       "ingredientSpellingCheckPlaceholder": "Prompt voor het controleren van vertalingen..."
     },
     "unsavedChanges": "Niet-opgeslagen wijzigingen",

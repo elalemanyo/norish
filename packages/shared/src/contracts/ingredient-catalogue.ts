@@ -73,7 +73,7 @@ export type ReviewVerdict =
   | { outcome: "distinct" }
   | { outcome: "unsure"; reason: FlagReason }
   | { outcome: "unanswered"; reason: UnansweredReason }
-  | { outcome: "skipped"; reason: "decided" | "undone" | "not-found" | "cycle" };
+  | { outcome: "skipped"; reason: "decided" | "undone" | "not-found" | "cycle" | "seeded" };
 
 export interface ReviewTrace {
   /** The plain English food AI read the name as, when it said. */

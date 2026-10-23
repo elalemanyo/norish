@@ -897,6 +897,24 @@
           "conversionsDescription": "Estimate density and piece weight where the ingredient has none",
           "icon": "Draw missing icons",
           "iconDescription": "Only for an ingredient with no icon to show, not even its parent's"
+        },
+        "cleanUpCatalogue": {
+          "title": "Clean up catalogue",
+          "description": "Ask AI about the ingredients already in the catalogue.",
+          "running": "A clean-up is running. Follow it in the Job queue.",
+          "button": "Clean up catalogue",
+          "intro": "AI merges spellings, sets parents and plain names, and removes what is not a food. Every change is listed under Changed by AI, with Undo.",
+          "scopeLabel": "Which ingredients",
+          "scopes": {
+            "recipe-foods": "Recipe foods",
+            "recipe-foods-description": "Ingredients recipes brought in that no one has decided about",
+            "whole-catalogue": "Whole catalogue",
+            "whole-catalogue-description": "Every ingredient, built-in ones too, overriding what people decided or undid. Built-in ones are never removed."
+          },
+          "count": "{count, plural, one {AI will ask about # ingredient.} other {AI will ask about # ingredients.}}",
+          "start": "Clean up",
+          "started": "{count, plural, one {Cleaning up # ingredient} other {Cleaning up # ingredients}}",
+          "error": "Could not start the clean-up"
         }
       }
     },
@@ -1116,7 +1134,7 @@
       "ingredientPlainNameDescription": "Sent to the language model when AI cleans an ingredient's name, with the name and its other spellings appended after it. Says what to take off a name and what to keep.",
       "ingredientPlainNamePlaceholder": "Prompt for cleaning ingredient names...",
       "ingredientSpellingCheck": "Ingredient translation check prompt",
-      "ingredientSpellingCheckDescription": "Sent to the language model once, at the first start with AI on, for each catalogue ingredient with translations that people, imports or merges added, with the ingredient, those translations and a recipe line using each appended after it. Says which of them name the ingredient, name no food, or name another food.",
+      "ingredientSpellingCheckDescription": "Sent to the language model by a Clean up of the whole catalogue, for each catalogue ingredient with translations that people, imports or merges added, with the ingredient, those translations and a recipe line using each appended after it. Says which of them name the ingredient, name no food, or name another food.",
       "ingredientSpellingCheckPlaceholder": "Prompt for checking ingredient translations..."
     },
     "unsavedChanges": "Unsaved changes",

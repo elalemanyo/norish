@@ -897,6 +897,24 @@
           "conversionsDescription": "Arvioi tiheys ja kappalepaino, jos ainesosalla ei ole niitä",
           "icon": "Piirrä puuttuvat kuvakkeet",
           "iconDescription": "Vain ainesosalle, jolla ei ole kuvaketta, ei edes yläkäsitteensä"
+        },
+        "cleanUpCatalogue": {
+          "title": "Siivoa luettelo",
+          "description": "Kysy tekoälyltä luettelossa jo olevista aineksista.",
+          "running": "Siivous on käynnissä. Seuraa sitä työjonossa.",
+          "button": "Siivoa luettelo",
+          "intro": "Tekoäly yhdistää kirjoitusasuja, asettaa yläkäsitteet ja selkeät nimet ja poistaa sen, mikä ei ole ruokaa. Jokainen muutos näkyy kohdassa Tekoälyn muutokset, ja sen voi kumota.",
+          "scopeLabel": "Mitkä ainekset",
+          "scopes": {
+            "recipe-foods": "Reseptien ainekset",
+            "recipe-foods-description": "Reseptien tuomat ainekset, joista kukaan ei ole päättänyt",
+            "whole-catalogue": "Koko luettelo",
+            "whole-catalogue-description": "Kaikki ainekset, myös sisäänrakennetut, välittämättä siitä, mitä ihmiset päättivät tai kumosivat. Sisäänrakennettuja ei koskaan poisteta."
+          },
+          "count": "{count, plural, one {Tekoäly kysyy # aineksesta.} other {Tekoäly kysyy # aineksesta.}}",
+          "start": "Siivoa",
+          "started": "{count, plural, one {Siivotaan # ainesta} other {Siivotaan # ainesta}}",
+          "error": "Siivousta ei voitu aloittaa"
         }
       }
     },
@@ -1116,7 +1134,7 @@
       "ingredientPlainNameDescription": "Lähetetään kielimallille, kun tekoäly siivoaa ainesosan nimen, ja nimi sekä sen muut kirjoitusasut lisätään perään. Kertoo, mitä nimestä poistetaan ja mitä jätetään.",
       "ingredientPlainNamePlaceholder": "Kehote ainesosien nimien siivoamiseen...",
       "ingredientSpellingCheck": "Käännösten tarkistuskehote",
-      "ingredientSpellingCheckDescription": "Lähetetään kielimallille kerran, ensimmäisellä käynnistyksellä tekoäly päällä, jokaisesta luettelon ainesosasta, jolla on ihmisten, tuontien tai yhdistämisten lisäämiä käännöksiä, ja ainesosa, nuo käännökset ja kustakin yksi reseptirivi lisätään perään. Kertoo, mitkä niistä nimeävät ainesosan, eivät mitään ainesosaa tai toisen ainesosan.",
+      "ingredientSpellingCheckDescription": "Lähetetään kielimallille, kun koko luettelo siivotaan, jokaisesta luettelon ainesosasta, jolla on ihmisten, tuontien tai yhdistämisten lisäämiä käännöksiä, ja ainesosa, nuo käännökset ja kustakin yksi reseptirivi lisätään perään. Kertoo, mitkä niistä nimeävät ainesosan, eivät mitään ainesosaa tai toisen ainesosan.",
       "ingredientSpellingCheckPlaceholder": "Kehote ainesosien käännösten tarkistamiseen..."
     },
     "unsavedChanges": "Tallentamattomia muutoksia",

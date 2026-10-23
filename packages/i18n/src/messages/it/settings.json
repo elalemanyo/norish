@@ -897,6 +897,24 @@
           "conversionsDescription": "Stima densità e peso per pezzo dove l'ingrediente non li ha",
           "icon": "Disegna le icone mancanti",
           "iconDescription": "Solo per un ingrediente senza icona, nemmeno quella del suo genitore"
+        },
+        "cleanUpCatalogue": {
+          "title": "Pulisci il catalogo",
+          "description": "Chiedi all'IA degli ingredienti già nel catalogo.",
+          "running": "È in corso una pulizia. Seguila nella coda dei processi.",
+          "button": "Pulisci il catalogo",
+          "intro": "L'IA unisce le grafie, imposta genitori e nomi semplici e rimuove ciò che non è un alimento. Ogni modifica è elencata in Modificato dall'IA, con Annulla.",
+          "scopeLabel": "Quali ingredienti",
+          "scopes": {
+            "recipe-foods": "Alimenti delle ricette",
+            "recipe-foods-description": "Ingredienti portati dalle ricette su cui nessuno ha deciso",
+            "whole-catalogue": "Catalogo intero",
+            "whole-catalogue-description": "Ogni ingrediente, anche quelli integrati, ignorando ciò che le persone hanno deciso o annullato. Quelli integrati non vengono mai rimossi."
+          },
+          "count": "{count, plural, one {L'IA chiederà di # ingrediente.} other {L'IA chiederà di # ingredienti.}}",
+          "start": "Pulisci",
+          "started": "{count, plural, one {Pulizia di # ingrediente} other {Pulizia di # ingredienti}}",
+          "error": "Impossibile avviare la pulizia"
         }
       }
     },
@@ -1116,7 +1134,7 @@
       "ingredientPlainNameDescription": "Inviato al modello linguistico quando l’IA pulisce il nome di un ingrediente, con il nome e le sue altre grafie aggiunti dopo. Dice cosa togliere da un nome e cosa tenere.",
       "ingredientPlainNamePlaceholder": "Prompt per pulire i nomi degli ingredienti...",
       "ingredientSpellingCheck": "Prompt di controllo delle traduzioni",
-      "ingredientSpellingCheckDescription": "Inviato una volta al modello linguistico, al primo avvio con l’IA attiva, per ogni ingrediente del catalogo con traduzioni aggiunte da persone, importazioni o unioni, con l’ingrediente, quelle traduzioni e una riga di ricetta per ciascuna aggiunti dopo. Dice quali indicano l’ingrediente, nessun alimento o un altro alimento.",
+      "ingredientSpellingCheckDescription": "Inviato al modello linguistico quando si pulisce il catalogo intero, per ogni ingrediente del catalogo con traduzioni aggiunte da persone, importazioni o unioni, con l’ingrediente, quelle traduzioni e una riga di ricetta per ciascuna aggiunti dopo. Dice quali indicano l’ingrediente, nessun alimento o un altro alimento.",
       "ingredientSpellingCheckPlaceholder": "Prompt per controllare le traduzioni degli ingredienti..."
     },
     "unsavedChanges": "Modifiche non salvate",

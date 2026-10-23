@@ -897,6 +897,24 @@
           "conversionsDescription": "Dichte und Stückgewicht schätzen, wo die Zutat keine hat",
           "icon": "Fehlende Symbole zeichnen",
           "iconDescription": "Nur für eine Zutat ohne Symbol, auch ohne das ihrer übergeordneten Zutat"
+        },
+        "cleanUpCatalogue": {
+          "title": "Katalog aufräumen",
+          "description": "Frag die KI nach den Zutaten, die schon im Katalog sind.",
+          "running": "Ein Aufräumen läuft. Verfolge es in der Job-Warteschlange.",
+          "button": "Katalog aufräumen",
+          "intro": "Die KI führt Schreibweisen zusammen, setzt Oberbegriffe und einfache Namen und entfernt, was kein Lebensmittel ist. Jede Änderung steht unter Von KI geändert, mit Rückgängig.",
+          "scopeLabel": "Welche Zutaten",
+          "scopes": {
+            "recipe-foods": "Rezeptzutaten",
+            "recipe-foods-description": "Zutaten aus Rezepten, über die noch niemand entschieden hat",
+            "whole-catalogue": "Ganzer Katalog",
+            "whole-catalogue-description": "Jede Zutat, auch die eingebauten, ungeachtet dessen, was Personen entschieden oder rückgängig gemacht haben. Eingebaute werden nie entfernt."
+          },
+          "count": "{count, plural, one {Die KI fragt nach # Zutat.} other {Die KI fragt nach # Zutaten.}}",
+          "start": "Aufräumen",
+          "started": "{count, plural, one {# Zutat wird aufgeräumt} other {# Zutaten werden aufgeräumt}}",
+          "error": "Aufräumen konnte nicht gestartet werden"
         }
       }
     },
@@ -1116,7 +1134,7 @@
       "ingredientPlainNameDescription": "Wird an das Sprachmodell gesendet, wenn die KI den Namen einer Zutat bereinigt, mit dem Namen und seinen anderen Schreibweisen dahinter. Legt fest, was von einem Namen entfernt wird und was bleibt.",
       "ingredientPlainNamePlaceholder": "Prompt zum Bereinigen von Zutatennamen...",
       "ingredientSpellingCheck": "Prompt zur Prüfung von Übersetzungen",
-      "ingredientSpellingCheckDescription": "Wird einmal an das Sprachmodell gesendet, beim ersten Start mit eingeschalteter KI, für jede Katalogzutat mit Übersetzungen, die Personen, Importe oder Zusammenführungen hinzugefügt haben, mit der Zutat, diesen Übersetzungen und je einer Rezeptzeile dahinter. Legt fest, welche die Zutat nennen, keine Zutat nennen oder eine andere Zutat nennen.",
+      "ingredientSpellingCheckDescription": "Wird beim Aufräumen des ganzen Katalogs an das Sprachmodell gesendet, für jede Katalogzutat mit Übersetzungen, die Personen, Importe oder Zusammenführungen hinzugefügt haben, mit der Zutat, diesen Übersetzungen und je einer Rezeptzeile dahinter. Legt fest, welche die Zutat nennen, keine Zutat nennen oder eine andere Zutat nennen.",
       "ingredientSpellingCheckPlaceholder": "Prompt zur Prüfung von Übersetzungen..."
     },
     "unsavedChanges": "Ungespeicherte Änderungen",

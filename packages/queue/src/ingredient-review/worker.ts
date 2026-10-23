@@ -7,8 +7,7 @@ import type { Job } from "bullmq";
 
 import type { IngredientReviewJobData } from "@norish/queue/contracts/job-types";
 import type { ModelUse } from "@norish/shared-server/ai/runtime/model-use-ledger";
-import type { SpellingCheckOutcome } from "@norish/shared-server/ingredients/spelling-check";
-import type { ReviewOutcome } from "@norish/shared/contracts/ingredient-catalogue";
+import type { CleanUpOutcome } from "@norish/shared-server/ingredients/review";
 import { SERVER_CONFIG } from "@norish/config/env-config-server";
 import {
   createModelUseLedger,
@@ -16,8 +15,7 @@ import {
   runWithModelUseLedger,
 } from "@norish/shared-server/ai/runtime/model-use-ledger";
 import { announcingTogether } from "@norish/shared-server/ingredients/changes";
-import { askAIAbout } from "@norish/shared-server/ingredients/review";
-import { checkSpellingsOf } from "@norish/shared-server/ingredients/spelling-check";
+import { askAIAbout, cleanUpOverWholeCatalogue } from "@norish/shared-server/ingredients/review";
 import { createLogger } from "@norish/shared-server/logger";
 
 import type { JobStepEvent } from "../job-steps";
@@ -25,6 +23,7 @@ import { createWorker } from "../create-worker";
 import { addMissingIconsJob } from "../ingredient-icons/producer";
 import { recordCompletedSteps } from "../job-steps";
 import { QUEUE_NAMES } from "../queue-names";
+import { CATALOGUE_CLEAN_UP } from "./producer";
 
 const log = createLogger("worker:ingredient-review");
 
@@ -33,7 +32,7 @@ export const REVIEW_STEP = "asking-ai";
 
 /** What a food's step records: the answer made and what AI was asked, a skip, or what broke. */
 export type ReviewStepDetail = { ingredientId: string; name?: string } & (
-  ReviewOutcome | SpellingCheckOutcome | { outcome: "failed"; error: string }
+  CleanUpOutcome | { outcome: "failed"; error: string }
 );
 
 /** An error's message, with the cause a wrapper hides: a failed query names the database's complaint. */
@@ -47,7 +46,7 @@ function describe(error: unknown): string {
 /** The question, asked of one food; an error is recorded on its step, and the pass goes on. */
 async function ask(
   job: Job<IngredientReviewJobData>,
-  question: (ingredientId: string) => Promise<ReviewOutcome | SpellingCheckOutcome>,
+  question: (ingredientId: string) => Promise<CleanUpOutcome>,
   ingredientId: string
 ): Promise<ReviewStepDetail> {
   try {
@@ -79,11 +78,7 @@ export async function processIngredientReviewJob(
   signal?: AbortSignal
 ): Promise<void> {
   const { ingredients: foods } = job.data;
-  // A spelling check is about seeded foods, which have their icons.
-  const { question, drawsIcons } =
-    job.data.check === "spellings"
-      ? { question: checkSpellingsOf, drawsIcons: false }
-      : { question: askAIAbout, drawsIcons: true };
+  const question = job.data.wholeCatalogue ? cleanUpOverWholeCatalogue : askAIAbout;
   const writeEvery = Math.max(1, Math.ceil(foods.length / PASS_WRITES));
   let next = 0;
   let settled = 0;
@@ -144,7 +139,8 @@ export async function processIngredientReviewJob(
   );
   await recording;
   signal?.throwIfAborted();
-  if (drawsIcons) {
+  // Drawing many is Fill gaps' work: only a mint's pass draws.
+  if (job.name !== CATALOGUE_CLEAN_UP) {
     await addMissingIconsJob(foods.flatMap((food) => (done.has(food.id) ? [food.id] : [])));
   }
 }

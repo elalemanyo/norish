@@ -897,6 +897,24 @@
           "conversionsDescription": "Estimer la densité et le poids unitaire là où l'ingrédient n'en a pas",
           "icon": "Dessiner les icônes manquantes",
           "iconDescription": "Seulement pour un ingrédient sans icône, pas même celle de son parent"
+        },
+        "cleanUpCatalogue": {
+          "title": "Nettoyer le catalogue",
+          "description": "Interroger l'IA sur les ingrédients déjà dans le catalogue.",
+          "running": "Un nettoyage est en cours. Suivez-le dans la file des tâches.",
+          "button": "Nettoyer le catalogue",
+          "intro": "L'IA fusionne les orthographes, définit les parents et les noms simples, et retire ce qui n'est pas un aliment. Chaque changement figure sous Modifié par l'IA, avec Annuler.",
+          "scopeLabel": "Quels ingrédients",
+          "scopes": {
+            "recipe-foods": "Aliments des recettes",
+            "recipe-foods-description": "Ingrédients apportés par les recettes sur lesquels personne n'a tranché",
+            "whole-catalogue": "Catalogue entier",
+            "whole-catalogue-description": "Chaque ingrédient, y compris les intégrés, sans tenir compte de ce que les personnes ont décidé ou annulé. Les intégrés ne sont jamais retirés."
+          },
+          "count": "{count, plural, one {L'IA interrogera sur # ingrédient.} other {L'IA interrogera sur # ingrédients.}}",
+          "start": "Nettoyer",
+          "started": "{count, plural, one {Nettoyage de # ingrédient} other {Nettoyage de # ingrédients}}",
+          "error": "Impossible de lancer le nettoyage"
         }
       }
     },
@@ -1116,7 +1134,7 @@
       "ingredientPlainNameDescription": "Envoyé au modèle de langage quand l’IA nettoie le nom d’un ingrédient, avec le nom et ses autres graphies ajoutés à la suite. Indique ce qu’il faut retirer d’un nom et ce qu’il faut garder.",
       "ingredientPlainNamePlaceholder": "Prompt de nettoyage des noms d’ingrédients...",
       "ingredientSpellingCheck": "Prompt de vérification des traductions",
-      "ingredientSpellingCheckDescription": "Envoyé une fois au modèle de langage, au premier démarrage avec l’IA activée, pour chaque ingrédient du catalogue ayant des traductions ajoutées par des personnes, des imports ou des fusions, avec l’ingrédient, ces traductions et une ligne de recette pour chacune ajoutés à la suite. Indique lesquelles désignent l’ingrédient, aucun aliment ou un autre aliment.",
+      "ingredientSpellingCheckDescription": "Envoyé au modèle de langage lors du nettoyage du catalogue entier, pour chaque ingrédient du catalogue ayant des traductions ajoutées par des personnes, des imports ou des fusions, avec l’ingrédient, ces traductions et une ligne de recette pour chacune ajoutés à la suite. Indique lesquelles désignent l’ingrédient, aucun aliment ou un autre aliment.",
       "ingredientSpellingCheckPlaceholder": "Prompt pour vérifier les traductions d’ingrédients..."
     },
     "unsavedChanges": "Modifications non enregistrées",

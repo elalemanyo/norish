@@ -273,8 +273,8 @@ export async function findIngredientIdsAmong(
 }
 
 /**
- * One Ingredient as an edit reads it: name, flag, owner, parent, whether its name is settled and
- * whether AI may ask about it.
+ * One Ingredient as an edit reads it: name, flag, owner, parent, whether its name is settled,
+ * whether AI may ask about it and whether it is seeded.
  */
 export async function findCatalogueIngredient(id: string): Promise<
   | (CatalogueOwner & {
@@ -285,6 +285,7 @@ export async function findCatalogueIngredient(id: string): Promise<
       parentId: string | null;
       nameSettled: boolean;
       askable: boolean;
+      seeded: boolean;
     })
   | null
 > {
@@ -298,6 +299,7 @@ export async function findCatalogueIngredient(id: string): Promise<
       parentId: ingredients.parentId,
       nameSettled: ingredients.nameSettled,
       askable: askableByAI(),
+      seeded: sql<boolean>`${ingredients.offId} is not null`,
     })
     .from(ingredients)
     .where(eq(ingredients.id, id))
@@ -331,20 +333,19 @@ export async function findCatalogueIngredientNames(
   return names;
 }
 
-/** Every seeded food holding a spelling the seed did not give it: what AI's spelling check asks about. */
-export async function listSeededFoodsWithOwnSpellings(): Promise<string[]> {
-  const rows = await db
-    .selectDistinct({ id: ingredients.id })
-    .from(ingredients)
-    .innerJoin(ingredientAliases, eq(ingredientAliases.ingredientId, ingredients.id))
-    .where(and(isNotNull(ingredients.offId), eq(ingredientAliases.seeded, false)));
+/** Every food AI may ask about: what a Clean up over recipe foods asks about. */
+export async function listAskableIngredientIds(): Promise<string[]> {
+  const rows = await db.select({ id: ingredients.id }).from(ingredients).where(askableByAI());
 
   return rows.map((row) => row.id);
 }
 
-/** Every food AI may ask about: what the first start after the upgrade asks about. */
-export async function listAskableIngredientIds(): Promise<string[]> {
-  const rows = await db.select({ id: ingredients.id }).from(ingredients).where(askableByAI());
+/** Every listed food, seeded ones included: what a Clean up over the whole catalogue asks about. */
+export async function listListedIngredientIds(): Promise<string[]> {
+  const rows = await db
+    .select({ id: ingredients.id })
+    .from(ingredients)
+    .where(ingredientIsListed());
 
   return rows.map((row) => row.id);
 }
@@ -741,14 +742,25 @@ export async function settleIngredientName(id: string): Promise<boolean> {
 }
 
 /**
- * Rename an unsettled Ingredient to its Plain Name, settled and added as a spelling, unless another
- * Ingredient took the name; the flag stays as it was. Whether it was renamed.
+ * Rename an unsettled Ingredient (any, `evenSettled`) to its Plain Name, settled and added as a
+ * spelling, unless another Ingredient took the name; the flag stays as it was. Whether it was renamed.
  */
-export async function renameToPlainName(tx: DbTransaction, id: string, name: string) {
+export async function renameToPlainName(
+  tx: DbTransaction,
+  id: string,
+  name: string,
+  { evenSettled = false } = {}
+) {
   const [row] = await tx
     .update(ingredients)
     .set({ name, nameSettled: true, version: sql`${ingredients.version} + 1` })
-    .where(and(eq(ingredients.id, id), eq(ingredients.nameSettled, false), nameIsFree(id, name)))
+    .where(
+      and(
+        eq(ingredients.id, id),
+        evenSettled ? undefined : eq(ingredients.nameSettled, false),
+        nameIsFree(id, name)
+      )
+    )
     .returning({ id: ingredients.id });
 
   if (row) {

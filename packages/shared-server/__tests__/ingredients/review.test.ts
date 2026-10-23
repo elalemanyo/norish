@@ -17,12 +17,19 @@ import type { CatalogueActor } from "@norish/shared-server/ingredients/catalogue
 import { withTransaction } from "@norish/db/drizzle";
 import { listAIChanges } from "@norish/db/repositories/ingredient-ai-changes";
 import { findIngredientByAliasId } from "@norish/db/repositories/ingredient-aliases";
+import {
+  listAskableIngredientIds,
+  listListedIngredientIds,
+} from "@norish/db/repositories/ingredient-catalogue";
 import { listJunkFolds } from "@norish/db/repositories/ingredient-junk-pile";
 import {
   findIngredientAncestors,
   mergeCatalogueIngredients,
 } from "@norish/db/repositories/ingredient-relocation";
-import { applyIngredientSeed } from "@norish/db/repositories/ingredient-seed";
+import {
+  applyIngredientSeed,
+  listSeededIngredientIds,
+} from "@norish/db/repositories/ingredient-seed";
 import {
   groceries,
   ingredientAliases,
@@ -54,7 +61,7 @@ import {
 } from "@norish/shared-server/ingredients/catalogue";
 import { onIngredientsMinted } from "@norish/shared-server/ingredients/minted";
 import { findIngredientFor, resolveIngredients } from "@norish/shared-server/ingredients/resolver";
-import { askAIAbout } from "@norish/shared-server/ingredients/review";
+import { askAIAbout, cleanUpOverWholeCatalogue } from "@norish/shared-server/ingredients/review";
 
 import {
   createTestRecipe,
@@ -2281,6 +2288,96 @@ describe("asking AI about an Ingredient", () => {
             .where(inArray(recipeIngredients.name, [text]))
         ).resolves.toHaveLength(1);
       }
+      expect(await listAIChanges()).toEqual([]);
+    });
+  });
+
+  describe("a Clean up catalogue run", () => {
+    /** A recipe food its words filed under the seeded butter, and butter's id. */
+    async function underButter(text: string) {
+      await applyIngredientSeed([seedEntry("en:butter", "butter")]);
+      const food = await flagged(text);
+
+      return { food, butter: (await listSeededIngredientIds()).get("en:butter")! };
+    }
+
+    it("asks recipe foods no person decided about, or every listed food, seeded ones included", async () => {
+      const { food, butter } = await underButter("peanut butter");
+      const frankfurter = await kept("frankfurter");
+      const grocery = await unnamed("reserve eten");
+      const listed = await listListedIngredientIds();
+
+      await expect(listAskableIngredientIds()).resolves.toEqual([food.ingredientId]);
+      expect(listed).toEqual(
+        expect.arrayContaining([food.ingredientId, butter, frankfurter.ingredientId])
+      );
+      expect(listed).not.toContain(grocery.ingredientId);
+    });
+
+    it("over the whole catalogue asks about a food a person parented, keeping the marker", async () => {
+      const { food, butter } = await underButter("peanut butter");
+
+      await setParent(actor, food.ingredientId, butter);
+      reads({ englishName: "peanut butter", parents: ["spread"], sure: true });
+
+      await expect(cleanUpOverWholeCatalogue(food.ingredientId)).resolves.toMatchObject({
+        outcome: "no-parent",
+        from: "butter",
+      });
+      await expect(parentOf(food.ingredientId)).resolves.toBeNull();
+      // Outside the run, the person's decision still holds.
+      await expect(askAIAbout(food.ingredientId)).resolves.toMatchObject({
+        outcome: "skipped",
+        reason: "decided",
+      });
+    });
+
+    it("over the whole catalogue makes a change a person undid again", async () => {
+      const { food, butter } = await underButter("peanut butter");
+
+      reads({ englishName: "peanut butter", sure: true });
+      await askAIAbout(food.ingredientId);
+      await undoAIChange(actor, (await listAIChanges())[0]!.id);
+      await expect(parentOf(food.ingredientId)).resolves.toBe(butter);
+
+      reads({ englishName: "peanut butter", sure: true });
+      await expect(cleanUpOverWholeCatalogue(food.ingredientId)).resolves.toMatchObject({
+        outcome: "no-parent",
+      });
+      await expect(parentOf(food.ingredientId)).resolves.toBeNull();
+    });
+
+    it("over the whole catalogue gives a name a person chose its Plain Name", async () => {
+      const food = await flagged("zalm");
+
+      await renameIngredient(actor, food.ingredientId, "Lekkerste Zalmmoot");
+      reads({ englishName: "salmon fillet", sure: true });
+      answers("ingredient-plain-name", { plainName: "zalmmoot" });
+
+      await expect(cleanUpOverWholeCatalogue(food.ingredientId)).resolves.toMatchObject({
+        outcome: "rename",
+        to: "zalmmoot",
+      });
+    });
+
+    it("never deletes or splits a seeded food, and checks its spellings", async () => {
+      const { butter } = await underButter("peanut butter");
+      const answered = [() => readsNoFood(true), () => splits(["milk", "cream"], "together", true)];
+
+      for (const answer of answered) {
+        answer();
+        await expect(cleanUpOverWholeCatalogue(butter)).resolves.toMatchObject({
+          outcome: "skipped",
+          reason: "seeded",
+          spellings: { outcome: "skipped", reason: "none" },
+        });
+      }
+      await expect(
+        getTestDb()
+          .select({ id: ingredients.id })
+          .from(ingredients)
+          .where(eq(ingredients.id, butter))
+      ).resolves.toHaveLength(1);
       expect(await listAIChanges()).toEqual([]);
     });
   });

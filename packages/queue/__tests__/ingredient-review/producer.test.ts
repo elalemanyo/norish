@@ -7,7 +7,12 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { AutomaticIngredientsConfig } from "@norish/config/zod/server-config";
 import { DEFAULT_AUTOMATIC_INGREDIENTS } from "@norish/config/zod/server-config";
-import { addIngredientReviewJob, queueAfterMint } from "@norish/queue/ingredient-review/producer";
+import {
+  addCatalogueCleanUpJob,
+  addIngredientReviewJob,
+  isCatalogueCleanUpRunning,
+  queueAfterMint,
+} from "@norish/queue/ingredient-review/producer";
 
 const config = vi.hoisted(() => ({
   isAIEnabled: vi.fn(async () => true),
@@ -18,13 +23,18 @@ const catalogue = vi.hoisted(() => ({
     async (ids: readonly string[]) =>
       new Map(ids.filter((id) => id !== "gone").map((id) => [id, `${id}!`]))
   ),
+  listAskableIngredientIds: vi.fn(async () => ["uien"]),
+  listListedIngredientIds: vi.fn(async () => ["uien", "onion"]),
 }));
 const icons = vi.hoisted(() => ({
   listFoodsShowingNoIcon: vi.fn(async (ids: readonly string[]) =>
     ids.map((id) => ({ id, name: `${id}!` }))
   ),
 }));
-const reviewQueue = vi.hoisted(() => ({ add: vi.fn(async () => ({ id: "pass-1" })) }));
+const reviewQueue = vi.hoisted(() => ({
+  add: vi.fn(async () => ({ id: "pass-1" })),
+  getJobs: vi.fn(async (): Promise<Array<{ name: string }>> => []),
+}));
 const iconQueue = vi.hoisted(() => ({ add: vi.fn(async () => ({ id: "icons-1" })) }));
 
 vi.mock("@norish/shared-server/config/server-config-loader", () => config);
@@ -67,6 +77,34 @@ describe("addIngredientReviewJob", () => {
     await addIngredientReviewJob(["gone"]);
 
     expect(reviewQueue.add).not.toHaveBeenCalled();
+  });
+});
+
+describe("a Clean up catalogue run", () => {
+  it("queues recipe foods as a pass, and the whole catalogue overriding decisions", async () => {
+    await expect(addCatalogueCleanUpJob("recipe-foods")).resolves.toBe(1);
+    await expect(addCatalogueCleanUpJob("whole-catalogue")).resolves.toBe(2);
+
+    expect(reviewQueue.add.mock.calls).toEqual([
+      ["clean-up", { ingredients: [{ id: "uien", name: "uien!" }] }],
+      [
+        "clean-up",
+        {
+          ingredients: [
+            { id: "uien", name: "uien!" },
+            { id: "onion", name: "onion!" },
+          ],
+          wholeCatalogue: true,
+        },
+      ],
+    ]);
+  });
+
+  it("is running while a clean-up waits or runs, not for a mint's pass", async () => {
+    reviewQueue.getJobs.mockResolvedValueOnce([{ name: "review" }]);
+    await expect(isCatalogueCleanUpRunning()).resolves.toBe(false);
+    reviewQueue.getJobs.mockResolvedValueOnce([{ name: "review" }, { name: "clean-up" }]);
+    await expect(isCatalogueCleanUpRunning()).resolves.toBe(true);
   });
 });
 

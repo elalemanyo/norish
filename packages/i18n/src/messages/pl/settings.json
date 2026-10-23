@@ -897,6 +897,24 @@
           "conversionsDescription": "Szacuj gęstość i wagę sztuki, gdy składnik ich nie ma",
           "icon": "Rysuj brakujące ikony",
           "iconDescription": "Tylko dla składnika bez ikony, nawet bez ikony rodzica"
+        },
+        "cleanUpCatalogue": {
+          "title": "Uporządkuj katalog",
+          "description": "Zapytaj AI o składniki, które są już w katalogu.",
+          "running": "Trwa porządkowanie. Śledź je w kolejce zadań.",
+          "button": "Uporządkuj katalog",
+          "intro": "AI scala pisownie, ustawia nadrzędne i proste nazwy oraz usuwa to, co nie jest jedzeniem. Każda zmiana jest na liście Zmienione przez AI, z opcją Cofnij.",
+          "scopeLabel": "Które składniki",
+          "scopes": {
+            "recipe-foods": "Składniki z przepisów",
+            "recipe-foods-description": "Składniki z przepisów, o których nikt jeszcze nie zdecydował",
+            "whole-catalogue": "Cały katalog",
+            "whole-catalogue-description": "Każdy składnik, także wbudowane, bez względu na to, co ludzie zdecydowali lub cofnęli. Wbudowane nigdy nie są usuwane."
+          },
+          "count": "{count, plural, one {AI zapyta o # składnik.} few {AI zapyta o # składniki.} many {AI zapyta o # składników.} other {AI zapyta o # składnika.}}",
+          "start": "Uporządkuj",
+          "started": "{count, plural, one {Porządkowanie # składnika} other {Porządkowanie # składników}}",
+          "error": "Nie udało się rozpocząć porządkowania"
         }
       }
     },
@@ -1116,7 +1134,7 @@
       "ingredientPlainNameDescription": "Wysyłany do modelu językowego, gdy AI porządkuje nazwę składnika; nazwa i jej inne zapisy są dołączane po nim. Mówi, co usunąć z nazwy, a co zostawić.",
       "ingredientPlainNamePlaceholder": "Prompt porządkowania nazw składników...",
       "ingredientSpellingCheck": "Prompt sprawdzania tłumaczeń",
-      "ingredientSpellingCheckDescription": "Wysyłany raz do modelu językowego, przy pierwszym uruchomieniu z włączonym AI, dla każdego składnika z katalogu z tłumaczeniami dodanymi przez osoby, importy lub scalenia; składnik, te tłumaczenia i po jednym wierszu przepisu dla każdego są dołączane po nim. Mówi, które z nich nazywają składnik, żaden składnik lub inny składnik.",
+      "ingredientSpellingCheckDescription": "Wysyłany do modelu językowego podczas porządkowania całego katalogu, dla każdego składnika z katalogu z tłumaczeniami dodanymi przez osoby, importy lub scalenia; składnik, te tłumaczenia i po jednym wierszu przepisu dla każdego są dołączane po nim. Mówi, które z nich nazywają składnik, żaden składnik lub inny składnik.",
       "ingredientSpellingCheckPlaceholder": "Prompt do sprawdzania tłumaczeń składników..."
     },
     "unsavedChanges": "Niezapisane zmiany",

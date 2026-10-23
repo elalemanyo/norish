@@ -897,6 +897,24 @@
           "conversionsDescription": "Estimar densidade e peso por unidade onde o ingrediente não tem",
           "icon": "Desenhar ícones ausentes",
           "iconDescription": "Só para um ingrediente sem ícone, nem mesmo o do pai"
+        },
+        "cleanUpCatalogue": {
+          "title": "Limpar o catálogo",
+          "description": "Perguntar à IA sobre os ingredientes que já estão no catálogo.",
+          "running": "Uma limpeza está em andamento. Acompanhe na fila de tarefas.",
+          "button": "Limpar o catálogo",
+          "intro": "A IA junta grafias, define pais e nomes simples e remove o que não é alimento. Cada mudança aparece em Alterado pela IA, com Desfazer.",
+          "scopeLabel": "Quais ingredientes",
+          "scopes": {
+            "recipe-foods": "Alimentos das receitas",
+            "recipe-foods-description": "Ingredientes trazidos pelas receitas sobre os quais ninguém decidiu",
+            "whole-catalogue": "Catálogo inteiro",
+            "whole-catalogue-description": "Todos os ingredientes, inclusive os embutidos, ignorando o que as pessoas decidiram ou desfizeram. Os embutidos nunca são removidos."
+          },
+          "count": "{count, plural, one {A IA vai perguntar sobre # ingrediente.} other {A IA vai perguntar sobre # ingredientes.}}",
+          "start": "Limpar",
+          "started": "{count, plural, one {Limpando # ingrediente} other {Limpando # ingredientes}}",
+          "error": "Não foi possível iniciar a limpeza"
         }
       }
     },
@@ -1116,7 +1134,7 @@
       "ingredientPlainNameDescription": "Enviado ao modelo de linguagem quando a IA limpa o nome de um ingrediente, com o nome e suas outras grafias anexados depois. Diz o que tirar de um nome e o que manter.",
       "ingredientPlainNamePlaceholder": "Prompt para limpar nomes de ingredientes...",
       "ingredientSpellingCheck": "Prompt de verificação de traduções",
-      "ingredientSpellingCheckDescription": "Enviado uma vez ao modelo de linguagem, na primeira inicialização com a IA ligada, para cada ingrediente do catálogo com traduções que pessoas, importações ou mesclagens adicionaram, com o ingrediente, essas traduções e uma linha de receita de cada uma anexados depois. Diz quais nomeiam o ingrediente, nenhum alimento ou outro alimento.",
+      "ingredientSpellingCheckDescription": "Enviado ao modelo de linguagem ao limpar o catálogo inteiro, para cada ingrediente do catálogo com traduções que pessoas, importações ou mesclagens adicionaram, com o ingrediente, essas traduções e uma linha de receita de cada uma anexados depois. Diz quais nomeiam o ingrediente, nenhum alimento ou outro alimento.",
       "ingredientSpellingCheckPlaceholder": "Prompt para verificar traduções de ingredientes..."
     },
     "unsavedChanges": "Alterações não salvas",

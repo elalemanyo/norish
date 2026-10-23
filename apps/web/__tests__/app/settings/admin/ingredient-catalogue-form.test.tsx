@@ -19,6 +19,9 @@ vi.mock("@/app/(app)/settings/admin/context", () => ({
 }));
 
 vi.mock("next-intl", () => ({ useTranslations: () => (key: string) => key }));
+vi.mock("@/app/(app)/settings/admin/components/clean-up-catalogue", () => ({
+  default: () => null,
+}));
 
 const { default: IngredientCatalogueForm } =
   await import("@/app/(app)/settings/admin/components/ingredient-catalogue-form");

@@ -144,11 +144,11 @@ export interface IngredientIconsJobData {
 }
 
 /**
- * The AI pass over these foods (ADR-0037, amended 2026-10-17), queued after a mint and nightly,
- * by id and by name, so the job monitor reads "uitjes" rather than an id. No person asks.
+ * The AI pass over these foods (ADR-0037), queued after a mint or by Clean up catalogue, by id and
+ * by name, so the job monitor reads "uitjes" rather than an id.
  */
 export interface IngredientReviewJobData {
   ingredients: Array<{ id: string; name: string }>;
-  /** What is asked: what each food is, or which of a seeded food's added spellings name it. */
-  check?: "spellings";
+  /** A Clean up over the whole catalogue: decisions and undos overridden, seeded spellings checked. */
+  wholeCatalogue?: true;
 }

@@ -897,6 +897,24 @@
           "conversionsDescription": "Estimér densitet og stykvægt, hvor ingrediensen ikke har nogen",
           "icon": "Tegn manglende ikoner",
           "iconDescription": "Kun for en ingrediens uden ikon, heller ikke dens forælders"
+        },
+        "cleanUpCatalogue": {
+          "title": "Ryd op i kataloget",
+          "description": "Spørg AI om de ingredienser, der allerede er i kataloget.",
+          "running": "En oprydning kører. Følg den i jobkøen.",
+          "button": "Ryd op i kataloget",
+          "intro": "AI slår stavemåder sammen, sætter overordnede og enkle navne og fjerner det, der ikke er mad. Hver ændring står under Ændret af AI, med Fortryd.",
+          "scopeLabel": "Hvilke ingredienser",
+          "scopes": {
+            "recipe-foods": "Opskriftsingredienser",
+            "recipe-foods-description": "Ingredienser fra opskrifter, som ingen har taget stilling til",
+            "whole-catalogue": "Hele kataloget",
+            "whole-catalogue-description": "Alle ingredienser, også de indbyggede, uanset hvad folk har besluttet eller fortrudt. Indbyggede fjernes aldrig."
+          },
+          "count": "{count, plural, one {AI spørger om # ingrediens.} other {AI spørger om # ingredienser.}}",
+          "start": "Ryd op",
+          "started": "{count, plural, one {Rydder op i # ingrediens} other {Rydder op i # ingredienser}}",
+          "error": "Oprydningen kunne ikke startes"
         }
       }
     },
@@ -1116,7 +1134,7 @@
       "ingredientPlainNameDescription": "Sendes til sprogmodellen, når AI rydder op i en ingrediens’ navn, med navnet og dets andre stavemåder tilføjet efter. Siger, hvad der skal fjernes fra et navn, og hvad der skal blive.",
       "ingredientPlainNamePlaceholder": "Prompt til oprydning af ingrediensnavne...",
       "ingredientSpellingCheck": "Prompt til kontrol af oversættelser",
-      "ingredientSpellingCheckDescription": "Sendes én gang til sprogmodellen, ved første start med AI slået til, for hver ingrediens fra kataloget med oversættelser, som personer, importer eller sammenlægninger har tilføjet, med ingrediensen, de oversættelser og en opskriftslinje for hver tilføjet efter. Siger, hvilke der navngiver ingrediensen, ingen ingrediens eller en anden ingrediens.",
+      "ingredientSpellingCheckDescription": "Sendes til sprogmodellen, når hele kataloget ryddes op, for hver ingrediens fra kataloget med oversættelser, som personer, importer eller sammenlægninger har tilføjet, med ingrediensen, de oversættelser og en opskriftslinje for hver tilføjet efter. Siger, hvilke der navngiver ingrediensen, ingen ingrediens eller en anden ingrediens.",
       "ingredientSpellingCheckPlaceholder": "Prompt til kontrol af oversættelser..."
     },
     "unsavedChanges": "Ugemte ændringer",

@@ -10,6 +10,7 @@ import type { AutomaticIngredientsConfig } from "@norish/config/zod/server-confi
 import { DEFAULT_AUTOMATIC_INGREDIENTS } from "@norish/config/zod/server-config";
 
 import { useAdminSettingsContext } from "../context";
+import CleanUpCatalogue from "./clean-up-catalogue";
 
 interface IngredientCatalogueFormProps {
   onDirtyChange?: (isDirty: boolean) => void;
@@ -131,6 +132,8 @@ export default function IngredientCatalogueForm({ onDirtyChange }: IngredientCat
           {tActions("save")}
         </Button>
       </div>
+
+      <CleanUpCatalogue />
     </div>
   );
 }

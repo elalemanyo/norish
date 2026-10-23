@@ -897,6 +897,24 @@
           "conversionsDescription": "재료에 없는 경우 밀도와 개당 무게 추정",
           "icon": "누락된 아이콘 그리기",
           "iconDescription": "상위 항목의 아이콘도 없는 재료에만 그립니다"
+        },
+        "cleanUpCatalogue": {
+          "title": "카탈로그 정리",
+          "description": "카탈로그에 이미 있는 재료에 대해 AI에게 묻습니다.",
+          "running": "정리가 진행 중입니다. 작업 대기열에서 확인하세요.",
+          "button": "카탈로그 정리",
+          "intro": "AI가 표기를 합치고, 상위 재료와 간단한 이름을 정하고, 음식이 아닌 것을 삭제합니다. 모든 변경은 AI가 변경함 목록에 실행 취소와 함께 표시됩니다.",
+          "scopeLabel": "대상 재료",
+          "scopes": {
+            "recipe-foods": "레시피 재료",
+            "recipe-foods-description": "레시피에서 들어왔고 아무도 결정하지 않은 재료",
+            "whole-catalogue": "전체 카탈로그",
+            "whole-catalogue-description": "기본 제공 재료를 포함한 모든 재료로, 사람이 결정하거나 실행 취소한 내용을 무시합니다. 기본 제공 재료는 삭제되지 않습니다."
+          },
+          "count": "{count, plural, other {AI가 재료 #개에 대해 묻습니다.}}",
+          "start": "정리",
+          "started": "{count, plural, other {재료 #개를 정리하는 중}}",
+          "error": "정리를 시작할 수 없습니다"
         }
       }
     },
@@ -1116,7 +1134,7 @@
       "ingredientPlainNameDescription": "AI가 재료 이름을 정리할 때 언어 모델에 보내며, 그 뒤에 이름과 다른 표기가 붙습니다. 이름에서 무엇을 지우고 무엇을 남길지 정합니다.",
       "ingredientPlainNamePlaceholder": "재료 이름 정리 프롬프트...",
       "ingredientSpellingCheck": "번역 확인 프롬프트",
-      "ingredientSpellingCheckDescription": "AI가 켜진 첫 시작 때 한 번, 사람이나 가져오기, 병합이 추가한 번역이 있는 카탈로그 식재료마다 언어 모델에 보내며, 그 뒤에 식재료와 그 번역, 번역마다 레시피 한 줄이 붙습니다. 어떤 번역이 그 식재료를 가리키는지, 식재료가 아닌지, 다른 식재료인지 정합니다.",
+      "ingredientSpellingCheckDescription": "전체 카탈로그를 정리할 때, 사람이나 가져오기, 병합이 추가한 번역이 있는 카탈로그 식재료마다 언어 모델에 보내며, 그 뒤에 식재료와 그 번역, 번역마다 레시피 한 줄이 붙습니다. 어떤 번역이 그 식재료를 가리키는지, 식재료가 아닌지, 다른 식재료인지 정합니다.",
       "ingredientSpellingCheckPlaceholder": "식재료 번역 확인 프롬프트..."
     },
     "unsavedChanges": "저장되지 않은 변경사항",
