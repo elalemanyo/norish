@@ -343,6 +343,25 @@ describe("workOutNutrition", () => {
     ).toMatchObject({ perServing: { calories: 360 }, credits: [], household: true });
   });
 
+  it("counts AI's estimate as borrowed, credited to no dataset and no household", () => {
+    const estimated = new Map(NUTRITION);
+
+    estimated.set("rice", {
+      numbers: fact(per100g(350, 1, 78, 7), { kind: "ai" }),
+      pieceWeight: null,
+      density: null,
+    });
+
+    expect(
+      workOutNutrition({
+        lines: [line(100, "gram", "rice")],
+        servings: 1,
+        nutrition: estimated,
+        seasoning: phrases,
+      })
+    ).toMatchObject({ estimated: true, credits: [], household: false });
+  });
+
   describe("with the language model's estimate of the lines left out", () => {
     const oil = line(null, null, "olive-oil", "olive oil for frying");
     const brandy = line(50, "milliliter", "brandy", "brandy");

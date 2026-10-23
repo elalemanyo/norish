@@ -467,7 +467,8 @@
         "name": "{food} · {dataset}, gevonden op naam",
         "householdFood": "{food} · {dataset}, gekozen door je huishouden",
         "household": "De eigen waarden van je huishouden",
-        "taxonomy": "Open Food Facts"
+        "taxonomy": "Open Food Facts",
+        "ai": "Geschat door AI"
       },
       "correct": "Corrigeren",
       "correctTitle": "{name} corrigeren",
@@ -1135,7 +1136,10 @@
       "ingredientPlainNamePlaceholder": "Prompt voor het opschonen van ingrediëntnamen...",
       "ingredientSpellingCheck": "Prompt voor het controleren van vertalingen",
       "ingredientSpellingCheckDescription": "Wordt naar het taalmodel gestuurd bij het opschonen van de hele catalogus, voor elk ingrediënt uit de catalogus met vertalingen die mensen, imports of samenvoegingen toevoegden, met het ingrediënt, die vertalingen en per vertaling een receptregel erachter. Zegt welke het ingrediënt noemen, geen ingrediënt noemen of een ander ingrediënt noemen.",
-      "ingredientSpellingCheckPlaceholder": "Prompt voor het controleren van vertalingen..."
+      "ingredientSpellingCheckPlaceholder": "Prompt voor het controleren van vertalingen...",
+      "ingredientNutrition": "Prompt voor de voedingswaarde van ingrediënten",
+      "ingredientNutritionDescription": "Wordt naar het taalmodel gestuurd voor een ingrediënt zonder eigen voedingswaarde, dichtheid of stukgewicht, waar AI die mag aanvullen, met het ingrediënt en waar het een soort van is erachter. Schat alleen wat het ingrediënt mist.",
+      "ingredientNutritionPlaceholder": "Prompt voor het schatten van de voedingswaarde van een ingrediënt..."
     },
     "unsavedChanges": "Niet-opgeslagen wijzigingen",
     "jsonEditor": {
@@ -1189,6 +1193,7 @@
         "saving-link": "Save the link",
         "asking-ai": "Ask AI about the food",
         "drawing-icon": "Het icoon van het voedingsmiddel tekenen",
+        "filling-gaps": "De gaten van het voedingsmiddel aanvullen",
         "naming": "Naam van het ingrediënt opschonen"
       },
       "queues": {
@@ -1206,7 +1211,8 @@
         "image-generation": "Afbeeldingen genereren",
         "store-lookup": "Winkelopzoeking",
         "ingredient-review": "AI vragen over ingrediënten",
-        "ingredient-icons": "Ingrediënticonen tekenen"
+        "ingredient-icons": "Ingrediënticonen tekenen",
+        "ingredient-fill": "Gaten in ingrediënten aanvullen"
       },
       "summary": {
         "failed": "{count} failed"

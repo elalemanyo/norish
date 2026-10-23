@@ -467,7 +467,8 @@
         "name": "{food} · {dataset}, 이름으로 찾음",
         "householdFood": "{food} · {dataset}, 우리 가구가 선택",
         "household": "우리 가구의 자체 값",
-        "taxonomy": "Open Food Facts"
+        "taxonomy": "Open Food Facts",
+        "ai": "AI 추정"
       },
       "correct": "수정",
       "correctTitle": "{name} 수정",
@@ -1135,7 +1136,10 @@
       "ingredientPlainNamePlaceholder": "재료 이름 정리 프롬프트...",
       "ingredientSpellingCheck": "번역 확인 프롬프트",
       "ingredientSpellingCheckDescription": "전체 카탈로그를 정리할 때, 사람이나 가져오기, 병합이 추가한 번역이 있는 카탈로그 식재료마다 언어 모델에 보내며, 그 뒤에 식재료와 그 번역, 번역마다 레시피 한 줄이 붙습니다. 어떤 번역이 그 식재료를 가리키는지, 식재료가 아닌지, 다른 식재료인지 정합니다.",
-      "ingredientSpellingCheckPlaceholder": "식재료 번역 확인 프롬프트..."
+      "ingredientSpellingCheckPlaceholder": "식재료 번역 확인 프롬프트...",
+      "ingredientNutrition": "식재료 영양 프롬프트",
+      "ingredientNutritionDescription": "AI가 채울 수 있을 때, 자체 영양 정보나 밀도, 개당 무게가 없는 식재료에 대해 언어 모델에 보내며, 그 뒤에 식재료와 그것이 어떤 종류인지가 붙습니다. 식재료에 없는 것만 추정합니다.",
+      "ingredientNutritionPlaceholder": "식재료 영양 추정 프롬프트..."
     },
     "unsavedChanges": "저장되지 않은 변경사항",
     "jsonEditor": {
@@ -1189,6 +1193,7 @@
         "saving-link": "Save the link",
         "asking-ai": "Ask AI about the food",
         "drawing-icon": "식품 아이콘 그리기",
+        "filling-gaps": "식재료의 빈 정보 채우기",
         "naming": "식품 이름 정리"
       },
       "queues": {
@@ -1206,7 +1211,8 @@
         "image-generation": "이미지 생성",
         "store-lookup": "매장 조회",
         "ingredient-review": "AI에게 재료 묻기",
-        "ingredient-icons": "재료 아이콘 그리기"
+        "ingredient-icons": "재료 아이콘 그리기",
+        "ingredient-fill": "식재료 빈 정보 채우기"
       },
       "summary": {
         "failed": "{count} failed"

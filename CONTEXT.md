@@ -237,7 +237,7 @@ The single seam through which Norish issues a model request — structured gener
 _Avoid_: AI executor (names the deleted prototype that had no callers), AI client (suggests a per-provider object, which is what the runtime hides)
 
 **Prompt**:
-The administrator-editable base every language-model request starts from. There are fourteen, one per request shape, each stored in configuration with a shipped default, and the runtime will not accept a finished prompt string in their place — which is what makes every request tunable by construction (ADR-0016). A Decision is the one request shape that has none: its criteria are the domain's own option set and its instructions are code-owned, so there is no wording to tune (ADR-0035).
+The administrator-editable base every language-model request starts from. There are seventeen, one per request shape, each stored in configuration with a shipped default, and the runtime will not accept a finished prompt string in their place — which is what makes every request tunable by construction (ADR-0016). A Decision is the one request shape that has none: its criteria are the domain's own option set and its instructions are code-owned, so there is no wording to tune (ADR-0035).
 _Avoid_: Prompt template (implies placeholders a feature fills; a Prompt is appended to, not filled in)
 
 **Prompt Section**:

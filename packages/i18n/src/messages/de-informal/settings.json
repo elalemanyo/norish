@@ -465,6 +465,7 @@
         "fix": "{food} · {dataset}, von Norish gewählt",
         "name": "{food} · {dataset}, über den Namen gefunden",
         "taxonomy": "Open Food Facts",
+        "ai": "Von KI geschätzt",
         "householdFood": "{food} · {dataset}, von deinem Haushalt gewählt",
         "household": "Die eigenen Werte deines Haushalts"
       },
@@ -1135,7 +1136,10 @@
       "ingredientPlainNamePlaceholder": "Prompt zum Bereinigen von Zutatennamen...",
       "ingredientSpellingCheck": "Prompt zur Prüfung von Übersetzungen",
       "ingredientSpellingCheckDescription": "Wird beim Aufräumen des ganzen Katalogs an das Sprachmodell gesendet, für jede Katalogzutat mit Übersetzungen, die Personen, Importe oder Zusammenführungen hinzugefügt haben, mit der Zutat, diesen Übersetzungen und je einer Rezeptzeile dahinter. Legt fest, welche die Zutat nennen, keine Zutat nennen oder eine andere Zutat nennen.",
-      "ingredientSpellingCheckPlaceholder": "Prompt zur Prüfung von Übersetzungen..."
+      "ingredientSpellingCheckPlaceholder": "Prompt zur Prüfung von Übersetzungen...",
+      "ingredientNutrition": "Prompt für Nährwerte von Zutaten",
+      "ingredientNutritionDescription": "Wird an das Sprachmodell gesendet für eine Zutat ohne eigene Nährwerte, Dichte oder Stückgewicht, wo die KI sie ergänzen darf, mit der Zutat und wovon sie eine Art ist dahinter. Schätzt nur, was der Zutat fehlt.",
+      "ingredientNutritionPlaceholder": "Prompt zum Schätzen der Nährwerte einer Zutat..."
     },
     "unsavedChanges": "Ungespeicherte Änderungen",
     "jsonEditor": {
@@ -1189,6 +1193,7 @@
         "saving-link": "Save the link",
         "asking-ai": "Ask AI about the food",
         "drawing-icon": "Symbol des Lebensmittels zeichnen",
+        "filling-gaps": "Lücken des Lebensmittels füllen",
         "naming": "Namen der Zutat bereinigen"
       },
       "queues": {
@@ -1206,7 +1211,8 @@
         "image-generation": "Bildgenerierung",
         "store-lookup": "Geschäftsabfrage",
         "ingredient-review": "KI zu Zutaten fragen",
-        "ingredient-icons": "Zutatensymbole zeichnen"
+        "ingredient-icons": "Zutatensymbole zeichnen",
+        "ingredient-fill": "Lücken bei Zutaten füllen"
       },
       "summary": {
         "failed": "{count} failed"

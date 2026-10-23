@@ -575,6 +575,13 @@
       "when": 1792673372827,
       "tag": "0081_junk_pile",
       "breakpoints": true
+    },
+    {
+      "idx": 82,
+      "version": "7",
+      "when": 1792794957107,
+      "tag": "0082_ingredient_nutrition_estimates",
+      "breakpoints": true
     }
   ]
 }

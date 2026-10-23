@@ -143,6 +143,12 @@ export interface IngredientIconsJobData {
   } | null;
 }
 
+/** AI filling these foods' gaps (Fill Gaps), by id and by name, and which gaps it fills. */
+export interface IngredientFillJobData {
+  ingredients: Array<{ id: string; name: string }>;
+  asked: { nutrition: boolean; conversions: boolean };
+}
+
 /**
  * The AI pass over these foods (ADR-0037), queued after a mint or by Clean up catalogue, by id and
  * by name, so the job monitor reads "uitjes" rather than an id.

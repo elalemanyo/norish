@@ -467,7 +467,8 @@
         "name": "{food} · {dataset}, matched by name",
         "householdFood": "{food} · {dataset}, your household's choice",
         "household": "Your household's own numbers",
-        "taxonomy": "Open Food Facts"
+        "taxonomy": "Open Food Facts",
+        "ai": "Estimated by AI"
       },
       "correct": "Correct",
       "correctTitle": "Correct {name}",
@@ -1135,7 +1136,10 @@
       "ingredientPlainNamePlaceholder": "Prompt for cleaning ingredient names...",
       "ingredientSpellingCheck": "Ingredient translation check prompt",
       "ingredientSpellingCheckDescription": "Sent to the language model by a Clean up of the whole catalogue, for each catalogue ingredient with translations that people, imports or merges added, with the ingredient, those translations and a recipe line using each appended after it. Says which of them name the ingredient, name no food, or name another food.",
-      "ingredientSpellingCheckPlaceholder": "Prompt for checking ingredient translations..."
+      "ingredientSpellingCheckPlaceholder": "Prompt for checking ingredient translations...",
+      "ingredientNutrition": "Ingredient nutrition prompt",
+      "ingredientNutritionDescription": "Sent to the language model for an ingredient missing its nutrition, density or piece weight, where AI may fill them, with the ingredient and what it is a kind of appended after it. Estimates only what the ingredient is missing.",
+      "ingredientNutritionPlaceholder": "Prompt for estimating an ingredient's nutrition..."
     },
     "unsavedChanges": "Unsaved changes",
     "jsonEditor": {
@@ -1189,6 +1193,7 @@
         "saving-link": "Save the link",
         "asking-ai": "Ask AI about the food",
         "drawing-icon": "Draw the food's icon",
+        "filling-gaps": "Fill the food's gaps",
         "naming": "Clean the food's name"
       },
       "queues": {
@@ -1206,7 +1211,8 @@
         "image-generation": "Image generation",
         "store-lookup": "Store lookup",
         "ingredient-review": "Ask AI about ingredients",
-        "ingredient-icons": "Draw ingredient icons"
+        "ingredient-icons": "Draw ingredient icons",
+        "ingredient-fill": "Fill ingredient gaps"
       },
       "summary": {
         "failed": "{count} failed"

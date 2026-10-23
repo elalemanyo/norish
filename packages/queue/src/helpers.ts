@@ -70,3 +70,11 @@ export async function removeRetainedTerminalJob<T>(
     throw new Error(`Could not remove retained job ${jobId}`, { cause: err });
   }
 }
+
+/** An error's message, with the cause a wrapper hides: a failed query names the database's complaint. */
+export function describeError(error: unknown): string {
+  if (!(error instanceof Error)) return String(error);
+  const cause = error.cause instanceof Error ? error.cause.message : null;
+
+  return cause ? `${error.message}: ${cause}` : error.message;
+}

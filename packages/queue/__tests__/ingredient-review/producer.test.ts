@@ -136,12 +136,4 @@ describe("queueAfterMint", () => {
       actor: null,
     });
   });
-
-  it("queues no AI job for the fills alone, which nothing does yet", async () => {
-    automatic({ nutrition: true, conversions: true });
-    await queueAfterMint(["uien"]);
-
-    expect(reviewQueue.add).not.toHaveBeenCalled();
-    expect(iconQueue.add).not.toHaveBeenCalled();
-  });
 });

@@ -30,6 +30,7 @@ const PROMPT_FIELDS = {
   "ingredient-icon-style": "ingredientIconStyle",
   "ingredient-plain-name": "ingredientPlainName",
   "ingredient-spelling-check": "ingredientSpellingCheck",
+  "ingredient-nutrition": "ingredientNutrition",
 } as const satisfies Record<string, PromptConfigField>;
 
 export type PromptName = keyof typeof PROMPT_FIELDS;
@@ -60,6 +61,7 @@ export function loadDefaultPrompts(): PromptValues {
     ingredientIconStyle: readDefaultPrompt("ingredient-icon-style"),
     ingredientPlainName: readDefaultPrompt("ingredient-plain-name"),
     ingredientSpellingCheck: readDefaultPrompt("ingredient-spelling-check"),
+    ingredientNutrition: readDefaultPrompt("ingredient-nutrition"),
   };
 }
 

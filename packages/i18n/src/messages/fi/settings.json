@@ -467,7 +467,8 @@
         "name": "{food} · {dataset}, löydetty nimellä",
         "householdFood": "{food} · {dataset}, kotitaloutesi valitsema",
         "household": "Kotitaloutesi omat arvot",
-        "taxonomy": "Open Food Facts"
+        "taxonomy": "Open Food Facts",
+        "ai": "Tekoälyn arvio"
       },
       "correct": "Korjaa",
       "correctTitle": "Korjaa {name}",
@@ -1135,7 +1136,10 @@
       "ingredientPlainNamePlaceholder": "Kehote ainesosien nimien siivoamiseen...",
       "ingredientSpellingCheck": "Käännösten tarkistuskehote",
       "ingredientSpellingCheckDescription": "Lähetetään kielimallille, kun koko luettelo siivotaan, jokaisesta luettelon ainesosasta, jolla on ihmisten, tuontien tai yhdistämisten lisäämiä käännöksiä, ja ainesosa, nuo käännökset ja kustakin yksi reseptirivi lisätään perään. Kertoo, mitkä niistä nimeävät ainesosan, eivät mitään ainesosaa tai toisen ainesosan.",
-      "ingredientSpellingCheckPlaceholder": "Kehote ainesosien käännösten tarkistamiseen..."
+      "ingredientSpellingCheckPlaceholder": "Kehote ainesosien käännösten tarkistamiseen...",
+      "ingredientNutrition": "Ainesosien ravintoarvokehote",
+      "ingredientNutritionDescription": "Lähetetään kielimallille ainesosasta, jolta puuttuu oma ravintoarvo, tiheys tai kappalepaino, kun tekoäly saa täydentää ne, ja ainesosa sekä se, minkä lajia se on, lisätään perään. Arvioi vain sen, mitä ainesosalta puuttuu.",
+      "ingredientNutritionPlaceholder": "Kehote ainesosan ravintoarvon arvioimiseen..."
     },
     "unsavedChanges": "Tallentamattomia muutoksia",
     "jsonEditor": {
@@ -1189,6 +1193,7 @@
         "saving-link": "Tallenna linkki",
         "asking-ai": "Ask AI about the food",
         "drawing-icon": "Piirrä ruoan kuvake",
+        "filling-gaps": "Täydennä ruoka-aineen aukot",
         "naming": "Siivoa ruoka-aineen nimi"
       },
       "queues": {
@@ -1206,7 +1211,8 @@
         "image-generation": "Kuvien luonti",
         "store-lookup": "Kaupan haku",
         "ingredient-review": "Kysy tekoälyltä ainesosista",
-        "ingredient-icons": "Ainesosien kuvakkeiden piirto"
+        "ingredient-icons": "Ainesosien kuvakkeiden piirto",
+        "ingredient-fill": "Ainesosien aukkojen täydennys"
       },
       "summary": {
         "failed": "{count} epäonnistui"

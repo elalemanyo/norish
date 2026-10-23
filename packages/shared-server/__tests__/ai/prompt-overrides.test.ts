@@ -32,6 +32,7 @@ const DEFAULTS: PromptValues = {
   ingredientIconStyle: "Draw the food.",
   ingredientPlainName: "Tidy the name.",
   ingredientSpellingCheck: "Check the spellings.",
+  ingredientNutrition: "Estimate the food.",
 };
 
 describe("isSamePromptText", () => {

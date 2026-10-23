@@ -1,6 +1,6 @@
 /**
  * The AI pass over Ingredients (ADR-0037, amended 2026-10-17): a step per food, each answer an AI
- * Change, then the foods still there and showing no icon go to the icons queue.
+ * Change, then the foods it answered for and still there get their missing icon and gaps.
  */
 
 import type { Job } from "bullmq";
@@ -20,7 +20,8 @@ import { createLogger } from "@norish/shared-server/logger";
 
 import type { JobStepEvent } from "../job-steps";
 import { createWorker } from "../create-worker";
-import { addMissingIconsJob } from "../ingredient-icons/producer";
+import { describeError } from "../helpers";
+import { queueIconAndFills } from "../ingredient-fill/producer";
 import { recordCompletedSteps } from "../job-steps";
 import { QUEUE_NAMES } from "../queue-names";
 import { CATALOGUE_CLEAN_UP } from "./producer";
@@ -35,14 +36,6 @@ export type ReviewStepDetail = { ingredientId: string; name?: string } & (
   CleanUpOutcome | { outcome: "failed"; error: string }
 );
 
-/** An error's message, with the cause a wrapper hides: a failed query names the database's complaint. */
-function describe(error: unknown): string {
-  if (!(error instanceof Error)) return String(error);
-  const cause = error.cause instanceof Error ? error.cause.message : null;
-
-  return cause ? `${error.message}: ${cause}` : error.message;
-}
-
 /** The question, asked of one food; an error is recorded on its step, and the pass goes on. */
 async function ask(
   job: Job<IngredientReviewJobData>,
@@ -54,7 +47,7 @@ async function ask(
   } catch (error) {
     log.error({ err: error, jobId: job.id, ingredientId }, "Asking AI about a food failed");
 
-    return { ingredientId, outcome: "failed" as const, error: describe(error) };
+    return { ingredientId, outcome: "failed" as const, error: describeError(error) };
   }
 }
 
@@ -141,7 +134,7 @@ export async function processIngredientReviewJob(
   signal?.throwIfAborted();
   // Drawing many is Fill gaps' work: only a mint's pass draws.
   if (job.name !== CATALOGUE_CLEAN_UP) {
-    await addMissingIconsJob(foods.flatMap((food) => (done.has(food.id) ? [food.id] : [])));
+    await queueIconAndFills(foods.flatMap((food) => (done.has(food.id) ? [food.id] : [])));
   }
 }
 

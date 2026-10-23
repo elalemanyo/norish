@@ -187,4 +187,13 @@ export const QUEUE_SETTINGS: Record<QueueName, QueueSettings> = {
     // A round may draw thousands of icons, one at a time.
     hangingThresholdMs: 24 * 60 * 60_000,
   },
+  [QUEUE_NAMES.INGREDIENT_FILL]: {
+    // A retry after a crash is safe: a food filled already has no gap left to ask about.
+    jobOptions: { attempts: 2, backoff: { type: "exponential", delay: 5_000 } },
+    // One job at a time: a job already asks its foods a few at once.
+    concurrency: 1,
+    stalledInterval: 60_000,
+    // Fill gaps over the catalogue asks thousands of foods.
+    hangingThresholdMs: 24 * 60 * 60_000,
+  },
 };

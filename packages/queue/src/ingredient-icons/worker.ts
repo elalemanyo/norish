@@ -29,6 +29,7 @@ import { ingredients } from "@norish/shared-server/realtime/ingredients";
 import type { JobStepEvent } from "../job-steps";
 import type { IconStepDetail } from "./progress";
 import { createWorker, isFinalFailure } from "../create-worker";
+import { describeError } from "../helpers";
 import { recordCompletedSteps } from "../job-steps";
 import { QUEUE_NAMES } from "../queue-names";
 import { ICON_STEP, summarizeIconRound } from "./progress";
@@ -49,14 +50,6 @@ const ROUND_WRITES = 20;
  */
 const ANNOUNCE_EVERY_MS = 1000;
 
-/** An error's message, with the cause a wrapper hides. */
-function describe(error: unknown): string {
-  if (!(error instanceof Error)) return String(error);
-  const cause = error.cause instanceof Error ? error.cause.message : null;
-
-  return cause ? `${error.message}: ${cause}` : error.message;
-}
-
 /** Draw one food's icon, as its asker or for the AI pass; a failure is recorded on its step. */
 async function draw(
   job: Job<IngredientIconsJobData>,
@@ -73,7 +66,7 @@ async function draw(
   } catch (error) {
     log.error({ err: error, jobId: job.id, ingredientId }, "Drawing an Ingredient Icon failed");
 
-    return { ingredientId, outcome: "failed", error: describe(error) };
+    return { ingredientId, outcome: "failed", error: describeError(error) };
   }
 }
 

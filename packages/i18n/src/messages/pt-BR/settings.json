@@ -467,7 +467,8 @@
         "name": "{food} · {dataset}, encontrado pelo nome",
         "householdFood": "{food} · {dataset}, escolhido pela sua casa",
         "household": "Os valores próprios da sua casa",
-        "taxonomy": "Open Food Facts"
+        "taxonomy": "Open Food Facts",
+        "ai": "Estimado pela IA"
       },
       "correct": "Corrigir",
       "correctTitle": "Corrigir {name}",
@@ -1135,7 +1136,10 @@
       "ingredientPlainNamePlaceholder": "Prompt para limpar nomes de ingredientes...",
       "ingredientSpellingCheck": "Prompt de verificação de traduções",
       "ingredientSpellingCheckDescription": "Enviado ao modelo de linguagem ao limpar o catálogo inteiro, para cada ingrediente do catálogo com traduções que pessoas, importações ou mesclagens adicionaram, com o ingrediente, essas traduções e uma linha de receita de cada uma anexados depois. Diz quais nomeiam o ingrediente, nenhum alimento ou outro alimento.",
-      "ingredientSpellingCheckPlaceholder": "Prompt para verificar traduções de ingredientes..."
+      "ingredientSpellingCheckPlaceholder": "Prompt para verificar traduções de ingredientes...",
+      "ingredientNutrition": "Prompt de nutrição de ingredientes",
+      "ingredientNutritionDescription": "Enviado ao modelo de linguagem para um ingrediente sem nutrição, densidade ou peso por unidade próprios, quando a IA pode preenchê-los, com o ingrediente e do que ele é um tipo anexados depois. Estima só o que falta ao ingrediente.",
+      "ingredientNutritionPlaceholder": "Prompt para estimar a nutrição de um ingrediente..."
     },
     "unsavedChanges": "Alterações não salvas",
     "jsonEditor": {
@@ -1189,6 +1193,7 @@
         "saving-link": "Save the link",
         "asking-ai": "Ask AI about the food",
         "drawing-icon": "Desenhar o ícone do alimento",
+        "filling-gaps": "Preencher as lacunas do alimento",
         "naming": "Limpar o nome do alimento"
       },
       "queues": {
@@ -1206,7 +1211,8 @@
         "image-generation": "Geração de imagens",
         "store-lookup": "Consulta de loja",
         "ingredient-review": "Perguntar à IA sobre ingredientes",
-        "ingredient-icons": "Desenhar ícones de ingredientes"
+        "ingredient-icons": "Desenhar ícones de ingredientes",
+        "ingredient-fill": "Preencher lacunas de ingredientes"
       },
       "summary": {
         "failed": "{count} failed"

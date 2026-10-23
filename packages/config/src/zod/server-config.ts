@@ -150,6 +150,7 @@ export const PromptsConfigSchema = z.object({
   ingredientIconStyle: z.string().optional(),
   ingredientPlainName: z.string().optional(),
   ingredientSpellingCheck: z.string().optional(),
+  ingredientNutrition: z.string().optional(),
 });
 
 export type PromptsConfig = z.infer<typeof PromptsConfigSchema>;

@@ -405,12 +405,15 @@ export function workOutNutrition({
     total.carbs += brought.carbs;
     total.protein += brought.protein;
     counted.push({ lineId: line.id, name: line.name, grams: weighed.grams, ...brought });
-    if (used.some((fact) => fact.borrowedFrom)) borrowedCalories += brought.calories;
+    // AI's estimate is as much a guess as a parent's numbers.
+    if (used.some((fact) => fact.borrowedFrom || fact.source.kind === "ai")) {
+      borrowedCalories += brought.calories;
+    }
     for (const fact of used) {
       const credit = creditOf(fact.source);
 
       if (credit) credits.add(credit);
-      else household = true;
+      else if (fact.source.kind === "household") household = true;
     }
   }
 

@@ -467,7 +467,8 @@
         "name": "{food} · {dataset}, fundet på navnet",
         "householdFood": "{food} · {dataset}, valgt af din husstand",
         "household": "Din husstands egne værdier",
-        "taxonomy": "Open Food Facts"
+        "taxonomy": "Open Food Facts",
+        "ai": "Anslået af AI"
       },
       "correct": "Ret",
       "correctTitle": "Ret {name}",
@@ -1135,7 +1136,10 @@
       "ingredientPlainNamePlaceholder": "Prompt til oprydning af ingrediensnavne...",
       "ingredientSpellingCheck": "Prompt til kontrol af oversættelser",
       "ingredientSpellingCheckDescription": "Sendes til sprogmodellen, når hele kataloget ryddes op, for hver ingrediens fra kataloget med oversættelser, som personer, importer eller sammenlægninger har tilføjet, med ingrediensen, de oversættelser og en opskriftslinje for hver tilføjet efter. Siger, hvilke der navngiver ingrediensen, ingen ingrediens eller en anden ingrediens.",
-      "ingredientSpellingCheckPlaceholder": "Prompt til kontrol af oversættelser..."
+      "ingredientSpellingCheckPlaceholder": "Prompt til kontrol af oversættelser...",
+      "ingredientNutrition": "Prompt til ingrediensers næringsindhold",
+      "ingredientNutritionDescription": "Sendes til sprogmodellen for en ingrediens uden eget næringsindhold, massefylde eller stykvægt, hvor AI må udfylde dem, med ingrediensen og hvad den er en slags af tilføjet efter. Anslår kun det, ingrediensen mangler.",
+      "ingredientNutritionPlaceholder": "Prompt til at anslå en ingrediens' næringsindhold..."
     },
     "unsavedChanges": "Ugemte ændringer",
     "jsonEditor": {
@@ -1189,6 +1193,7 @@
         "saving-link": "Save the link",
         "asking-ai": "Ask AI about the food",
         "drawing-icon": "Tegn fødevarens ikon",
+        "filling-gaps": "Udfyld fødevarens huller",
         "naming": "Ryd op i fødevarens navn"
       },
       "queues": {
@@ -1206,7 +1211,8 @@
         "image-generation": "Billedgenerering",
         "store-lookup": "Butiksopslag",
         "ingredient-review": "Spørg AI om ingredienser",
-        "ingredient-icons": "Tegn ingrediensikoner"
+        "ingredient-icons": "Tegn ingrediensikoner",
+        "ingredient-fill": "Udfyld huller i ingredienser"
       },
       "summary": {
         "failed": "{count} failed"

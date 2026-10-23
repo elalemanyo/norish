@@ -73,7 +73,7 @@ describe("the shipped ingredient-match prompt", () => {
 });
 
 describe("loadDefaultPrompts", () => {
-  it("ships a default for all sixteen administrator-editable prompts", () => {
+  it("ships a default for all seventeen administrator-editable prompts", () => {
     const defaults = loadDefaultPrompts();
 
     expect(Object.keys(defaults).sort()).toEqual(
@@ -87,6 +87,7 @@ describe("loadDefaultPrompts", () => {
         "ingredientIconStyle",
         "ingredientPlainName",
         "ingredientSpellingCheck",
+        "ingredientNutrition",
         "ingredientLinking",
         "ingredientMatch",
         "ingredientResolution",

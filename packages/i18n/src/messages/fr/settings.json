@@ -467,7 +467,8 @@
         "name": "{food} · {dataset}, trouvé par le nom",
         "householdFood": "{food} · {dataset}, choisi par votre foyer",
         "household": "Les propres valeurs de votre foyer",
-        "taxonomy": "Open Food Facts"
+        "taxonomy": "Open Food Facts",
+        "ai": "Estimé par l’IA"
       },
       "correct": "Corriger",
       "correctTitle": "Corriger {name}",
@@ -1135,7 +1136,10 @@
       "ingredientPlainNamePlaceholder": "Prompt de nettoyage des noms d’ingrédients...",
       "ingredientSpellingCheck": "Prompt de vérification des traductions",
       "ingredientSpellingCheckDescription": "Envoyé au modèle de langage lors du nettoyage du catalogue entier, pour chaque ingrédient du catalogue ayant des traductions ajoutées par des personnes, des imports ou des fusions, avec l’ingrédient, ces traductions et une ligne de recette pour chacune ajoutés à la suite. Indique lesquelles désignent l’ingrédient, aucun aliment ou un autre aliment.",
-      "ingredientSpellingCheckPlaceholder": "Prompt pour vérifier les traductions d’ingrédients..."
+      "ingredientSpellingCheckPlaceholder": "Prompt pour vérifier les traductions d’ingrédients...",
+      "ingredientNutrition": "Prompt de valeurs nutritionnelles des ingrédients",
+      "ingredientNutritionDescription": "Envoyé au modèle de langage pour un ingrédient sans valeurs nutritionnelles, densité ou poids à la pièce propres, lorsque l’IA peut les compléter, avec l’ingrédient et ce dont il est une sorte ajoutés à la suite. N’estime que ce qui manque à l’ingrédient.",
+      "ingredientNutritionPlaceholder": "Prompt pour estimer les valeurs nutritionnelles d’un ingrédient..."
     },
     "unsavedChanges": "Modifications non enregistrées",
     "jsonEditor": {
@@ -1189,6 +1193,7 @@
         "saving-link": "Save the link",
         "asking-ai": "Ask AI about the food",
         "drawing-icon": "Dessiner l’icône de l’aliment",
+        "filling-gaps": "Compléter les manques de l’aliment",
         "naming": "Nettoyer le nom de l’aliment"
       },
       "queues": {
@@ -1206,7 +1211,8 @@
         "image-generation": "Génération d'images",
         "store-lookup": "Recherche en boutique",
         "ingredient-review": "Demander à l'IA sur les ingrédients",
-        "ingredient-icons": "Dessin des icônes d’ingrédients"
+        "ingredient-icons": "Dessin des icônes d’ingrédients",
+        "ingredient-fill": "Complétion des manques des ingrédients"
       },
       "summary": {
         "failed": "{count} failed"
