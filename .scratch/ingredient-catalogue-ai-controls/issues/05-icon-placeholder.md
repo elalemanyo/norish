@@ -13,3 +13,7 @@ Spec: Solution 8
 ## Acceptance
 
 - A list row and the panel for a food with no icon show the glyph; a food with one, or one borrowing its parent's, shows the icon.
+
+## Comments
+
+- 2026-10-23, implemented in be1a1ffc6. The glyph is Heroicons' outline `CakeIcon`, the only food glyph in the icon set the app uses. Covered by the `IngredientIcon` and Ingredients settings unit tests rather than E2E.

@@ -13,3 +13,7 @@ Spec: Solution 9
 
 - E2E on a phone viewport: typing in the parent picker and the store-product field shows results above the input, and a result can be tapped.
 - Desktop placement unchanged.
+
+## Comments
+
+- 2026-10-23, implemented in 8fddcd904. `PanelComboBoxPopover` in `components/Panel/Panel.tsx`. "Phone" is the existing `useIsMobile` (below `md`); the cap is 240px, about five rows. E2E is `ai/pickers-on-phone.e2e.ts`. In a headless browser with no keyboard the parent picker already flips above, so the spec also checks the cap, which fails without the fix. The nutrition food search uses the wrapper but has no E2E. The E2E harness needed an unconnected `VALKEY_URL` (d5d920900).
