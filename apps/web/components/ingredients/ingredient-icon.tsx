@@ -4,7 +4,6 @@ import type { ReactNode } from "react";
 import { createContext, use, useMemo } from "react";
 import { useTRPC } from "@/app/providers/trpc-provider";
 import { useDevicePreference } from "@/context/device-preferences-context";
-import { CakeIcon } from "@heroicons/react/24/outline";
 import { keepPreviousData, useQueries, useQuery } from "@tanstack/react-query";
 import { useDebounceValue } from "usehooks-ts";
 
@@ -115,8 +114,9 @@ export function useIngredientIconsHidden(): boolean {
  * anywhere shows nothing, nor does a line whose food the server has not
  * resolved yet; only while the surface's read is on its way does it hold an
  * empty slot, so the line does not jump when the icon lands. `placeholder`
- * shows a muted food glyph on the icon's tile instead of nothing, for the
- * Ingredients list and the panel field an icon is set in. A reader who hid icons gets none of these. A heading is not a food and
+ * shows a muted leaf on the icon's tile instead of nothing, for the
+ * Ingredients list and the panel field an icon is set in. A reader who hid
+ * icons gets none of these. A heading is not a food and
  * is given no icon at all. `src` is the address outright, where a surface has
  * it (the share page exposes no ids); otherwise the surface's read is looked
  * up by `ingredientId`.
@@ -149,7 +149,18 @@ export function IngredientIcon({
           className={`bg-surface-secondary text-muted flex shrink-0 items-center justify-center rounded-[30%] ${SIZES[size]} ${className}`}
           data-testid="ingredient-icon-placeholder"
         >
-          <CakeIcon className="size-3/5" />
+          <svg
+            className="size-1/2"
+            fill="none"
+            stroke="currentColor"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={1.5}
+            viewBox="0 0 24 24"
+          >
+            <path d="M5 19C5 10.5 10 5 19 5c0 9-5.5 14-14 14Z" />
+            <path d="M5 19l8-8" />
+          </svg>
         </span>
       );
     }
