@@ -19,3 +19,7 @@ Spec: `.scratch/ingredient-catalogue-ai-controls/spec.md` (Solution 1, 2, 3)
 - Selecting Clean up new ingredients restores today's mint behaviour.
 - No food carries one of the removed flag reasons after first start.
 - Tests for the gating and the config parsing; existing tests that relied on boot/nightly/flagging updated.
+
+## Comments
+
+- 2026-10-23, implemented in cfe86e2b4 (ADR-0037 amendment in a0ba9d247). The `ingredient-sweep` task stays for its deterministic work (unused foods, month-old AI Changes); only its AI retry went. Retired flags are lifted by a new first-start step 8 (`CLEANUP_VERSION` 5), which keeps `ai-unsure` on a food whose unsure change is still open. A pass with no answer now reports `unanswered` rather than `unsure`. `spellingCheckVersion` left the seed state with the boot check. `listAskableIngredientIds` and `listSeededFoodsWithOwnSpellings` are kept, unused, for ticket 02. The ingredient-catalogue E2E turns Clean up on for its run. Open: the boot recheck of undecided mints (`listUndecidedMints`) still picks only flagged foods, so a mint made from now on, unflagged, is not rechecked when the resolver's rules change.
