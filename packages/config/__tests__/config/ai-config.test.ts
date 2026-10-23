@@ -96,14 +96,22 @@ describe("AIConfigSchema automatic enrichment", () => {
 });
 
 describe("AIConfigSchema automatic ingredients", () => {
-  it("draws no icon until an administrator opts in", () => {
-    expect(parse({}).automaticIngredients).toEqual({ icon: false });
+  const off = { cleanUp: false, nutrition: false, conversions: false, icon: false };
+
+  it("does nothing to a new food until an administrator opts in", () => {
+    expect(parse({}).automaticIngredients).toEqual(off);
   });
 
-  it("loads a config that still holds Clean the name, keeping the icon choice", () => {
+  it("loads an older stored shape as the defaults plus its icon choice", () => {
     expect(
       parse({ automaticIngredients: { plainName: true, icon: true } }).automaticIngredients
-    ).toEqual({ icon: true });
+    ).toEqual({ ...off, icon: true });
+  });
+
+  it("keeps each option it is given", () => {
+    expect(
+      parse({ automaticIngredients: { cleanUp: true, conversions: true } }).automaticIngredients
+    ).toEqual({ ...off, cleanUp: true, conversions: true });
   });
 });
 

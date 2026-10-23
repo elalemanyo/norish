@@ -56,7 +56,6 @@ describe("Plain Names", () => {
 
     actor = { userId: user.id, householdUserIds: null, isServerAdmin: false };
     vi.mocked(generateStructured).mockReset();
-    // Foods are minted with AI off, flagged, as the upgrade leaves them.
     vi.mocked(isAIEnabled).mockResolvedValue(false);
   });
 
@@ -64,11 +63,15 @@ describe("Plain Names", () => {
     await testBase.teardown();
   });
 
-  /** A food a recipe line names, so AI may name it. */
+  /** A food a recipe line names, so AI may name it, flagged as the upgrade leaves them. */
   async function food(text: string) {
     const [resolved] = await resolveIngredients([text], { userId: actor.userId });
 
     await nameInATestRecipe(actor.userId, resolved!.aliasId, text);
+    await getTestDb()
+      .update(ingredients)
+      .set({ flagged: true, flagReason: "upgrade" })
+      .where(eq(ingredients.id, resolved!.ingredientId));
 
     return resolved!.ingredientId;
   }

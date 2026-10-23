@@ -1,13 +1,23 @@
 import type { IngredientReviewJobData } from "@norish/queue/contracts/job-types";
 import { findCatalogueIngredientNames } from "@norish/db/repositories/ingredient-catalogue";
-import { isAIEnabled } from "@norish/shared-server/config/server-config-loader";
+import {
+  getAutomaticIngredientsConfig,
+  isAIEnabled,
+} from "@norish/shared-server/config/server-config-loader";
 
+import { addMissingIconsJob } from "../ingredient-icons/producer";
 import { getQueues } from "../registry";
 
 /**
- * Queue the AI pass over these foods: after a mint, and nightly for those AI could not answer
- * for. Nothing is queued while AI is off, or for a food gone since.
+ * What a mint for someone's action queues: AI's pass where Clean up new ingredients is on, which
+ * draws after it, else the missing icons straight away.
  */
+export async function queueAfterMint(ingredientIds: readonly string[]): Promise<void> {
+  if ((await getAutomaticIngredientsConfig()).cleanUp) await addIngredientReviewJob(ingredientIds);
+  else await addMissingIconsJob(ingredientIds);
+}
+
+/** Queue the AI pass over these foods. Nothing is queued while AI is off, or for a food gone since. */
 export async function addIngredientReviewJob(ingredientIds: readonly string[]): Promise<void> {
   await addReviewJob(ingredientIds);
 }

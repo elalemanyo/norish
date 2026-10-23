@@ -8,7 +8,7 @@ import type {
   IngredientCandidate,
   IngredientRef,
 } from "@norish/db/repositories/ingredient-aliases";
-import type { FlagReason, ReviewTrace } from "@norish/shared/contracts/ingredient-catalogue";
+import type { ReviewTrace, UnansweredReason } from "@norish/shared/contracts/ingredient-catalogue";
 import type { LineJoin } from "@norish/shared/lib/line-foods";
 import { findIngredientCandidatesByIds } from "@norish/db/repositories/ingredient-aliases";
 import {
@@ -52,16 +52,13 @@ export type AIResolution =
   | { kind: "not-a-food"; sure: boolean; tool: boolean }
   | { kind: "unanswered"; reason: UnansweredReason };
 
-/** Why AI gave no answer: switched off, unreachable, or its key refused. */
-type UnansweredReason = Extract<FlagReason, "ai-off" | "ai-unavailable" | "ai-key-rejected">;
-
 /** A part of several foods as written, and the food AI's names for it found or AI picked, if any. */
 export interface ReadPart {
   text: string;
   found: IngredientRef | null;
 }
 
-/** A question AI gave no answer to, thrown to the entry; why is the food's flag. */
+/** A question AI gave no answer to, thrown to the entry, with why. */
 class Unanswered extends Error {
   constructor(readonly reason: UnansweredReason) {
     super(reason);

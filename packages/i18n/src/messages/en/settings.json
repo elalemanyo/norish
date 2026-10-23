@@ -393,12 +393,8 @@
     "flagged": "Flagged",
     "flagReasons": {
       "unknown": "Norish was not sure this is a food of its own.",
-      "ai-off": "AI is off, so nothing checked whether this is a food Norish already knows.",
-      "ai-queued": "New to Norish. AI looks at it shortly.",
       "unknown-food": "No known food shares a word with this name, so AI was not asked.",
       "ai-unsure": "AI was asked whether this is a known food and was not sure.",
-      "ai-unavailable": "AI did not answer in time.",
-      "ai-key-rejected": "The AI provider rejected the API key, so AI could not check this name.",
       "food-gone": "AI matched this to a food that was merged away before the name could join it.",
       "upgrade": "No known food could be matched.",
       "seed-ambiguous": "The catalogue lists several foods this could be.",
@@ -885,6 +881,23 @@
         "aiDisabled": "AI is disabled on this server. Enable AI first.",
         "error": "Failed to start bulk enrichment",
         "imageCount": "{count, plural, =0 {The sweep will generate no images.} one {The sweep will generate # image.} other {The sweep will generate # images.}}"
+      },
+      "ingredientCatalogue": {
+        "title": "Ingredient catalogue",
+        "subtitle": "What AI does to new ingredients",
+        "automatic": "Automatic for new ingredients",
+        "automaticDescription": "What AI does when an ingredient is added to the catalogue.",
+        "automaticPlaceholder": "Nothing runs automatically",
+        "kinds": {
+          "cleanUp": "Clean up new ingredients",
+          "cleanUpDescription": "Merge spellings, set a parent and a plain name, remove what is not a food",
+          "nutrition": "Fill missing nutrition",
+          "nutritionDescription": "Estimate macros per 100 g where the ingredient has none",
+          "conversions": "Fill missing conversions",
+          "conversionsDescription": "Estimate density and piece weight where the ingredient has none",
+          "icon": "Draw missing icons",
+          "iconDescription": "Only for an ingredient with no icon to show, not even its parent's"
+        }
       }
     },
     "aiConfig": {
@@ -941,8 +954,6 @@
         "imageGeneration": "Image generation",
         "imageGenerationDescription": "Draw a picture of the dish for new recipes that have no image at all"
       },
-      "automaticIngredients": "Draw icons for new ingredients",
-      "automaticIngredientsDescription": "Only for an ingredient with no icon to show, not even its parent's.",
       "tagStrategy": "Tag strategy",
       "tagStrategyDescription": "Which tags auto-tagging may use, whether it runs automatically or manually",
       "tagStrategies": {

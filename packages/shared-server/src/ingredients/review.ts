@@ -51,7 +51,7 @@ export async function askAIAbout(ingredientId: string): Promise<ReviewOutcome> {
     const into = await findCatalogueIngredient(answer.ingredientId);
     const applied = into ? await mergeByAI(ingredientId, into.id, answer.sure) : "gone";
 
-    if (!into || applied === "gone") return await unanswered(ingredientId, "food-gone", trace);
+    if (!into || applied === "gone") return await foodGone(ingredientId, trace);
     if (applied !== "applied") return { ...skippedBy(applied), ...trace };
 
     return { outcome: "merge", into: into.name, sure: answer.sure, ...trace };
@@ -63,13 +63,9 @@ export async function askAIAbout(ingredientId: string): Promise<ReviewOutcome> {
       ? await deleted(ingredientId, trace)
       : await doubted(ingredientId, "ai-junk", trace);
   }
-  if (answer.kind === "unanswered") {
-    if (answer.reason !== "ai-off") return await unanswered(ingredientId, answer.reason, trace);
-    // AI was switched off meanwhile: a food waiting on this pass says so; another keeps its reason.
-    if (row.flagReason === "ai-queued") await setIngredientFlagReason(ingredientId, "ai-off");
-
-    return { outcome: "unsure", reason: "ai-off", ...trace };
-  }
+  // No answer leaves the food unreviewed, not flagged.
+  if (answer.kind === "unanswered")
+    return { outcome: "unanswered", reason: answer.reason, ...trace };
 
   const { sure } = answer;
   // A parent merged away while AI read is found again by its name: the merge moved its spellings.
@@ -164,14 +160,10 @@ async function doubted(
   return { outcome: "unsure", reason, ...trace };
 }
 
-/** No answer that changes anything: the food stays as it was, and its flag says why. */
-async function unanswered(
-  ingredientId: string,
-  reason: FlagReason,
-  trace: ReviewTrace
-): Promise<ReviewOutcome> {
-  await setIngredientFlagReason(ingredientId, reason);
+/** The food AI named was merged away meanwhile: the food stays as it was, and its flag says so. */
+async function foodGone(ingredientId: string, trace: ReviewTrace): Promise<ReviewOutcome> {
+  await setIngredientFlagReason(ingredientId, "food-gone");
   await ingredientChanges().changed([ingredientId]);
 
-  return { outcome: "unsure", reason, ...trace };
+  return { outcome: "unsure", reason: "food-gone", ...trace };
 }

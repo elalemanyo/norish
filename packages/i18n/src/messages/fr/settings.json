@@ -393,12 +393,8 @@
     "flagged": "Signalé",
     "flagReasons": {
       "unknown": "Norish n'était pas sûr qu'il s'agisse d'un ingrédient à part.",
-      "ai-off": "L'IA est désactivée, rien n'a donc vérifié si Norish connaît déjà cet ingrédient.",
-      "ai-queued": "Nouveau dans Norish. L'IA va l'examiner sous peu.",
       "unknown-food": "Aucun ingrédient connu ne partage un mot avec ce nom, l'IA n'a donc pas été sollicitée.",
       "ai-unsure": "L'IA a été interrogée sur cet ingrédient et n'était pas sûre.",
-      "ai-unavailable": "L'IA n'a pas répondu à temps.",
-      "ai-key-rejected": "Le fournisseur d'IA a refusé la clé API, l'IA n'a donc pas pu vérifier ce nom.",
       "food-gone": "L'IA l'a associé à un ingrédient fusionné avant que le nom ne puisse le rejoindre.",
       "upgrade": "Aucun ingrédient connu n'a pu être associé.",
       "seed-ambiguous": "Le catalogue connaît plusieurs ingrédients que cela pourrait être.",
@@ -885,6 +881,23 @@
         "aiDisabled": "L'IA est désactivée sur ce serveur. Activez d'abord l'IA.",
         "error": "Échec du démarrage de l'enrichissement en masse",
         "imageCount": "{count, plural, =0 {Aucune image ne sera générée.} one {# image sera générée.} other {# images seront générées.}}"
+      },
+      "ingredientCatalogue": {
+        "title": "Catalogue d'ingrédients",
+        "subtitle": "Ce que l'IA fait des nouveaux ingrédients",
+        "automatic": "Automatique pour les nouveaux ingrédients",
+        "automaticDescription": "Ce que fait l'IA quand un ingrédient est ajouté au catalogue.",
+        "automaticPlaceholder": "Rien ne s'exécute automatiquement",
+        "kinds": {
+          "cleanUp": "Nettoyer les nouveaux ingrédients",
+          "cleanUpDescription": "Fusionner les orthographes, définir un parent et un nom simple, supprimer ce qui n'est pas un aliment",
+          "nutrition": "Compléter la nutrition manquante",
+          "nutritionDescription": "Estimer les macros pour 100 g là où l'ingrédient n'en a pas",
+          "conversions": "Compléter les conversions manquantes",
+          "conversionsDescription": "Estimer la densité et le poids unitaire là où l'ingrédient n'en a pas",
+          "icon": "Dessiner les icônes manquantes",
+          "iconDescription": "Seulement pour un ingrédient sans icône, pas même celle de son parent"
+        }
       }
     },
     "aiConfig": {
@@ -941,8 +954,6 @@
         "imageGeneration": "Génération d'images",
         "imageGenerationDescription": "Dessine une photo du plat pour les nouvelles recettes qui n'ont aucune image"
       },
-      "automaticIngredients": "Dessiner des icônes pour les nouveaux ingrédients",
-      "automaticIngredientsDescription": "Seulement pour un ingrédient sans icône, pas même celle de son parent.",
       "tagStrategy": "Stratégie d'étiquetage",
       "tagStrategyDescription": "Quelles étiquettes l'étiquetage automatique peut utiliser, qu'il soit automatique ou manuel",
       "tagStrategies": {

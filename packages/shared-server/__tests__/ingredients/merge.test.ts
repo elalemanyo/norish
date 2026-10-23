@@ -80,6 +80,14 @@ describe("merging Ingredients and moving aliases", () => {
     return resolved!;
   }
 
+  /** Flag a food as AI unsure of it: a mint is unflagged. */
+  async function flag(ingredientId: string) {
+    await getTestDb()
+      .update(ingredients)
+      .set({ flagged: true, flagReason: "ai-unsure" })
+      .where(eq(ingredients.id, ingredientId));
+  }
+
   async function typed(name: string) {
     const [resolved] = await resolveGroceryNames([{ name }], { userId: actor.userId });
 
@@ -255,9 +263,7 @@ describe("merging Ingredients and moving aliases", () => {
       const knaks = await mint("Unox Knaks");
       const frankfurter = await mint("frankfurter");
 
-      await expect(findIngredientByAliasId(knaks.aliasId)).resolves.toMatchObject({
-        flagged: true,
-      });
+      await flag(knaks.ingredientId);
       await mergeIngredients(actor, frankfurter.ingredientId, knaks.ingredientId);
 
       await expect(findIngredientByAliasId(knaks.aliasId)).resolves.toMatchObject({
@@ -343,6 +349,7 @@ describe("merging Ingredients and moving aliases", () => {
     it("leaves the flag of the Ingredient a spelling moves out of alone", async () => {
       const onion = await mint("onion");
 
+      await flag(onion.ingredientId);
       await addAlias(actor, onion.ingredientId, "ui");
       const [ui] = await resolveIngredients(["ui"], { userId: actor.userId });
 

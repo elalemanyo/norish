@@ -115,7 +115,7 @@ describe("ingredient resolver with AI on", () => {
     expect(vi.mocked(generateStructured)).not.toHaveBeenCalled();
   }
 
-  it("saves a recipe asking AI nothing, minting what it does not know flagged, and the pass answers after", async () => {
+  it("saves a recipe asking AI nothing, minting what it does not know unflagged, and the pass answers after", async () => {
     const onion = await resolveOne("onion");
     const minted: string[] = [];
 
@@ -129,13 +129,11 @@ describe("ingredient resolver with AI on", () => {
         { ingredientName: "rode uien", joined: null },
         { ingredientName: "Dijon or yellow mustard", joined: null },
       ]);
-      // Both minted whole, flagged for the pass, which was handed them.
+      // Both minted whole and unflagged, handed to the pass.
       for (const line of lines.slice(1)) {
         await expect(
           getTestDb().select().from(ingredients).where(eq(ingredients.id, line.ingredientId!))
-        ).resolves.toMatchObject([
-          { name: line.ingredientName, flagged: true, flagReason: "ai-queued" },
-        ]);
+        ).resolves.toMatchObject([{ name: line.ingredientName, flagged: false, flagReason: null }]);
       }
       expect(minted.sort()).toEqual(
         lines
@@ -217,18 +215,18 @@ describe("ingredient resolver with AI on", () => {
     expectNoAIRequest();
     await expect(findIngredientByAliasId(typed!.aliasId)).resolves.toMatchObject({
       name: "Unox Knaks",
-      flagReason: "ai-queued",
+      flagged: false,
     });
   });
 
-  it("flags what it mints as AI being off, where it is", async () => {
+  it("flags nothing it mints with AI off either", async () => {
     vi.mocked(isAIEnabled).mockResolvedValue(false);
     const cloves = await resolveOne("garlic cloves");
 
     expectNoAIRequest();
     await expect(findIngredientByAliasId(cloves.aliasId)).resolves.toMatchObject({
-      flagged: true,
-      flagReason: "ai-off",
+      flagged: false,
+      flagReason: null,
     });
   });
 

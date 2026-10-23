@@ -209,7 +209,7 @@ export async function splitByAI(
       movedTo = await moveToFoodNamedFor(
         tx,
         { id: spelledByFood.aliasId, text: alias.text },
-        { ownerId: alias.ownerId, flagged: true, flagReason: "ai-queued" }
+        { ownerId: alias.ownerId }
       );
       // The food is itself named for the spelling: a split would delete it with the spelling on it.
       if (movedTo.id === ingredientId) return none("refused");

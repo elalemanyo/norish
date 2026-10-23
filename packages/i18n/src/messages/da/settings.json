@@ -393,12 +393,8 @@
     "flagged": "Markeret",
     "flagReasons": {
       "unknown": "Norish var ikke sikker på, at dette er en ingrediens for sig.",
-      "ai-off": "AI er slået fra, så intet tjekkede, om Norish allerede kender den.",
-      "ai-queued": "Ny i Norish. AI kigger på den om lidt.",
       "unknown-food": "Ingen kendt ingrediens deler et ord med dette navn, så AI blev ikke spurgt.",
       "ai-unsure": "AI blev spurgt, om det er en kendt ingrediens, og var ikke sikker.",
-      "ai-unavailable": "AI svarede ikke i tide.",
-      "ai-key-rejected": "AI-udbyderen afviste API-nøglen, så AI kunne ikke tjekke dette navn.",
       "food-gone": "AI knyttede det til en ingrediens, der blev flettet, før navnet kunne komme med.",
       "upgrade": "Der blev ikke fundet nogen kendt ingrediens, der passer.",
       "seed-ambiguous": "Kataloget kender flere ingredienser, dette kunne være.",
@@ -885,6 +881,23 @@
         "aiDisabled": "AI er deaktiveret på denne server. Aktivér AI først.",
         "error": "Kunne ikke starte masseberigelse",
         "imageCount": "{count, plural, =0 {Der genereres ingen billeder.} one {Der genereres # billede.} other {Der genereres # billeder.}}"
+      },
+      "ingredientCatalogue": {
+        "title": "Ingredienskatalog",
+        "subtitle": "Hvad AI gør ved nye ingredienser",
+        "automatic": "Automatisk for nye ingredienser",
+        "automaticDescription": "Hvad AI gør, når en ingrediens tilføjes til kataloget.",
+        "automaticPlaceholder": "Intet kører automatisk",
+        "kinds": {
+          "cleanUp": "Ryd op i nye ingredienser",
+          "cleanUpDescription": "Flet stavemåder, angiv en forælder og et enkelt navn, fjern det, der ikke er mad",
+          "nutrition": "Udfyld manglende næringsindhold",
+          "nutritionDescription": "Estimér makroer pr. 100 g, hvor ingrediensen ikke har nogen",
+          "conversions": "Udfyld manglende omregninger",
+          "conversionsDescription": "Estimér densitet og stykvægt, hvor ingrediensen ikke har nogen",
+          "icon": "Tegn manglende ikoner",
+          "iconDescription": "Kun for en ingrediens uden ikon, heller ikke dens forælders"
+        }
       }
     },
     "aiConfig": {
@@ -941,8 +954,6 @@
         "imageGeneration": "Billedgenerering",
         "imageGenerationDescription": "Tegn et billede af retten til nye opskrifter helt uden billede"
       },
-      "automaticIngredients": "Tegn ikoner til nye ingredienser",
-      "automaticIngredientsDescription": "Kun for en ingrediens uden ikon, heller ikke dens forælders.",
       "tagStrategy": "Tagstrategi",
       "tagStrategyDescription": "Hvilke tags automatisk tagging må bruge, uanset om den kører automatisk eller manuelt",
       "tagStrategies": {

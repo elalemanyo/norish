@@ -231,6 +231,47 @@ describe("isAIEnabled", () => {
   });
 });
 
+describe("getAutomaticIngredientsConfig", () => {
+  const ai = {
+    enabled: true,
+    provider: "openai",
+    model: "gpt-4.1-mini",
+    temperature: 0,
+    maxTokens: 1000,
+    automaticIngredients: { cleanUp: true, conversions: true, icon: true },
+  };
+  const off = { cleanUp: false, nutrition: false, conversions: false, icon: false };
+
+  async function automaticWith(aiConfig: object, imageConfig: object | null) {
+    vi.resetModules();
+    mockGetConfig.mockImplementation((key: string) => {
+      if (key === ServerConfigKeys.AI_CONFIG) return Promise.resolve(aiConfig);
+      if (key === ServerConfigKeys.IMAGE_GENERATION_CONFIG) return Promise.resolve(imageConfig);
+
+      return Promise.resolve(null);
+    });
+    const { getAutomaticIngredientsConfig } =
+      await import("@norish/shared-server/config/server-config-loader");
+
+    return await getAutomaticIngredientsConfig();
+  }
+
+  it("follows each stored option, the icon only with an image provider", async () => {
+    await expect(automaticWith({ ...ai, apiKey: "key" }, null)).resolves.toEqual({
+      ...off,
+      cleanUp: true,
+      conversions: true,
+    });
+    await expect(
+      automaticWith({ ...ai, apiKey: "key" }, { provider: "openai", model: "gpt-image-1" })
+    ).resolves.toEqual({ ...off, cleanUp: true, conversions: true, icon: true });
+  });
+
+  it("is all off while AI is off", async () => {
+    await expect(automaticWith({ ...ai, enabled: false }, null)).resolves.toEqual(off);
+  });
+});
+
 describe("getUnits", () => {
   beforeEach(() => {
     vi.resetModules();

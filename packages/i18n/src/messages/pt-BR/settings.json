@@ -393,12 +393,8 @@
     "flagged": "Marcado",
     "flagReasons": {
       "unknown": "O Norish não tinha certeza de que este é um ingrediente próprio.",
-      "ai-off": "A IA está desligada, então nada verificou se o Norish já o conhece.",
-      "ai-queued": "Novo no Norish. A IA vai analisá-lo em breve.",
       "unknown-food": "Nenhum ingrediente conhecido compartilha uma palavra com este nome, então a IA não foi consultada.",
       "ai-unsure": "A IA foi consultada se é um ingrediente conhecido e não tinha certeza.",
-      "ai-unavailable": "A IA não respondeu a tempo.",
-      "ai-key-rejected": "O provedor de IA rejeitou a chave de API, então a IA não conseguiu verificar este nome.",
       "food-gone": "A IA o associou a um ingrediente mesclado antes que o nome pudesse se juntar a ele.",
       "upgrade": "Nenhum ingrediente conhecido correspondente foi encontrado.",
       "seed-ambiguous": "O catálogo conhece vários ingredientes que este poderia ser.",
@@ -885,6 +881,23 @@
         "aiDisabled": "A IA está desabilitada neste servidor. Habilite a IA primeiro.",
         "error": "Falha ao iniciar o enriquecimento em massa",
         "imageCount": "{count, plural, =0 {Nenhuma imagem será gerada.} one {# imagem será gerada.} other {# imagens serão geradas.}}"
+      },
+      "ingredientCatalogue": {
+        "title": "Catálogo de ingredientes",
+        "subtitle": "O que a IA faz com ingredientes novos",
+        "automatic": "Automático para ingredientes novos",
+        "automaticDescription": "O que a IA faz quando um ingrediente é adicionado ao catálogo.",
+        "automaticPlaceholder": "Nada é executado automaticamente",
+        "kinds": {
+          "cleanUp": "Organizar ingredientes novos",
+          "cleanUpDescription": "Mesclar grafias, definir um pai e um nome simples, remover o que não é alimento",
+          "nutrition": "Preencher nutrição ausente",
+          "nutritionDescription": "Estimar macros por 100 g onde o ingrediente não tem",
+          "conversions": "Preencher conversões ausentes",
+          "conversionsDescription": "Estimar densidade e peso por unidade onde o ingrediente não tem",
+          "icon": "Desenhar ícones ausentes",
+          "iconDescription": "Só para um ingrediente sem ícone, nem mesmo o do pai"
+        }
       }
     },
     "aiConfig": {
@@ -941,8 +954,6 @@
         "imageGeneration": "Geração de Imagens",
         "imageGenerationDescription": "Desenhe uma foto do prato para receitas novas que não têm nenhuma imagem"
       },
-      "automaticIngredients": "Desenhar ícones para ingredientes novos",
-      "automaticIngredientsDescription": "Só para um ingrediente sem ícone, nem mesmo o do pai.",
       "tagStrategy": "Estratégia de tags",
       "tagStrategyDescription": "Quais tags a marcação automática pode usar, seja executada automática ou manualmente",
       "tagStrategies": {

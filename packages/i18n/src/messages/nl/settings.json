@@ -393,12 +393,8 @@
     "flagged": "Gemarkeerd",
     "flagReasons": {
       "unknown": "Norish wist niet zeker of dit een eigen ingrediënt is.",
-      "ai-off": "AI staat uit, dus niets heeft gecontroleerd of Norish dit al kent.",
-      "ai-queued": "Nieuw in Norish. AI bekijkt het zo.",
       "unknown-food": "Geen bekend ingrediënt deelt een woord met deze naam, dus AI is niet gevraagd.",
       "ai-unsure": "AI is gevraagd of dit een bekend ingrediënt is en wist het niet zeker.",
-      "ai-unavailable": "AI antwoordde niet op tijd.",
-      "ai-key-rejected": "De AI-provider heeft de API-sleutel geweigerd, dus AI kon deze naam niet controleren.",
       "food-gone": "AI koppelde dit aan een ingrediënt dat werd samengevoegd voordat de naam erbij kon.",
       "upgrade": "Er kon geen bekend ingrediënt aan worden gekoppeld.",
       "seed-ambiguous": "De catalogus kent meerdere ingrediënten die dit kunnen zijn.",
@@ -885,6 +881,23 @@
         "aiDisabled": "AI is uitgeschakeld op deze server. Schakel eerst AI in.",
         "error": "Bulkverrijking starten mislukt",
         "imageCount": "{count, plural, =0 {Er worden geen afbeeldingen gegenereerd.} one {Er wordt # afbeelding gegenereerd.} other {Er worden # afbeeldingen gegenereerd.}}"
+      },
+      "ingredientCatalogue": {
+        "title": "Ingrediëntencatalogus",
+        "subtitle": "Wat AI met nieuwe ingrediënten doet",
+        "automatic": "Automatisch voor nieuwe ingrediënten",
+        "automaticDescription": "Wat AI doet wanneer er een ingrediënt aan de catalogus wordt toegevoegd.",
+        "automaticPlaceholder": "Niets draait automatisch",
+        "kinds": {
+          "cleanUp": "Nieuwe ingrediënten opschonen",
+          "cleanUpDescription": "Spellingen samenvoegen, een ouder en een gewone naam geven, verwijderen wat geen voedsel is",
+          "nutrition": "Ontbrekende voedingswaarden aanvullen",
+          "nutritionDescription": "Macro's per 100 g schatten waar het ingrediënt er geen heeft",
+          "conversions": "Ontbrekende omrekeningen aanvullen",
+          "conversionsDescription": "Dichtheid en stukgewicht schatten waar het ingrediënt die niet heeft",
+          "icon": "Ontbrekende iconen tekenen",
+          "iconDescription": "Alleen voor een ingrediënt zonder icoon, ook niet dat van zijn ouder"
+        }
       }
     },
     "aiConfig": {
@@ -941,8 +954,6 @@
         "imageGeneration": "Afbeeldingen Genereren",
         "imageGenerationDescription": "Teken een foto van het gerecht voor nieuwe recepten die helemaal geen afbeelding hebben"
       },
-      "automaticIngredients": "Iconen tekenen voor nieuwe ingrediënten",
-      "automaticIngredientsDescription": "Alleen voor een ingrediënt zonder icoon, ook niet dat van zijn ouder.",
       "tagStrategy": "Tagstrategie",
       "tagStrategyDescription": "Welke tags automatisch taggen mag gebruiken, of het nu automatisch of handmatig draait",
       "tagStrategies": {

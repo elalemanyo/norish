@@ -68,13 +68,13 @@ describe("ingredient resolver", () => {
     return resolved!;
   }
 
-  it("mints a flagged Ingredient, owned by the actor, for a text Norish has never seen", async () => {
+  it("mints an unflagged Ingredient, owned by the actor, for a text Norish has never seen", async () => {
     const onion = await resolveOne("Onion");
 
     await expect(findIngredientByAliasId(onion.aliasId)).resolves.toMatchObject({
       id: onion.ingredientId,
       name: "Onion",
-      flagged: true,
+      flagged: false,
       ownerId: userId,
     });
   });

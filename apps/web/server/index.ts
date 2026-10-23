@@ -1,7 +1,6 @@
 import { initCaldavSync } from "@norish/api/caldav/event-listener";
 import { initRecipeEnrichmentListener } from "@norish/api/recipes/enrichment-listener";
 import { applyNutritionSourcesOnBoot } from "@norish/api/startup/apply-nutrition-sources";
-import { checkSpellingsOnBoot } from "@norish/api/startup/check-spellings";
 import { cleanUpCatalogueOnBoot } from "@norish/api/startup/clean-up-catalogue";
 import { correctSeedOnBoot } from "@norish/api/startup/correct-seed";
 import { createServer } from "@norish/api/startup/http-server";
@@ -56,8 +55,6 @@ async function main() {
   // Texts that name no food, which new lines are read without; after the cleanup, which reads
   // spellings as earlier releases left them.
   await seedJunkPileOnBoot();
-  // AI checks the spellings added to seeded foods, once, with the pile in place.
-  await checkSpellingsOnBoot();
   log.info("-".repeat(50));
 
   // Ingredient Nutrition's source numbers, when this release carries new ones.

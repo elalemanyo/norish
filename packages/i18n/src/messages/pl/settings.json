@@ -393,12 +393,8 @@
     "flagged": "Oznaczony",
     "flagReasons": {
       "unknown": "Norish nie był pewien, czy to osobny składnik.",
-      "ai-off": "AI jest wyłączone, więc nic nie sprawdziło, czy Norish już go zna.",
-      "ai-queued": "Nowy w Norish. AI wkrótce go sprawdzi.",
       "unknown-food": "Żaden znany składnik nie ma wspólnego słowa z tą nazwą, więc AI nie zapytano.",
       "ai-unsure": "Zapytano AI, czy to znany składnik, i nie było pewne.",
-      "ai-unavailable": "AI nie odpowiedziało na czas.",
-      "ai-key-rejected": "Dostawca AI odrzucił klucz API, więc AI nie mogło sprawdzić tej nazwy.",
       "food-gone": "AI dopasowało to do składnika scalonego, zanim nazwa zdążyła do niego dołączyć.",
       "upgrade": "Nie udało się dopasować żadnego znanego składnika.",
       "seed-ambiguous": "Katalog zna kilka składników, którymi to może być.",
@@ -885,6 +881,23 @@
         "aiDisabled": "AI jest wyłączone na tym serwerze. Najpierw włącz AI.",
         "error": "Nie udało się uruchomić masowego wzbogacania",
         "imageCount": "{count, plural, =0 {Nie zostanie wygenerowany żaden obraz.} one {Zostanie wygenerowany # obraz.} few {Zostaną wygenerowane # obrazy.} many {Zostanie wygenerowanych # obrazów.} other {Zostanie wygenerowanych # obrazu.}}"
+      },
+      "ingredientCatalogue": {
+        "title": "Katalog składników",
+        "subtitle": "Co AI robi z nowymi składnikami",
+        "automatic": "Automatycznie dla nowych składników",
+        "automaticDescription": "Co robi AI, gdy składnik zostaje dodany do katalogu.",
+        "automaticPlaceholder": "Nic nie działa automatycznie",
+        "kinds": {
+          "cleanUp": "Porządkuj nowe składniki",
+          "cleanUpDescription": "Scalaj pisownie, ustaw rodzica i prostą nazwę, usuń to, co nie jest jedzeniem",
+          "nutrition": "Uzupełniaj brakujące wartości odżywcze",
+          "nutritionDescription": "Szacuj makroskładniki na 100 g, gdy składnik ich nie ma",
+          "conversions": "Uzupełniaj brakujące przeliczniki",
+          "conversionsDescription": "Szacuj gęstość i wagę sztuki, gdy składnik ich nie ma",
+          "icon": "Rysuj brakujące ikony",
+          "iconDescription": "Tylko dla składnika bez ikony, nawet bez ikony rodzica"
+        }
       }
     },
     "aiConfig": {
@@ -941,8 +954,6 @@
         "imageGeneration": "Generowanie Obrazów",
         "imageGenerationDescription": "Narysuj zdjęcie potrawy dla nowych przepisów, które nie mają żadnego obrazu"
       },
-      "automaticIngredients": "Rysuj ikony dla nowych składników",
-      "automaticIngredientsDescription": "Tylko dla składnika bez ikony, nawet bez ikony rodzica.",
       "tagStrategy": "Strategia tagów",
       "tagStrategyDescription": "Jakich tagów może używać automatyczne tagowanie, niezależnie od tego, czy działa automatycznie czy ręcznie",
       "tagStrategies": {

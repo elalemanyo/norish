@@ -11,7 +11,6 @@ import {
   isNull,
   lte,
   ne,
-  notInArray,
   or,
   sql,
 } from "drizzle-orm";
@@ -31,7 +30,6 @@ import {
   recipes,
   recurringGroceries,
 } from "@norish/db/schema";
-import { RETRIED_FLAG_REASONS } from "@norish/shared/contracts/ingredient-catalogue";
 import { viewerAndHouseholdIds } from "@norish/shared/lib/household";
 import { ingredientAliasFold } from "@norish/shared/lib/spelling-keys";
 
@@ -333,22 +331,6 @@ export async function findCatalogueIngredientNames(
   return names;
 }
 
-/** The foods no AI answered for, or whose pass never came, that AI may still ask about: retried nightly. */
-export async function listUnansweredIngredientIds(): Promise<string[]> {
-  const rows = await db
-    .select({ id: ingredients.id })
-    .from(ingredients)
-    .where(
-      and(
-        eq(ingredients.flagged, true),
-        inArray(ingredients.flagReason, [...RETRIED_FLAG_REASONS]),
-        askableByAI()
-      )
-    );
-
-  return rows.map((row) => row.id);
-}
-
 /** Every seeded food holding a spelling the seed did not give it: what AI's spelling check asks about. */
 export async function listSeededFoodsWithOwnSpellings(): Promise<string[]> {
   const rows = await db
@@ -367,24 +349,12 @@ export async function listAskableIngredientIds(): Promise<string[]> {
   return rows.map((row) => row.id);
 }
 
-/**
- * Lift the flag of every hidden food: no one sees it there and AI never asks. A retried reason
- * stays, so the nightly retry asks once a recipe line names the food. Answers how many.
- */
+/** Lift the flag of every hidden food: no one sees it there and AI never asks. Answers how many. */
 export async function unflagHiddenFoods(tx: Db = db): Promise<number> {
   const unflagged = await tx
     .update(ingredients)
     .set({ flagged: false, flagReason: null, version: sql`${ingredients.version} + 1` })
-    .where(
-      and(
-        eq(ingredients.flagged, true),
-        or(
-          isNull(ingredients.flagReason),
-          notInArray(ingredients.flagReason, [...RETRIED_FLAG_REASONS])
-        ),
-        sql`not ${ingredientIsListed()}`
-      )
-    )
+    .where(and(eq(ingredients.flagged, true), sql`not ${ingredientIsListed()}`))
     .returning({ id: ingredients.id });
 
   return unflagged.length;

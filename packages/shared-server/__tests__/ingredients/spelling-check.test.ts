@@ -10,6 +10,7 @@ import type { CatalogueActor } from "@norish/shared-server/ingredients/catalogue
 import { ServerConfigKeys } from "@norish/config/zod/server-config";
 import { withTransaction } from "@norish/db/drizzle";
 import { addIngredientAliases } from "@norish/db/repositories/ingredient-aliases";
+import { listSeededFoodsWithOwnSpellings } from "@norish/db/repositories/ingredient-catalogue";
 import { addToJunkPile, listJunkFolds } from "@norish/db/repositories/ingredient-junk-pile";
 import {
   applyIngredientSeed,
@@ -35,11 +36,7 @@ import {
 } from "@norish/shared-server/ingredients/ai-changes";
 import { onIngredientsMinted } from "@norish/shared-server/ingredients/minted";
 import { resolveIngredients } from "@norish/shared-server/ingredients/resolver";
-import { readIngredientSeedState } from "@norish/shared-server/ingredients/seed/catalogue-seed";
-import {
-  checkSpellingsOf,
-  checkSpellingsOnFirstStart,
-} from "@norish/shared-server/ingredients/spelling-check";
+import { checkSpellingsOf } from "@norish/shared-server/ingredients/spelling-check";
 import { ingredientAliasFold } from "@norish/shared/lib/spelling-keys";
 
 import {
@@ -510,22 +507,12 @@ describe("AI checks the spellings added to a seeded food", () => {
     expect(await spellingsOf(noodle)).toEqual(["Verstegen noedels", "noodle"]);
   });
 
-  it("runs once, at the first start with AI on, over seeded foods only", async () => {
+  it("lists the seeded foods holding a spelling the seed did not give them, for the check", async () => {
     await added("en:chicken-breast", "kipfilet");
     await mintTestFood("hamburgerbroodjes");
-    const queue = vi.fn(async (_ids: string[]) => {});
 
-    vi.mocked(isAIEnabled).mockResolvedValue(false);
-    await expect(checkSpellingsOnFirstStart(queue)).resolves.toBeNull();
-    expect(queue).not.toHaveBeenCalled();
-    expect((await readIngredientSeedState()).spellingCheckVersion).toBe(0);
-
-    vi.mocked(isAIEnabled).mockResolvedValue(true);
-    await expect(checkSpellingsOnFirstStart(queue)).resolves.toEqual({ queued: 1 });
-    expect(queue).toHaveBeenCalledWith([seeded.get("en:chicken-breast")]);
-    expect((await readIngredientSeedState()).spellingCheckVersion).toBe(1);
-
-    await expect(checkSpellingsOnFirstStart(queue)).resolves.toBeNull();
-    expect(queue).toHaveBeenCalledTimes(1);
+    await expect(listSeededFoodsWithOwnSpellings()).resolves.toEqual([
+      seeded.get("en:chicken-breast"),
+    ]);
   });
 });

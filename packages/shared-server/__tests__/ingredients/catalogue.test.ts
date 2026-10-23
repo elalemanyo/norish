@@ -88,6 +88,14 @@ describe("the ingredient catalogue", () => {
     return resolved!;
   }
 
+  /** Flag a food as AI unsure of it: a mint is unflagged. */
+  async function flag(ingredientId: string) {
+    await getTestDb()
+      .update(ingredients)
+      .set({ flagged: true, flagReason: "ai-unsure" })
+      .where(eq(ingredients.id, ingredientId));
+  }
+
   /** A recipe line, a Grocery, a recurring grocery and a Pantry Ingredient, each naming `food` as `text`. */
   async function nameEverywhere(food: { aliasId: string; ingredientId: string }, text: string) {
     const db = getTestDb();
@@ -446,6 +454,7 @@ describe("the ingredient catalogue", () => {
     const leek = await mint("leek");
     const db = getTestDb();
 
+    await flag(leek.ingredientId);
     // Stands in for any failure after the rename's first write.
     await db.execute(sql`
       create or replace function refuse_alias() returns trigger language plpgsql as
@@ -565,14 +574,14 @@ describe("the ingredient catalogue", () => {
   it("says why a food is flagged, and sends the viewer's spellings with the rest on request", async () => {
     const cream = await mint("cream");
 
+    await flag(cream.ingredientId);
     await addAlias(actor, cream.ingredientId, "room");
 
     const page = await listIngredients(actor, { search: "cream", locale: "nl" });
 
-    // Minted without AI in these tests: that is the reason.
     expect(page.items[0]).toMatchObject({
       flagged: true,
-      flagReason: "ai-off",
+      flagReason: "ai-unsure",
       hiddenSpellings: 0,
     });
     expect(page.items[0]!.aliases.map((alias) => alias.text)).toEqual(["cream", "room"]);
@@ -598,7 +607,7 @@ describe("the ingredient catalogue", () => {
     const creme = await mint("crème fraîche");
 
     await markDistinct(actor, creme.ingredientId);
-    await mint("cream");
+    await flag((await mint("cream")).ingredientId);
 
     const search = await listIngredients(actor, { search: "CREME" });
 
@@ -617,6 +626,7 @@ describe("the ingredient catalogue", () => {
 
     await markDistinct(actor, cola.ingredientId);
     await markDistinct(actor, chocolate.ingredientId);
+    await flag(nut.ingredientId);
     await addAlias(actor, chocolate.ingredientId, "chocola");
 
     const names = async (
@@ -645,6 +655,7 @@ describe("the ingredient catalogue", () => {
       .returning({ id: ingredients.id });
     const reserve = await mint("Nora reserve melk");
     await mint("melkpoeder");
+    await flag(reserve.ingredientId);
 
     await getTestDb().insert(groceries).values({
       userId: actor.userId,

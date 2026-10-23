@@ -311,8 +311,8 @@ describe("the icons after a pass", () => {
     config.getAutomaticIngredientsConfig.mockResolvedValue({ icon: true });
     reviewer.askAIAbout
       .mockResolvedValueOnce({ outcome: "distinct", ...trace })
-      .mockResolvedValueOnce({ outcome: "unsure", reason: "ai-unavailable", ...trace })
-      .mockResolvedValueOnce({ outcome: "unsure", reason: "ai-key-rejected", ...trace })
+      .mockResolvedValueOnce({ outcome: "unanswered", reason: "ai-unavailable", ...trace })
+      .mockResolvedValueOnce({ outcome: "unanswered", reason: "ai-key-rejected", ...trace })
       .mockRejectedValueOnce(new Error("database away"))
       .mockResolvedValueOnce({ outcome: "unsure", reason: "ai-unsure", ...trace });
 

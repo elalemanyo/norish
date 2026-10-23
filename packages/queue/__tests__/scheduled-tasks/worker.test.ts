@@ -16,10 +16,6 @@ const seed = vi.hoisted(() => ({ refreshIngredientCatalogue: vi.fn() }));
 const recheck = vi.hoisted(() => ({ recheckUndecidedMintsOnRungChange: vi.fn() }));
 const catalogue = vi.hoisted(() => ({ sweepUnusedIngredients: vi.fn() }));
 const aiChanges = vi.hoisted(() => ({ sweepAIChanges: vi.fn(async () => 0) }));
-const unanswered = vi.hoisted(() => ({
-  listUnansweredIngredientIds: vi.fn(async (): Promise<string[]> => []),
-}));
-const review = vi.hoisted(() => ({ addIngredientReviewJob: vi.fn(async () => undefined) }));
 const captured = vi.hoisted(() => ({
   processor: undefined as ((job: unknown) => Promise<unknown>) | undefined,
 }));
@@ -50,8 +46,6 @@ vi.mock("@norish/shared-server/ingredients/seed/catalogue-seed", () => seed);
 vi.mock("@norish/shared-server/ingredients/seed/recheck-mints", () => recheck);
 vi.mock("@norish/shared-server/ingredients/catalogue", () => catalogue);
 vi.mock("@norish/db/repositories/ingredient-ai-changes", () => aiChanges);
-vi.mock("@norish/db/repositories/ingredient-catalogue", () => unanswered);
-vi.mock("@norish/queue/ingredient-review/producer", () => review);
 vi.mock("@norish/shared-server/logger", () => ({
   createLogger: () => ({ debug: vi.fn(), info: vi.fn(), warn: vi.fn(), error: vi.fn() }),
 }));
@@ -110,13 +104,5 @@ describe("startScheduledTasksWorker", () => {
     await captured.processor!(jobFor("ingredient-sweep"));
     expect(catalogue.sweepUnusedIngredients).toHaveBeenCalledTimes(1);
     expect(aiChanges.sweepAIChanges).toHaveBeenCalledTimes(1);
-  });
-
-  it("asks AI again about the foods it could not answer for", async () => {
-    catalogue.sweepUnusedIngredients.mockResolvedValueOnce({ deleted: 0 });
-    unanswered.listUnansweredIngredientIds.mockResolvedValueOnce(["uien", "knaks"]);
-    await captured.processor!(jobFor("ingredient-sweep"));
-    // The pass follows the AI switch: with AI off, the producer queues nothing.
-    expect(review.addIngredientReviewJob).toHaveBeenCalledExactlyOnceWith(["uien", "knaks"]);
   });
 });

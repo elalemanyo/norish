@@ -393,12 +393,8 @@
     "flagged": "Markiert",
     "flagReasons": {
       "unknown": "Norish war nicht sicher, ob dies eine eigene Zutat ist.",
-      "ai-off": "KI ist aus, daher hat nichts geprüft, ob Norish diese Zutat schon kennt.",
-      "ai-queued": "Neu in Norish. KI sieht sich das gleich an.",
       "unknown-food": "Keine bekannte Zutat teilt ein Wort mit diesem Namen, daher wurde KI nicht gefragt.",
       "ai-unsure": "KI wurde gefragt, ob dies eine bekannte Zutat ist, und war nicht sicher.",
-      "ai-unavailable": "KI hat nicht rechtzeitig geantwortet.",
-      "ai-key-rejected": "Der KI-Anbieter hat den API-Schlüssel abgelehnt, daher konnte die KI diesen Namen nicht prüfen.",
       "food-gone": "KI ordnete dies einer Zutat zu, die zusammengeführt wurde, bevor der Name dazukommen konnte.",
       "upgrade": "Es konnte keine bekannte Zutat zugeordnet werden.",
       "seed-ambiguous": "Der Katalog kennt mehrere Zutaten, die dies sein könnten.",
@@ -885,6 +881,23 @@
         "aiDisabled": "KI ist auf diesem Server deaktiviert. Aktivieren Sie zuerst KI.",
         "error": "Massen-Anreicherung konnte nicht gestartet werden",
         "imageCount": "{count, plural, =0 {Es werden keine Bilder generiert.} one {Es wird # Bild generiert.} other {Es werden # Bilder generiert.}}"
+      },
+      "ingredientCatalogue": {
+        "title": "Zutatenkatalog",
+        "subtitle": "Was KI mit neuen Zutaten macht",
+        "automatic": "Automatisch für neue Zutaten",
+        "automaticDescription": "Was KI tut, wenn eine Zutat in den Katalog aufgenommen wird.",
+        "automaticPlaceholder": "Nichts läuft automatisch",
+        "kinds": {
+          "cleanUp": "Neue Zutaten bereinigen",
+          "cleanUpDescription": "Schreibweisen zusammenführen, übergeordnete Zutat und einfachen Namen setzen, entfernen, was kein Lebensmittel ist",
+          "nutrition": "Fehlende Nährwerte ergänzen",
+          "nutritionDescription": "Makros pro 100 g schätzen, wo die Zutat keine hat",
+          "conversions": "Fehlende Umrechnungen ergänzen",
+          "conversionsDescription": "Dichte und Stückgewicht schätzen, wo die Zutat keine hat",
+          "icon": "Fehlende Symbole zeichnen",
+          "iconDescription": "Nur für eine Zutat ohne Symbol, auch ohne das ihrer übergeordneten Zutat"
+        }
       }
     },
     "aiConfig": {
@@ -941,8 +954,6 @@
         "imageGeneration": "Bildgenerierung",
         "imageGenerationDescription": "Zeichnet ein Bild des Gerichts für neue Rezepte, die gar kein Bild haben"
       },
-      "automaticIngredients": "Symbole für neue Zutaten zeichnen",
-      "automaticIngredientsDescription": "Nur für eine Zutat ohne Symbol, auch ohne das ihrer übergeordneten Zutat.",
       "tagStrategy": "Tag-Strategie",
       "tagStrategyDescription": "Welche Tags die automatische Verschlagwortung verwenden darf, ob automatisch oder manuell",
       "tagStrategies": {

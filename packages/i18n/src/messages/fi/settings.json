@@ -393,12 +393,8 @@
     "flagged": "Merkitty",
     "flagReasons": {
       "unknown": "Norish ei ollut varma, onko tämä oma ainesosansa.",
-      "ai-off": "Tekoäly on pois päältä, joten mikään ei tarkistanut, tunteeko Norish tämän jo.",
-      "ai-queued": "Uusi Norishissa. Tekoäly katsoo sen pian.",
       "unknown-food": "Mikään tunnettu ainesosa ei jaa sanaa tämän nimen kanssa, joten tekoälyltä ei kysytty.",
       "ai-unsure": "Tekoälyltä kysyttiin, onko tämä tunnettu ainesosa, eikä se ollut varma.",
-      "ai-unavailable": "Tekoäly ei vastannut ajoissa.",
-      "ai-key-rejected": "Tekoälypalvelu hylkäsi API-avaimen, joten tekoäly ei voinut tarkistaa tätä nimeä.",
       "food-gone": "Tekoäly yhdisti tämän ainesosaan, joka yhdistettiin ennen kuin nimi ehti mukaan.",
       "upgrade": "Vastaavaa tunnettua ainesosaa ei löytynyt.",
       "seed-ambiguous": "Luettelo tuntee useita ainesosia, joita tämä voisi olla.",
@@ -885,6 +881,23 @@
         "aiDisabled": "Tekoäly on pois käytöstä tällä palvelimella. Ota tekoäly ensin käyttöön.",
         "error": "Joukkorikastuksen käynnistys epäonnistui",
         "imageCount": "{count, plural, =0 {Ajo ei luo yhtään kuvaa.} one {Ajo luo # kuvan.} other {Ajo luo # kuvaa.}}"
+      },
+      "ingredientCatalogue": {
+        "title": "Ainesosaluettelo",
+        "subtitle": "Mitä tekoäly tekee uusille ainesosille",
+        "automatic": "Automaattisesti uusille ainesosille",
+        "automaticDescription": "Mitä tekoäly tekee, kun luetteloon lisätään ainesosa.",
+        "automaticPlaceholder": "Mitään ei ajeta automaattisesti",
+        "kinds": {
+          "cleanUp": "Siivoa uudet ainesosat",
+          "cleanUpDescription": "Yhdistä kirjoitusasut, aseta yläkäsite ja pelkkä nimi, poista se, mikä ei ole ruokaa",
+          "nutrition": "Täydennä puuttuvat ravintoarvot",
+          "nutritionDescription": "Arvioi makrot 100 g:aa kohti, jos ainesosalla ei ole niitä",
+          "conversions": "Täydennä puuttuvat muunnokset",
+          "conversionsDescription": "Arvioi tiheys ja kappalepaino, jos ainesosalla ei ole niitä",
+          "icon": "Piirrä puuttuvat kuvakkeet",
+          "iconDescription": "Vain ainesosalle, jolla ei ole kuvaketta, ei edes yläkäsitteensä"
+        }
       }
     },
     "aiConfig": {
@@ -941,8 +954,6 @@
         "imageGeneration": "Kuvien luonti",
         "imageGenerationDescription": "Piirrä kuva ruoasta uusille resepteille, joilla ei ole lainkaan kuvaa"
       },
-      "automaticIngredients": "Piirrä kuvakkeet uusille ainesosille",
-      "automaticIngredientsDescription": "Vain ainesosalle, jolla ei ole kuvaketta, ei edes yläkäsitteensä.",
       "tagStrategy": "Sallitut tunnisteet",
       "tagStrategyDescription": "Mitä tunnisteita tunnisteiden luonti saa käyttää, ajetaanpa se automaattisesti tai käsin",
       "tagStrategies": {

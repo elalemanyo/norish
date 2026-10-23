@@ -16,7 +16,6 @@ import {
   recurringGroceries,
   users,
 } from "@norish/db/schema";
-import { UNANSWERED_FLAG_REASONS } from "@norish/shared/contracts/ingredient-catalogue";
 
 import { findGroceryRows, nameIsFree, rowsNaming } from "./ingredient-catalogue";
 import { repointLines } from "./ingredient-cleanup";
@@ -375,16 +374,34 @@ export async function refreshAIFlag(
     .where(eq(ingredients.id, ingredientId));
 }
 
-/** Flag the food an unsure change joined, keeping a reason that says no AI could answer for it. */
+/** Flag the food an unsure change joined. */
 export async function flagUnderOpenChange(tx: Db, ingredientId: string): Promise<void> {
   await tx
     .update(ingredients)
+    .set({ flagged: true, flagReason: "ai-unsure", version: sql`${ingredients.version} + 1` })
+    .where(eq(ingredients.id, ingredientId));
+}
+
+/** What earlier releases flagged a food for that is no flag now: AI waiting, off or failing. */
+const RETIRED_FLAG_REASONS = ["ai-queued", "ai-off", "ai-unavailable", "ai-key-rejected"];
+
+/** Lift every flag for a retired reason; a food under an open change keeps AI's doubt. How many. */
+export async function clearRetiredFlags(tx: Db): Promise<number> {
+  const doubted = sql`exists (select 1 from ${ingredientAIChanges} where ${and(
+    sql`${ingredientAIChanges.ingredientId} = ${ingredients}.id`,
+    open
+  )})`;
+  const cleared = await tx
+    .update(ingredients)
     .set({
-      flagged: true,
-      flagReason: sql`case when ${inArray(ingredients.flagReason, [...UNANSWERED_FLAG_REASONS])} then ${ingredients.flagReason} else 'ai-unsure' end`,
+      flagged: doubted,
+      flagReason: sql`case when ${doubted} then 'ai-unsure' end`,
       version: sql`${ingredients.version} + 1`,
     })
-    .where(eq(ingredients.id, ingredientId));
+    .where(inArray(ingredients.flagReason, RETIRED_FLAG_REASONS))
+    .returning({ id: ingredients.id });
+
+  return cleared.length;
 }
 
 /** Clear AI's doubt once no open change is left; a flag for another reason is not AI's to clear. */

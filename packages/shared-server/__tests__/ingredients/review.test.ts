@@ -187,7 +187,6 @@ describe("asking AI about an Ingredient", () => {
         if (prompt === "ingredient-plain-name") return { plainName: null };
         throw new Error(`no ${prompt} answer queued`);
       }) as never);
-    // Reset, not only re-stubbed: a `flagged` text that mints nothing leaves its once-off unread.
     vi.mocked(isAIEnabled).mockReset().mockResolvedValue(true);
     vi.mocked(isDecisionUseEnabled).mockResolvedValue(true);
   });
@@ -196,9 +195,8 @@ describe("asking AI about an Ingredient", () => {
     await testBase.teardown();
   });
 
-  /** A food minted while AI was off, flagged as the upgrade leaves them; no row names it. */
+  /** A food someone's action minted, unflagged; no row names it. */
   async function unnamed(text: string) {
-    vi.mocked(isAIEnabled).mockResolvedValueOnce(false);
     const [resolved] = await resolveIngredients([text], { userId: actor.userId });
 
     return resolved!;
@@ -1436,7 +1434,7 @@ describe("asking AI about an Ingredient", () => {
       });
     });
 
-    it("flags the food when the second answer breaks it too", async () => {
+    it("leaves the food unanswered and unflagged when the second answer breaks it too", async () => {
       await kept("onion");
       const uien = await flagged("uien");
 
@@ -1447,19 +1445,19 @@ describe("asking AI about an Ingredient", () => {
       });
 
       await expect(askAIAbout(uien.ingredientId)).resolves.toMatchObject({
-        outcome: "unsure",
+        outcome: "unanswered",
         reason: "ai-unavailable",
       });
       expect(resolutionRequests()).toBe(2);
       await expect(findIngredientByAliasId(uien.aliasId)).resolves.toMatchObject({
         id: uien.ingredientId,
-        flagged: true,
-        flagReason: "ai-unavailable",
+        flagged: false,
+        flagReason: null,
       });
     });
   });
 
-  it("leaves the food and its changes as they were when no answer comes, the flag saying why", async () => {
+  it("leaves the food, its flag and its changes as they were when no answer comes", async () => {
     await kept("onion");
     const red = await flagged("red onion");
 
@@ -1468,46 +1466,28 @@ describe("asking AI about an Ingredient", () => {
     answers("ingredient-resolution", new Error("model unreachable"));
 
     await expect(askAIAbout(red.ingredientId)).resolves.toMatchObject({
-      outcome: "unsure",
+      outcome: "unanswered",
       reason: "ai-unavailable",
     });
     await expect(findIngredientByAliasId(red.aliasId)).resolves.toMatchObject({
-      flagReason: "ai-unavailable",
+      flagged: true,
+      flagReason: "ai-unsure",
     });
     expect(await changes()).toMatchObject([{ kind: "parent", sure: false }]);
   });
 
-  it("keeps the flag a food has when AI is switched off while the pass waits", async () => {
+  it("leaves an unflagged food unflagged when AI is switched off while the pass waits", async () => {
     const red = await flagged("red onion");
 
-    await getTestDb()
-      .update(ingredients)
-      .set({ flagReason: "ai-unavailable" })
-      .where(eq(ingredients.id, red.ingredientId));
     vi.mocked(isAIEnabled).mockResolvedValue(false);
 
     await expect(askAIAbout(red.ingredientId)).resolves.toMatchObject({
-      outcome: "unsure",
+      outcome: "unanswered",
       reason: "ai-off",
     });
-    // Still one the nightly pass asks again once AI is back.
     await expect(findIngredientByAliasId(red.aliasId)).resolves.toMatchObject({
-      flagReason: "ai-unavailable",
-    });
-  });
-
-  it("says AI is off on a food that was waiting on its pass when AI was switched off", async () => {
-    const red = await flagged("red onion");
-
-    await getTestDb()
-      .update(ingredients)
-      .set({ flagReason: "ai-queued" })
-      .where(eq(ingredients.id, red.ingredientId));
-    vi.mocked(isAIEnabled).mockResolvedValue(false);
-
-    await askAIAbout(red.ingredientId);
-    await expect(findIngredientByAliasId(red.aliasId)).resolves.toMatchObject({
-      flagReason: "ai-off",
+      flagged: false,
+      flagReason: null,
     });
   });
 
@@ -1644,11 +1624,11 @@ describe("asking AI about an Ingredient", () => {
     answers("ingredient-resolution", refused);
 
     await expect(askAIAbout(cloves.ingredientId)).resolves.toMatchObject({
-      outcome: "unsure",
+      outcome: "unanswered",
       reason: "ai-key-rejected",
     });
     await expect(findIngredientByAliasId(cloves.aliasId)).resolves.toMatchObject({
-      flagReason: "ai-key-rejected",
+      flagged: false,
     });
   });
 
@@ -1677,7 +1657,7 @@ describe("asking AI about an Ingredient", () => {
       });
     });
 
-    it("flags a food as unanswered when the reading times out twice", async () => {
+    it("leaves a food unanswered when the reading times out twice", async () => {
       await kept("garlic");
       const cloves = await flagged("garlic cloves");
 
@@ -1685,7 +1665,7 @@ describe("asking AI about an Ingredient", () => {
       answers("ingredient-resolution", timedOut());
 
       await expect(askAIAbout(cloves.ingredientId)).resolves.toMatchObject({
-        outcome: "unsure",
+        outcome: "unanswered",
         reason: "ai-unavailable",
       });
       expect(resolutionRequests()).toBe(2);
@@ -1700,7 +1680,7 @@ describe("asking AI about an Ingredient", () => {
       answers("ingredient-resolution", timedOut());
 
       await expect(askAIAbout(uien.ingredientId)).resolves.toMatchObject({
-        outcome: "unsure",
+        outcome: "unanswered",
         reason: "ai-unavailable",
       });
       expect(resolutionRequests()).toBe(3);
@@ -1860,7 +1840,7 @@ describe("asking AI about an Ingredient", () => {
       expect(await exists(joined.ingredientId)).toBe(false);
     });
 
-    it("splits a food into parts nothing knows, minting them flagged for passes of their own", async () => {
+    it("splits a food into parts nothing knows, minting them unflagged for passes of their own", async () => {
       const joined = await flagged("Dijon or yellow mustard");
       const named = await nameEverywhere(joined, "Dijon or yellow mustard", { pantry: false });
       const minted: string[] = [];
@@ -1881,8 +1861,8 @@ describe("asking AI about an Ingredient", () => {
 
       expect(how).toBe("alternatives");
       expect(parts).toMatchObject([
-        { name: "Dijon mustard", flagged: true, flagReason: "ai-queued" },
-        { name: "yellow mustard", flagged: true, flagReason: "ai-queued" },
+        { name: "Dijon mustard", flagged: false, flagReason: null },
+        { name: "yellow mustard", flagged: false, flagReason: null },
       ]);
       expect(minted.sort()).toEqual(parts.map((part) => part!.id).sort());
       expect(await exists(joined.ingredientId)).toBe(false);
@@ -1924,8 +1904,8 @@ describe("asking AI about an Ingredient", () => {
         );
 
         expect(parts).toMatchObject([
-          { name: "vegatine", flagReason: "ai-queued" },
-          { name: "agar agar", flagReason: "ai-queued" },
+          { name: "vegatine", flagged: false },
+          { name: "agar agar", flagged: false },
         ]);
         expect(minted).toContain(parts[1]!.id);
         const barleySpellings = await getTestDb()
@@ -1999,8 +1979,8 @@ describe("asking AI about an Ingredient", () => {
 
         expect(creamFood).toMatchObject({
           name: "light cooking cream",
-          flagged: true,
-          flagReason: "ai-queued",
+          flagged: false,
+          flagReason: null,
         });
         expect(creamFood!.id).not.toBe(joined.ingredientId);
         expect(minted).toEqual([creamFood!.id]);

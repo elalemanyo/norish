@@ -393,12 +393,8 @@
     "flagged": "표시됨",
     "flagReasons": {
       "unknown": "Norish가 이것이 별도의 재료인지 확신하지 못했습니다.",
-      "ai-off": "AI가 꺼져 있어 Norish가 이미 아는 재료인지 확인하지 못했습니다.",
-      "ai-queued": "Norish에 새로 추가되었습니다. 곧 AI가 확인합니다.",
       "unknown-food": "이 이름과 단어를 공유하는 알려진 재료가 없어 AI에 묻지 않았습니다.",
       "ai-unsure": "AI에 알려진 재료인지 물었지만 확신하지 못했습니다.",
-      "ai-unavailable": "AI가 제때 응답하지 않았습니다.",
-      "ai-key-rejected": "AI 제공업체가 API 키를 거부해서 AI가 이 이름을 확인하지 못했습니다.",
       "food-gone": "AI가 연결한 재료가 이름이 합류하기 전에 병합되어 사라졌습니다.",
       "upgrade": "일치하는 알려진 재료를 찾지 못했습니다.",
       "seed-ambiguous": "카탈로그에 이것일 수 있는 재료가 여럿 있습니다.",
@@ -885,6 +881,23 @@
         "aiDisabled": "이 서버에서 AI가 비활성화되어 있습니다. 먼저 AI를 활성화하세요.",
         "error": "대량 보강을 시작하지 못했습니다",
         "imageCount": "{count, plural, =0 {생성되는 이미지가 없습니다.} other {#개의 이미지가 생성됩니다.}}"
+      },
+      "ingredientCatalogue": {
+        "title": "재료 카탈로그",
+        "subtitle": "AI가 새 재료에 하는 일",
+        "automatic": "새 재료에 자동 적용",
+        "automaticDescription": "카탈로그에 재료가 추가될 때 AI가 하는 일입니다.",
+        "automaticPlaceholder": "자동으로 실행되는 항목 없음",
+        "kinds": {
+          "cleanUp": "새 재료 정리",
+          "cleanUpDescription": "표기를 병합하고, 상위 항목과 기본 이름을 정하고, 음식이 아닌 것은 삭제",
+          "nutrition": "누락된 영양 정보 채우기",
+          "nutritionDescription": "재료에 없는 경우 100 g당 매크로 추정",
+          "conversions": "누락된 환산 정보 채우기",
+          "conversionsDescription": "재료에 없는 경우 밀도와 개당 무게 추정",
+          "icon": "누락된 아이콘 그리기",
+          "iconDescription": "상위 항목의 아이콘도 없는 재료에만 그립니다"
+        }
       }
     },
     "aiConfig": {
@@ -941,8 +954,6 @@
         "imageGeneration": "이미지 생성",
         "imageGenerationDescription": "이미지가 전혀 없는 새 레시피에 요리 사진을 그려줍니다"
       },
-      "automaticIngredients": "새 재료에 아이콘 그리기",
-      "automaticIngredientsDescription": "상위 항목의 아이콘도 없는 재료에만 그립니다.",
       "tagStrategy": "태그 전략",
       "tagStrategyDescription": "자동 또는 수동 실행 여부와 관계없이 자동 태그 지정이 사용할 수 있는 태그",
       "tagStrategies": {

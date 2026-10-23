@@ -15,20 +15,16 @@ import {
   recordModelUse,
   runWithModelUseLedger,
 } from "@norish/shared-server/ai/runtime/model-use-ledger";
-import { getAutomaticIngredientsConfig } from "@norish/shared-server/config/server-config-loader";
 import { announcingTogether } from "@norish/shared-server/ingredients/changes";
-import { listFoodsShowingNoIcon } from "@norish/shared-server/ingredients/icon-rounds";
 import { askAIAbout } from "@norish/shared-server/ingredients/review";
 import { checkSpellingsOf } from "@norish/shared-server/ingredients/spelling-check";
 import { createLogger } from "@norish/shared-server/logger";
-import { UNANSWERED_FLAG_REASONS } from "@norish/shared/contracts/ingredient-catalogue";
 
 import type { JobStepEvent } from "../job-steps";
 import { createWorker } from "../create-worker";
-import { addIngredientIconsJob } from "../ingredient-icons/producer";
+import { addMissingIconsJob } from "../ingredient-icons/producer";
 import { recordCompletedSteps } from "../job-steps";
 import { QUEUE_NAMES } from "../queue-names";
-import { getQueues } from "../registry";
 
 const log = createLogger("worker:ingredient-review");
 
@@ -73,19 +69,7 @@ const PASS_WRITES = 20;
 
 /** Whether AI answered for the food: a later pass may still merge one it could not reach. */
 function answered(detail: ReviewStepDetail): boolean {
-  if (detail.outcome === "failed") return false;
-
-  return detail.outcome !== "unsure" || !UNANSWERED_FLAG_REASONS.includes(detail.reason);
-}
-
-/** Queue the answered foods that are still there and show no icon, where "Draw an icon" is on. */
-async function queueIcons(ingredientIds: readonly string[]): Promise<void> {
-  if (!(await getAutomaticIngredientsConfig()).icon) return;
-  const foods = await listFoodsShowingNoIcon(ingredientIds);
-
-  if (foods.length > 0) {
-    await addIngredientIconsJob(getQueues().ingredientIcons, { ingredients: foods, actor: null });
-  }
+  return detail.outcome !== "failed" && detail.outcome !== "unanswered";
 }
 
 /** Exported so the job body can be exercised without a Valkey-backed worker. */
@@ -160,7 +144,9 @@ export async function processIngredientReviewJob(
   );
   await recording;
   signal?.throwIfAborted();
-  if (drawsIcons) await queueIcons(foods.flatMap((food) => (done.has(food.id) ? [food.id] : [])));
+  if (drawsIcons) {
+    await addMissingIconsJob(foods.flatMap((food) => (done.has(food.id) ? [food.id] : [])));
+  }
 }
 
 export function startIngredientReviewWorker(): void {
