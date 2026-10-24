@@ -577,20 +577,6 @@
       "failed": "Bildet kunne ikke gjøres om til et ikon.",
       "generate": "Generer med AI",
       "generateFailed": "Ikonet kunne ikke genereres."
-    },
-    "drawIcons": {
-      "open": "Tegn ikoner",
-      "title": "Tegn ikoner",
-      "intro": "Bildeleverandøren tegner et ikon for hver matvare, og det blir straks matvarens eget. Du kan gi en matvare et annet ikon i panelet dens.",
-      "scopeLabel": "Hvilke matvarer",
-      "scopes": {
-        "bare": "Bare matvarer helt uten ikon",
-        "unowned": "Alle matvarer uten eget ikon"
-      },
-      "scopeSize": "{count, plural, =0 {Ingen ikoner} one {# ikon} other {# ikoner}}",
-      "start": "Tegn ikoner",
-      "progress": "Tegner ikoner · {done, number} av {total, number}",
-      "drawing": "Tegner ikon…"
     }
   },
   "admin": {
@@ -916,6 +902,23 @@
           "start": "Rydd opp",
           "started": "{count, plural, one {Rydder opp i # ingrediens} other {Rydder opp i # ingredienser}}",
           "error": "Kunne ikke starte oppryddingen"
+        },
+        "fillGaps": {
+          "title": "Fyll hull",
+          "description": "La AI fylle inn det ingrediensene mangler.",
+          "running": "Utfyllingen pågår. Følg den i jobbkøen.",
+          "button": "Fyll hull",
+          "intro": "For hver ingrediens i katalogen fyller AI bare inn det den ikke har selv. Det en ingrediens allerede har, erstattes aldri.",
+          "kindsLabel": "Hva som fylles inn",
+          "kinds": {
+            "nutrition": "Næringsinnhold",
+            "conversions": "Omregninger",
+            "icons": "Ikoner"
+          },
+          "count": "{count, plural, =0 {Ingenting å fylle inn} one {# ingrediens} other {# ingredienser}}",
+          "start": "Fyll hull",
+          "started": "Fyller hull. Følg det i jobbkøen.",
+          "error": "Kunne ikke starte utfyllingen"
         }
       }
     },

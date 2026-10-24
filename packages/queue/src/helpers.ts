@@ -78,3 +78,10 @@ export function describeError(error: unknown): string {
 
   return cause ? `${error.message}: ${cause}` : error.message;
 }
+
+/** Whether a job by this name is waiting or running on the queue. */
+export async function hasQueuedJobNamed(queue: Queue, name: string): Promise<boolean> {
+  const jobs = await queue.getJobs(["active", "waiting", "prioritized", "delayed"], 0, -1);
+
+  return jobs.some((job) => job.name === name);
+}

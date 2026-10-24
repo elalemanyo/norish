@@ -221,8 +221,8 @@ export async function isImageGenerationConfigured(): Promise<boolean> {
 
 /**
  * Whether the instance can draw: AI on and an Image Generation provider
- * configured. What Generate and Draw icons on the Ingredients page follow,
- * so a button is hidden rather than offered to fail.
+ * configured. What Generate in a food's icon menu and Fill gaps' Icons
+ * follow, so neither is offered to fail.
  */
 export async function canDrawImages(): Promise<boolean> {
   const [enabled, configured] = await Promise.all([isAIEnabled(), isImageGenerationConfigured()]);

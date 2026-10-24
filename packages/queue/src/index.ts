@@ -36,8 +36,6 @@ export { addCaldavSyncJob } from "./caldav-sync/producer";
 export { initializeScheduledJobs } from "./scheduled-tasks/producer";
 export { addStoreMatchJob, addStoreRefreshJob } from "./store-lookup/producer";
 export { addIngredientReviewJob } from "./ingredient-review/producer";
-export { addIngredientIconsJob } from "./ingredient-icons/producer";
-export { findRunningIconRound } from "./ingredient-icons/progress";
 
 // Types from @norish/shared/contracts
 export type {

@@ -5,7 +5,7 @@
  * food on a recipe and on the grocery list once it is saved, and not before;
  * a kind of the food with no icon of its own shows its parent's; Generate
  * draws one with the image provider into the draft; a reader who hid
- * Ingredient Icons sees none; and a Draw icons round fills a food that had
+ * Ingredient Icons sees none; and Fill gaps' Icons draws a food that had
  * none. The scenario seeds a small catalogue of its own (the harness fetches
  * no Open Food Facts seed), and the fake AI provider's image route stands in
  * for the image provider. The real server, database, Valkey, queue and
@@ -18,7 +18,12 @@ import { clearDevicePreferences, setDevicePreferences } from "../harness/device-
 import { seedRecipe } from "./cookbooks-support";
 import { expect, test } from "./fixture";
 import { configureImageGeneration } from "./image-generation-support";
-import { resetCatalogueScenario, seedCatalogue, setParent } from "./ingredient-catalogue-support";
+import {
+  openCataloguePanel,
+  resetCatalogueScenario,
+  seedCatalogue,
+  setParent,
+} from "./ingredient-catalogue-support";
 import { pictureFile, pictureOfFood, readOwnIcon, seedGrocery } from "./ingredient-icons-support";
 
 test.describe.configure({ mode: "serial" });
@@ -177,23 +182,26 @@ test("hiding Ingredient icons takes them off the recipe page", async () => {
   }
 });
 
-test("a Draw icons round over foods with no icon at all fills a bare food", async () => {
+test("Fill gaps' Icons draws only a food that shows no icon", async () => {
   await configureImageGeneration(stack, stack.ai.url);
   stack.ai.control.succeedImageWith((await pictureOfFood("#e8a33b")).toString("base64"));
 
-  await page.goto("/settings?tab=ingredients");
-  await page.getByTestId("ingredients-draw-icons").click();
-  const dialog = page.getByTestId("ingredients-draw-icons-dialog");
+  const panel = await openCataloguePanel(page);
 
-  // Only parsnip has no icon anywhere: onion and kohlrabi have their own, red onion borrows.
-  await expect(dialog.getByTestId("ingredients-draw-icons-scope-bare")).toContainText("1 icon");
-  await dialog.getByTestId("ingredients-draw-icons-start").click();
+  await panel.getByTestId("fill-gaps").click();
+  const dialog = page.getByTestId("fill-gaps-dialog");
+
+  // Only parsnip shows no icon: onion and kohlrabi have their own, red onion borrows.
+  await expect(dialog.getByTestId("fill-gaps-icons")).toContainText("1 ingredient");
+  await dialog.getByTestId("fill-gaps-icons").getByText("Icons", { exact: true }).click();
+  await dialog.getByTestId("fill-gaps-start").click();
   await expect(dialog).toBeHidden();
 
   await expect.poll(() => readOwnIcon(stack, "parsnip"), { timeout: 60_000 }).not.toBeNull();
-  // The round touched nothing that already showed an icon.
+  // The run touched nothing that already showed an icon.
   expect(stack.ai.control.imageRequestCount).toBe(1);
 
+  await page.goto("/settings?tab=ingredients");
   await page.getByTestId("ingredients-search").fill("parsnip");
   await expect(
     page

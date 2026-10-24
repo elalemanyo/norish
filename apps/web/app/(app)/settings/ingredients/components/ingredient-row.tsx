@@ -19,16 +19,14 @@ const INDENT_PX = 24;
  * Pressing it opens the Ingredient's panel, where the spellings and every
  * edit the server says the viewer may make live. In the page's tree a food
  * with kinds carries a chevron that folds them out beneath it, set in by
- * `depth`. `drawing` is its turn in a Draw icons round, shown in its
- * icon's place until the icon lands. A row re-renders only when its own item
- * or turn changes, so a page of fifty rows stays out of the way of typing.
+ * `depth`. A row re-renders only when its own item changes, so a page of
+ * fifty rows stays out of the way of typing.
  */
 export const IngredientRow = memo(function IngredientRow({
   item,
   depth = 0,
   expanded = false,
   loadingKinds = false,
-  drawing = false,
   onOpen,
   onToggleKinds,
 }: {
@@ -36,7 +34,6 @@ export const IngredientRow = memo(function IngredientRow({
   depth?: number;
   expanded?: boolean;
   loadingKinds?: boolean;
-  drawing?: boolean;
   onOpen: (id: string) => void;
   /** Fold the food's kinds out or back; absent where the list is flat. */
   onToggleKinds?: (id: string) => void;
@@ -94,17 +91,7 @@ export const IngredientRow = memo(function IngredientRow({
         type="button"
         onClick={() => onOpen(item.id)}
       >
-        {iconsHidden ? null : drawing ? (
-          <span
-            className="text-muted flex size-6 shrink-0 items-center justify-center md:size-8"
-            data-testid="ingredient-icon-drawing"
-          >
-            <Spinner color="current" size="sm" />
-            <span className="sr-only">{t("drawIcons.drawing")}</span>
-          </span>
-        ) : (
-          <IngredientIcon placeholder src={item.icon ?? null} />
-        )}
+        {iconsHidden ? null : <IngredientIcon placeholder src={item.icon ?? null} />}
         <div className="flex min-w-0 flex-1 flex-col gap-1">
           <div className="flex min-w-0 flex-wrap items-center gap-2">
             <span className="min-w-0 truncate font-medium">{displayName}</span>

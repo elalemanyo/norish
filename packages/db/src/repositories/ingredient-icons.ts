@@ -54,7 +54,7 @@ export async function findIconLineage(ids: readonly string[]): Promise<Map<strin
   return new Map(result.rows.map((row) => [row.id, toNode(row)]));
 }
 
-/** Every Ingredient as the icon walk reads it: what a Draw icons round's scopes are counted over. */
+/** Every Ingredient as the icon walk reads it: what the icon tool draws its set over. */
 export async function listIconCatalogue(): Promise<Map<string, IconNode>> {
   const rows = await db
     .select({

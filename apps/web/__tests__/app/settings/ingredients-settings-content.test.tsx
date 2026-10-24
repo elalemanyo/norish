@@ -83,9 +83,6 @@ const cache = vi.hoisted(() => {
     },
   };
 });
-// A Draw icons round: what each scope holds, and the round running, if any.
-let iconScope: { bare: number; unowned: number } | undefined = undefined;
-let iconRound: unknown = null;
 /** What AI changed, as `aiChanges` answers. */
 let changes: unknown[] = [];
 /** What `uses` answers: where the open food is still used. */
@@ -145,16 +142,6 @@ vi.mock("@/app/providers/trpc-provider", () => ({
         queryOptions: (input: { parentId: string }) => ({ queryKey: ["ingredients.kinds", input] }),
         pathKey: () => ["ingredients.kinds"],
       },
-      onIcons: "onIcons",
-      iconScope: {
-        queryOptions: () => ({ queryKey: ["ingredients.iconScope"] }),
-        queryKey: () => ["ingredients.iconScope"],
-      },
-      iconRound: {
-        queryOptions: () => ({ queryKey: ["ingredients.iconRound"] }),
-        queryKey: () => ["ingredients.iconRound"],
-      },
-      drawIcons: { mutationOptions: () => ({ name: "drawIcons" }) },
     },
   }),
 }));
@@ -181,10 +168,6 @@ vi.mock("@tanstack/react-query", () => ({
 
     useSyncExternalStore(cache.subscribe, cache.snapshot);
     switch (queryKey[0]) {
-      case "ingredients.iconScope":
-        return { data: enabled ? iconScope : undefined, isFetching: false, isPending: false };
-      case "ingredients.iconRound":
-        return { data: enabled ? iconRound : undefined, isFetching: false, isPending: false };
       case "ingredients.get":
         return { data: enabled ? ownItem : undefined, isFetching: false, isPending: false };
       case "ingredients.uses":
@@ -432,8 +415,6 @@ describe("IngredientsSettingsContent", () => {
     everySpelling = [];
     uses = undefined;
     usesPending = false;
-    iconScope = undefined;
-    iconRound = null;
     permissions.canDrawImages = false;
     changes = [];
     ownItem = undefined;
@@ -457,45 +438,6 @@ describe("IngredientsSettingsContent", () => {
       listEnd.onIntersect?.([{ isIntersecting: true }]);
     });
     expect(fetchNextPage).toHaveBeenCalledTimes(2);
-  });
-
-  it("offers Draw icons only where the instance can draw and the viewer may draw a food", () => {
-    iconScope = { bare: 2, unowned: 5 };
-    const { unmount } = render(<IngredientsSettingsContent />);
-
-    // Nothing can draw: not offered, whatever is left.
-    expect(screen.queryByTestId("ingredients-draw-icons")).toBeNull();
-    unmount();
-
-    permissions.canDrawImages = true;
-    const drawing = render(<IngredientsSettingsContent />);
-
-    expect(screen.getByTestId("ingredients-draw-icons")).toBeInTheDocument();
-    drawing.unmount();
-
-    // Nothing left that the viewer may draw, in either scope.
-    iconScope = { bare: 0, unowned: 0 };
-    render(<IngredientsSettingsContent />);
-    expect(screen.queryByTestId("ingredients-draw-icons")).toBeNull();
-  });
-
-  it("shows a running Draw icons round's count in place of its button, and each food still to draw in its row", () => {
-    permissions.canDrawImages = true;
-    iconScope = { bare: 2, unowned: 5 };
-    iconRound = {
-      jobId: "icons-1",
-      done: 3,
-      total: 20,
-      counts: { drawn: 3, skipped: 0, failed: 0 },
-      pending: ["onion"],
-      finished: false,
-    };
-    render(<IngredientsSettingsContent />);
-
-    expect(screen.getByTestId("ingredients-icon-round-progress")).toHaveTextContent("progress");
-    expect(screen.queryByTestId("ingredients-draw-icons")).toBeNull();
-    expect(within(row("onion")).getByTestId("ingredient-icon-drawing")).toBeInTheDocument();
-    expect(within(row("salt")).queryByTestId("ingredient-icon-drawing")).toBeNull();
   });
 
   it("shows each food's icon in its row, and the food glyph for one with none", () => {

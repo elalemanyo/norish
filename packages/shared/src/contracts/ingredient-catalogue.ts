@@ -104,16 +104,3 @@ export function noTrace(): ReviewTrace {
     considered: [],
   };
 }
-
-/**
- * Which foods a Draw icons round draws: only those with no icon at all (the
- * default, which leaves a food that borrows its parent's alone), or every
- * food without one of its own. Either holds only foods the asker may edit,
- * and never a vague group the shipped set leaves without one.
- */
-export const ICON_SCOPES = ["bare", "unowned"] as const;
-
-export type IconScope = (typeof ICON_SCOPES)[number];
-
-/** How many icons each scope of a Draw icons round would draw, for the asker. */
-export type IconScopeSummary = Record<IconScope, number>;

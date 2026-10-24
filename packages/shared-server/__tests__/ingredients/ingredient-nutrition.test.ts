@@ -39,6 +39,7 @@ import {
 } from "@norish/shared-server/ingredients/nutrition/corrections";
 import {
   fillNutritionGaps,
+  listFillGapsFoods,
   listFoodsWithGaps,
 } from "@norish/shared-server/ingredients/nutrition/fill-gaps";
 import {
@@ -779,6 +780,33 @@ describe("Ingredient Nutrition", () => {
       await expect(
         listFoodsWithGaps(ids, { nutrition: false, conversions: false })
       ).resolves.toEqual([]);
+    });
+
+    it("counts Fill gaps over every listed food, seeded ones included, never a grocery food", async () => {
+      await getTestDb()
+        .insert(ingredients)
+        .values({ name: "tuna in a tin", ownerId: householdA[0]! });
+      await saveNutritionEstimate(id("en:pickled-red-onion"), numbers(40));
+      const set = {
+        icons: { "en:onion": "0123456789abcdef0123456789abcdef.webp" },
+        none: ["en:vegetable"],
+      };
+      const foods = await listFillGapsFoods(set);
+      const names = (kind: keyof typeof foods) => foods[kind].map((food) => food.name);
+
+      // A dataset's numbers and AI's earlier estimate close the gap; a parent's lending does not.
+      expect(names("nutrition")).toContain("red onion");
+      expect(names("nutrition")).not.toContain("onion");
+      expect(names("nutrition")).not.toContain("pickled red onion");
+      expect(names("conversions")).toContain("lemon zest");
+      expect(names("conversions")).not.toContain("onion");
+      // A red onion shows the onion's icon, and a vague group stays without one.
+      expect(names("icons")).toContain("brandy");
+      expect(names("icons")).not.toContain("red onion");
+      expect(names("icons")).not.toContain("vegetable");
+      for (const kind of ["nutrition", "conversions", "icons"] as const) {
+        expect(names(kind)).not.toContain("tuna in a tin");
+      }
     });
   });
 

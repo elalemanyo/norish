@@ -687,23 +687,3 @@ async function setIconIn(
   if (icon !== null && !(await claimOwnIcon(icon))) throw new CatalogueEditError("not-found");
   if (!(await setIngredientIcon(tx, ingredientId, icon))) throw new CatalogueEditError("not-found");
 }
-
-/**
- * Make a drawn icon a food's own (`edit`, no review) unless a person set one while it was drawn;
- * whether it was set.
- */
-export async function setDrawnIcon(
-  actor: CatalogueActor,
-  ingredientId: string,
-  file: string
-): Promise<boolean> {
-  const edit = await inEdit(async (tx) => {
-    await assertMayEditIngredient(tx, actor, ingredientId);
-    if (!(await claimOwnIcon(file))) throw new CatalogueEditError("not-found");
-    const set = await setIngredientIcon(tx, ingredientId, file, { unlessSet: true });
-
-    return { changed: set ? [ingredientId] : [] };
-  });
-
-  return edit.changed.length > 0;
-}

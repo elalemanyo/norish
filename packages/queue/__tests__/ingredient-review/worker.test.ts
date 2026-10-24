@@ -302,7 +302,6 @@ describe("the icons after a pass", () => {
     ]);
     expect(iconQueue.add).toHaveBeenCalledExactlyOnceWith("draw", {
       ingredients: [{ id: "kohlrabi", name: "kohlrabi" }],
-      actor: null,
     });
     expect(sequence).toEqual(["ask:uien", "ask:kohlrabi", "ask:kipfilet", "icons"]);
   });

@@ -126,21 +126,10 @@ export type StoreLookupJobData =
     }
   | { kind: "refresh"; storeId: string; productIds: string[]; householdKey: string };
 
-/**
- * One Draw icons round: the foods whose Ingredient Icons a person asked to
- * be drawn, and who asked, since each food's icon is set under the
- * ingredient permission policy for that person, checked again as the round
- * reaches it.
- */
+/** Drawing these foods' Ingredient Icons, for a mint's pass or Fill gaps, a step per food. */
 export interface IngredientIconsJobData {
   /** The foods, by id and by name, so the job monitor reads "uien" rather than an id. */
   ingredients: Array<{ id: string; name: string }>;
-  /** Who asked for the round; none where the AI pass queued it for the foods it left showing no icon. */
-  actor: {
-    userId: string;
-    householdUserIds: string[] | null;
-    isServerAdmin: boolean;
-  } | null;
 }
 
 /** AI filling these foods' gaps (Fill Gaps), by id and by name, and which gaps it fills. */

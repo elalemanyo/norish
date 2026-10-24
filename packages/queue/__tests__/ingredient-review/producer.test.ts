@@ -133,7 +133,6 @@ describe("queueAfterMint", () => {
     expect(reviewQueue.add).not.toHaveBeenCalled();
     expect(iconQueue.add).toHaveBeenCalledExactlyOnceWith("draw", {
       ingredients: [{ id: "uien", name: "uien!" }],
-      actor: null,
     });
   });
 });

@@ -4,12 +4,13 @@
  * names, and Changed by AI lists the merge. The real server, queues and workers are in the path;
  * the language model is the harness's.
  */
-import type { Locator, Page } from "@playwright/test";
+import type { Page } from "@playwright/test";
 
 import type { AIE2EStack } from "./fixture";
 import { createRecipe } from "../harness/recipes";
 import { expect, test } from "./fixture";
 import {
+  openCataloguePanel,
   readIngredientOf,
   resetCatalogueScenario,
   seedCatalogue,
@@ -44,17 +45,6 @@ test.beforeEach(({ page: fixturePage }) => {
   page = fixturePage;
 });
 
-/** The Ingredient catalogue panel of the AI & Processing card. */
-async function openCataloguePanel(): Promise<Locator> {
-  await page.goto("/settings?tab=admin");
-  const trigger = page.getByRole("button", { name: /^Ingredient catalogue/ }).first();
-
-  await trigger.scrollIntoViewIfNeeded();
-  await trigger.click();
-
-  return page.locator(`[id="${await trigger.getAttribute("aria-controls")}"]`);
-}
-
 test("a recipe-foods clean-up merges a food nobody asked about, listed under Changed by AI", async ({
   ai,
 }) => {
@@ -84,7 +74,7 @@ test("a recipe-foods clean-up merges a food nobody asked about, listed under Cha
     }),
   });
 
-  const panel = await openCataloguePanel();
+  const panel = await openCataloguePanel(page);
 
   await panel.getByTestId("clean-up-catalogue").click();
   const dialog = page.getByTestId("clean-up-catalogue-dialog");

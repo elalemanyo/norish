@@ -2,12 +2,14 @@ import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
 import type { CleanUpScope } from "@norish/queue/ingredient-review/producer";
+import { addFillGapsJobs, isFillGapsRunning } from "@norish/queue/ingredient-fill/producer";
 import {
   addCatalogueCleanUpJob,
   isCatalogueCleanUpRunning,
   listCleanUpFoods,
 } from "@norish/queue/ingredient-review/producer";
-import { isAIEnabled } from "@norish/shared-server/config/server-config-loader";
+import { canDrawImages, isAIEnabled } from "@norish/shared-server/config/server-config-loader";
+import { listFillGapsFoods } from "@norish/shared-server/ingredients/nutrition/fill-gaps";
 import { trpcLogger as log } from "@norish/shared-server/logger";
 
 import { adminProcedure } from "../../middleware";
@@ -43,4 +45,43 @@ const cleanUp = adminProcedure
     return { queued };
   });
 
-export const ingredientCatalogueProcedures = router({ cleanUpCounts, cleanUp });
+/** How many listed foods each Fill gaps box fills (icons null where nothing draws); whether one runs. */
+const fillGapsCounts = adminProcedure.query(async () => {
+  const [foods, canDraw, running] = await Promise.all([
+    listFillGapsFoods(),
+    canDrawImages(),
+    isFillGapsRunning(),
+  ]);
+
+  return {
+    nutrition: foods.nutrition.length,
+    conversions: foods.conversions.length,
+    icons: canDraw ? foods.icons.length : null,
+    running,
+  };
+});
+
+/** Start a Fill gaps run over every listed food: a fill job, an icon job, or both. */
+const fillGaps = adminProcedure
+  .input(z.object({ nutrition: z.boolean(), conversions: z.boolean(), icons: z.boolean() }))
+  .mutation(async ({ input, ctx }) => {
+    if (!(await isAIEnabled())) {
+      throw new TRPCError({ code: "PRECONDITION_FAILED", message: "AI is disabled" });
+    }
+    if (input.icons && !(await canDrawImages())) {
+      throw new TRPCError({ code: "PRECONDITION_FAILED", message: "No image provider can draw" });
+    }
+    if (await isFillGapsRunning()) {
+      throw new TRPCError({ code: "CONFLICT", message: "Fill gaps is already running" });
+    }
+    await addFillGapsJobs(input);
+
+    log.info({ userId: ctx.user.id, ...input }, "Fill gaps queued");
+  });
+
+export const ingredientCatalogueProcedures = router({
+  cleanUpCounts,
+  cleanUp,
+  fillGapsCounts,
+  fillGaps,
+});

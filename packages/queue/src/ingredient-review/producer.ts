@@ -9,6 +9,7 @@ import {
   isAIEnabled,
 } from "@norish/shared-server/config/server-config-loader";
 
+import { hasQueuedJobNamed } from "../helpers";
 import { queueIconAndFills } from "../ingredient-fill/producer";
 import { getQueues } from "../registry";
 
@@ -41,13 +42,7 @@ export async function listCleanUpFoods(scope: CleanUpScope): Promise<string[]> {
 
 /** Whether a Clean up catalogue run is waiting or running: one runs at a time. */
 export async function isCatalogueCleanUpRunning(): Promise<boolean> {
-  const jobs = await getQueues().ingredientReview.getJobs(
-    ["active", "waiting", "prioritized", "delayed"],
-    0,
-    -1
-  );
-
-  return jobs.some((job) => job.name === CATALOGUE_CLEAN_UP);
+  return await hasQueuedJobNamed(getQueues().ingredientReview, CATALOGUE_CLEAN_UP);
 }
 
 /** Queue a Clean up catalogue run over the scope's foods; answers how many it asks about. */

@@ -577,20 +577,6 @@
       "failed": "Van deze afbeelding kon geen icoon worden gemaakt.",
       "generate": "Genereren met AI",
       "generateFailed": "Het icoon kon niet worden gegenereerd."
-    },
-    "drawIcons": {
-      "open": "Iconen tekenen",
-      "title": "Iconen tekenen",
-      "intro": "De afbeeldingsprovider tekent voor elk voedingsmiddel een icoon, dat meteen het eigen icoon wordt. Een voedingsmiddel kun je in zijn paneel een ander icoon geven.",
-      "scopeLabel": "Welke voedingsmiddelen",
-      "scopes": {
-        "bare": "Alleen voedingsmiddelen zonder enig icoon",
-        "unowned": "Elk voedingsmiddel zonder eigen icoon"
-      },
-      "scopeSize": "{count, plural, =0 {Geen iconen} one {# icoon} other {# iconen}}",
-      "start": "Iconen tekenen",
-      "progress": "Iconen tekenen · {done, number} van {total, number}",
-      "drawing": "Icoon tekenen…"
     }
   },
   "admin": {
@@ -916,6 +902,23 @@
           "start": "Opschonen",
           "started": "{count, plural, one {# ingrediënt wordt opgeschoond} other {# ingrediënten worden opgeschoond}}",
           "error": "Opschonen kon niet starten"
+        },
+        "fillGaps": {
+          "title": "Gaten opvullen",
+          "description": "Laat AI aanvullen wat ingrediënten missen.",
+          "running": "Gaten opvullen loopt. Volg het in de takenwachtrij.",
+          "button": "Gaten opvullen",
+          "intro": "AI vult voor elk ingrediënt in de catalogus alleen aan wat het zelf nog niet heeft. Wat een ingrediënt al heeft, wordt nooit vervangen.",
+          "kindsLabel": "Wat aanvullen",
+          "kinds": {
+            "nutrition": "Voedingswaarden",
+            "conversions": "Omrekeningen",
+            "icons": "Iconen"
+          },
+          "count": "{count, plural, =0 {Niets aan te vullen} one {# ingrediënt} other {# ingrediënten}}",
+          "start": "Gaten opvullen",
+          "started": "Gaten worden opgevuld. Volg het in de takenwachtrij.",
+          "error": "Gaten opvullen kon niet starten"
         }
       }
     },

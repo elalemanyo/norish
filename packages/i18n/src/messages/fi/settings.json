@@ -577,20 +577,6 @@
       "failed": "Kuvasta ei voitu tehdä kuvaketta.",
       "generate": "Luo tekoälyllä",
       "generateFailed": "Kuvaketta ei voitu luoda."
-    },
-    "drawIcons": {
-      "open": "Piirrä kuvakkeet",
-      "title": "Piirrä kuvakkeet",
-      "intro": "Kuvapalvelu piirtää jokaiselle ruoalle kuvakkeen, josta tulee heti ruoan oma. Ruoalle voi antaa toisen kuvakkeen sen paneelissa.",
-      "scopeLabel": "Mitkä ruoat",
-      "scopes": {
-        "bare": "Vain ruoat, joilla ei ole lainkaan kuvaketta",
-        "unowned": "Kaikki ruoat ilman omaa kuvaketta"
-      },
-      "scopeSize": "{count, plural, =0 {Ei kuvakkeita} one {# kuvake} other {# kuvaketta}}",
-      "start": "Piirrä kuvakkeet",
-      "progress": "Piirretään kuvakkeita · {done, number}/{total, number}",
-      "drawing": "Piirretään kuvaketta…"
     }
   },
   "admin": {
@@ -916,6 +902,23 @@
           "start": "Siivoa",
           "started": "{count, plural, one {Siivotaan # ainesta} other {Siivotaan # ainesta}}",
           "error": "Siivousta ei voitu aloittaa"
+        },
+        "fillGaps": {
+          "title": "Täydennä puutteet",
+          "description": "Anna tekoälyn täydentää, mitä aineksilta puuttuu.",
+          "running": "Täydennys on käynnissä. Seuraa sitä työjonossa.",
+          "button": "Täydennä puutteet",
+          "intro": "Tekoäly täydentää jokaiselle luettelon ainekselle vain sen, mitä sillä ei ole omasta takaa. Mitään, mitä aineksella jo on, ei koskaan korvata.",
+          "kindsLabel": "Mitä täydennetään",
+          "kinds": {
+            "nutrition": "Ravintoarvot",
+            "conversions": "Muunnokset",
+            "icons": "Kuvakkeet"
+          },
+          "count": "{count, plural, =0 {Ei täydennettävää} one {# aines} other {# ainesta}}",
+          "start": "Täydennä puutteet",
+          "started": "Puutteita täydennetään. Seuraa sitä työjonossa.",
+          "error": "Täydennystä ei voitu aloittaa"
         }
       }
     },

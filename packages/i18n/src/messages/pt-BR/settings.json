@@ -577,20 +577,6 @@
       "failed": "Não foi possível criar um ícone com essa imagem.",
       "generate": "Gerar com IA",
       "generateFailed": "Não foi possível gerar o ícone."
-    },
-    "drawIcons": {
-      "open": "Desenhar ícones",
-      "title": "Desenhar ícones",
-      "intro": "O provedor de imagens desenha um ícone para cada alimento, que passa a ser dele na hora. Você pode dar outro ícone a um alimento no painel dele.",
-      "scopeLabel": "Quais alimentos",
-      "scopes": {
-        "bare": "Só alimentos sem nenhum ícone",
-        "unowned": "Todos os alimentos sem ícone próprio"
-      },
-      "scopeSize": "{count, plural, =0 {Nenhum ícone} one {# ícone} other {# ícones}}",
-      "start": "Desenhar ícones",
-      "progress": "Desenhando ícones · {done, number} de {total, number}",
-      "drawing": "Desenhando ícone…"
     }
   },
   "admin": {
@@ -916,6 +902,23 @@
           "start": "Limpar",
           "started": "{count, plural, one {Limpando # ingrediente} other {Limpando # ingredientes}}",
           "error": "Não foi possível iniciar a limpeza"
+        },
+        "fillGaps": {
+          "title": "Preencher lacunas",
+          "description": "Deixe a IA completar o que falta nos ingredientes.",
+          "running": "O preenchimento de lacunas está em andamento. Acompanhe na fila de tarefas.",
+          "button": "Preencher lacunas",
+          "intro": "Para cada ingrediente do catálogo, a IA preenche apenas o que ele não tem por conta própria. O que um ingrediente já tem nunca é substituído.",
+          "kindsLabel": "O que preencher",
+          "kinds": {
+            "nutrition": "Nutrição",
+            "conversions": "Conversões",
+            "icons": "Ícones"
+          },
+          "count": "{count, plural, =0 {Nada a preencher} one {# ingrediente} other {# ingredientes}}",
+          "start": "Preencher lacunas",
+          "started": "Preenchendo lacunas. Acompanhe na fila de tarefas.",
+          "error": "Não foi possível iniciar o preenchimento de lacunas"
         }
       }
     },

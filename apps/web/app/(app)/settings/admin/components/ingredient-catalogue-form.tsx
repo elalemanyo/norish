@@ -11,6 +11,7 @@ import { DEFAULT_AUTOMATIC_INGREDIENTS } from "@norish/config/zod/server-config"
 
 import { useAdminSettingsContext } from "../context";
 import CleanUpCatalogue from "./clean-up-catalogue";
+import FillGaps from "./fill-gaps";
 
 interface IngredientCatalogueFormProps {
   onDirtyChange?: (isDirty: boolean) => void;
@@ -134,6 +135,7 @@ export default function IngredientCatalogueForm({ onDirtyChange }: IngredientCat
       </div>
 
       <CleanUpCatalogue />
+      <FillGaps />
     </div>
   );
 }

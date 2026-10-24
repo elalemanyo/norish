@@ -577,20 +577,6 @@
       "failed": "Billedet kunne ikke laves til et ikon.",
       "generate": "Generér med AI",
       "generateFailed": "Ikonet kunne ikke genereres."
-    },
-    "drawIcons": {
-      "open": "Tegn ikoner",
-      "title": "Tegn ikoner",
-      "intro": "Billedudbyderen tegner et ikon til hver fødevare, og det bliver straks fødevarens eget. Du kan give en fødevare et andet ikon i dens panel.",
-      "scopeLabel": "Hvilke fødevarer",
-      "scopes": {
-        "bare": "Kun fødevarer helt uden ikon",
-        "unowned": "Alle fødevarer uden eget ikon"
-      },
-      "scopeSize": "{count, plural, =0 {Ingen ikoner} one {# ikon} other {# ikoner}}",
-      "start": "Tegn ikoner",
-      "progress": "Tegner ikoner · {done, number} af {total, number}",
-      "drawing": "Tegner ikon…"
     }
   },
   "admin": {
@@ -916,6 +902,23 @@
           "start": "Ryd op",
           "started": "{count, plural, one {Rydder op i # ingrediens} other {Rydder op i # ingredienser}}",
           "error": "Oprydningen kunne ikke startes"
+        },
+        "fillGaps": {
+          "title": "Udfyld huller",
+          "description": "Lad AI udfylde det, ingredienserne mangler.",
+          "running": "Udfyldningen kører. Følg den i jobkøen.",
+          "button": "Udfyld huller",
+          "intro": "For hver ingrediens i kataloget udfylder AI kun det, den ikke selv har. Det, en ingrediens allerede har, erstattes aldrig.",
+          "kindsLabel": "Hvad der udfyldes",
+          "kinds": {
+            "nutrition": "Næringsindhold",
+            "conversions": "Omregninger",
+            "icons": "Ikoner"
+          },
+          "count": "{count, plural, =0 {Intet at udfylde} one {# ingrediens} other {# ingredienser}}",
+          "start": "Udfyld huller",
+          "started": "Udfylder huller. Følg det i jobkøen.",
+          "error": "Udfyldningen kunne ikke startes"
         }
       }
     },

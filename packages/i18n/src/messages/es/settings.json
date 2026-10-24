@@ -577,20 +577,6 @@
       "failed": "No se pudo crear un icono con esa imagen.",
       "generate": "Generar con IA",
       "generateFailed": "No se pudo generar el icono."
-    },
-    "drawIcons": {
-      "open": "Dibujar iconos",
-      "title": "Dibujar iconos",
-      "intro": "El proveedor de imágenes dibuja un icono para cada alimento, que pasa a ser el suyo al momento. Puedes darle otro icono a un alimento en su panel.",
-      "scopeLabel": "Qué alimentos",
-      "scopes": {
-        "bare": "Solo alimentos sin ningún icono",
-        "unowned": "Todos los alimentos sin icono propio"
-      },
-      "scopeSize": "{count, plural, =0 {Ningún icono} one {# icono} other {# iconos}}",
-      "start": "Dibujar iconos",
-      "progress": "Dibujando iconos · {done, number} de {total, number}",
-      "drawing": "Dibujando icono…"
     }
   },
   "admin": {
@@ -916,6 +902,23 @@
           "start": "Limpiar",
           "started": "{count, plural, one {Limpiando # ingrediente} other {Limpiando # ingredientes}}",
           "error": "No se pudo iniciar la limpieza"
+        },
+        "fillGaps": {
+          "title": "Rellenar huecos",
+          "description": "Deja que la IA complete lo que les falta a los ingredientes.",
+          "running": "Rellenar huecos está en curso. Síguelo en la cola de trabajos.",
+          "button": "Rellenar huecos",
+          "intro": "Para cada ingrediente del catálogo, la IA completa solo lo que no tiene propio. Nunca se sustituye lo que un ingrediente ya tiene.",
+          "kindsLabel": "Qué completar",
+          "kinds": {
+            "nutrition": "Nutrición",
+            "conversions": "Conversiones",
+            "icons": "Iconos"
+          },
+          "count": "{count, plural, =0 {Nada que completar} one {# ingrediente} other {# ingredientes}}",
+          "start": "Rellenar huecos",
+          "started": "Rellenando huecos. Síguelo en la cola de trabajos.",
+          "error": "No se pudo empezar a rellenar huecos"
         }
       }
     },
