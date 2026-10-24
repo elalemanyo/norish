@@ -75,11 +75,5 @@ export function OfflineBootstrap() {
     );
   }
 
-  return (
-    <AppShell>
-      <div className="contents" data-testid="offline-surface">
-        {offlineSurface(pathname)}
-      </div>
-    </AppShell>
-  );
+  return <AppShell>{offlineSurface(pathname)}</AppShell>;
 }

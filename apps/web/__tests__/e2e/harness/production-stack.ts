@@ -15,6 +15,7 @@ import {
   VALKEY_IMAGE,
   valkeyUrl,
 } from "../../../../../packages/shared-server/__tests__/helpers/valkey";
+import { BUILT_BASE_PATH } from "./build";
 import { MASTER_KEY } from "./environment";
 import { connectRepositories, disconnectRepositories } from "./repositories";
 
@@ -33,8 +34,6 @@ export interface HarnessUser {
 interface ProductionStackOptions {
   project: "offline" | "ai" | "realtime" | "base-path";
   databaseName: string;
-  /** The URL prefix the server and the browser share, empty at the root. */
-  basePath?: string;
   users: readonly [HarnessUser, HarnessUser];
   /**
    * Extra variables layered over the server's own environment. Deliberately a
@@ -163,7 +162,7 @@ export class ProductionStack {
 
   /** The origin plus the base path the build was made for. */
   get baseURL(): string {
-    return `${this.origin}${this.options.basePath ?? ""}`;
+    return `${this.origin}${BUILT_BASE_PATH}`;
   }
 
   private get port(): number {
@@ -464,7 +463,7 @@ export class ProductionStack {
       VALKEY_URL: this.valkeyConnectionUrl!,
       AUTH_URL: this.baseURL,
       TRUSTED_ORIGINS: this.origin,
-      NEXT_PUBLIC_BASE_PATH: this.options.basePath ?? "",
+      NEXT_PUBLIC_BASE_PATH: BUILT_BASE_PATH,
       MASTER_KEY,
       UPLOADS_DIR: this.uploadsDir,
       LOG_LEVEL: "error",
