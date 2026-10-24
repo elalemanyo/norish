@@ -39,15 +39,20 @@ such a text names no food. One that starts with it, like "boneless, skinless
 chicken breasts", is read on the rest. Adding the text as a translation takes
 it off the list.
 
-![The Ingredients page, with a flagged ingredient](/img/screenshots/ingredients-page.png)
+![The Ingredients page](/img/screenshots/ingredients-list.png)
 
 An ingredient filed under a parent uses the parent's aisle, nutrition and icon
 until it has its own.
 
 ## AI keeps the catalogue
 
-When AI is set up, it looks at every new ingredient by itself, moments after a
-recipe, grocery or pantry item adds it. It then does one of these:
+AI changes nothing in the catalogue until an administrator chooses what it
+does under [Ingredient catalogue](../configuration/ai-provider.md#ingredient-catalogue).
+It never runs at startup or at night.
+
+With **Clean up new ingredients** selected, AI looks at every new ingredient
+moments after a recipe, grocery or pantry item adds it. **Clean up catalogue**
+does the same for the ingredients already there. AI then does one of these:
 
 - merges it into the food it is ("uien" into "onion"). A food only spelled
   like it, a letter or two apart, is merged only when AI picks it
@@ -66,14 +71,23 @@ AI leaves alone an ingredient you marked distinct, renamed or gave a parent,
 every ingredient from the catalogue source, and one no recipe uses, which it
 also never merges another into or files another under.
 
-Once, on the first start with AI set up, AI also checks the translations that
-people, imports and merges added to ingredients from the catalogue source. A
+A Clean up catalogue run over the **Whole catalogue** also asks about the
+ingredients from the catalogue source, and ignores what people decided or
+undid for that run. It never deletes one from the catalogue source. It also
+checks the translations people, imports and merges added to them. A
 translation that names no food, like "boneless" on chicken breast, is removed
 and goes on the list of texts that are not a food. One that names another food,
 like "kippendijen" on chicken breast, moves to that food. Recipe lines and
-groceries that used a removed translation are read again from their text. Each
-change is on Changed by AI with Undo.
-Ingredients AI could not reach are tried again every night.
+groceries that used a removed translation are read again from their text.
+
+### Filling gaps
+
+AI can also fill in what an ingredient is missing: its nutrition, what a
+spoonful and one piece weigh, and its [icon](./ingredient-icons.md). It does
+this for new ingredients where an administrator selected it, and for every
+ingredient at once with **Fill gaps**. It never replaces what an ingredient
+has, or your household's correction. Nutrition AI filled reads **Estimated by
+AI**. See [Nutrition](../recipes/nutrition.md#where-the-numbers-come-from).
 
 ### Changed by AI
 
