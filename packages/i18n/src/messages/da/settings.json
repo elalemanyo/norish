@@ -20,12 +20,20 @@
       "added": "Tilføjet {date}",
       "remove": "Afbryd",
       "unavailable": "Ikke tilgængelig i øjeblikket",
+      "changePassword": "Skift adgangskode",
+      "currentPassword": "Nuværende adgangskode",
+      "newPassword": "Ny adgangskode",
+      "confirmPassword": "Bekræft ny adgangskode",
+      "signOutOthers": "Log andre sessioner ud",
+      "passwordChanged": "Adgangskoden er ændret.",
       "errors": {
         "usedByAnotherAccount": "Dette login bruges allerede af en anden konto.",
         "lastMethod": "Du skal have mindst én måde at logge ind på.",
         "signInAgain": "Log ind igen for at fjerne dette.",
         "addFailed": "Loginmetoden kunne ikke tilføjes.",
-        "removeFailed": "Loginmetoden kunne ikke fjernes."
+        "removeFailed": "Loginmetoden kunne ikke fjernes.",
+        "wrongPassword": "Den nuværende adgangskode er forkert.",
+        "changeFailed": "Adgangskoden kunne ikke ændres. Prøv igen."
       }
     },
     "profile": {

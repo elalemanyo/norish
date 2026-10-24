@@ -20,12 +20,20 @@
       "added": "Added {date}",
       "remove": "Disconnect",
       "unavailable": "Not currently available",
+      "changePassword": "Change password",
+      "currentPassword": "Current password",
+      "newPassword": "New password",
+      "confirmPassword": "Confirm new password",
+      "signOutOthers": "Sign out other sessions",
+      "passwordChanged": "Password changed.",
       "errors": {
         "usedByAnotherAccount": "This sign-in is already used by another account.",
         "lastMethod": "You need at least one way to sign in.",
         "signInAgain": "Sign in again to disconnect this.",
         "addFailed": "This sign-in method could not be added.",
-        "removeFailed": "This sign-in method could not be disconnected."
+        "removeFailed": "This sign-in method could not be disconnected.",
+        "wrongPassword": "The current password is incorrect.",
+        "changeFailed": "Could not change your password. Please try again."
       }
     },
     "profile": {

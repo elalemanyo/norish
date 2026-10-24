@@ -20,12 +20,20 @@
       "added": "Hinzugefügt am {date}",
       "remove": "Trennen",
       "unavailable": "Derzeit nicht verfügbar",
+      "changePassword": "Passwort ändern",
+      "currentPassword": "Aktuelles Passwort",
+      "newPassword": "Neues Passwort",
+      "confirmPassword": "Neues Passwort bestätigen",
+      "signOutOthers": "Andere Sitzungen abmelden",
+      "passwordChanged": "Passwort geändert.",
       "errors": {
         "usedByAnotherAccount": "Diese Anmeldung wird bereits von einem anderen Konto verwendet.",
         "lastMethod": "Sie benötigen mindestens eine Möglichkeit, sich anzumelden.",
         "signInAgain": "Melden Sie sich erneut an, um dies zu entfernen.",
         "addFailed": "Diese Anmeldemethode konnte nicht hinzugefügt werden.",
-        "removeFailed": "Diese Anmeldemethode konnte nicht entfernt werden."
+        "removeFailed": "Diese Anmeldemethode konnte nicht entfernt werden.",
+        "wrongPassword": "Das aktuelle Passwort ist falsch.",
+        "changeFailed": "Das Passwort konnte nicht geändert werden. Bitte versuchen Sie es erneut."
       }
     },
     "profile": {

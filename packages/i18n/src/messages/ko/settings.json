@@ -20,12 +20,20 @@
       "added": "{date}에 추가됨",
       "remove": "연결 해제",
       "unavailable": "현재 사용할 수 없음",
+      "changePassword": "비밀번호 변경",
+      "currentPassword": "현재 비밀번호",
+      "newPassword": "새 비밀번호",
+      "confirmPassword": "새 비밀번호 확인",
+      "signOutOthers": "다른 세션 로그아웃",
+      "passwordChanged": "비밀번호가 변경되었습니다.",
       "errors": {
         "usedByAnotherAccount": "이 로그인은 이미 다른 계정에서 사용 중입니다.",
         "lastMethod": "로그인 방법이 하나 이상 필요합니다.",
         "signInAgain": "제거하려면 다시 로그인하세요.",
         "addFailed": "이 로그인 방법을 추가할 수 없습니다.",
-        "removeFailed": "이 로그인 방법을 제거할 수 없습니다."
+        "removeFailed": "이 로그인 방법을 제거할 수 없습니다.",
+        "wrongPassword": "현재 비밀번호가 올바르지 않습니다.",
+        "changeFailed": "비밀번호를 변경하지 못했습니다. 다시 시도하세요."
       }
     },
     "profile": {

@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { SettingsCard } from "@/app/(app)/settings/components/settings-card";
 import { ProviderIcon } from "@/app/(auth)/login/components/provider-icon";
 import { useTRPC } from "@/app/providers/trpc-provider";
-import { FingerPrintIcon, TrashIcon } from "@heroicons/react/24/outline";
+import { FingerPrintIcon, KeyIcon, TrashIcon } from "@heroicons/react/24/outline";
 import { Button, toast } from "@heroui/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useFormatter, useTranslations } from "next-intl";
@@ -18,6 +18,7 @@ import {
 import { authClient } from "@norish/shared/lib/auth/client";
 
 import { useUserSettingsContext } from "../context";
+import { ChangePasswordModal } from "./change-password-modal";
 
 type ErrorMessage =
   "usedByAnotherAccount" | "lastMethod" | "signInAgain" | "addFailed" | "removeFailed";
@@ -45,6 +46,7 @@ export default function SignInMethodsCard() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const [changingPassword, setChangingPassword] = useState(false);
   const { data: offered = [] } = useQuery({
     ...trpc.config.authProviders.queryOptions(),
     select: (data) => data.providers,
@@ -97,11 +99,18 @@ export default function SignInMethodsCard() {
       provider.type === "oauth" && !accounts.some((account) => account.providerId === provider.id)
   );
 
-  // With one method on the server there is nothing to add or remove.
-  if (offered.length < 2) return null;
+  const hasPassword =
+    offeredIds.has("credential") && accounts.some((account) => account.providerId === "credential");
+
+  // With one method on the server there is nothing to add or remove, only a password to change.
+  if (offered.length < 2 && !hasPassword) return null;
 
   return (
-    <SettingsCard description={t("description")} icon={FingerPrintIcon} title={t("title")}>
+    <SettingsCard
+      description={offered.length > 1 ? t("description") : undefined}
+      icon={FingerPrintIcon}
+      title={t("title")}
+    >
       <ul className="border-border divide-border divide-y overflow-hidden rounded-xl border">
         {accounts.map((account) => {
           const name = nameOf(account.providerId);
@@ -124,6 +133,12 @@ export default function SignInMethodsCard() {
                         })}
                 </p>
               </div>
+              {offeredNow && account.providerId === "credential" && (
+                <Button size="sm" variant="tertiary" onPress={() => setChangingPassword(true)}>
+                  <KeyIcon className="size-4" />
+                  <span className="max-sm:sr-only">{t("changePassword")}</span>
+                </Button>
+              )}
               {keepsOfferedSignInMethod(accounts, account.id, offeredIds) && (
                 <Button
                   isPending={remove.isPending && remove.variables === account.id}
@@ -159,6 +174,7 @@ export default function SignInMethodsCard() {
           </div>
         </div>
       )}
+      <ChangePasswordModal isOpen={changingPassword} onOpenChange={setChangingPassword} />
     </SettingsCard>
   );
 }

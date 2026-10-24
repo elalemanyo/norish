@@ -20,12 +20,20 @@
       "added": "Toegevoegd op {date}",
       "remove": "Ontkoppelen",
       "unavailable": "Momenteel niet beschikbaar",
+      "changePassword": "Wachtwoord wijzigen",
+      "currentPassword": "Huidig wachtwoord",
+      "newPassword": "Nieuw wachtwoord",
+      "confirmPassword": "Bevestig nieuw wachtwoord",
+      "signOutOthers": "Andere sessies afmelden",
+      "passwordChanged": "Wachtwoord gewijzigd.",
       "errors": {
         "usedByAnotherAccount": "Deze inlog wordt al door een ander account gebruikt.",
         "lastMethod": "Je hebt minstens één manier nodig om in te loggen.",
         "signInAgain": "Log opnieuw in om dit te verwijderen.",
         "addFailed": "Deze inlogmethode kon niet worden toegevoegd.",
-        "removeFailed": "Deze inlogmethode kon niet worden verwijderd."
+        "removeFailed": "Deze inlogmethode kon niet worden verwijderd.",
+        "wrongPassword": "Het huidige wachtwoord is onjuist.",
+        "changeFailed": "Wachtwoord wijzigen mislukt. Probeer het opnieuw."
       }
     },
     "profile": {

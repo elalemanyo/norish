@@ -20,12 +20,20 @@
       "added": "Aggiunto il {date}",
       "remove": "Scollega",
       "unavailable": "Attualmente non disponibile",
+      "changePassword": "Cambia password",
+      "currentPassword": "Password attuale",
+      "newPassword": "Nuova password",
+      "confirmPassword": "Conferma nuova password",
+      "signOutOthers": "Disconnetti le altre sessioni",
+      "passwordChanged": "Password cambiata.",
       "errors": {
         "usedByAnotherAccount": "Questo accesso è già usato da un altro account.",
         "lastMethod": "Ti serve almeno un modo per accedere.",
         "signInAgain": "Accedi di nuovo per rimuoverlo.",
         "addFailed": "Impossibile aggiungere questo metodo di accesso.",
-        "removeFailed": "Impossibile rimuovere questo metodo di accesso."
+        "removeFailed": "Impossibile rimuovere questo metodo di accesso.",
+        "wrongPassword": "La password attuale non è corretta.",
+        "changeFailed": "Impossibile cambiare la password. Riprova."
       }
     },
     "profile": {
