@@ -15,7 +15,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { useLocale, useTranslations } from "next-intl";
 
 import { RecipeCategory, RecipeDashboardDTO, Slot } from "@norish/shared/contracts";
-import { addBasePathToUrl } from "@norish/shared/lib/base-path";
+import { addBasePath } from "@norish/shared/lib/base-path";
 import { dateKey } from "@norish/shared/lib/helpers";
 
 import { useAfterPlanning } from "./after-planning";
@@ -53,7 +53,7 @@ const MiniRecipeItem = memo(function MiniRecipeItem({
           <img
             alt={recipe.name}
             className="h-full w-full object-cover"
-            src={addBasePathToUrl(recipe.image)}
+            src={addBasePath(recipe.image)}
           />
         )}
       </div>

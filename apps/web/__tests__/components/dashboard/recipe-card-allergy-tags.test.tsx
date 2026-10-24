@@ -98,7 +98,6 @@ vi.mock("@heroui/react", () => {
 
 afterEach(() => {
   vi.unstubAllEnvs();
-  vi.resetModules();
 });
 
 function makeRecipe(tagNames: string[]): RecipeDashboardDTO {

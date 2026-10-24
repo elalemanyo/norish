@@ -5,7 +5,6 @@ import { XMarkIcon } from "@heroicons/react/20/solid";
 import { Button, Tooltip } from "@heroui/react";
 import { useTranslations } from "next-intl";
 
-import { addBasePathToUrl } from "@norish/shared/lib/base-path";
 import { formatMinutesHM } from "@norish/shared/lib/helpers";
 
 import type { CookingModeRecipe } from "./types";
@@ -38,7 +37,7 @@ export function CookingModeHeader({ recipe, onClose }: CookingModeHeaderProps) {
         <FallbackImage
           alt=""
           className="size-11 shrink-0 rounded-xl object-cover"
-          src={addBasePathToUrl(recipe.image)}
+          src={recipe.image}
           variant="hero"
         />
       )}

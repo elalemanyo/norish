@@ -6,7 +6,7 @@ import NextImage, { ImageProps as NextImageProps } from "next/image";
 import { PhotoIcon } from "@heroicons/react/24/outline";
 import { useTranslations } from "next-intl";
 
-import { addBasePathToUrl } from "@norish/shared/lib/base-path";
+import { addBasePath } from "@norish/shared/lib/base-path";
 
 interface FallbackPlaceholderProps extends ComponentProps<"div"> {
   className?: string;
@@ -65,7 +65,7 @@ export default function FallbackImage(props: FallbackImageProps) {
       <img
         alt={alt ?? ""}
         {...imageProps}
-        src={typeof src === "string" ? addBasePathToUrl(src) : src}
+        src={typeof src === "string" ? addBasePath(src) : src}
         onError={() => setHasError(true)}
       />
     );
@@ -82,7 +82,7 @@ export default function FallbackImage(props: FallbackImageProps) {
   return (
     <NextImage
       {...imageProps}
-      src={typeof src === "string" ? addBasePathToUrl(src) : src}
+      src={typeof src === "string" ? addBasePath(src) : src}
       onError={() => setHasError(true)}
     />
   );

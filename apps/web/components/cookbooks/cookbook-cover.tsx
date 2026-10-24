@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { CookbookIconOutline } from "@/components/cookbooks/cookbook-icon";
 
-import { addBasePathToUrl } from "@norish/shared/lib/base-path";
+import { addBasePath } from "@norish/shared/lib/base-path";
 
 /**
  * The cover: the cookbook's uploaded image when it has one, otherwise a
@@ -62,7 +62,7 @@ export default function CookbookCover({
           alt=""
           className={`h-full w-full object-cover ${usable.length === 3 && index === 0 ? "row-span-2" : ""}`}
           loading="lazy"
-          src={addBasePathToUrl(tile)}
+          src={addBasePath(tile)}
           title={title}
           onError={() => setFailed((previous) => [...previous, tile])}
         />

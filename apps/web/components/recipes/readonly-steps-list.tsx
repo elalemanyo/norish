@@ -10,7 +10,7 @@ import { CheckIcon } from "@heroicons/react/16/solid";
 
 import type { UnitsMap } from "@norish/config/zod/server-config";
 import type { StepIngredientRefLike } from "@norish/shared/lib/step-ingredients";
-import { addBasePathToUrl } from "@norish/shared/lib/base-path";
+import { addBasePath } from "@norish/shared/lib/base-path";
 
 type StepLike = {
   step: string;
@@ -308,7 +308,7 @@ function StepLine({
                     fill
                     alt={`Step ${stepNumber} image ${imgIndex + 1}`}
                     className="object-cover"
-                    src={addBasePathToUrl(img.image)}
+                    src={addBasePath(img.image)}
                   />
                   <div className="absolute inset-0 bg-black/0 transition-colors group-hover/img:bg-black/10" />
                 </button>
