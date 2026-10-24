@@ -15,6 +15,7 @@ import type { JobRetentionConfig } from "@norish/config/zod/server-config";
 import type {
   CaldavSyncJobData,
   ImageImportJobData,
+  IngredientFillJobData,
   IngredientIconsJobData,
   IngredientReviewJobData,
   PasteImportJobData,
@@ -67,6 +68,7 @@ interface QueueRegistry {
   storeLookup: Queue<StoreLookupJobData>;
   ingredientReview: Queue<IngredientReviewJobData>;
   ingredientIcons: Queue<IngredientIconsJobData>;
+  ingredientFill: Queue<IngredientFillJobData>;
 }
 
 /**
@@ -90,6 +92,7 @@ const QUEUE_KEYS: Record<keyof QueueRegistry, QueueName> = {
   storeLookup: QUEUE_NAMES.STORE_LOOKUP,
   ingredientReview: QUEUE_NAMES.INGREDIENT_REVIEW,
   ingredientIcons: QUEUE_NAMES.INGREDIENT_ICONS,
+  ingredientFill: QUEUE_NAMES.INGREDIENT_FILL,
 };
 
 /**

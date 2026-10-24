@@ -9,7 +9,8 @@ import React, {
   useMemo,
   useState,
 } from "react";
-import { CloseButton } from "@heroui/react";
+import { useIsMobile } from "@/hooks/use-is-mobile";
+import { CloseButton, ComboBox } from "@heroui/react";
 import { UNSAFE_PortalProvider } from "react-aria";
 import { twMerge } from "tailwind-merge";
 import { Drawer } from "vaul";
@@ -69,6 +70,28 @@ export function PanelPortal({ children }: { children: ReactNode }) {
     <UNSAFE_PortalProvider getContainer={portalContainer ? () => portalContainer : undefined}>
       {children}
     </UNSAFE_PortalProvider>
+  );
+}
+
+/** How tall a phone's results may grow above the input: about five rows. */
+const PHONE_RESULTS_MAX_HEIGHT = 240;
+
+/**
+ * A ComboBox's results inside a Panel. On a phone they open above the input: they open
+ * nearly empty, so React Aria never flips them, and below is where the keyboard is.
+ */
+export function PanelComboBoxPopover({ children }: { children: ReactNode }) {
+  const phone = useIsMobile();
+
+  return (
+    <PanelPortal>
+      <ComboBox.Popover
+        maxHeight={phone ? PHONE_RESULTS_MAX_HEIGHT : undefined}
+        placement={phone ? "top" : undefined}
+      >
+        {children}
+      </ComboBox.Popover>
+    </PanelPortal>
   );
 }
 

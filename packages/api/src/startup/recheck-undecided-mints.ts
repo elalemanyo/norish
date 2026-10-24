@@ -3,7 +3,7 @@ import { recheckUndecidedMintsOnRungChange } from "@norish/shared-server/ingredi
 import { runOnBoot } from "./run-on-boot";
 
 /**
- * The Flagged Ingredients an instance's history left, looked at again once per change to the
+ * The undecided mints an instance's history left, looked at again once per change to the
  * resolver's rules (ADR-0039), after the first seed so there is a catalogue to reach.
  */
 export async function recheckUndecidedMintsOnBoot(): Promise<void> {

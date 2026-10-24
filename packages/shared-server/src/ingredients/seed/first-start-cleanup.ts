@@ -6,12 +6,12 @@ import type { DbTransaction } from "@norish/db/drizzle";
 import type { CleanupSpelling } from "@norish/db/repositories/ingredient-cleanup";
 import type { LineJoin } from "@norish/shared/lib/line-foods";
 import { withTransaction } from "@norish/db/drizzle";
+import { clearRetiredFlags } from "@norish/db/repositories/ingredient-ai-changes";
 import {
   deleteCatalogueAlias,
   deleteCatalogueIngredient,
   findCatalogueAliasOwner,
   findIngredientIdByFold,
-  listAskableIngredientIds,
   unflagHiddenFoods,
   unmarkChosenParents,
 } from "@norish/db/repositories/ingredient-catalogue";
@@ -39,7 +39,7 @@ import { readName } from "../resolver";
 import { oncePerVersion } from "./catalogue-seed";
 
 /** Raised when a release needs the cleanup to run again. */
-export const CLEANUP_VERSION = 4;
+export const CLEANUP_VERSION = 5;
 
 /** How many variants one round removes; each round commits, so a boot cut short resumes. */
 // ponytail: ~2 ms a variant, ~2.5 min for production's 71k; set-based if ticket 12 finds it slow.
@@ -62,8 +62,8 @@ export interface CleanupOutcome {
   unflagged: number;
   /** Own foods whose parent no longer counts as a person's choice (7). */
   unmarked: number;
-  /** Foods the AI pass was asked about (8). */
-  asked: number;
+  /** Foods whose flag said AI was waiting, off or failing, which is no flag now (8). */
+  retired: number;
 }
 
 /** An own spelling that is not its own clean name. */
@@ -72,21 +72,16 @@ interface Variant extends CleanupSpelling {
 }
 
 /** Run the cleanup where this release's version of it has not run yet; null where it has. */
-export async function cleanUpCatalogueOnFirstStart(
-  askAI: (ingredientIds: string[]) => Promise<void>
-): Promise<CleanupOutcome | null> {
+export async function cleanUpCatalogueOnFirstStart(): Promise<CleanupOutcome | null> {
   return await oncePerVersion("cleanupVersion", CLEANUP_VERSION, {
-    pass: (from) => cleanUpCatalogue(askAI, from),
-    // Every step but the AI pass changes which food rows mean, or a food's flag.
-    changed: ({ asked: _asked, ...steps }) => Object.values(steps).some((n) => n > 0),
+    pass: cleanUpCatalogue,
+    // Every step changes which food rows mean, or a food's flag.
+    changed: (steps) => Object.values(steps).some((n) => n > 0),
     done: "Catalogue cleaned up",
   });
 }
 
-async function cleanUpCatalogue(
-  askAI: (ingredientIds: string[]) => Promise<void>,
-  from: number
-): Promise<CleanupOutcome> {
+async function cleanUpCatalogue(from: number): Promise<CleanupOutcome> {
   // 1. Seeded spellings lose their stray marks ("3wu)"); balanced brackets stay ("paprika (vrucht)").
   const outcome: CleanupOutcome = {
     seeded: 0,
@@ -97,7 +92,7 @@ async function cleanUpCatalogue(
     renamed: 0,
     unflagged: 0,
     unmarked: 0,
-    asked: 0,
+    retired: 0,
   };
   const spellings = await listSpellingsForCleanup();
   const variants: Variant[] = [];
@@ -175,11 +170,8 @@ async function cleanUpCatalogue(
   // first cleanup, after this boot's passes that file only unmarked foods (corrections, mints).
   if (from === 0) outcome.unmarked = await underTreeLock(unmarkChosenParents);
 
-  // 8. The AI pass, over every own food no person decided about.
-  const askable = await listAskableIngredientIds();
-
-  await askAI(askable);
-  outcome.asked = askable.length;
+  // 8. A flag says only that AI changed a food unsure (`clearRetiredFlags`).
+  outcome.retired = await underTreeLock(clearRetiredFlags);
 
   return outcome;
 }

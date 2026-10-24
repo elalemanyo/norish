@@ -30,6 +30,7 @@ export const PROMPT_CONFIG_FIELDS = [
   "ingredientIconStyle",
   "ingredientPlainName",
   "ingredientSpellingCheck",
+  "ingredientNutrition",
 ] as const satisfies readonly (keyof PromptsConfig)[];
 
 export type PromptConfigField = (typeof PROMPT_CONFIG_FIELDS)[number];

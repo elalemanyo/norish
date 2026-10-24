@@ -20,12 +20,20 @@
       "added": "Added {date}",
       "remove": "Disconnect",
       "unavailable": "Not currently available",
+      "changePassword": "Change password",
+      "currentPassword": "Current password",
+      "newPassword": "New password",
+      "confirmPassword": "Confirm new password",
+      "signOutOthers": "Sign out other sessions",
+      "passwordChanged": "Password changed.",
       "errors": {
         "usedByAnotherAccount": "This sign-in is already used by another account.",
         "lastMethod": "You need at least one way to sign in.",
         "signInAgain": "Sign in again to disconnect this.",
         "addFailed": "This sign-in method could not be added.",
-        "removeFailed": "This sign-in method could not be disconnected."
+        "removeFailed": "This sign-in method could not be disconnected.",
+        "wrongPassword": "The current password is incorrect.",
+        "changeFailed": "Could not change your password. Please try again."
       }
     },
     "profile": {
@@ -393,12 +401,8 @@
     "flagged": "Flagged",
     "flagReasons": {
       "unknown": "Norish was not sure this is a food of its own.",
-      "ai-off": "AI is off, so nothing checked whether this is a food Norish already knows.",
-      "ai-queued": "New to Norish. AI looks at it shortly.",
       "unknown-food": "No known food shares a word with this name, so AI was not asked.",
       "ai-unsure": "AI was asked whether this is a known food and was not sure.",
-      "ai-unavailable": "AI did not answer in time.",
-      "ai-key-rejected": "The AI provider rejected the API key, so AI could not check this name.",
       "food-gone": "AI matched this to a food that was merged away before the name could join it.",
       "upgrade": "No known food could be matched.",
       "seed-ambiguous": "The catalogue lists several foods this could be.",
@@ -471,7 +475,8 @@
         "name": "{food} · {dataset}, matched by name",
         "householdFood": "{food} · {dataset}, your household's choice",
         "household": "Your household's own numbers",
-        "taxonomy": "Open Food Facts"
+        "taxonomy": "Open Food Facts",
+        "ai": "Estimated by AI"
       },
       "correct": "Correct",
       "correctTitle": "Correct {name}",
@@ -580,20 +585,6 @@
       "failed": "That picture could not be made into an icon.",
       "generate": "Generate with AI",
       "generateFailed": "The icon could not be generated."
-    },
-    "drawIcons": {
-      "open": "Draw icons",
-      "title": "Draw icons",
-      "intro": "The image provider draws an icon for each food, and it becomes the food's own at once. You can give a food another icon in its panel.",
-      "scopeLabel": "Which foods",
-      "scopes": {
-        "bare": "Only foods with no icon at all",
-        "unowned": "Every food without its own icon"
-      },
-      "scopeSize": "{count, plural, =0 {No icons} one {# icon} other {# icons}}",
-      "start": "Draw icons",
-      "progress": "Drawing icons · {done, number} of {total, number}",
-      "drawing": "Drawing icon…"
     }
   },
   "admin": {
@@ -885,6 +876,58 @@
         "aiDisabled": "AI is disabled on this server. Enable AI first.",
         "error": "Failed to start bulk enrichment",
         "imageCount": "{count, plural, =0 {The sweep will generate no images.} one {The sweep will generate # image.} other {The sweep will generate # images.}}"
+      },
+      "ingredientCatalogue": {
+        "title": "Ingredient catalogue",
+        "subtitle": "What AI does to new ingredients",
+        "automatic": "Automatic for new ingredients",
+        "automaticDescription": "What AI does when an ingredient is added to the catalogue.",
+        "automaticPlaceholder": "Nothing runs automatically",
+        "kinds": {
+          "cleanUp": "Clean up new ingredients",
+          "cleanUpDescription": "Merge spellings, set a parent and a plain name, remove what is not a food",
+          "nutrition": "Fill missing nutrition",
+          "nutritionDescription": "Estimate macros per 100 g where the ingredient has none",
+          "conversions": "Fill missing conversions",
+          "conversionsDescription": "Estimate density and piece weight where the ingredient has none",
+          "icon": "Draw missing icons",
+          "iconDescription": "Only for an ingredient with no icon to show, not even its parent's"
+        },
+        "cleanUpCatalogue": {
+          "title": "Clean up catalogue",
+          "description": "Ask AI about the ingredients already in the catalogue.",
+          "running": "A clean-up is running. Follow it in the Job queue.",
+          "button": "Clean up catalogue",
+          "intro": "AI merges spellings, sets parents and plain names, and removes what is not a food. Every change is listed under Changed by AI, with Undo.",
+          "scopeLabel": "Which ingredients",
+          "scopes": {
+            "recipe-foods": "Recipe foods",
+            "recipe-foods-description": "Ingredients recipes brought in that no one has decided about",
+            "whole-catalogue": "Whole catalogue",
+            "whole-catalogue-description": "Every ingredient, built-in ones too, overriding what people decided or undid. Built-in ones are never removed."
+          },
+          "count": "{count, plural, one {AI will ask about # ingredient.} other {AI will ask about # ingredients.}}",
+          "start": "Clean up",
+          "started": "{count, plural, one {Cleaning up # ingredient} other {Cleaning up # ingredients}}",
+          "error": "Could not start the clean-up"
+        },
+        "fillGaps": {
+          "title": "Fill gaps",
+          "description": "Let AI fill in what ingredients are missing.",
+          "running": "Fill gaps is running. Follow it in the Job queue.",
+          "button": "Fill gaps",
+          "intro": "For every ingredient in the catalogue, AI fills in only what it has nothing of its own for. What an ingredient already has is never replaced.",
+          "kindsLabel": "What to fill",
+          "kinds": {
+            "nutrition": "Nutrition",
+            "conversions": "Conversions",
+            "icons": "Icons"
+          },
+          "count": "{count, plural, =0 {Nothing to fill} one {# ingredient} other {# ingredients}}",
+          "start": "Fill gaps",
+          "started": "Filling gaps. Follow it in the Job queue.",
+          "error": "Could not start filling gaps"
+        }
       }
     },
     "aiConfig": {
@@ -941,8 +984,6 @@
         "imageGeneration": "Image generation",
         "imageGenerationDescription": "Draw a picture of the dish for new recipes that have no image at all"
       },
-      "automaticIngredients": "Draw icons for new ingredients",
-      "automaticIngredientsDescription": "Only for an ingredient with no icon to show, not even its parent's.",
       "tagStrategy": "Tag strategy",
       "tagStrategyDescription": "Which tags auto-tagging may use, whether it runs automatically or manually",
       "tagStrategies": {
@@ -1105,8 +1146,11 @@
       "ingredientPlainNameDescription": "Sent to the language model when AI cleans an ingredient's name, with the name and its other spellings appended after it. Says what to take off a name and what to keep.",
       "ingredientPlainNamePlaceholder": "Prompt for cleaning ingredient names...",
       "ingredientSpellingCheck": "Ingredient translation check prompt",
-      "ingredientSpellingCheckDescription": "Sent to the language model once, at the first start with AI on, for each catalogue ingredient with translations that people, imports or merges added, with the ingredient, those translations and a recipe line using each appended after it. Says which of them name the ingredient, name no food, or name another food.",
-      "ingredientSpellingCheckPlaceholder": "Prompt for checking ingredient translations..."
+      "ingredientSpellingCheckDescription": "Sent to the language model by a Clean up of the whole catalogue, for each catalogue ingredient with translations that people, imports or merges added, with the ingredient, those translations and a recipe line using each appended after it. Says which of them name the ingredient, name no food, or name another food.",
+      "ingredientSpellingCheckPlaceholder": "Prompt for checking ingredient translations...",
+      "ingredientNutrition": "Ingredient nutrition prompt",
+      "ingredientNutritionDescription": "Sent to the language model for an ingredient missing its nutrition, density or piece weight, where AI may fill them, with the ingredient and what it is a kind of appended after it. Estimates only what the ingredient is missing.",
+      "ingredientNutritionPlaceholder": "Prompt for estimating an ingredient's nutrition..."
     },
     "unsavedChanges": "Unsaved changes",
     "jsonEditor": {
@@ -1160,6 +1204,7 @@
         "saving-link": "Save the link",
         "asking-ai": "Ask AI about the food",
         "drawing-icon": "Draw the food's icon",
+        "filling-gaps": "Fill the food's gaps",
         "naming": "Clean the food's name"
       },
       "queues": {
@@ -1177,7 +1222,8 @@
         "image-generation": "Image generation",
         "store-lookup": "Store lookup",
         "ingredient-review": "Ask AI about ingredients",
-        "ingredient-icons": "Draw ingredient icons"
+        "ingredient-icons": "Draw ingredient icons",
+        "ingredient-fill": "Fill ingredient gaps"
       },
       "summary": {
         "failed": "{count} failed"

@@ -550,8 +550,8 @@ export interface UndecidedMint {
 }
 
 /**
- * The listed own Flagged Ingredients no person decided about (no entry, not distinct, no chosen
- * parent), which the startup recheck reads again when the rules change.
+ * The listed own Ingredients no person decided about (no entry, not distinct, no chosen parent),
+ * flagged or not, which the startup recheck reads again when the rules change.
  */
 export async function listUndecidedMints(): Promise<UndecidedMint[]> {
   const rows = await db
@@ -566,7 +566,6 @@ export async function listUndecidedMints(): Promise<UndecidedMint[]> {
     .innerJoin(ingredientAliases, eq(ingredientAliases.ingredientId, ingredients.id))
     .where(
       and(
-        eq(ingredients.flagged, true),
         isNull(ingredients.offId),
         eq(ingredients.keptDistinct, false),
         eq(ingredients.parentChosen, false),
@@ -612,7 +611,6 @@ export async function adoptPlainName(
       .where(
         and(
           eq(ingredients.id, id),
-          eq(ingredients.flagged, true),
           eq(ingredients.parentChosen, false),
           eq(ingredients.nameSettled, false),
           nameIsFree(id, plain.text)
@@ -622,15 +620,11 @@ export async function adoptPlainName(
 }
 
 /**
- * File an undecided mint without a parent under its words' one, still flagged and unchosen, unless
- * a person decided about it meanwhile or a cycle closes. Whether it was filed.
+ * File an undecided mint without a parent under its words' one, its flag as it was, unless a person
+ * decided about it meanwhile or a cycle closes. Whether it was filed.
  */
 export async function fileUndecidedMint(id: string, parentId: string): Promise<boolean> {
-  return await fileUnder(
-    id,
-    parentId,
-    and(isNull(ingredients.parentId), eq(ingredients.flagged, true))
-  );
+  return await fileUnder(id, parentId, isNull(ingredients.parentId));
 }
 
 /**

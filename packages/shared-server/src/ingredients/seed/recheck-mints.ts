@@ -28,7 +28,7 @@ export async function recheckUndecidedMints(): Promise<RecheckOutcome> {
     if (targets.size === 1) {
       const [target] = targets;
 
-      // Into a seeded food, or into an earlier undecided mint: that one stays flagged.
+      // Into a seeded food, or into an earlier undecided mint: that one keeps its flag.
       if (
         await withTransaction((tx) =>
           mergeCatalogueIngredients(tx, mint.id, target!, { keepFlag: true })

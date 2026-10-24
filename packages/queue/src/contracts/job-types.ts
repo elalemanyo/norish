@@ -126,29 +126,24 @@ export type StoreLookupJobData =
     }
   | { kind: "refresh"; storeId: string; productIds: string[]; householdKey: string };
 
-/**
- * One Draw icons round: the foods whose Ingredient Icons a person asked to
- * be drawn, and who asked, since each food's icon is set under the
- * ingredient permission policy for that person, checked again as the round
- * reaches it.
- */
+/** Drawing these foods' Ingredient Icons, for a mint's pass or Fill gaps, a step per food. */
 export interface IngredientIconsJobData {
   /** The foods, by id and by name, so the job monitor reads "uien" rather than an id. */
   ingredients: Array<{ id: string; name: string }>;
-  /** Who asked for the round; none where the AI pass queued it for the foods it left showing no icon. */
-  actor: {
-    userId: string;
-    householdUserIds: string[] | null;
-    isServerAdmin: boolean;
-  } | null;
+}
+
+/** AI filling these foods' gaps (Fill Gaps), by id and by name, and which gaps it fills. */
+export interface IngredientFillJobData {
+  ingredients: Array<{ id: string; name: string }>;
+  asked: { nutrition: boolean; conversions: boolean };
 }
 
 /**
- * The AI pass over these foods (ADR-0037, amended 2026-10-17), queued after a mint and nightly,
- * by id and by name, so the job monitor reads "uitjes" rather than an id. No person asks.
+ * The AI pass over these foods (ADR-0037), queued after a mint or by Clean up catalogue, by id and
+ * by name, so the job monitor reads "uitjes" rather than an id.
  */
 export interface IngredientReviewJobData {
   ingredients: Array<{ id: string; name: string }>;
-  /** What is asked: what each food is, or which of a seeded food's added spellings name it. */
-  check?: "spellings";
+  /** A Clean up over the whole catalogue: decisions and undos overridden, seeded spellings checked. */
+  wholeCatalogue?: true;
 }

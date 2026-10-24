@@ -5,6 +5,5 @@ import { router } from "../../trpc";
 
 export const ingredientsSubscriptions = router({
   onChanged: realtimeSubscription(ingredients, "changed"),
-  onIcons: realtimeSubscription(ingredients, "icons"),
   onCorrected: realtimeSubscription(ingredients, "corrected"),
 });

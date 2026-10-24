@@ -6,7 +6,7 @@ import { FIELD_CLASS, FIELD_STYLE } from "@/components/groceries/grocery-field";
 import { GroceryPurchaseAmount } from "@/components/groceries/grocery-purchase-amount";
 import { ProductDetailsPanel } from "@/components/groceries/product-details-panel";
 import { SalePrice } from "@/components/groceries/sale-price";
-import { PanelPortal } from "@/components/Panel/Panel";
+import { PanelComboBoxPopover } from "@/components/Panel/Panel";
 import { useShopSearch, useStoreProducts } from "@/hooks/stores";
 import { usePackSizeWords } from "@/hooks/stores/use-pack-size-words";
 import { formatPackSize, formatShelfPrice } from "@/lib/format-price";
@@ -711,59 +711,54 @@ export function GroceryProductField({
           />
           <ComboBox.Trigger />
         </ComboBox.InputGroup>
-        <PanelPortal>
-          <ComboBox.Popover>
-            <ListBox renderEmptyState={() => null}>
-              {knownRows.length > 0 && (
-                <ListBox.Section>
-                  <Header
-                    className="text-muted px-2 py-1 text-xs"
-                    data-testid="product-group-known"
+        <PanelComboBoxPopover>
+          <ListBox renderEmptyState={() => null}>
+            {knownRows.length > 0 && (
+              <ListBox.Section>
+                <Header className="text-muted px-2 py-1 text-xs" data-testid="product-group-known">
+                  {t("knownGroup")}
+                </Header>
+                {knownRows.map((row) => (
+                  <ListBox.Item
+                    key={row.key}
+                    data-testid="product-option"
+                    id={row.key}
+                    textValue={row.name}
+                    onPress={() => tapRow(row)}
                   >
-                    {t("knownGroup")}
-                  </Header>
-                  {knownRows.map((row) => (
-                    <ListBox.Item
-                      key={row.key}
-                      data-testid="product-option"
-                      id={row.key}
-                      textValue={row.name}
-                      onPress={() => tapRow(row)}
-                    >
-                      <RowContent
-                        locale={locale}
-                        regularPriceLabel={(price) => tPrice("regularPrice", { price })}
-                        row={row}
-                      />
-                    </ListBox.Item>
-                  ))}
-                </ListBox.Section>
-              )}
-              {(isSearching || shopRows.length > 0) && (
-                <ListBox.Section>
-                  <Header className="text-muted px-2 py-1 text-xs" data-testid="product-group-shop">
-                    {isSearching ? t("searching", { store: store.name }) : t("shopGroup")}
-                  </Header>
-                  {shopRows.map((row) => (
-                    <ListBox.Item
-                      key={row.key}
-                      data-testid="product-option"
-                      id={row.key}
-                      textValue={row.name}
-                      onPress={() => tapRow(row)}
-                    >
-                      <RowContent
-                        locale={locale}
-                        regularPriceLabel={(price) => tPrice("regularPrice", { price })}
-                        row={row}
-                      />
-                    </ListBox.Item>
-                  ))}
-                </ListBox.Section>
-              )}
-            </ListBox>
-          </ComboBox.Popover>
-        </PanelPortal>
+                    <RowContent
+                      locale={locale}
+                      regularPriceLabel={(price) => tPrice("regularPrice", { price })}
+                      row={row}
+                    />
+                  </ListBox.Item>
+                ))}
+              </ListBox.Section>
+            )}
+            {(isSearching || shopRows.length > 0) && (
+              <ListBox.Section>
+                <Header className="text-muted px-2 py-1 text-xs" data-testid="product-group-shop">
+                  {isSearching ? t("searching", { store: store.name }) : t("shopGroup")}
+                </Header>
+                {shopRows.map((row) => (
+                  <ListBox.Item
+                    key={row.key}
+                    data-testid="product-option"
+                    id={row.key}
+                    textValue={row.name}
+                    onPress={() => tapRow(row)}
+                  >
+                    <RowContent
+                      locale={locale}
+                      regularPriceLabel={(price) => tPrice("regularPrice", { price })}
+                      row={row}
+                    />
+                  </ListBox.Item>
+                ))}
+              </ListBox.Section>
+            )}
+          </ListBox>
+        </PanelComboBoxPopover>
       </ComboBox>
 
       {linkedProduct && !unlinked && (

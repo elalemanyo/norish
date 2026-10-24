@@ -6,7 +6,7 @@
  * once.
  */
 import { asc, eq, isNull } from "drizzle-orm";
-import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 
 import { ServerConfigKeys } from "@norish/config/zod/server-config";
 import { withTransaction } from "@norish/db/drizzle";
@@ -54,7 +54,6 @@ describe("the first-start cleanup", () => {
 
   let userId: string;
   let seeded: Map<string, string>;
-  const askAI = vi.fn(async (_ids: string[]) => {});
 
   beforeAll(async () => {
     await testBase.setup();
@@ -64,7 +63,6 @@ describe("the first-start cleanup", () => {
     const [user] = await testBase.beforeEachTest();
 
     userId = user.id;
-    askAI.mockClear();
     await getTestDb()
       .delete(serverConfig)
       .where(eq(serverConfig.key, ServerConfigKeys.INGREDIENT_SEED_STATE));
@@ -183,7 +181,7 @@ describe("the first-start cleanup", () => {
       decided.ingredientId
     );
 
-    await expect(cleanUpCatalogueOnFirstStart(askAI)).resolves.toEqual({
+    await expect(cleanUpCatalogueOnFirstStart()).resolves.toEqual({
       seeded: 1,
       cleaned: 1,
       removed: 1,
@@ -193,7 +191,7 @@ describe("the first-start cleanup", () => {
       // The grocery food's "upgrade" flag.
       unflagged: 1,
       unmarked: 0,
-      asked: 2,
+      retired: 0,
     });
 
     // 1. Seeded stray marks go; balanced brackets stay.
@@ -241,12 +239,6 @@ describe("the first-start cleanup", () => {
       { name: "peper", food: seeded.get("en:pepper") },
       { name: "zout", food: seeded.get("en:salt") },
     ]);
-
-    // 8. AI is asked only about the own foods a recipe names that no person decided about.
-    expect(askAI).toHaveBeenCalledTimes(1);
-    expect(askAI.mock.calls[0]![0].sort()).toEqual(
-      [gyoza.ingredientId, undecided.ingredientId].sort()
-    );
   });
 
   it.each([
@@ -266,7 +258,7 @@ describe("the first-start cleanup", () => {
         [food.aliasIds[1]!]
       );
 
-      await expect(cleanUpCatalogueOnFirstStart(askAI)).resolves.toMatchObject({ split: 0 });
+      await expect(cleanUpCatalogueOnFirstStart()).resolves.toMatchObject({ split: 0 });
       expect(await exists(food.ingredientId)).toBe(true);
       expect(await lineSpellings(mixLine.id)).toEqual([mix]);
       expect(await lineSpellings(joinedLine.id)).toEqual([joinedText]);
@@ -286,13 +278,13 @@ describe("the first-start cleanup", () => {
       [tomatoes.aliasIds[0]!]
     );
 
-    await expect(cleanUpCatalogueOnFirstStart(askAI)).resolves.toMatchObject({ split: 1 });
+    await expect(cleanUpCatalogueOnFirstStart()).resolves.toMatchObject({ split: 1 });
     expect(await exists(tomatoes.ingredientId)).toBe(false);
     expect(await lineSpellings(tomatoLine.id)).toEqual(["cherry tomato", "grape tomatoes"]);
     expect(await exists(oils.ingredientId)).toBe(true);
   });
 
-  it("leaves a joined food whose whole name another food spells to AI, as a line would read it", async () => {
+  it("leaves a joined food whose whole name another food spells, as a line would read it", async () => {
     await mintIngredientWithAliases({
       name: "salt and pepper",
       aliases: [{ text: "zout en peper", fold: ingredientAliasFold("zout en peper") }],
@@ -306,21 +298,20 @@ describe("the first-start cleanup", () => {
       joined.aliasIds
     );
 
-    await expect(cleanUpCatalogueOnFirstStart(askAI)).resolves.toMatchObject({
+    await expect(cleanUpCatalogueOnFirstStart()).resolves.toMatchObject({
       split: 0,
       renamed: 0,
       removed: 0,
     });
     expect(await exists(joined.ingredientId)).toBe(true);
     expect(await lineSpellings(line.id)).toEqual(["peper en zout"]);
-    expect(askAI.mock.calls[0]![0]).toContain(joined.ingredientId);
   });
 
   it("neither splits nor renames a hidden food", async () => {
     const joined = await oldMint("zout en peper", ["zout en peper"]);
     const dirty = await oldMint("baking soda )", ["baking soda"]);
 
-    await expect(cleanUpCatalogueOnFirstStart(askAI)).resolves.toMatchObject({
+    await expect(cleanUpCatalogueOnFirstStart()).resolves.toMatchObject({
       split: 0,
       renamed: 0,
     });
@@ -348,18 +339,17 @@ describe("the first-start cleanup", () => {
     await withTransaction((tx) => addToJunkPile(tx, ["boneless"], { reason: "seed" }));
     forgetSpellingRules();
 
-    await expect(cleanUpCatalogueOnFirstStart(askAI)).resolves.toMatchObject({ removed: 0 });
+    await expect(cleanUpCatalogueOnFirstStart()).resolves.toMatchObject({ removed: 0 });
     expect(await lineSpellings(line.id)).toEqual(["boneless"]);
   });
 
   it("runs once: a second start does nothing", async () => {
     await oldMint("baking soda )", ["baking soda )"]);
 
-    await expect(cleanUpCatalogueOnFirstStart(askAI)).resolves.toMatchObject({ cleaned: 1 });
+    await expect(cleanUpCatalogueOnFirstStart()).resolves.toMatchObject({ cleaned: 1 });
     await oldMint("cooked pasta of choice )", ["cooked pasta of choice )"]);
 
-    await expect(cleanUpCatalogueOnFirstStart(askAI)).resolves.toBeNull();
-    expect(askAI).toHaveBeenCalledTimes(1);
+    await expect(cleanUpCatalogueOnFirstStart()).resolves.toBeNull();
     const [left] = await getTestDb()
       .select({ text: ingredientAliases.text })
       .from(ingredientAliases)
@@ -380,7 +370,7 @@ describe("the first-start cleanup", () => {
       .set({ nameChosen: true })
       .where(eq(ingredients.id, named.ingredientId));
 
-    await expect(cleanUpCatalogueOnFirstStart(askAI)).resolves.toMatchObject({ renamed: 0 });
+    await expect(cleanUpCatalogueOnFirstStart()).resolves.toMatchObject({ renamed: 0 });
     await expect(
       getTestDb()
         .select({ name: ingredients.name })
@@ -401,7 +391,7 @@ describe("the first-start cleanup", () => {
       legacy.ingredientId
     );
 
-    await expect(cleanUpCatalogueOnFirstStart(askAI)).resolves.toMatchObject({ removed: 1 });
+    await expect(cleanUpCatalogueOnFirstStart()).resolves.toMatchObject({ removed: 1 });
     expect(await exists(legacy.ingredientId)).toBe(false);
     expect(await lineSpellings(line.id)).toEqual(["zout"]);
   });
@@ -418,17 +408,17 @@ describe("the first-start cleanup", () => {
     ]);
     await getTestDb()
       .update(ingredients)
-      .set({ flagReason: "ai-off" })
+      .set({ flagReason: "ai-unsure" })
       .where(eq(ingredients.id, mint.ingredientId));
 
-    await expect(cleanUpCatalogueOnFirstStart(askAI)).resolves.toMatchObject({ removed: 1 });
+    await expect(cleanUpCatalogueOnFirstStart()).resolves.toMatchObject({ removed: 1 });
     expect(await exists(variant.ingredientId)).toBe(false);
     await expect(
       getTestDb()
         .select({ flagged: ingredients.flagged, reason: ingredients.flagReason })
         .from(ingredients)
         .where(eq(ingredients.id, mint.ingredientId))
-    ).resolves.toEqual([{ flagged: true, reason: "ai-off" }]);
+    ).resolves.toEqual([{ flagged: true, reason: "ai-unsure" }]);
   });
 
   it("deletes a food whose one spelling names nothing; its grocery keeps its text", async () => {
@@ -441,7 +431,7 @@ describe("the first-start cleanup", () => {
       ingredientId: junk.ingredientId,
     });
 
-    await expect(cleanUpCatalogueOnFirstStart(askAI)).resolves.toMatchObject({ removed: 1 });
+    await expect(cleanUpCatalogueOnFirstStart()).resolves.toMatchObject({ removed: 1 });
     expect(await exists(junk.ingredientId)).toBe(false);
     await expect(
       getTestDb().select({ name: groceries.name, food: groceries.ingredientId }).from(groceries)
@@ -460,7 +450,7 @@ describe("the first-start cleanup", () => {
       [peri.aliasIds[0]!]
     );
 
-    await expect(cleanUpCatalogueOnFirstStart(askAI)).resolves.toMatchObject({ cleared: 1 });
+    await expect(cleanUpCatalogueOnFirstStart()).resolves.toMatchObject({ cleared: 1 });
     expect(await lineSpellings(heading.id)).toEqual([]);
     expect(await lineSpellings(measured.id)).toEqual(["peri peri kruiden"]);
     expect((await getRecipeIngredients(recipe.id)).map((line) => line.name).sort()).toEqual([
@@ -469,7 +459,7 @@ describe("the first-start cleanup", () => {
     ]);
   });
 
-  it("clears the flag of a hidden food, but keeps a listed food's and a pass still owed", async () => {
+  it("clears the flag of a hidden food, but keeps a listed food's", async () => {
     const reserve = await oldMint("Nora reserve eten", ["Nora reserve eten"]);
     const queued = await oldMint("Nora brokken", ["Nora brokken"]);
     const listed = await oldMint("kokosbloesemsuiker", ["kokosbloesemsuiker"]);
@@ -489,7 +479,7 @@ describe("the first-start cleanup", () => {
         .where(eq(ingredients.id, food.ingredientId));
     }
 
-    await expect(cleanUpCatalogueOnFirstStart(askAI)).resolves.toMatchObject({ unflagged: 1 });
+    await expect(cleanUpCatalogueOnFirstStart()).resolves.toMatchObject({ unflagged: 2 });
     const flags = await getTestDb()
       .select({
         name: ingredients.name,
@@ -501,8 +491,49 @@ describe("the first-start cleanup", () => {
 
     expect(flags.sort((a, b) => a.name.localeCompare(b.name))).toEqual([
       { name: "kokosbloesemsuiker", flagged: true, reason: "ai-unsure" },
-      { name: "Nora brokken", flagged: true, reason: "ai-queued" },
+      { name: "Nora brokken", flagged: false, reason: null },
       { name: "Nora reserve eten", flagged: false, reason: null },
+    ]);
+  });
+
+  it("lifts every flag that said AI was waiting, off or failing, keeping AI's doubt under an open change", async () => {
+    const recipe = await createTestRecipe(userId);
+
+    for (const [name, flagReason] of [
+      ["kokosbloesemsuiker", "ai-queued"],
+      ["palmsuiker", "ai-off"],
+      ["rietsuiker", "ai-unavailable"],
+      ["basterdsuiker", "ai-key-rejected"],
+      ["kandijsuiker", "ai-unavailable"],
+    ] as const) {
+      const food = await oldMint(name, [name]);
+
+      await insertTestRecipeLine({ recipeId: recipe.id, name }, [food.aliasIds[0]!]);
+      // An unsure parent is an open change; a flag kept its unanswered reason under one.
+      if (name === "kandijsuiker")
+        await parentByAI(food.ingredientId, seeded.get("en:salt")!, false);
+      await getTestDb()
+        .update(ingredients)
+        .set({ flagged: true, flagReason })
+        .where(eq(ingredients.id, food.ingredientId));
+    }
+
+    await expect(cleanUpCatalogueOnFirstStart()).resolves.toMatchObject({ retired: 5 });
+    const flags = await getTestDb()
+      .select({
+        name: ingredients.name,
+        flagged: ingredients.flagged,
+        reason: ingredients.flagReason,
+      })
+      .from(ingredients)
+      .where(isNull(ingredients.offId));
+
+    expect(flags.sort((a, b) => a.name.localeCompare(b.name))).toEqual([
+      { name: "basterdsuiker", flagged: false, reason: null },
+      { name: "kandijsuiker", flagged: true, reason: "ai-unsure" },
+      { name: "kokosbloesemsuiker", flagged: false, reason: null },
+      { name: "palmsuiker", flagged: false, reason: null },
+      { name: "rietsuiker", flagged: false, reason: null },
     ]);
   });
 
@@ -532,7 +563,7 @@ describe("the first-start cleanup", () => {
       ingredientId: lettuce,
     });
 
-    await expect(cleanUpCatalogueOnFirstStart(askAI)).resolves.toMatchObject({
+    await expect(cleanUpCatalogueOnFirstStart()).resolves.toMatchObject({
       cleaned: 0,
       removed: 2,
     });
@@ -569,8 +600,7 @@ describe("the first-start cleanup", () => {
     // 0.25 marked a confirmed suggestion as a person's parent.
     await setParent(actor, prawns.ingredientId, seeded.get("en:honey")!);
 
-    await cleanUpCatalogueOnFirstStart(askAI);
-    expect(askAI.mock.calls[0]![0]).toContain(prawns.ingredientId);
+    await cleanUpCatalogueOnFirstStart();
     await expect(parentByAI(prawns.ingredientId, seeded.get("en:salt")!, true)).resolves.toEqual(
       expect.objectContaining({ outcome: "applied" })
     );
@@ -579,9 +609,7 @@ describe("the first-start cleanup", () => {
     // A parent a person chooses after the upgrade keeps AI away, through a later release's cleanup.
     await setParent(actor, prawns.ingredientId, seeded.get("en:pepper")!);
     await updateIngredientSeedState({ cleanupVersion: CLEANUP_VERSION + 1 });
-    askAI.mockClear();
-    await cleanUpCatalogueOnFirstStart(askAI);
-    expect(askAI.mock.calls[0]![0]).not.toContain(prawns.ingredientId);
+    await cleanUpCatalogueOnFirstStart();
     await expect(parentByAI(prawns.ingredientId, seeded.get("en:salt")!, true)).resolves.toEqual(
       expect.objectContaining({ outcome: "decided" })
     );

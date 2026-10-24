@@ -24,13 +24,11 @@ import { useTranslations } from "next-intl";
 import type {
   AIConfig,
   AutomaticEnrichmentConfig,
-  AutomaticIngredientsConfig,
   CuisineStrategy,
   TagStrategy,
 } from "@norish/config/zod/server-config";
 import {
   DEFAULT_AUTOMATIC_ENRICHMENT,
-  DEFAULT_AUTOMATIC_INGREDIENTS,
   DEFAULT_CUISINE_STRATEGY,
   DEFAULT_TAG_STRATEGY,
   ServerConfigKeys,
@@ -80,10 +78,7 @@ const AUTOMATIC_ENRICHMENT_KEYS = [
 export default function AIConfigForm({ onDirtyChange }: AIConfigFormProps) {
   const t = useTranslations("settings.admin.aiConfig");
   const tActions = useTranslations("common.actions");
-  const { aiConfig, imageGenerationConfig, updateAIConfig, testAIEndpoint, fetchConfigSecret } =
-    useAdminSettingsContext();
-  // An icon is drawn by the image provider: without one, it is not offered.
-  const canDrawIcons = (imageGenerationConfig?.provider ?? "disabled") !== "disabled";
+  const { aiConfig, updateAIConfig, testAIEndpoint, fetchConfigSecret } = useAdminSettingsContext();
   const [enabled, setEnabled] = useState(aiConfig?.enabled ?? false);
   const [provider, setProvider] = useState(aiConfig?.provider ?? "openai");
   const [endpoint, setEndpoint] = useState(aiConfig?.endpoint ?? "");
@@ -102,9 +97,6 @@ export default function AIConfigForm({ onDirtyChange }: AIConfigFormProps) {
   );
   const [automaticEnrichment, setAutomaticEnrichment] = useState<AutomaticEnrichmentConfig>(
     aiConfig?.automaticEnrichment ?? DEFAULT_AUTOMATIC_ENRICHMENT
-  );
-  const [automaticIngredients, setAutomaticIngredients] = useState<AutomaticIngredientsConfig>(
-    aiConfig?.automaticIngredients ?? DEFAULT_AUTOMATIC_INGREDIENTS
   );
   const [testing, whileTesting] = usePending();
   const [testResult, setTestResult] = useState<{
@@ -201,7 +193,6 @@ export default function AIConfigForm({ onDirtyChange }: AIConfigFormProps) {
       setTagStrategy(aiConfig.tagStrategy ?? DEFAULT_TAG_STRATEGY);
       setCuisineStrategy(aiConfig.cuisineStrategy ?? DEFAULT_CUISINE_STRATEGY);
       setAutomaticEnrichment(aiConfig.automaticEnrichment ?? DEFAULT_AUTOMATIC_ENRICHMENT);
-      setAutomaticIngredients(aiConfig.automaticIngredients ?? DEFAULT_AUTOMATIC_INGREDIENTS);
     }
   }
 
@@ -231,8 +222,6 @@ export default function AIConfigForm({ onDirtyChange }: AIConfigFormProps) {
           automaticEnrichment[key] !==
           (aiConfig.automaticEnrichment?.[key] ?? DEFAULT_AUTOMATIC_ENRICHMENT[key])
       ) ||
-      automaticIngredients.icon !==
-        (aiConfig.automaticIngredients?.icon ?? DEFAULT_AUTOMATIC_INGREDIENTS.icon) ||
       apiKey.trim() !== ""
     );
   }, [
@@ -249,7 +238,6 @@ export default function AIConfigForm({ onDirtyChange }: AIConfigFormProps) {
     tagStrategy,
     cuisineStrategy,
     automaticEnrichment,
-    automaticIngredients,
     apiKey,
   ]);
   useEffect(() => {
@@ -315,7 +303,7 @@ export default function AIConfigForm({ onDirtyChange }: AIConfigFormProps) {
     );
   };
   const handleSave = async () => {
-    if (enabled && !hasValidConfig) return;
+    if (!aiConfig || (enabled && !hasValidConfig)) return;
     await whileSaving(() =>
       updateAIConfig({
         enabled,
@@ -331,7 +319,8 @@ export default function AIConfigForm({ onDirtyChange }: AIConfigFormProps) {
         tagStrategy,
         cuisineStrategy,
         automaticEnrichment,
-        automaticIngredients,
+        // The Ingredient catalogue section saves these.
+        automaticIngredients: aiConfig.automaticIngredients,
       })
         // Saved keys live on the server, not in the form: a key left in state
         // reads as an unsaved change on every later render.
@@ -582,20 +571,6 @@ export default function AIConfigForm({ onDirtyChange }: AIConfigFormProps) {
           </Select.Popover>
         </Select>
       </SettingRow>
-
-      {canDrawIcons ? (
-        <SwitchRow
-          description={t("automaticIngredientsDescription")}
-          title={t("automaticIngredients")}
-        >
-          <SettingsSwitch
-            data-testid="ai-automatic-ingredients"
-            isDisabled={!enabled}
-            isSelected={automaticIngredients.icon}
-            onValueChange={(icon) => setAutomaticIngredients({ icon })}
-          />
-        </SwitchRow>
-      ) : null}
 
       <Select
         variant="secondary"

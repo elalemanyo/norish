@@ -2,7 +2,6 @@ import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
 import type { CatalogueRefusal } from "@norish/shared-server/ingredients/catalogue";
-import type { IconScopeSummary } from "@norish/shared/contracts/ingredient-catalogue";
 import type {
   IngredientNutrition,
   NutritionFoodSummary,
@@ -10,9 +9,6 @@ import type {
 import type { SpoonMeasure } from "@norish/shared/lib/spoon-measure";
 import { SERVER_CONFIG } from "@norish/config/env-config-server";
 import { listIngredientUses } from "@norish/db/repositories/ingredient-catalogue";
-import { addIngredientIconsJob } from "@norish/queue/ingredient-icons/producer";
-import { findRunningIconRound } from "@norish/queue/ingredient-icons/progress";
-import { getQueues } from "@norish/queue/registry";
 import { canDrawImages } from "@norish/shared-server/config/server-config-loader";
 import {
   keepAIChange as keepCatalogueAIChange,
@@ -37,7 +33,6 @@ import {
   generateIngredientIcon,
   uploadIngredientIcon,
 } from "@norish/shared-server/ingredients/icon-drafts";
-import { listIconRoundFoods } from "@norish/shared-server/ingredients/icon-rounds";
 import { ingredientIconAddresses } from "@norish/shared-server/ingredients/icons";
 import {
   correctNutrition as correctHouseholdNutrition,
@@ -51,7 +46,6 @@ import { findIngredientFor } from "@norish/shared-server/ingredients/resolver";
 import { trpcLogger as log } from "@norish/shared-server/logger";
 import { ICON_FILE_PATTERN } from "@norish/shared-server/media/ingredient-icon";
 import { ICON_PICTURE_MIME_TYPES } from "@norish/shared/contracts";
-import { ICON_SCOPES } from "@norish/shared/contracts/ingredient-catalogue";
 import {
   INGREDIENT_SEARCH_FIELDS,
   INGREDIENT_SEARCH_MATCHES,
@@ -306,55 +300,6 @@ async function assertCanDraw(): Promise<void> {
 }
 
 /**
- * How many icons each scope of a Draw icons round would draw for the asker,
- * over the whole catalogue: only the foods they may edit, and never a vague
- * group the shipped set leaves without one. No price: image pricing differs
- * by provider and model.
- */
-const iconScope = authedProcedure.query(async ({ ctx }): Promise<IconScopeSummary> => {
-  await assertCanDraw();
-  const scopes = await listIconRoundFoods(viewerOf(ctx));
-
-  return { bare: scopes.bare.length, unowned: scopes.unowned.length };
-});
-
-/**
- * Draw the icons of every food in `scope` the asker may edit, which the
- * server picks, however many: one job, a step per food, that outlives the
- * tab. Each icon is set as the food's own, with no review, under `edit` on
- * that food, checked again as the round reaches it. Answers the job the page
- * watches the round by, over `onIcons`, and the foods it is to draw.
- */
-const drawIcons = authedProcedure
-  .input(z.object({ scope: z.enum(ICON_SCOPES) }))
-  .mutation(async ({ ctx, input }) => {
-    await assertCanDraw();
-    const foods = (await listIconRoundFoods(viewerOf(ctx)))[input.scope];
-
-    log.info(
-      { userId: ctx.user.id, count: foods.length, scope: input.scope },
-      "Starting a Draw icons round"
-    );
-    if (foods.length === 0) {
-      throw new TRPCError({ code: "BAD_REQUEST", message: "No icons to draw" });
-    }
-
-    const jobId = await addIngredientIconsJob(getQueues().ingredientIcons, {
-      ingredients: foods,
-      actor: {
-        userId: ctx.user.id,
-        householdUserIds: ctx.householdUserIds ? [...ctx.householdUserIds] : null,
-        isServerAdmin: ctx.isServerAdmin,
-      },
-    });
-
-    return { jobId, total: foods.length, pending: foods.map((food) => food.id) };
-  });
-
-/** The Draw icons round running on the instance, for a page that opens mid-round. */
-const iconRound = authedProcedure.query(() => findRunningIconRound(getQueues().ingredientIcons));
-
-/**
  * Save an Ingredient panel's draft as one edit (`saveDraft`); a refusal anywhere changes nothing,
  * and says why.
  */
@@ -543,9 +488,6 @@ export const ingredientsRouter = router({
   icons,
   uploadIcon,
   generateIcon,
-  iconScope,
-  drawIcons,
-  iconRound,
   saveDraft,
   remove,
   aiChanges,

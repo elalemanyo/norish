@@ -1,9 +1,7 @@
 import type { Job } from "bullmq";
 
 import { sweepAIChanges } from "@norish/db/repositories/ingredient-ai-changes";
-import { listUnansweredIngredientIds } from "@norish/db/repositories/ingredient-catalogue";
 import { requireQueueApiHandler } from "@norish/queue/api-handlers";
-import { addIngredientReviewJob } from "@norish/queue/ingredient-review/producer";
 import { cleanupOldCalendarData } from "@norish/queue/scheduler/old-calendar-cleanup";
 import { cleanupOldGroceries } from "@norish/queue/scheduler/old-groceries-cleanup";
 import { checkRecurringGroceries } from "@norish/queue/scheduler/recurring-grocery-check";
@@ -100,14 +98,8 @@ async function processScheduledTask(job: Job<ScheduledTaskJobData>): Promise<voi
       // Own foods nothing has named for 90 days go; a seeded one never does.
       const result = await sweepUnusedIngredients();
       const changesSwept = await sweepAIChanges();
-      // The foods no AI could answer for are asked about again, while AI is on.
-      const unanswered = await listUnansweredIngredientIds();
 
-      await addIngredientReviewJob(unanswered);
-      log.info(
-        { deleted: result.deleted, changesSwept, asked: unanswered.length },
-        "Ingredient sweep completed"
-      );
+      log.info({ deleted: result.deleted, changesSwept }, "Ingredient sweep completed");
       break;
     }
 

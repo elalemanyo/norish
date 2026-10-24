@@ -24,7 +24,6 @@ const LOAD_MORE_MARGIN = "600px";
  */
 export function IngredientList({
   rows,
-  drawing,
   settling,
   hasMore,
   isFetchingMore,
@@ -34,8 +33,6 @@ export function IngredientList({
 }: {
   /** The foods to list, in order, each with its depth in the tree. */
   rows: IngredientTreeRow[];
-  /** The foods waiting their turn in a Draw icons round. */
-  drawing: ReadonlySet<string>;
   /** A search or filter is being applied: the list dims but stays. */
   settling: boolean;
   hasMore: boolean;
@@ -122,7 +119,6 @@ export function IngredientList({
             >
               <IngredientRow
                 depth={row.depth}
-                drawing={drawing.has(row.item.id)}
                 expanded={row.expanded}
                 item={row.item}
                 loadingKinds={row.loading}

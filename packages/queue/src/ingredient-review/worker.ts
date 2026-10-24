@@ -1,34 +1,30 @@
 /**
  * The AI pass over Ingredients (ADR-0037, amended 2026-10-17): a step per food, each answer an AI
- * Change, then the foods still there and showing no icon go to the icons queue.
+ * Change, then the foods it answered for and still there get their missing icon and gaps.
  */
 
 import type { Job } from "bullmq";
 
 import type { IngredientReviewJobData } from "@norish/queue/contracts/job-types";
 import type { ModelUse } from "@norish/shared-server/ai/runtime/model-use-ledger";
-import type { SpellingCheckOutcome } from "@norish/shared-server/ingredients/spelling-check";
-import type { ReviewOutcome } from "@norish/shared/contracts/ingredient-catalogue";
+import type { CleanUpOutcome } from "@norish/shared-server/ingredients/review";
 import { SERVER_CONFIG } from "@norish/config/env-config-server";
 import {
   createModelUseLedger,
   recordModelUse,
   runWithModelUseLedger,
 } from "@norish/shared-server/ai/runtime/model-use-ledger";
-import { getAutomaticIngredientsConfig } from "@norish/shared-server/config/server-config-loader";
 import { announcingTogether } from "@norish/shared-server/ingredients/changes";
-import { listFoodsShowingNoIcon } from "@norish/shared-server/ingredients/icon-rounds";
-import { askAIAbout } from "@norish/shared-server/ingredients/review";
-import { checkSpellingsOf } from "@norish/shared-server/ingredients/spelling-check";
+import { askAIAbout, cleanUpOverWholeCatalogue } from "@norish/shared-server/ingredients/review";
 import { createLogger } from "@norish/shared-server/logger";
-import { UNANSWERED_FLAG_REASONS } from "@norish/shared/contracts/ingredient-catalogue";
 
 import type { JobStepEvent } from "../job-steps";
 import { createWorker } from "../create-worker";
-import { addIngredientIconsJob } from "../ingredient-icons/producer";
+import { describeError } from "../helpers";
+import { queueIconAndFills } from "../ingredient-fill/producer";
 import { recordCompletedSteps } from "../job-steps";
 import { QUEUE_NAMES } from "../queue-names";
-import { getQueues } from "../registry";
+import { CATALOGUE_CLEAN_UP } from "./producer";
 
 const log = createLogger("worker:ingredient-review");
 
@@ -37,21 +33,13 @@ export const REVIEW_STEP = "asking-ai";
 
 /** What a food's step records: the answer made and what AI was asked, a skip, or what broke. */
 export type ReviewStepDetail = { ingredientId: string; name?: string } & (
-  ReviewOutcome | SpellingCheckOutcome | { outcome: "failed"; error: string }
+  CleanUpOutcome | { outcome: "failed"; error: string }
 );
-
-/** An error's message, with the cause a wrapper hides: a failed query names the database's complaint. */
-function describe(error: unknown): string {
-  if (!(error instanceof Error)) return String(error);
-  const cause = error.cause instanceof Error ? error.cause.message : null;
-
-  return cause ? `${error.message}: ${cause}` : error.message;
-}
 
 /** The question, asked of one food; an error is recorded on its step, and the pass goes on. */
 async function ask(
   job: Job<IngredientReviewJobData>,
-  question: (ingredientId: string) => Promise<ReviewOutcome | SpellingCheckOutcome>,
+  question: (ingredientId: string) => Promise<CleanUpOutcome>,
   ingredientId: string
 ): Promise<ReviewStepDetail> {
   try {
@@ -59,7 +47,7 @@ async function ask(
   } catch (error) {
     log.error({ err: error, jobId: job.id, ingredientId }, "Asking AI about a food failed");
 
-    return { ingredientId, outcome: "failed" as const, error: describe(error) };
+    return { ingredientId, outcome: "failed" as const, error: describeError(error) };
   }
 }
 
@@ -73,19 +61,7 @@ const PASS_WRITES = 20;
 
 /** Whether AI answered for the food: a later pass may still merge one it could not reach. */
 function answered(detail: ReviewStepDetail): boolean {
-  if (detail.outcome === "failed") return false;
-
-  return detail.outcome !== "unsure" || !UNANSWERED_FLAG_REASONS.includes(detail.reason);
-}
-
-/** Queue the answered foods that are still there and show no icon, where "Draw an icon" is on. */
-async function queueIcons(ingredientIds: readonly string[]): Promise<void> {
-  if (!(await getAutomaticIngredientsConfig()).icon) return;
-  const foods = await listFoodsShowingNoIcon(ingredientIds);
-
-  if (foods.length > 0) {
-    await addIngredientIconsJob(getQueues().ingredientIcons, { ingredients: foods, actor: null });
-  }
+  return detail.outcome !== "failed" && detail.outcome !== "unanswered";
 }
 
 /** Exported so the job body can be exercised without a Valkey-backed worker. */
@@ -95,11 +71,7 @@ export async function processIngredientReviewJob(
   signal?: AbortSignal
 ): Promise<void> {
   const { ingredients: foods } = job.data;
-  // A spelling check is about seeded foods, which have their icons.
-  const { question, drawsIcons } =
-    job.data.check === "spellings"
-      ? { question: checkSpellingsOf, drawsIcons: false }
-      : { question: askAIAbout, drawsIcons: true };
+  const question = job.data.wholeCatalogue ? cleanUpOverWholeCatalogue : askAIAbout;
   const writeEvery = Math.max(1, Math.ceil(foods.length / PASS_WRITES));
   let next = 0;
   let settled = 0;
@@ -160,7 +132,10 @@ export async function processIngredientReviewJob(
   );
   await recording;
   signal?.throwIfAborted();
-  if (drawsIcons) await queueIcons(foods.flatMap((food) => (done.has(food.id) ? [food.id] : [])));
+  // Drawing many is Fill gaps' work: only a mint's pass draws.
+  if (job.name !== CATALOGUE_CLEAN_UP) {
+    await queueIconAndFills(foods.flatMap((food) => (done.has(food.id) ? [food.id] : [])));
+  }
 }
 
 export function startIngredientReviewWorker(): void {

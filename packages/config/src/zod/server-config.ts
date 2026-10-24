@@ -150,6 +150,7 @@ export const PromptsConfigSchema = z.object({
   ingredientIconStyle: z.string().optional(),
   ingredientPlainName: z.string().optional(),
   ingredientSpellingCheck: z.string().optional(),
+  ingredientNutrition: z.string().optional(),
 });
 
 export type PromptsConfig = z.infer<typeof PromptsConfigSchema>;
@@ -367,16 +368,22 @@ export const DEFAULT_AUTOMATIC_ENRICHMENT: AutomaticEnrichmentConfig = {
 };
 
 /**
- * What runs on a food once AI's pass is done with it: an icon where it shows none, off until
- * an administrator opts in. A stored `plainName` (Clean the name) is dropped on read.
+ * What AI does to a newly minted food, each off until an administrator opts in: clean it up
+ * (merge, parent, Plain Name), fill its missing nutrition and conversions, draw its missing icon.
  */
 export const AutomaticIngredientsSchema = z.object({
+  cleanUp: z.boolean(),
+  nutrition: z.boolean(),
+  conversions: z.boolean(),
   icon: z.boolean(),
 });
 
 export type AutomaticIngredientsConfig = z.infer<typeof AutomaticIngredientsSchema>;
 
 export const DEFAULT_AUTOMATIC_INGREDIENTS: AutomaticIngredientsConfig = {
+  cleanUp: false,
+  nutrition: false,
+  conversions: false,
   icon: false,
 };
 
@@ -856,8 +863,6 @@ export const IngredientSeedStateSchema = z.object({
   correctionsVersion: z.number().int().default(0),
   /** The junk pile seed's version last put on the pile (`JUNK_SEED`). */
   junkSeedVersion: z.number().int().default(0),
-  /** AI's check of the spellings added to seeded foods, `SPELLING_CHECK_VERSION`, last run with AI on. */
-  spellingCheckVersion: z.number().int().default(0),
 });
 
 export type IngredientSeedState = z.infer<typeof IngredientSeedStateSchema>;

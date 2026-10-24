@@ -17,12 +17,19 @@ import type { CatalogueActor } from "@norish/shared-server/ingredients/catalogue
 import { withTransaction } from "@norish/db/drizzle";
 import { listAIChanges } from "@norish/db/repositories/ingredient-ai-changes";
 import { findIngredientByAliasId } from "@norish/db/repositories/ingredient-aliases";
+import {
+  listAskableIngredientIds,
+  listListedIngredientIds,
+} from "@norish/db/repositories/ingredient-catalogue";
 import { listJunkFolds } from "@norish/db/repositories/ingredient-junk-pile";
 import {
   findIngredientAncestors,
   mergeCatalogueIngredients,
 } from "@norish/db/repositories/ingredient-relocation";
-import { applyIngredientSeed } from "@norish/db/repositories/ingredient-seed";
+import {
+  applyIngredientSeed,
+  listSeededIngredientIds,
+} from "@norish/db/repositories/ingredient-seed";
 import {
   groceries,
   ingredientAliases,
@@ -54,7 +61,7 @@ import {
 } from "@norish/shared-server/ingredients/catalogue";
 import { onIngredientsMinted } from "@norish/shared-server/ingredients/minted";
 import { findIngredientFor, resolveIngredients } from "@norish/shared-server/ingredients/resolver";
-import { askAIAbout } from "@norish/shared-server/ingredients/review";
+import { askAIAbout, cleanUpOverWholeCatalogue } from "@norish/shared-server/ingredients/review";
 
 import {
   createTestRecipe,
@@ -187,7 +194,6 @@ describe("asking AI about an Ingredient", () => {
         if (prompt === "ingredient-plain-name") return { plainName: null };
         throw new Error(`no ${prompt} answer queued`);
       }) as never);
-    // Reset, not only re-stubbed: a `flagged` text that mints nothing leaves its once-off unread.
     vi.mocked(isAIEnabled).mockReset().mockResolvedValue(true);
     vi.mocked(isDecisionUseEnabled).mockResolvedValue(true);
   });
@@ -196,9 +202,8 @@ describe("asking AI about an Ingredient", () => {
     await testBase.teardown();
   });
 
-  /** A food minted while AI was off, flagged as the upgrade leaves them; no row names it. */
+  /** A food someone's action minted, unflagged; no row names it. */
   async function unnamed(text: string) {
-    vi.mocked(isAIEnabled).mockResolvedValueOnce(false);
     const [resolved] = await resolveIngredients([text], { userId: actor.userId });
 
     return resolved!;
@@ -1436,7 +1441,7 @@ describe("asking AI about an Ingredient", () => {
       });
     });
 
-    it("flags the food when the second answer breaks it too", async () => {
+    it("leaves the food unanswered and unflagged when the second answer breaks it too", async () => {
       await kept("onion");
       const uien = await flagged("uien");
 
@@ -1447,19 +1452,19 @@ describe("asking AI about an Ingredient", () => {
       });
 
       await expect(askAIAbout(uien.ingredientId)).resolves.toMatchObject({
-        outcome: "unsure",
+        outcome: "unanswered",
         reason: "ai-unavailable",
       });
       expect(resolutionRequests()).toBe(2);
       await expect(findIngredientByAliasId(uien.aliasId)).resolves.toMatchObject({
         id: uien.ingredientId,
-        flagged: true,
-        flagReason: "ai-unavailable",
+        flagged: false,
+        flagReason: null,
       });
     });
   });
 
-  it("leaves the food and its changes as they were when no answer comes, the flag saying why", async () => {
+  it("leaves the food, its flag and its changes as they were when no answer comes", async () => {
     await kept("onion");
     const red = await flagged("red onion");
 
@@ -1468,46 +1473,28 @@ describe("asking AI about an Ingredient", () => {
     answers("ingredient-resolution", new Error("model unreachable"));
 
     await expect(askAIAbout(red.ingredientId)).resolves.toMatchObject({
-      outcome: "unsure",
+      outcome: "unanswered",
       reason: "ai-unavailable",
     });
     await expect(findIngredientByAliasId(red.aliasId)).resolves.toMatchObject({
-      flagReason: "ai-unavailable",
+      flagged: true,
+      flagReason: "ai-unsure",
     });
     expect(await changes()).toMatchObject([{ kind: "parent", sure: false }]);
   });
 
-  it("keeps the flag a food has when AI is switched off while the pass waits", async () => {
+  it("leaves an unflagged food unflagged when AI is switched off while the pass waits", async () => {
     const red = await flagged("red onion");
 
-    await getTestDb()
-      .update(ingredients)
-      .set({ flagReason: "ai-unavailable" })
-      .where(eq(ingredients.id, red.ingredientId));
     vi.mocked(isAIEnabled).mockResolvedValue(false);
 
     await expect(askAIAbout(red.ingredientId)).resolves.toMatchObject({
-      outcome: "unsure",
+      outcome: "unanswered",
       reason: "ai-off",
     });
-    // Still one the nightly pass asks again once AI is back.
     await expect(findIngredientByAliasId(red.aliasId)).resolves.toMatchObject({
-      flagReason: "ai-unavailable",
-    });
-  });
-
-  it("says AI is off on a food that was waiting on its pass when AI was switched off", async () => {
-    const red = await flagged("red onion");
-
-    await getTestDb()
-      .update(ingredients)
-      .set({ flagReason: "ai-queued" })
-      .where(eq(ingredients.id, red.ingredientId));
-    vi.mocked(isAIEnabled).mockResolvedValue(false);
-
-    await askAIAbout(red.ingredientId);
-    await expect(findIngredientByAliasId(red.aliasId)).resolves.toMatchObject({
-      flagReason: "ai-off",
+      flagged: false,
+      flagReason: null,
     });
   });
 
@@ -1644,11 +1631,11 @@ describe("asking AI about an Ingredient", () => {
     answers("ingredient-resolution", refused);
 
     await expect(askAIAbout(cloves.ingredientId)).resolves.toMatchObject({
-      outcome: "unsure",
+      outcome: "unanswered",
       reason: "ai-key-rejected",
     });
     await expect(findIngredientByAliasId(cloves.aliasId)).resolves.toMatchObject({
-      flagReason: "ai-key-rejected",
+      flagged: false,
     });
   });
 
@@ -1677,7 +1664,7 @@ describe("asking AI about an Ingredient", () => {
       });
     });
 
-    it("flags a food as unanswered when the reading times out twice", async () => {
+    it("leaves a food unanswered when the reading times out twice", async () => {
       await kept("garlic");
       const cloves = await flagged("garlic cloves");
 
@@ -1685,7 +1672,7 @@ describe("asking AI about an Ingredient", () => {
       answers("ingredient-resolution", timedOut());
 
       await expect(askAIAbout(cloves.ingredientId)).resolves.toMatchObject({
-        outcome: "unsure",
+        outcome: "unanswered",
         reason: "ai-unavailable",
       });
       expect(resolutionRequests()).toBe(2);
@@ -1700,7 +1687,7 @@ describe("asking AI about an Ingredient", () => {
       answers("ingredient-resolution", timedOut());
 
       await expect(askAIAbout(uien.ingredientId)).resolves.toMatchObject({
-        outcome: "unsure",
+        outcome: "unanswered",
         reason: "ai-unavailable",
       });
       expect(resolutionRequests()).toBe(3);
@@ -1860,7 +1847,7 @@ describe("asking AI about an Ingredient", () => {
       expect(await exists(joined.ingredientId)).toBe(false);
     });
 
-    it("splits a food into parts nothing knows, minting them flagged for passes of their own", async () => {
+    it("splits a food into parts nothing knows, minting them unflagged for passes of their own", async () => {
       const joined = await flagged("Dijon or yellow mustard");
       const named = await nameEverywhere(joined, "Dijon or yellow mustard", { pantry: false });
       const minted: string[] = [];
@@ -1881,8 +1868,8 @@ describe("asking AI about an Ingredient", () => {
 
       expect(how).toBe("alternatives");
       expect(parts).toMatchObject([
-        { name: "Dijon mustard", flagged: true, flagReason: "ai-queued" },
-        { name: "yellow mustard", flagged: true, flagReason: "ai-queued" },
+        { name: "Dijon mustard", flagged: false, flagReason: null },
+        { name: "yellow mustard", flagged: false, flagReason: null },
       ]);
       expect(minted.sort()).toEqual(parts.map((part) => part!.id).sort());
       expect(await exists(joined.ingredientId)).toBe(false);
@@ -1924,8 +1911,8 @@ describe("asking AI about an Ingredient", () => {
         );
 
         expect(parts).toMatchObject([
-          { name: "vegatine", flagReason: "ai-queued" },
-          { name: "agar agar", flagReason: "ai-queued" },
+          { name: "vegatine", flagged: false },
+          { name: "agar agar", flagged: false },
         ]);
         expect(minted).toContain(parts[1]!.id);
         const barleySpellings = await getTestDb()
@@ -1999,8 +1986,8 @@ describe("asking AI about an Ingredient", () => {
 
         expect(creamFood).toMatchObject({
           name: "light cooking cream",
-          flagged: true,
-          flagReason: "ai-queued",
+          flagged: false,
+          flagReason: null,
         });
         expect(creamFood!.id).not.toBe(joined.ingredientId);
         expect(minted).toEqual([creamFood!.id]);
@@ -2301,6 +2288,96 @@ describe("asking AI about an Ingredient", () => {
             .where(inArray(recipeIngredients.name, [text]))
         ).resolves.toHaveLength(1);
       }
+      expect(await listAIChanges()).toEqual([]);
+    });
+  });
+
+  describe("a Clean up catalogue run", () => {
+    /** A recipe food its words filed under the seeded butter, and butter's id. */
+    async function underButter(text: string) {
+      await applyIngredientSeed([seedEntry("en:butter", "butter")]);
+      const food = await flagged(text);
+
+      return { food, butter: (await listSeededIngredientIds()).get("en:butter")! };
+    }
+
+    it("asks recipe foods no person decided about, or every listed food, seeded ones included", async () => {
+      const { food, butter } = await underButter("peanut butter");
+      const frankfurter = await kept("frankfurter");
+      const grocery = await unnamed("reserve eten");
+      const listed = await listListedIngredientIds();
+
+      await expect(listAskableIngredientIds()).resolves.toEqual([food.ingredientId]);
+      expect(listed).toEqual(
+        expect.arrayContaining([food.ingredientId, butter, frankfurter.ingredientId])
+      );
+      expect(listed).not.toContain(grocery.ingredientId);
+    });
+
+    it("over the whole catalogue asks about a food a person parented, keeping the marker", async () => {
+      const { food, butter } = await underButter("peanut butter");
+
+      await setParent(actor, food.ingredientId, butter);
+      reads({ englishName: "peanut butter", parents: ["spread"], sure: true });
+
+      await expect(cleanUpOverWholeCatalogue(food.ingredientId)).resolves.toMatchObject({
+        outcome: "no-parent",
+        from: "butter",
+      });
+      await expect(parentOf(food.ingredientId)).resolves.toBeNull();
+      // Outside the run, the person's decision still holds.
+      await expect(askAIAbout(food.ingredientId)).resolves.toMatchObject({
+        outcome: "skipped",
+        reason: "decided",
+      });
+    });
+
+    it("over the whole catalogue makes a change a person undid again", async () => {
+      const { food, butter } = await underButter("peanut butter");
+
+      reads({ englishName: "peanut butter", sure: true });
+      await askAIAbout(food.ingredientId);
+      await undoAIChange(actor, (await listAIChanges())[0]!.id);
+      await expect(parentOf(food.ingredientId)).resolves.toBe(butter);
+
+      reads({ englishName: "peanut butter", sure: true });
+      await expect(cleanUpOverWholeCatalogue(food.ingredientId)).resolves.toMatchObject({
+        outcome: "no-parent",
+      });
+      await expect(parentOf(food.ingredientId)).resolves.toBeNull();
+    });
+
+    it("over the whole catalogue gives a name a person chose its Plain Name", async () => {
+      const food = await flagged("zalm");
+
+      await renameIngredient(actor, food.ingredientId, "Lekkerste Zalmmoot");
+      reads({ englishName: "salmon fillet", sure: true });
+      answers("ingredient-plain-name", { plainName: "zalmmoot" });
+
+      await expect(cleanUpOverWholeCatalogue(food.ingredientId)).resolves.toMatchObject({
+        outcome: "rename",
+        to: "zalmmoot",
+      });
+    });
+
+    it("never deletes or splits a seeded food, and checks its spellings", async () => {
+      const { butter } = await underButter("peanut butter");
+      const answered = [() => readsNoFood(true), () => splits(["milk", "cream"], "together", true)];
+
+      for (const answer of answered) {
+        answer();
+        await expect(cleanUpOverWholeCatalogue(butter)).resolves.toMatchObject({
+          outcome: "skipped",
+          reason: "seeded",
+          spellings: { outcome: "skipped", reason: "none" },
+        });
+      }
+      await expect(
+        getTestDb()
+          .select({ id: ingredients.id })
+          .from(ingredients)
+          .where(eq(ingredients.id, butter))
+      ).resolves.toHaveLength(1);
       expect(await listAIChanges()).toEqual([]);
     });
   });

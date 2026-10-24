@@ -16,11 +16,14 @@ import { noTrace } from "@norish/shared/contracts/ingredient-catalogue";
 import { distinctFoods } from "@norish/shared/lib/line-foods";
 
 import type { AIResolution } from "../ai/resolution/ingredient-resolution";
+import type { SpellingCheckOutcome } from "./spelling-check";
 import { askWhatFoodThisIs, findFoodNamed } from "../ai/resolution/ingredient-resolution";
 import {
   deleteByAI,
   flagByAnswer,
+  isOverriding,
   mergeByAI,
+  overridingDecisions,
   parentByAI,
   skippedBy,
   splitByAI,
@@ -29,8 +32,25 @@ import { ingredientChanges } from "./changes";
 import { announcingAfter } from "./minted";
 import { nameAfterAnswer } from "./plain-names";
 import { resolveParts } from "./resolver";
+import { checkSpellingsOf } from "./spelling-check";
 
 export type { ReviewOutcome };
+
+/** What a Clean up came to for a food: AI's answer, and for a seeded food its spellings' check. */
+export type CleanUpOutcome = ReviewOutcome & { spellings?: SpellingCheckOutcome };
+
+/**
+ * A whole-catalogue Clean up of one food (CONTEXT.md), overriding a person's decisions and undos;
+ * a seeded food's added spellings are checked first.
+ */
+export async function cleanUpOverWholeCatalogue(ingredientId: string): Promise<CleanUpOutcome> {
+  return await overridingDecisions(async () => {
+    const seeded = (await findCatalogueIngredient(ingredientId))?.seeded;
+    const spellings = seeded ? await checkSpellingsOf(ingredientId) : null;
+
+    return { ...(await askAIAbout(ingredientId)), ...(spellings && { spellings }) };
+  });
+}
 
 /** Ask AI what a food is and make the answer; a food not merged away then gets its Plain Name. */
 export async function askAIAbout(ingredientId: string): Promise<ReviewOutcome> {
@@ -38,7 +58,7 @@ export async function askAIAbout(ingredientId: string): Promise<ReviewOutcome> {
   const trace = noTrace();
 
   if (!row) return { outcome: "skipped", reason: "not-found", ...trace };
-  if (!row.askable) return { outcome: "skipped", reason: "decided", ...trace };
+  if (!row.askable && !isOverriding()) return { outcome: "skipped", reason: "decided", ...trace };
 
   const current = row.parentId ? await findCatalogueIngredient(row.parentId) : null;
   const filedUnder = current && {
@@ -51,10 +71,14 @@ export async function askAIAbout(ingredientId: string): Promise<ReviewOutcome> {
     const into = await findCatalogueIngredient(answer.ingredientId);
     const applied = into ? await mergeByAI(ingredientId, into.id, answer.sure) : "gone";
 
-    if (!into || applied === "gone") return await unanswered(ingredientId, "food-gone", trace);
+    if (!into || applied === "gone") return await foodGone(ingredientId, trace);
     if (applied !== "applied") return { ...skippedBy(applied), ...trace };
 
     return { outcome: "merge", into: into.name, sure: answer.sure, ...trace };
+  }
+  // A seeded food is never deleted, so it is neither split nor taken for not a food.
+  if (row.seeded && (answer.kind === "several" || answer.kind === "not-a-food")) {
+    return { outcome: "skipped", reason: "seeded", ...trace };
   }
   if (answer.kind === "several") return await announcingAfter(() => split(row, answer, trace));
   if (answer.kind === "not-a-food") {
@@ -63,13 +87,9 @@ export async function askAIAbout(ingredientId: string): Promise<ReviewOutcome> {
       ? await deleted(ingredientId, trace)
       : await doubted(ingredientId, "ai-junk", trace);
   }
-  if (answer.kind === "unanswered") {
-    if (answer.reason !== "ai-off") return await unanswered(ingredientId, answer.reason, trace);
-    // AI was switched off meanwhile: a food waiting on this pass says so; another keeps its reason.
-    if (row.flagReason === "ai-queued") await setIngredientFlagReason(ingredientId, "ai-off");
-
-    return { outcome: "unsure", reason: "ai-off", ...trace };
-  }
+  // No answer leaves the food unreviewed, not flagged.
+  if (answer.kind === "unanswered")
+    return { outcome: "unanswered", reason: answer.reason, ...trace };
 
   const { sure } = answer;
   // A parent merged away while AI read is found again by its name: the merge moved its spellings.
@@ -77,9 +97,9 @@ export async function askAIAbout(ingredientId: string): Promise<ReviewOutcome> {
     answer.parent &&
     ((await findCatalogueIngredient(answer.parent.id)) ??
       (await foundAgain(answer.parent.name, ingredientId)));
-  // No parent from AI drops the current one; a person's parent is never asked.
+  // No parent from AI drops the current one, but never a seeded food's; a person's is never asked.
   const { outcome: filed, previous } =
-    parent || row.parentId
+    parent || (row.parentId && !row.seeded)
       ? await parentByAI(ingredientId, parent?.id ?? null, sure)
       : { outcome: null, previous: null };
   const dropped =
@@ -89,7 +109,8 @@ export async function askAIAbout(ingredientId: string): Promise<ReviewOutcome> {
   if (filed !== "applied") await flagByAnswer(ingredientId, sure);
   if (filed === "undone") return { outcome: "skipped", reason: "undone", ...trace };
 
-  const named = row.nameSettled ? null : await nameAfterAnswer(ingredientId);
+  const named =
+    row.seeded || (row.nameSettled && !isOverriding()) ? null : await nameAfterAnswer(ingredientId);
 
   if (named) return { ...trace, ...named };
   if (filed && filed !== "applied") return { ...skippedBy(filed), ...trace };
@@ -120,7 +141,8 @@ async function split(
   // A person may have decided about the food while AI was asked: mint no parts for nothing.
   const now = await findCatalogueIngredient(food.id);
 
-  if (!now?.askable) return { outcome: "skipped", reason: now ? "decided" : "not-found", ...trace };
+  if (!now) return { outcome: "skipped", reason: "not-found", ...trace };
+  if (!now.askable && !isOverriding()) return { outcome: "skipped", reason: "decided", ...trace };
 
   const read = await resolveParts(
     answer.parts.map((part) => (part.found ? { ...part.found, text: part.text } : part.text)),
@@ -164,14 +186,10 @@ async function doubted(
   return { outcome: "unsure", reason, ...trace };
 }
 
-/** No answer that changes anything: the food stays as it was, and its flag says why. */
-async function unanswered(
-  ingredientId: string,
-  reason: FlagReason,
-  trace: ReviewTrace
-): Promise<ReviewOutcome> {
-  await setIngredientFlagReason(ingredientId, reason);
+/** The food AI named was merged away meanwhile: the food stays as it was, and its flag says so. */
+async function foodGone(ingredientId: string, trace: ReviewTrace): Promise<ReviewOutcome> {
+  await setIngredientFlagReason(ingredientId, "food-gone");
   await ingredientChanges().changed([ingredientId]);
 
-  return { outcome: "unsure", reason, ...trace };
+  return { outcome: "unsure", reason: "food-gone", ...trace };
 }

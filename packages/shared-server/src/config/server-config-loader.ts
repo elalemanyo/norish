@@ -221,8 +221,8 @@ export async function isImageGenerationConfigured(): Promise<boolean> {
 
 /**
  * Whether the instance can draw: AI on and an Image Generation provider
- * configured. What Generate and Draw icons on the Ingredients page follow,
- * so a button is hidden rather than offered to fail.
+ * configured. What Generate in a food's icon menu and Fill gaps' Icons
+ * follow, so neither is offered to fail.
  */
 export async function canDrawImages(): Promise<boolean> {
   const [enabled, configured] = await Promise.all([isAIEnabled(), isImageGenerationConfigured()]);
@@ -393,15 +393,19 @@ export async function getAutomaticEnrichmentConfig(): Promise<AutomaticEnrichmen
 }
 
 /**
- * What runs on a food once AI's pass is done with it: its icon. Off while AI
- * is off, or without an image provider.
+ * What AI does to a newly minted food. All off while AI is off; the icon also without an image
+ * provider.
  */
 export async function getAutomaticIngredientsConfig(): Promise<AutomaticIngredientsConfig> {
   const aiConfig = await getAIConfig();
 
   if (!aiConfig?.enabled) return DEFAULT_AUTOMATIC_INGREDIENTS;
+  const { automaticIngredients } = aiConfig;
 
-  return { icon: aiConfig.automaticIngredients.icon && (await isImageGenerationConfigured()) };
+  return {
+    ...automaticIngredients,
+    icon: automaticIngredients.icon && (await isImageGenerationConfigured()),
+  };
 }
 
 // ============================================================================

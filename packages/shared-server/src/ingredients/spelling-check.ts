@@ -1,13 +1,12 @@
 /**
  * AI checks the spellings people, merges and imports added to seeded foods (ADR-0037; ingredient-
- * cleanup ticket 46), once, at the first start with AI on; each removal or move an AI Change.
+ * cleanup ticket 46); each removal or move an AI Change.
  */
 import { withTransaction } from "@norish/db/drizzle";
 import { listNamesAIReadOnto } from "@norish/db/repositories/ingredient-ai-changes";
 import {
   findCatalogueIngredient,
   listCatalogueAliasesOf,
-  listSeededFoodsWithOwnSpellings,
 } from "@norish/db/repositories/ingredient-catalogue";
 import { findRowsNamingSpellings } from "@norish/db/repositories/ingredient-cleanup";
 import { isAIEnabled } from "@norish/shared-server/config/server-config-loader";
@@ -18,12 +17,8 @@ import type { SpellingOutcome } from "./ai-changes";
 import { findFoodNamed } from "../ai/resolution/ingredient-resolution";
 import { askWhatSpellingsName } from "../ai/resolution/spelling-check";
 import { moveSpellingByAI, removeSpellingByAI } from "./ai-changes";
-import { oncePerVersion } from "./seed/catalogue-seed";
 
 const log = createLogger("ingredients");
-
-/** Raised when a release needs the check to run again. */
-export const SPELLING_CHECK_VERSION = 1;
 
 interface Moved {
   spelling: string;
@@ -46,32 +41,6 @@ export type SpellingCheckOutcome =
       moved: Moved[];
       unchanged: Unchanged[];
     };
-
-/**
- * Queue every seeded food holding a spelling the seed did not give it for the check, once per
- * `SPELLING_CHECK_VERSION`; with AI off nothing is asked or recorded, so a later start asks.
- */
-export async function checkSpellingsOnFirstStart(
-  queue: (ingredientIds: string[]) => Promise<void>
-): Promise<{ queued: number } | null> {
-  return await oncePerVersion("spellingCheckVersion", SPELLING_CHECK_VERSION, {
-    pass: async () => {
-      if (!(await isAIEnabled())) {
-        log.info("AI is off: the spellings added to seeded foods wait for a start with AI on");
-
-        return null;
-      }
-      const ids = await listSeededFoodsWithOwnSpellings();
-
-      await queue(ids);
-
-      return { queued: ids.length };
-    },
-    // The checks run in the queue, and announce what they change themselves.
-    changed: () => false,
-    done: "Spellings added to seeded foods queued for AI",
-  });
-}
 
 /** Ask AI which of the spellings added to a food name it, and take off or move the others. */
 export async function checkSpellingsOf(ingredientId: string): Promise<SpellingCheckOutcome> {

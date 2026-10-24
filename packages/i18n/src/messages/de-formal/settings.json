@@ -20,12 +20,20 @@
       "added": "Hinzugefügt am {date}",
       "remove": "Trennen",
       "unavailable": "Derzeit nicht verfügbar",
+      "changePassword": "Passwort ändern",
+      "currentPassword": "Aktuelles Passwort",
+      "newPassword": "Neues Passwort",
+      "confirmPassword": "Neues Passwort bestätigen",
+      "signOutOthers": "Andere Sitzungen abmelden",
+      "passwordChanged": "Passwort geändert.",
       "errors": {
         "usedByAnotherAccount": "Diese Anmeldung wird bereits von einem anderen Konto verwendet.",
         "lastMethod": "Sie benötigen mindestens eine Möglichkeit, sich anzumelden.",
         "signInAgain": "Melden Sie sich erneut an, um dies zu entfernen.",
         "addFailed": "Diese Anmeldemethode konnte nicht hinzugefügt werden.",
-        "removeFailed": "Diese Anmeldemethode konnte nicht entfernt werden."
+        "removeFailed": "Diese Anmeldemethode konnte nicht entfernt werden.",
+        "wrongPassword": "Das aktuelle Passwort ist falsch.",
+        "changeFailed": "Das Passwort konnte nicht geändert werden. Bitte versuchen Sie es erneut."
       }
     },
     "profile": {
@@ -393,12 +401,8 @@
     "flagged": "Markiert",
     "flagReasons": {
       "unknown": "Norish war nicht sicher, ob dies eine eigene Zutat ist.",
-      "ai-off": "KI ist aus, daher hat nichts geprüft, ob Norish diese Zutat schon kennt.",
-      "ai-queued": "Neu in Norish. KI sieht sich das gleich an.",
       "unknown-food": "Keine bekannte Zutat teilt ein Wort mit diesem Namen, daher wurde KI nicht gefragt.",
       "ai-unsure": "KI wurde gefragt, ob dies eine bekannte Zutat ist, und war nicht sicher.",
-      "ai-unavailable": "KI hat nicht rechtzeitig geantwortet.",
-      "ai-key-rejected": "Der KI-Anbieter hat den API-Schlüssel abgelehnt, daher konnte die KI diesen Namen nicht prüfen.",
       "food-gone": "KI ordnete dies einer Zutat zu, die zusammengeführt wurde, bevor der Name dazukommen konnte.",
       "upgrade": "Es konnte keine bekannte Zutat zugeordnet werden.",
       "seed-ambiguous": "Der Katalog kennt mehrere Zutaten, die dies sein könnten.",
@@ -469,6 +473,7 @@
         "fix": "{food} · {dataset}, von Norish gewählt",
         "name": "{food} · {dataset}, über den Namen gefunden",
         "taxonomy": "Open Food Facts",
+        "ai": "Von KI geschätzt",
         "householdFood": "{food} · {dataset}, von Ihrem Haushalt gewählt",
         "household": "Die eigenen Werte Ihres Haushalts"
       },
@@ -580,20 +585,6 @@
       "failed": "Aus diesem Bild konnte kein Symbol erstellt werden.",
       "generate": "Mit KI erstellen",
       "generateFailed": "Das Symbol konnte nicht erstellt werden."
-    },
-    "drawIcons": {
-      "open": "Symbole zeichnen",
-      "title": "Symbole zeichnen",
-      "intro": "Der Bildanbieter zeichnet für jedes Lebensmittel ein Symbol, das sofort zu seinem eigenen wird. Ein anderes Symbol können Sie einem Lebensmittel in seinem Panel geben.",
-      "scopeLabel": "Welche Lebensmittel",
-      "scopes": {
-        "bare": "Nur Lebensmittel ganz ohne Symbol",
-        "unowned": "Jedes Lebensmittel ohne eigenes Symbol"
-      },
-      "scopeSize": "{count, plural, =0 {Keine Symbole} one {# Symbol} other {# Symbole}}",
-      "start": "Symbole zeichnen",
-      "progress": "Symbole werden gezeichnet · {done, number} von {total, number}",
-      "drawing": "Symbol wird gezeichnet…"
     }
   },
   "admin": {
@@ -885,6 +876,58 @@
         "aiDisabled": "KI ist auf diesem Server deaktiviert. Aktivieren Sie zuerst KI.",
         "error": "Massen-Anreicherung konnte nicht gestartet werden",
         "imageCount": "{count, plural, =0 {Es werden keine Bilder generiert.} one {Es wird # Bild generiert.} other {Es werden # Bilder generiert.}}"
+      },
+      "ingredientCatalogue": {
+        "title": "Zutatenkatalog",
+        "subtitle": "Was KI mit neuen Zutaten macht",
+        "automatic": "Automatisch für neue Zutaten",
+        "automaticDescription": "Was KI tut, wenn eine Zutat in den Katalog aufgenommen wird.",
+        "automaticPlaceholder": "Nichts läuft automatisch",
+        "kinds": {
+          "cleanUp": "Neue Zutaten bereinigen",
+          "cleanUpDescription": "Schreibweisen zusammenführen, übergeordnete Zutat und einfachen Namen setzen, entfernen, was kein Lebensmittel ist",
+          "nutrition": "Fehlende Nährwerte ergänzen",
+          "nutritionDescription": "Makros pro 100 g schätzen, wo die Zutat keine hat",
+          "conversions": "Fehlende Umrechnungen ergänzen",
+          "conversionsDescription": "Dichte und Stückgewicht schätzen, wo die Zutat keine hat",
+          "icon": "Fehlende Symbole zeichnen",
+          "iconDescription": "Nur für eine Zutat ohne Symbol, auch ohne das ihrer übergeordneten Zutat"
+        },
+        "cleanUpCatalogue": {
+          "title": "Katalog aufräumen",
+          "description": "Fragen Sie die KI nach den Zutaten, die schon im Katalog sind.",
+          "running": "Ein Aufräumen läuft. Verfolgen Sie es in der Job-Warteschlange.",
+          "button": "Katalog aufräumen",
+          "intro": "Die KI führt Schreibweisen zusammen, setzt Oberbegriffe und einfache Namen und entfernt, was kein Lebensmittel ist. Jede Änderung steht unter Von KI geändert, mit Rückgängig.",
+          "scopeLabel": "Welche Zutaten",
+          "scopes": {
+            "recipe-foods": "Rezeptzutaten",
+            "recipe-foods-description": "Zutaten aus Rezepten, über die noch niemand entschieden hat",
+            "whole-catalogue": "Ganzer Katalog",
+            "whole-catalogue-description": "Jede Zutat, auch die eingebauten, ungeachtet dessen, was Personen entschieden oder rückgängig gemacht haben. Eingebaute werden nie entfernt."
+          },
+          "count": "{count, plural, one {Die KI fragt nach # Zutat.} other {Die KI fragt nach # Zutaten.}}",
+          "start": "Aufräumen",
+          "started": "{count, plural, one {# Zutat wird aufgeräumt} other {# Zutaten werden aufgeräumt}}",
+          "error": "Aufräumen konnte nicht gestartet werden"
+        },
+        "fillGaps": {
+          "title": "Lücken füllen",
+          "description": "Lassen Sie die KI ergänzen, was Zutaten fehlt.",
+          "running": "Lücken füllen läuft. Verfolgen Sie es in der Job-Warteschlange.",
+          "button": "Lücken füllen",
+          "intro": "Die KI ergänzt bei jeder Zutat im Katalog nur, wofür sie nichts Eigenes hat. Was eine Zutat schon hat, wird nie ersetzt.",
+          "kindsLabel": "Was ergänzt wird",
+          "kinds": {
+            "nutrition": "Nährwerte",
+            "conversions": "Umrechnungen",
+            "icons": "Symbole"
+          },
+          "count": "{count, plural, =0 {Nichts zu ergänzen} one {# Zutat} other {# Zutaten}}",
+          "start": "Lücken füllen",
+          "started": "Lücken werden gefüllt. Verfolgen Sie es in der Job-Warteschlange.",
+          "error": "Lücken füllen konnte nicht gestartet werden"
+        }
       }
     },
     "aiConfig": {
@@ -941,8 +984,6 @@
         "imageGeneration": "Bildgenerierung",
         "imageGenerationDescription": "Zeichnet ein Bild des Gerichts für neue Rezepte, die gar kein Bild haben"
       },
-      "automaticIngredients": "Symbole für neue Zutaten zeichnen",
-      "automaticIngredientsDescription": "Nur für eine Zutat ohne Symbol, auch ohne das ihrer übergeordneten Zutat.",
       "tagStrategy": "Tag-Strategie",
       "tagStrategyDescription": "Welche Tags die automatische Verschlagwortung verwenden darf, ob automatisch oder manuell",
       "tagStrategies": {
@@ -1105,8 +1146,11 @@
       "ingredientPlainNameDescription": "Wird an das Sprachmodell gesendet, wenn die KI den Namen einer Zutat bereinigt, mit dem Namen und seinen anderen Schreibweisen dahinter. Legt fest, was von einem Namen entfernt wird und was bleibt.",
       "ingredientPlainNamePlaceholder": "Prompt zum Bereinigen von Zutatennamen...",
       "ingredientSpellingCheck": "Prompt zur Prüfung von Übersetzungen",
-      "ingredientSpellingCheckDescription": "Wird einmal an das Sprachmodell gesendet, beim ersten Start mit eingeschalteter KI, für jede Katalogzutat mit Übersetzungen, die Personen, Importe oder Zusammenführungen hinzugefügt haben, mit der Zutat, diesen Übersetzungen und je einer Rezeptzeile dahinter. Legt fest, welche die Zutat nennen, keine Zutat nennen oder eine andere Zutat nennen.",
-      "ingredientSpellingCheckPlaceholder": "Prompt zur Prüfung von Übersetzungen..."
+      "ingredientSpellingCheckDescription": "Wird beim Aufräumen des ganzen Katalogs an das Sprachmodell gesendet, für jede Katalogzutat mit Übersetzungen, die Personen, Importe oder Zusammenführungen hinzugefügt haben, mit der Zutat, diesen Übersetzungen und je einer Rezeptzeile dahinter. Legt fest, welche die Zutat nennen, keine Zutat nennen oder eine andere Zutat nennen.",
+      "ingredientSpellingCheckPlaceholder": "Prompt zur Prüfung von Übersetzungen...",
+      "ingredientNutrition": "Prompt für Nährwerte von Zutaten",
+      "ingredientNutritionDescription": "Wird an das Sprachmodell gesendet für eine Zutat ohne eigene Nährwerte, Dichte oder Stückgewicht, wo die KI sie ergänzen darf, mit der Zutat und wovon sie eine Art ist dahinter. Schätzt nur, was der Zutat fehlt.",
+      "ingredientNutritionPlaceholder": "Prompt zum Schätzen der Nährwerte einer Zutat..."
     },
     "unsavedChanges": "Ungespeicherte Änderungen",
     "jsonEditor": {
@@ -1160,6 +1204,7 @@
         "saving-link": "Save the link",
         "asking-ai": "Ask AI about the food",
         "drawing-icon": "Symbol des Lebensmittels zeichnen",
+        "filling-gaps": "Lücken des Lebensmittels füllen",
         "naming": "Namen der Zutat bereinigen"
       },
       "queues": {
@@ -1177,7 +1222,8 @@
         "image-generation": "Bildgenerierung",
         "store-lookup": "Geschäftsabfrage",
         "ingredient-review": "KI zu Zutaten fragen",
-        "ingredient-icons": "Zutatensymbole zeichnen"
+        "ingredient-icons": "Zutatensymbole zeichnen",
+        "ingredient-fill": "Lücken bei Zutaten füllen"
       },
       "summary": {
         "failed": "{count} failed"

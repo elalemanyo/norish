@@ -175,16 +175,25 @@ export const QUEUE_SETTINGS: Record<QueueName, QueueSettings> = {
     hangingThresholdMs: 4 * 60 * 60_000,
   },
   [QUEUE_NAMES.INGREDIENT_ICONS]: {
-    // A Draw icons round. A food's own failure is recorded on its step and
-    // never fails the round; a second attempt covers a crash of the round
+    // Drawing many foods' icons. A food's own failure is recorded on its step
+    // and never fails the job; a second attempt covers a crash of the job
     // itself, and is safe: a food the first attempt drew has an icon of its
     // own and is skipped, so the retry only finishes what the crash left.
     jobOptions: { attempts: 2, backoff: { type: "exponential", delay: 5_000 } },
-    // One round at a time, drawing one food after another: image calls are
+    // One job at a time, drawing one food after another: image calls are
     // billed per request and rate-limited hard, as for Generated Images.
     concurrency: 1,
     stalledInterval: 60_000,
     // A round may draw thousands of icons, one at a time.
+    hangingThresholdMs: 24 * 60 * 60_000,
+  },
+  [QUEUE_NAMES.INGREDIENT_FILL]: {
+    // A retry after a crash is safe: a food filled already has no gap left to ask about.
+    jobOptions: { attempts: 2, backoff: { type: "exponential", delay: 5_000 } },
+    // One job at a time: a job already asks its foods a few at once.
+    concurrency: 1,
+    stalledInterval: 60_000,
+    // Fill gaps over the catalogue asks thousands of foods.
     hangingThresholdMs: 24 * 60 * 60_000,
   },
 };

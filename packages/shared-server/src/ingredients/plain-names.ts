@@ -13,7 +13,7 @@ import { noTrace } from "@norish/shared/contracts/ingredient-catalogue";
 import { foldName } from "@norish/shared/lib/fold-name";
 
 import { readPlainName } from "../ai/resolution/plain-name";
-import { mergeByAI, renameByAI, skippedBy } from "./ai-changes";
+import { isOverriding, mergeByAI, renameByAI, skippedBy } from "./ai-changes";
 import { ingredientChanges } from "./changes";
 import { cleanIngredientText, findFood, isExact } from "./resolver";
 
@@ -31,8 +31,11 @@ export type PlainNameOutcome =
 export async function giveItsPlainName(ingredientId: string): Promise<PlainNameOutcome> {
   const row = await findCatalogueIngredient(ingredientId);
 
-  if (!row || row.nameSettled) return { outcome: "skipped", reason: row ? "settled" : "not-found" };
-  if (!row.askable) return { outcome: "skipped", reason: "decided" };
+  if (!row) return { outcome: "skipped", reason: "not-found" };
+  if (!isOverriding()) {
+    if (row.nameSettled) return { outcome: "skipped", reason: "settled" };
+    if (!row.askable) return { outcome: "skipped", reason: "decided" };
+  }
 
   const spellings = await listCatalogueAliasesOf(ingredientId);
   const read = await readPlainName(

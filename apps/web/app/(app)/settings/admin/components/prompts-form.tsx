@@ -32,6 +32,7 @@ const PROMPT_FIELDS = [
   { key: "ingredientIconStyle", rows: 4 },
   { key: "ingredientPlainName", rows: 8 },
   { key: "ingredientSpellingCheck", rows: 8 },
+  { key: "ingredientNutrition", rows: 8 },
 ] as const satisfies readonly { key: keyof PromptsConfig; rows: number }[];
 
 type PromptKey = (typeof PROMPT_FIELDS)[number]["key"];

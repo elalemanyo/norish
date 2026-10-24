@@ -231,7 +231,7 @@ export async function countAliasesOf(tx: DbTransaction, ingredientId: string): P
 }
 
 /**
- * A new Ingredient named for a spelling moved out to it, by a person or AI's split (flagged). Its
+ * A new Ingredient named for a spelling moved out to it, by a person or AI's split. Its
  * name is unique, so one another Ingredient goes by throws a unique violation.
  */
 export async function insertCatalogueIngredient(

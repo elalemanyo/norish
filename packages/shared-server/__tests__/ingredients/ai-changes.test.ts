@@ -17,7 +17,6 @@ import {
   takeOpenParentChanges,
 } from "@norish/db/repositories/ingredient-ai-changes";
 import { findIngredientByAliasId } from "@norish/db/repositories/ingredient-aliases";
-import { listUnansweredIngredientIds } from "@norish/db/repositories/ingredient-catalogue";
 import { findIngredientAncestors, lockTree } from "@norish/db/repositories/ingredient-relocation";
 import { ingredientAIChanges, ingredients } from "@norish/db/schema";
 import { isAIEnabled } from "@norish/shared-server/config/server-config-loader";
@@ -384,28 +383,6 @@ describe("keeping and undoing AI Changes", () => {
     expect(await listAIChanges()).toEqual([]);
   });
 
-  it("keeps a food AI could not answer for in the nightly retry when an unsure merge joins it", async () => {
-    const onion = await mint("onion");
-    const uien = await mint("uien");
-
-    await getTestDb()
-      .update(ingredients)
-      .set({ flagReason: "ai-unavailable" })
-      .where(eq(ingredients.id, onion.ingredientId));
-    await mergeByAI(uien.ingredientId, onion.ingredientId, false);
-
-    await expect(findIngredientByAliasId(onion.aliasId)).resolves.toMatchObject({
-      flagged: true,
-      flagReason: "ai-unavailable",
-    });
-    await undoAIChange(actor, (await onlyChange()).id);
-    await expect(findIngredientByAliasId(onion.aliasId)).resolves.toMatchObject({
-      flagged: true,
-      flagReason: "ai-unavailable",
-    });
-    expect(await listUnansweredIngredientIds()).toEqual([onion.ingredientId]);
-  });
-
   it("sweeps the handled changes older than a month, keeping the undone and the open ones", async () => {
     const onion = await mint("onion");
     const uien = await mint("uien");
@@ -447,27 +424,5 @@ describe("keeping and undoing AI Changes", () => {
       ])
     );
     expect(left).toHaveLength(3);
-  });
-
-  it("lists for the nightly pass the foods no AI could answer for, that AI may still ask about", async () => {
-    const away = await mint("uien");
-    const refused = await mint("knaks");
-    // Its pass never came: the job was lost, or AI was off when it ran.
-    const waiting = await mint("bosui");
-    const unsure = await mint("tonijn");
-    const kept = await mint("prei");
-    const flag = (id: string, flagReason: string) =>
-      getTestDb().update(ingredients).set({ flagReason }).where(eq(ingredients.id, id));
-
-    await flag(away.ingredientId, "ai-unavailable");
-    await flag(refused.ingredientId, "ai-key-rejected");
-    await flag(waiting.ingredientId, "ai-queued");
-    await flag(unsure.ingredientId, "ai-unsure");
-    await flag(kept.ingredientId, "ai-unavailable");
-    await markDistinct(actor, kept.ingredientId);
-
-    expect((await listUnansweredIngredientIds()).sort()).toEqual(
-      [away.ingredientId, refused.ingredientId, waiting.ingredientId].sort()
-    );
   });
 });

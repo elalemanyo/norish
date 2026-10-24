@@ -323,7 +323,17 @@ export class ProductionStack {
     if (capture) {
       this.captureOutput(child);
     }
-    const exited = new Promise<void>((resolve) => child.once("exit", () => resolve()));
+    // After a fixture setup timeout the worker calls process.exit without reaching stop(),
+    // which would leave this server running with PPID 1.
+    const killWithWorker = () => child.kill("SIGKILL");
+
+    process.once("exit", killWithWorker);
+    const exited = new Promise<void>((resolve) =>
+      child.once("exit", () => {
+        process.off("exit", killWithWorker);
+        resolve();
+      })
+    );
     let stopped = false;
     const server: ProductionServer = {
       stop: async () => {

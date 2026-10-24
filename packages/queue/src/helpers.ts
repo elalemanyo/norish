@@ -70,3 +70,18 @@ export async function removeRetainedTerminalJob<T>(
     throw new Error(`Could not remove retained job ${jobId}`, { cause: err });
   }
 }
+
+/** An error's message, with the cause a wrapper hides: a failed query names the database's complaint. */
+export function describeError(error: unknown): string {
+  if (!(error instanceof Error)) return String(error);
+  const cause = error.cause instanceof Error ? error.cause.message : null;
+
+  return cause ? `${error.message}: ${cause}` : error.message;
+}
+
+/** Whether a job by this name is waiting or running on the queue. */
+export async function hasQueuedJobNamed(queue: Queue, name: string): Promise<boolean> {
+  const jobs = await queue.getJobs(["active", "waiting", "prioritized", "delayed"], 0, -1);
+
+  return jobs.some((job) => job.name === name);
+}

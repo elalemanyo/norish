@@ -16,7 +16,6 @@ import { useLocale, useTranslations } from "next-intl";
 import type { IngredientFilters } from "./ingredient-filters-panel";
 import { ChangedByAIPanel } from "./changed-by-ai-panel";
 import DataSourcesCard from "./data-sources-card";
-import { DrawIconsControl, useIconRound } from "./draw-icons-control";
 import {
   DEFAULT_INGREDIENT_FILTERS,
   hasIngredientFilters,
@@ -100,12 +99,6 @@ export default function IngredientsSettingsContent() {
   const [changesOpen, setChangesOpen] = useState(false);
   const { changes } = useAIChanges();
   const unsure = changes.filter(isOpenChange).length;
-  // A Draw icons round: each food it has still to draw shows its turn in its icon's place.
-  const iconRound = useIconRound(() => void refresh());
-  const drawing = useMemo(
-    () => new Set(iconRound.running?.pending ?? []),
-    [iconRound.running?.pending]
-  );
 
   return (
     // The rows carry their icons; the provider says whether the reader hid them.
@@ -113,20 +106,17 @@ export default function IngredientsSettingsContent() {
       <div className="flex flex-col gap-6">
         <SettingsCard
           actions={
-            <>
-              {changes.length > 0 ? (
-                <Button
-                  data-testid="ingredients-ai-changes-open"
-                  size="sm"
-                  variant="tertiary"
-                  onPress={() => setChangesOpen(true)}
-                >
-                  <SparklesIcon className="size-4" />
-                  {t("changedByAI.open", { count: unsure })}
-                </Button>
-              ) : null}
-              <DrawIconsControl round={iconRound} />
-            </>
+            changes.length > 0 ? (
+              <Button
+                data-testid="ingredients-ai-changes-open"
+                size="sm"
+                variant="tertiary"
+                onPress={() => setChangesOpen(true)}
+              >
+                <SparklesIcon className="size-4" />
+                {t("changedByAI.open", { count: unsure })}
+              </Button>
+            ) : null
           }
           description={t("description")}
           icon={BookOpenIcon}
@@ -167,7 +157,6 @@ export default function IngredientsSettingsContent() {
             </p>
           ) : (
             <IngredientList
-              drawing={drawing}
               hasMore={hasNextPage}
               isFetchingMore={isFetchingNextPage}
               loadMore={loadMore}

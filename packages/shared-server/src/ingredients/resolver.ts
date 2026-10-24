@@ -14,11 +14,7 @@ import {
 } from "@norish/db/repositories/ingredient-aliases";
 import { findIngredientIdsAmong } from "@norish/db/repositories/ingredient-catalogue";
 import { listJunkFolds } from "@norish/db/repositories/ingredient-junk-pile";
-import {
-  getIngredientWords,
-  getUnits,
-  isAIEnabled,
-} from "@norish/shared-server/config/server-config-loader";
+import { getIngredientWords, getUnits } from "@norish/shared-server/config/server-config-loader";
 import { dbLogger } from "@norish/shared-server/logger";
 import { stripHtmlTags } from "@norish/shared/lib/helpers";
 import { catalogueLanguagesFor, norishReads } from "@norish/shared/lib/ingredient-names";
@@ -43,7 +39,7 @@ import { announceMinted, announcingAfter } from "./minted";
 
 /**
  * Which rules the first two rungs and the parent from words follow. Raised whenever they change, so
- * the startup pass looks at old Flagged Ingredients again under the new rules (`recheckUndecidedMints`).
+ * the startup pass looks at undecided mints again under the new rules (`recheckUndecidedMints`).
  */
 export const RUNG_VERSION = 10;
 
@@ -415,7 +411,6 @@ async function resolveTexts(
     (spelling) => !matchKnown(spelling, known) && !byWords.has(spelling)
   );
   const slips = await findSlips(mode === "person" || mode === "upgrade" ? unknown : []);
-  let flagReason: Promise<FlagReason> | undefined;
   const resolved = new Map<Spelling, ResolvedFoods>();
   const minted = new Set<string>();
 
@@ -448,7 +443,8 @@ async function resolveTexts(
       const rows =
         joined ??
         (await mint(spelling, actor, {
-          flagReason: slip ? "food-gone" : await (flagReason ??= mintFlag(mode)),
+          // A mint for someone's action is unflagged: AI's pass, where on, looks at it after.
+          flagReason: slip ? "food-gone" : mode === "upgrade" ? "upgrade" : null,
           parent: await parentFromWords(spelling),
         }));
 
@@ -469,13 +465,6 @@ async function resolveTexts(
   if (mode !== "upgrade") await announceMinted([...minted]);
 
   return asWritten.map((spelling) => resolved.get(spelling) ?? null);
-}
-
-/** Why a mint is flagged: AI's pass is about to look at it, unless AI or the pass is off. */
-async function mintFlag(mode: ResolveMode): Promise<FlagReason> {
-  if (mode === "upgrade") return "upgrade";
-
-  return (await isAIEnabled()) ? "ai-queued" : "ai-off";
 }
 
 /**
@@ -529,7 +518,7 @@ export async function resolveIngredient(
 async function mint(
   spelling: Spelling,
   actor: ResolveActor,
-  { flagReason, parent }: { flagReason: FlagReason; parent: string | null }
+  { flagReason, parent }: { flagReason: FlagReason | null; parent: string | null }
 ): Promise<IngredientAliasRow[]> {
   const alias = cleanAlias(spelling);
 
@@ -538,7 +527,7 @@ async function mint(
     aliases: [alias],
     ownerId: actor.userId,
     locale: actor.locale ?? null,
-    flagged: true,
+    flagged: flagReason !== null,
     flagReason,
     parentId: parent,
   });

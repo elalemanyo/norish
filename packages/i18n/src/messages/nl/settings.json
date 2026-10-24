@@ -20,12 +20,20 @@
       "added": "Toegevoegd op {date}",
       "remove": "Ontkoppelen",
       "unavailable": "Momenteel niet beschikbaar",
+      "changePassword": "Wachtwoord wijzigen",
+      "currentPassword": "Huidig wachtwoord",
+      "newPassword": "Nieuw wachtwoord",
+      "confirmPassword": "Bevestig nieuw wachtwoord",
+      "signOutOthers": "Andere sessies afmelden",
+      "passwordChanged": "Wachtwoord gewijzigd.",
       "errors": {
         "usedByAnotherAccount": "Deze inlog wordt al door een ander account gebruikt.",
         "lastMethod": "Je hebt minstens één manier nodig om in te loggen.",
         "signInAgain": "Log opnieuw in om dit te verwijderen.",
         "addFailed": "Deze inlogmethode kon niet worden toegevoegd.",
-        "removeFailed": "Deze inlogmethode kon niet worden verwijderd."
+        "removeFailed": "Deze inlogmethode kon niet worden verwijderd.",
+        "wrongPassword": "Het huidige wachtwoord is onjuist.",
+        "changeFailed": "Wachtwoord wijzigen mislukt. Probeer het opnieuw."
       }
     },
     "profile": {
@@ -393,12 +401,8 @@
     "flagged": "Gemarkeerd",
     "flagReasons": {
       "unknown": "Norish wist niet zeker of dit een eigen ingrediënt is.",
-      "ai-off": "AI staat uit, dus niets heeft gecontroleerd of Norish dit al kent.",
-      "ai-queued": "Nieuw in Norish. AI bekijkt het zo.",
       "unknown-food": "Geen bekend ingrediënt deelt een woord met deze naam, dus AI is niet gevraagd.",
       "ai-unsure": "AI is gevraagd of dit een bekend ingrediënt is en wist het niet zeker.",
-      "ai-unavailable": "AI antwoordde niet op tijd.",
-      "ai-key-rejected": "De AI-provider heeft de API-sleutel geweigerd, dus AI kon deze naam niet controleren.",
       "food-gone": "AI koppelde dit aan een ingrediënt dat werd samengevoegd voordat de naam erbij kon.",
       "upgrade": "Er kon geen bekend ingrediënt aan worden gekoppeld.",
       "seed-ambiguous": "De catalogus kent meerdere ingrediënten die dit kunnen zijn.",
@@ -471,7 +475,8 @@
         "name": "{food} · {dataset}, gevonden op naam",
         "householdFood": "{food} · {dataset}, gekozen door je huishouden",
         "household": "De eigen waarden van je huishouden",
-        "taxonomy": "Open Food Facts"
+        "taxonomy": "Open Food Facts",
+        "ai": "Geschat door AI"
       },
       "correct": "Corrigeren",
       "correctTitle": "{name} corrigeren",
@@ -580,20 +585,6 @@
       "failed": "Van deze afbeelding kon geen icoon worden gemaakt.",
       "generate": "Genereren met AI",
       "generateFailed": "Het icoon kon niet worden gegenereerd."
-    },
-    "drawIcons": {
-      "open": "Iconen tekenen",
-      "title": "Iconen tekenen",
-      "intro": "De afbeeldingsprovider tekent voor elk voedingsmiddel een icoon, dat meteen het eigen icoon wordt. Een voedingsmiddel kun je in zijn paneel een ander icoon geven.",
-      "scopeLabel": "Welke voedingsmiddelen",
-      "scopes": {
-        "bare": "Alleen voedingsmiddelen zonder enig icoon",
-        "unowned": "Elk voedingsmiddel zonder eigen icoon"
-      },
-      "scopeSize": "{count, plural, =0 {Geen iconen} one {# icoon} other {# iconen}}",
-      "start": "Iconen tekenen",
-      "progress": "Iconen tekenen · {done, number} van {total, number}",
-      "drawing": "Icoon tekenen…"
     }
   },
   "admin": {
@@ -885,6 +876,58 @@
         "aiDisabled": "AI is uitgeschakeld op deze server. Schakel eerst AI in.",
         "error": "Bulkverrijking starten mislukt",
         "imageCount": "{count, plural, =0 {Er worden geen afbeeldingen gegenereerd.} one {Er wordt # afbeelding gegenereerd.} other {Er worden # afbeeldingen gegenereerd.}}"
+      },
+      "ingredientCatalogue": {
+        "title": "Ingrediëntencatalogus",
+        "subtitle": "Wat AI met nieuwe ingrediënten doet",
+        "automatic": "Automatisch voor nieuwe ingrediënten",
+        "automaticDescription": "Wat AI doet wanneer er een ingrediënt aan de catalogus wordt toegevoegd.",
+        "automaticPlaceholder": "Niets draait automatisch",
+        "kinds": {
+          "cleanUp": "Nieuwe ingrediënten opschonen",
+          "cleanUpDescription": "Spellingen samenvoegen, een ouder en een gewone naam geven, verwijderen wat geen voedsel is",
+          "nutrition": "Ontbrekende voedingswaarden aanvullen",
+          "nutritionDescription": "Macro's per 100 g schatten waar het ingrediënt er geen heeft",
+          "conversions": "Ontbrekende omrekeningen aanvullen",
+          "conversionsDescription": "Dichtheid en stukgewicht schatten waar het ingrediënt die niet heeft",
+          "icon": "Ontbrekende iconen tekenen",
+          "iconDescription": "Alleen voor een ingrediënt zonder icoon, ook niet dat van zijn ouder"
+        },
+        "cleanUpCatalogue": {
+          "title": "Catalogus opschonen",
+          "description": "Vraag AI naar de ingrediënten die al in de catalogus staan.",
+          "running": "Er loopt een opschoning. Volg die in de takenwachtrij.",
+          "button": "Catalogus opschonen",
+          "intro": "AI voegt spellingen samen, kiest ouders en gewone namen en verwijdert wat geen voedsel is. Elke wijziging staat onder Gewijzigd door AI, met Ongedaan maken.",
+          "scopeLabel": "Welke ingrediënten",
+          "scopes": {
+            "recipe-foods": "Receptingrediënten",
+            "recipe-foods-description": "Ingrediënten uit recepten waarover nog niemand heeft beslist",
+            "whole-catalogue": "Hele catalogus",
+            "whole-catalogue-description": "Elk ingrediënt, ook de ingebouwde, ongeacht wat mensen kozen of ongedaan maakten. Ingebouwde worden nooit verwijderd."
+          },
+          "count": "{count, plural, one {AI vraagt naar # ingrediënt.} other {AI vraagt naar # ingrediënten.}}",
+          "start": "Opschonen",
+          "started": "{count, plural, one {# ingrediënt wordt opgeschoond} other {# ingrediënten worden opgeschoond}}",
+          "error": "Opschonen kon niet starten"
+        },
+        "fillGaps": {
+          "title": "Gaten opvullen",
+          "description": "Laat AI aanvullen wat ingrediënten missen.",
+          "running": "Gaten opvullen loopt. Volg het in de takenwachtrij.",
+          "button": "Gaten opvullen",
+          "intro": "AI vult voor elk ingrediënt in de catalogus alleen aan wat het zelf nog niet heeft. Wat een ingrediënt al heeft, wordt nooit vervangen.",
+          "kindsLabel": "Wat aanvullen",
+          "kinds": {
+            "nutrition": "Voedingswaarden",
+            "conversions": "Omrekeningen",
+            "icons": "Iconen"
+          },
+          "count": "{count, plural, =0 {Niets aan te vullen} one {# ingrediënt} other {# ingrediënten}}",
+          "start": "Gaten opvullen",
+          "started": "Gaten worden opgevuld. Volg het in de takenwachtrij.",
+          "error": "Gaten opvullen kon niet starten"
+        }
       }
     },
     "aiConfig": {
@@ -941,8 +984,6 @@
         "imageGeneration": "Afbeeldingen Genereren",
         "imageGenerationDescription": "Teken een foto van het gerecht voor nieuwe recepten die helemaal geen afbeelding hebben"
       },
-      "automaticIngredients": "Iconen tekenen voor nieuwe ingrediënten",
-      "automaticIngredientsDescription": "Alleen voor een ingrediënt zonder icoon, ook niet dat van zijn ouder.",
       "tagStrategy": "Tagstrategie",
       "tagStrategyDescription": "Welke tags automatisch taggen mag gebruiken, of het nu automatisch of handmatig draait",
       "tagStrategies": {
@@ -1105,8 +1146,11 @@
       "ingredientPlainNameDescription": "Wordt naar het taalmodel gestuurd als AI de naam van een ingrediënt opschoont, met de naam en de andere schrijfwijzen erachter. Zegt wat er van een naam af moet en wat blijft.",
       "ingredientPlainNamePlaceholder": "Prompt voor het opschonen van ingrediëntnamen...",
       "ingredientSpellingCheck": "Prompt voor het controleren van vertalingen",
-      "ingredientSpellingCheckDescription": "Wordt één keer naar het taalmodel gestuurd, bij de eerste start met AI aan, voor elk ingrediënt uit de catalogus met vertalingen die mensen, imports of samenvoegingen toevoegden, met het ingrediënt, die vertalingen en per vertaling een receptregel erachter. Zegt welke het ingrediënt noemen, geen ingrediënt noemen of een ander ingrediënt noemen.",
-      "ingredientSpellingCheckPlaceholder": "Prompt voor het controleren van vertalingen..."
+      "ingredientSpellingCheckDescription": "Wordt naar het taalmodel gestuurd bij het opschonen van de hele catalogus, voor elk ingrediënt uit de catalogus met vertalingen die mensen, imports of samenvoegingen toevoegden, met het ingrediënt, die vertalingen en per vertaling een receptregel erachter. Zegt welke het ingrediënt noemen, geen ingrediënt noemen of een ander ingrediënt noemen.",
+      "ingredientSpellingCheckPlaceholder": "Prompt voor het controleren van vertalingen...",
+      "ingredientNutrition": "Prompt voor de voedingswaarde van ingrediënten",
+      "ingredientNutritionDescription": "Wordt naar het taalmodel gestuurd voor een ingrediënt zonder eigen voedingswaarde, dichtheid of stukgewicht, waar AI die mag aanvullen, met het ingrediënt en waar het een soort van is erachter. Schat alleen wat het ingrediënt mist.",
+      "ingredientNutritionPlaceholder": "Prompt voor het schatten van de voedingswaarde van een ingrediënt..."
     },
     "unsavedChanges": "Niet-opgeslagen wijzigingen",
     "jsonEditor": {
@@ -1160,6 +1204,7 @@
         "saving-link": "Save the link",
         "asking-ai": "Ask AI about the food",
         "drawing-icon": "Het icoon van het voedingsmiddel tekenen",
+        "filling-gaps": "De gaten van het voedingsmiddel aanvullen",
         "naming": "Naam van het ingrediënt opschonen"
       },
       "queues": {
@@ -1177,7 +1222,8 @@
         "image-generation": "Afbeeldingen genereren",
         "store-lookup": "Winkelopzoeking",
         "ingredient-review": "AI vragen over ingrediënten",
-        "ingredient-icons": "Ingrediënticonen tekenen"
+        "ingredient-icons": "Ingrediënticonen tekenen",
+        "ingredient-fill": "Gaten in ingrediënten aanvullen"
       },
       "summary": {
         "failed": "{count} failed"

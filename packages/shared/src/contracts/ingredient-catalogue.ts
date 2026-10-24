@@ -26,18 +26,10 @@ export function isCatalogueRefusal(value: unknown): value is CatalogueRefusal {
  * reason beside the flag so a person knows what to check.
  */
 export const FLAG_REASONS = [
-  /** AI is switched off, so nothing vouched for the name. */
-  "ai-off",
-  /** Minted by an import or a save; AI's pass looks at it in the background. */
-  "ai-queued",
   /** No known food shared a word with the name, so AI was not asked. No longer set; old rows keep it. */
   "unknown-food",
   /** AI was asked and was not sure. */
   "ai-unsure",
-  /** AI did not answer in time, or failed. */
-  "ai-unavailable",
-  /** The AI provider rejected the configured API key. */
-  "ai-key-rejected",
   /** AI or a slip named a food that was merged away before the name could join it. */
   "food-gone",
   /** Minted by the upgrade to the catalogue, which asks no AI. */
@@ -50,14 +42,8 @@ export const FLAG_REASONS = [
 
 export type FlagReason = (typeof FLAG_REASONS)[number];
 
-/** Why a food is flagged when no AI could answer for it: unreachable, or its key refused. */
-export const UNANSWERED_FLAG_REASONS: readonly FlagReason[] = ["ai-unavailable", "ai-key-rejected"];
-
-/** Why a food is asked about again nightly: no AI answered for it, or its pass never came. */
-export const RETRIED_FLAG_REASONS: readonly FlagReason[] = [
-  ...UNANSWERED_FLAG_REASONS,
-  "ai-queued",
-];
+/** Why AI gave no answer about a food: switched off, unreachable, or its key refused. Never a flag. */
+export type UnansweredReason = "ai-off" | "ai-unavailable" | "ai-key-rejected";
 
 export function isFlagReason(value: unknown): value is FlagReason {
   return (FLAG_REASONS as readonly unknown[]).includes(value);
@@ -72,8 +58,8 @@ export const AI_CHANGE_KINDS = ["merge", "parent", "plain-name", "not-a-food", "
 export type AIChangeKind = (typeof AI_CHANGE_KINDS)[number];
 
 /**
- * What asking AI about an Ingredient came to, with what AI tried (`ReviewTrace`). `unsure` changed
- * nothing: no answer came, or AI doubted the food is its own.
+ * What asking AI about an Ingredient came to, with what AI tried (`ReviewTrace`). `unsure` and
+ * `unanswered` changed nothing: AI doubted the food is its own, or no answer came.
  */
 export type ReviewOutcome = ReviewVerdict & ReviewTrace;
 
@@ -86,7 +72,8 @@ export type ReviewVerdict =
   | { outcome: "not-a-food" }
   | { outcome: "distinct" }
   | { outcome: "unsure"; reason: FlagReason }
-  | { outcome: "skipped"; reason: "decided" | "undone" | "not-found" | "cycle" };
+  | { outcome: "unanswered"; reason: UnansweredReason }
+  | { outcome: "skipped"; reason: "decided" | "undone" | "not-found" | "cycle" | "seeded" };
 
 export interface ReviewTrace {
   /** The plain English food AI read the name as, when it said. */
@@ -117,16 +104,3 @@ export function noTrace(): ReviewTrace {
     considered: [],
   };
 }
-
-/**
- * Which foods a Draw icons round draws: only those with no icon at all (the
- * default, which leaves a food that borrows its parent's alone), or every
- * food without one of its own. Either holds only foods the asker may edit,
- * and never a vague group the shipped set leaves without one.
- */
-export const ICON_SCOPES = ["bare", "unowned"] as const;
-
-export type IconScope = (typeof ICON_SCOPES)[number];
-
-/** How many icons each scope of a Draw icons round would draw, for the asker. */
-export type IconScopeSummary = Record<IconScope, number>;

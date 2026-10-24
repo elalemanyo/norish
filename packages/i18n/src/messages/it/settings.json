@@ -20,12 +20,20 @@
       "added": "Aggiunto il {date}",
       "remove": "Scollega",
       "unavailable": "Attualmente non disponibile",
+      "changePassword": "Cambia password",
+      "currentPassword": "Password attuale",
+      "newPassword": "Nuova password",
+      "confirmPassword": "Conferma nuova password",
+      "signOutOthers": "Disconnetti le altre sessioni",
+      "passwordChanged": "Password cambiata.",
       "errors": {
         "usedByAnotherAccount": "Questo accesso è già usato da un altro account.",
         "lastMethod": "Ti serve almeno un modo per accedere.",
         "signInAgain": "Accedi di nuovo per rimuoverlo.",
         "addFailed": "Impossibile aggiungere questo metodo di accesso.",
-        "removeFailed": "Impossibile rimuovere questo metodo di accesso."
+        "removeFailed": "Impossibile rimuovere questo metodo di accesso.",
+        "wrongPassword": "La password attuale non è corretta.",
+        "changeFailed": "Impossibile cambiare la password. Riprova."
       }
     },
     "profile": {
@@ -393,12 +401,8 @@
     "flagged": "Segnalato",
     "flagReasons": {
       "unknown": "Norish non era sicuro che fosse un ingrediente a sé.",
-      "ai-off": "L'IA è disattivata, quindi nulla ha verificato se Norish lo conosce già.",
-      "ai-queued": "Nuovo in Norish. L'IA lo esaminerà a breve.",
       "unknown-food": "Nessun ingrediente noto condivide una parola con questo nome, quindi l'IA non è stata interpellata.",
       "ai-unsure": "All'IA è stato chiesto se è un ingrediente noto e non era sicura.",
-      "ai-unavailable": "L'IA non ha risposto in tempo.",
-      "ai-key-rejected": "Il fornitore di IA ha rifiutato la chiave API, quindi l'IA non ha potuto verificare questo nome.",
       "food-gone": "L'IA lo ha associato a un ingrediente unito prima che il nome potesse raggiungerlo.",
       "upgrade": "Non è stato trovato nessun ingrediente noto corrispondente.",
       "seed-ambiguous": "Il catalogo conosce più ingredienti che potrebbero essere questo.",
@@ -471,7 +475,8 @@
         "name": "{food} · {dataset}, trovato per nome",
         "householdFood": "{food} · {dataset}, scelto dalla tua famiglia",
         "household": "I valori propri della tua famiglia",
-        "taxonomy": "Open Food Facts"
+        "taxonomy": "Open Food Facts",
+        "ai": "Stimato dall’IA"
       },
       "correct": "Correggi",
       "correctTitle": "Correggi {name}",
@@ -580,20 +585,6 @@
       "failed": "Non è stato possibile ricavare un’icona da questa immagine.",
       "generate": "Genera con l’IA",
       "generateFailed": "Non è stato possibile generare l’icona."
-    },
-    "drawIcons": {
-      "open": "Disegna icone",
-      "title": "Disegna icone",
-      "intro": "Il fornitore di immagini disegna un’icona per ogni alimento, che diventa subito la sua. Puoi dare un’altra icona a un alimento nel suo pannello.",
-      "scopeLabel": "Quali alimenti",
-      "scopes": {
-        "bare": "Solo alimenti senza alcuna icona",
-        "unowned": "Ogni alimento senza un’icona propria"
-      },
-      "scopeSize": "{count, plural, =0 {Nessuna icona} one {# icona} other {# icone}}",
-      "start": "Disegna icone",
-      "progress": "Disegno icone · {done, number} di {total, number}",
-      "drawing": "Disegno icona…"
     }
   },
   "admin": {
@@ -885,6 +876,58 @@
         "aiDisabled": "L'IA è disabilitata su questo server. Abilita prima l'IA.",
         "error": "Avvio dell'arricchimento in blocco non riuscito",
         "imageCount": "{count, plural, =0 {Non verrà generata nessuna immagine.} one {Verrà generata # immagine.} other {Verranno generate # immagini.}}"
+      },
+      "ingredientCatalogue": {
+        "title": "Catalogo degli ingredienti",
+        "subtitle": "Cosa fa l'IA con i nuovi ingredienti",
+        "automatic": "Automatico per i nuovi ingredienti",
+        "automaticDescription": "Cosa fa l'IA quando un ingrediente viene aggiunto al catalogo.",
+        "automaticPlaceholder": "Non viene eseguito nulla automaticamente",
+        "kinds": {
+          "cleanUp": "Riordina i nuovi ingredienti",
+          "cleanUpDescription": "Unisci le grafie, imposta un genitore e un nome semplice, rimuovi ciò che non è un alimento",
+          "nutrition": "Completa i valori nutrizionali mancanti",
+          "nutritionDescription": "Stima i macro per 100 g dove l'ingrediente non ne ha",
+          "conversions": "Completa le conversioni mancanti",
+          "conversionsDescription": "Stima densità e peso per pezzo dove l'ingrediente non li ha",
+          "icon": "Disegna le icone mancanti",
+          "iconDescription": "Solo per un ingrediente senza icona, nemmeno quella del suo genitore"
+        },
+        "cleanUpCatalogue": {
+          "title": "Pulisci il catalogo",
+          "description": "Chiedi all'IA degli ingredienti già nel catalogo.",
+          "running": "È in corso una pulizia. Seguila nella coda dei processi.",
+          "button": "Pulisci il catalogo",
+          "intro": "L'IA unisce le grafie, imposta genitori e nomi semplici e rimuove ciò che non è un alimento. Ogni modifica è elencata in Modificato dall'IA, con Annulla.",
+          "scopeLabel": "Quali ingredienti",
+          "scopes": {
+            "recipe-foods": "Alimenti delle ricette",
+            "recipe-foods-description": "Ingredienti portati dalle ricette su cui nessuno ha deciso",
+            "whole-catalogue": "Catalogo intero",
+            "whole-catalogue-description": "Ogni ingrediente, anche quelli integrati, ignorando ciò che le persone hanno deciso o annullato. Quelli integrati non vengono mai rimossi."
+          },
+          "count": "{count, plural, one {L'IA chiederà di # ingrediente.} other {L'IA chiederà di # ingredienti.}}",
+          "start": "Pulisci",
+          "started": "{count, plural, one {Pulizia di # ingrediente} other {Pulizia di # ingredienti}}",
+          "error": "Impossibile avviare la pulizia"
+        },
+        "fillGaps": {
+          "title": "Colma le lacune",
+          "description": "Lascia che l'IA completi ciò che manca agli ingredienti.",
+          "running": "Il completamento delle lacune è in corso. Seguilo nella coda dei processi.",
+          "button": "Colma le lacune",
+          "intro": "Per ogni ingrediente del catalogo, l'IA completa solo ciò che non ha di suo. Ciò che un ingrediente ha già non viene mai sostituito.",
+          "kindsLabel": "Cosa completare",
+          "kinds": {
+            "nutrition": "Valori nutrizionali",
+            "conversions": "Conversioni",
+            "icons": "Icone"
+          },
+          "count": "{count, plural, =0 {Niente da completare} one {# ingrediente} other {# ingredienti}}",
+          "start": "Colma le lacune",
+          "started": "Completamento avviato. Seguilo nella coda dei processi.",
+          "error": "Impossibile avviare il completamento delle lacune"
+        }
       }
     },
     "aiConfig": {
@@ -941,8 +984,6 @@
         "imageGeneration": "Generazione Immagini",
         "imageGenerationDescription": "Disegna una foto del piatto per le nuove ricette che non hanno alcuna immagine"
       },
-      "automaticIngredients": "Disegna icone per i nuovi ingredienti",
-      "automaticIngredientsDescription": "Solo per un ingrediente senza icona, nemmeno quella del suo genitore.",
       "tagStrategy": "Strategia dei tag",
       "tagStrategyDescription": "Quali tag può usare il tagging automatico, sia che venga eseguito automaticamente o manualmente",
       "tagStrategies": {
@@ -1105,8 +1146,11 @@
       "ingredientPlainNameDescription": "Inviato al modello linguistico quando l’IA pulisce il nome di un ingrediente, con il nome e le sue altre grafie aggiunti dopo. Dice cosa togliere da un nome e cosa tenere.",
       "ingredientPlainNamePlaceholder": "Prompt per pulire i nomi degli ingredienti...",
       "ingredientSpellingCheck": "Prompt di controllo delle traduzioni",
-      "ingredientSpellingCheckDescription": "Inviato una volta al modello linguistico, al primo avvio con l’IA attiva, per ogni ingrediente del catalogo con traduzioni aggiunte da persone, importazioni o unioni, con l’ingrediente, quelle traduzioni e una riga di ricetta per ciascuna aggiunti dopo. Dice quali indicano l’ingrediente, nessun alimento o un altro alimento.",
-      "ingredientSpellingCheckPlaceholder": "Prompt per controllare le traduzioni degli ingredienti..."
+      "ingredientSpellingCheckDescription": "Inviato al modello linguistico quando si pulisce il catalogo intero, per ogni ingrediente del catalogo con traduzioni aggiunte da persone, importazioni o unioni, con l’ingrediente, quelle traduzioni e una riga di ricetta per ciascuna aggiunti dopo. Dice quali indicano l’ingrediente, nessun alimento o un altro alimento.",
+      "ingredientSpellingCheckPlaceholder": "Prompt per controllare le traduzioni degli ingredienti...",
+      "ingredientNutrition": "Prompt dei valori nutrizionali degli ingredienti",
+      "ingredientNutritionDescription": "Inviato al modello linguistico per un ingrediente senza valori nutrizionali, densità o peso al pezzo propri, quando l’IA può completarli, con l’ingrediente e di cosa è un tipo aggiunti dopo. Stima solo ciò che manca all’ingrediente.",
+      "ingredientNutritionPlaceholder": "Prompt per stimare i valori nutrizionali di un ingrediente..."
     },
     "unsavedChanges": "Modifiche non salvate",
     "jsonEditor": {
@@ -1160,6 +1204,7 @@
         "saving-link": "Save the link",
         "asking-ai": "Ask AI about the food",
         "drawing-icon": "Disegna l’icona dell’alimento",
+        "filling-gaps": "Completare le lacune dell’alimento",
         "naming": "Pulisci il nome dell’alimento"
       },
       "queues": {
@@ -1177,7 +1222,8 @@
         "image-generation": "Generazione immagini",
         "store-lookup": "Ricerca nel negozio",
         "ingredient-review": "Chiedere all'IA sugli ingredienti",
-        "ingredient-icons": "Disegno delle icone degli ingredienti"
+        "ingredient-icons": "Disegno delle icone degli ingredienti",
+        "ingredient-fill": "Completamento delle lacune degli ingredienti"
       },
       "summary": {
         "failed": "{count} failed"

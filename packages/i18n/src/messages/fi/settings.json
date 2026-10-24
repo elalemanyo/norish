@@ -20,12 +20,20 @@
       "added": "Lisätty {date}",
       "remove": "Katkaise yhteys",
       "unavailable": "Ei tällä hetkellä käytettävissä",
+      "changePassword": "Vaihda salasana",
+      "currentPassword": "Nykyinen salasana",
+      "newPassword": "Uusi salasana",
+      "confirmPassword": "Vahvista uusi salasana",
+      "signOutOthers": "Kirjaa muut istunnot ulos",
+      "passwordChanged": "Salasana vaihdettu.",
       "errors": {
         "usedByAnotherAccount": "Tätä kirjautumista käyttää jo toinen tili.",
         "lastMethod": "Tarvitset vähintään yhden tavan kirjautua.",
         "signInAgain": "Kirjaudu uudelleen poistaaksesi tämän.",
         "addFailed": "Kirjautumistapaa ei voitu lisätä.",
-        "removeFailed": "Kirjautumistapaa ei voitu poistaa."
+        "removeFailed": "Kirjautumistapaa ei voitu poistaa.",
+        "wrongPassword": "Nykyinen salasana on väärä.",
+        "changeFailed": "Salasanaa ei voitu vaihtaa. Yritä uudelleen."
       }
     },
     "profile": {
@@ -393,12 +401,8 @@
     "flagged": "Merkitty",
     "flagReasons": {
       "unknown": "Norish ei ollut varma, onko tämä oma ainesosansa.",
-      "ai-off": "Tekoäly on pois päältä, joten mikään ei tarkistanut, tunteeko Norish tämän jo.",
-      "ai-queued": "Uusi Norishissa. Tekoäly katsoo sen pian.",
       "unknown-food": "Mikään tunnettu ainesosa ei jaa sanaa tämän nimen kanssa, joten tekoälyltä ei kysytty.",
       "ai-unsure": "Tekoälyltä kysyttiin, onko tämä tunnettu ainesosa, eikä se ollut varma.",
-      "ai-unavailable": "Tekoäly ei vastannut ajoissa.",
-      "ai-key-rejected": "Tekoälypalvelu hylkäsi API-avaimen, joten tekoäly ei voinut tarkistaa tätä nimeä.",
       "food-gone": "Tekoäly yhdisti tämän ainesosaan, joka yhdistettiin ennen kuin nimi ehti mukaan.",
       "upgrade": "Vastaavaa tunnettua ainesosaa ei löytynyt.",
       "seed-ambiguous": "Luettelo tuntee useita ainesosia, joita tämä voisi olla.",
@@ -471,7 +475,8 @@
         "name": "{food} · {dataset}, löydetty nimellä",
         "householdFood": "{food} · {dataset}, kotitaloutesi valitsema",
         "household": "Kotitaloutesi omat arvot",
-        "taxonomy": "Open Food Facts"
+        "taxonomy": "Open Food Facts",
+        "ai": "Tekoälyn arvio"
       },
       "correct": "Korjaa",
       "correctTitle": "Korjaa {name}",
@@ -580,20 +585,6 @@
       "failed": "Kuvasta ei voitu tehdä kuvaketta.",
       "generate": "Luo tekoälyllä",
       "generateFailed": "Kuvaketta ei voitu luoda."
-    },
-    "drawIcons": {
-      "open": "Piirrä kuvakkeet",
-      "title": "Piirrä kuvakkeet",
-      "intro": "Kuvapalvelu piirtää jokaiselle ruoalle kuvakkeen, josta tulee heti ruoan oma. Ruoalle voi antaa toisen kuvakkeen sen paneelissa.",
-      "scopeLabel": "Mitkä ruoat",
-      "scopes": {
-        "bare": "Vain ruoat, joilla ei ole lainkaan kuvaketta",
-        "unowned": "Kaikki ruoat ilman omaa kuvaketta"
-      },
-      "scopeSize": "{count, plural, =0 {Ei kuvakkeita} one {# kuvake} other {# kuvaketta}}",
-      "start": "Piirrä kuvakkeet",
-      "progress": "Piirretään kuvakkeita · {done, number}/{total, number}",
-      "drawing": "Piirretään kuvaketta…"
     }
   },
   "admin": {
@@ -885,6 +876,58 @@
         "aiDisabled": "Tekoäly on pois käytöstä tällä palvelimella. Ota tekoäly ensin käyttöön.",
         "error": "Joukkorikastuksen käynnistys epäonnistui",
         "imageCount": "{count, plural, =0 {Ajo ei luo yhtään kuvaa.} one {Ajo luo # kuvan.} other {Ajo luo # kuvaa.}}"
+      },
+      "ingredientCatalogue": {
+        "title": "Ainesosaluettelo",
+        "subtitle": "Mitä tekoäly tekee uusille ainesosille",
+        "automatic": "Automaattisesti uusille ainesosille",
+        "automaticDescription": "Mitä tekoäly tekee, kun luetteloon lisätään ainesosa.",
+        "automaticPlaceholder": "Mitään ei ajeta automaattisesti",
+        "kinds": {
+          "cleanUp": "Siivoa uudet ainesosat",
+          "cleanUpDescription": "Yhdistä kirjoitusasut, aseta yläkäsite ja pelkkä nimi, poista se, mikä ei ole ruokaa",
+          "nutrition": "Täydennä puuttuvat ravintoarvot",
+          "nutritionDescription": "Arvioi makrot 100 g:aa kohti, jos ainesosalla ei ole niitä",
+          "conversions": "Täydennä puuttuvat muunnokset",
+          "conversionsDescription": "Arvioi tiheys ja kappalepaino, jos ainesosalla ei ole niitä",
+          "icon": "Piirrä puuttuvat kuvakkeet",
+          "iconDescription": "Vain ainesosalle, jolla ei ole kuvaketta, ei edes yläkäsitteensä"
+        },
+        "cleanUpCatalogue": {
+          "title": "Siivoa luettelo",
+          "description": "Kysy tekoälyltä luettelossa jo olevista aineksista.",
+          "running": "Siivous on käynnissä. Seuraa sitä työjonossa.",
+          "button": "Siivoa luettelo",
+          "intro": "Tekoäly yhdistää kirjoitusasuja, asettaa yläkäsitteet ja selkeät nimet ja poistaa sen, mikä ei ole ruokaa. Jokainen muutos näkyy kohdassa Tekoälyn muutokset, ja sen voi kumota.",
+          "scopeLabel": "Mitkä ainekset",
+          "scopes": {
+            "recipe-foods": "Reseptien ainekset",
+            "recipe-foods-description": "Reseptien tuomat ainekset, joista kukaan ei ole päättänyt",
+            "whole-catalogue": "Koko luettelo",
+            "whole-catalogue-description": "Kaikki ainekset, myös sisäänrakennetut, välittämättä siitä, mitä ihmiset päättivät tai kumosivat. Sisäänrakennettuja ei koskaan poisteta."
+          },
+          "count": "{count, plural, one {Tekoäly kysyy # aineksesta.} other {Tekoäly kysyy # aineksesta.}}",
+          "start": "Siivoa",
+          "started": "{count, plural, one {Siivotaan # ainesta} other {Siivotaan # ainesta}}",
+          "error": "Siivousta ei voitu aloittaa"
+        },
+        "fillGaps": {
+          "title": "Täydennä puutteet",
+          "description": "Anna tekoälyn täydentää, mitä aineksilta puuttuu.",
+          "running": "Täydennys on käynnissä. Seuraa sitä työjonossa.",
+          "button": "Täydennä puutteet",
+          "intro": "Tekoäly täydentää jokaiselle luettelon ainekselle vain sen, mitä sillä ei ole omasta takaa. Mitään, mitä aineksella jo on, ei koskaan korvata.",
+          "kindsLabel": "Mitä täydennetään",
+          "kinds": {
+            "nutrition": "Ravintoarvot",
+            "conversions": "Muunnokset",
+            "icons": "Kuvakkeet"
+          },
+          "count": "{count, plural, =0 {Ei täydennettävää} one {# aines} other {# ainesta}}",
+          "start": "Täydennä puutteet",
+          "started": "Puutteita täydennetään. Seuraa sitä työjonossa.",
+          "error": "Täydennystä ei voitu aloittaa"
+        }
       }
     },
     "aiConfig": {
@@ -941,8 +984,6 @@
         "imageGeneration": "Kuvien luonti",
         "imageGenerationDescription": "Piirrä kuva ruoasta uusille resepteille, joilla ei ole lainkaan kuvaa"
       },
-      "automaticIngredients": "Piirrä kuvakkeet uusille ainesosille",
-      "automaticIngredientsDescription": "Vain ainesosalle, jolla ei ole kuvaketta, ei edes yläkäsitteensä.",
       "tagStrategy": "Sallitut tunnisteet",
       "tagStrategyDescription": "Mitä tunnisteita tunnisteiden luonti saa käyttää, ajetaanpa se automaattisesti tai käsin",
       "tagStrategies": {
@@ -1105,8 +1146,11 @@
       "ingredientPlainNameDescription": "Lähetetään kielimallille, kun tekoäly siivoaa ainesosan nimen, ja nimi sekä sen muut kirjoitusasut lisätään perään. Kertoo, mitä nimestä poistetaan ja mitä jätetään.",
       "ingredientPlainNamePlaceholder": "Kehote ainesosien nimien siivoamiseen...",
       "ingredientSpellingCheck": "Käännösten tarkistuskehote",
-      "ingredientSpellingCheckDescription": "Lähetetään kielimallille kerran, ensimmäisellä käynnistyksellä tekoäly päällä, jokaisesta luettelon ainesosasta, jolla on ihmisten, tuontien tai yhdistämisten lisäämiä käännöksiä, ja ainesosa, nuo käännökset ja kustakin yksi reseptirivi lisätään perään. Kertoo, mitkä niistä nimeävät ainesosan, eivät mitään ainesosaa tai toisen ainesosan.",
-      "ingredientSpellingCheckPlaceholder": "Kehote ainesosien käännösten tarkistamiseen..."
+      "ingredientSpellingCheckDescription": "Lähetetään kielimallille, kun koko luettelo siivotaan, jokaisesta luettelon ainesosasta, jolla on ihmisten, tuontien tai yhdistämisten lisäämiä käännöksiä, ja ainesosa, nuo käännökset ja kustakin yksi reseptirivi lisätään perään. Kertoo, mitkä niistä nimeävät ainesosan, eivät mitään ainesosaa tai toisen ainesosan.",
+      "ingredientSpellingCheckPlaceholder": "Kehote ainesosien käännösten tarkistamiseen...",
+      "ingredientNutrition": "Ainesosien ravintoarvokehote",
+      "ingredientNutritionDescription": "Lähetetään kielimallille ainesosasta, jolta puuttuu oma ravintoarvo, tiheys tai kappalepaino, kun tekoäly saa täydentää ne, ja ainesosa sekä se, minkä lajia se on, lisätään perään. Arvioi vain sen, mitä ainesosalta puuttuu.",
+      "ingredientNutritionPlaceholder": "Kehote ainesosan ravintoarvon arvioimiseen..."
     },
     "unsavedChanges": "Tallentamattomia muutoksia",
     "jsonEditor": {
@@ -1160,6 +1204,7 @@
         "saving-link": "Tallenna linkki",
         "asking-ai": "Ask AI about the food",
         "drawing-icon": "Piirrä ruoan kuvake",
+        "filling-gaps": "Täydennä ruoka-aineen aukot",
         "naming": "Siivoa ruoka-aineen nimi"
       },
       "queues": {
@@ -1177,7 +1222,8 @@
         "image-generation": "Kuvien luonti",
         "store-lookup": "Kaupan haku",
         "ingredient-review": "Kysy tekoälyltä ainesosista",
-        "ingredient-icons": "Ainesosien kuvakkeiden piirto"
+        "ingredient-icons": "Ainesosien kuvakkeiden piirto",
+        "ingredient-fill": "Ainesosien aukkojen täydennys"
       },
       "summary": {
         "failed": "{count} epäonnistui"

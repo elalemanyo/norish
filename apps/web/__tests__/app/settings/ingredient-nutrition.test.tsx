@@ -164,6 +164,18 @@ describe("an Ingredient's nutrition in its panel", () => {
     );
   });
 
+  it("says when AI estimated the numbers", () => {
+    mocks.nutrition = {
+      ...mocks.nutrition!,
+      numbers: { ...mocks.nutrition!.numbers!, source: { kind: "ai" } },
+    };
+
+    render(<IngredientNutritionSection ingredientId="onion" name="onion" />);
+    openNutrition();
+
+    expect(screen.getByTestId("ingredient-nutrition-source")).toHaveTextContent("source.ai");
+  });
+
   it("says it knows nothing where it does not", () => {
     mocks.nutrition = { numbers: null, pieceWeight: null, density: null };
 

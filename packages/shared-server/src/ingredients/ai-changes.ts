@@ -2,6 +2,8 @@
  * AI Changes (CONTEXT.md; ADR-0037): AI's answers made and recorded in one transaction, kept or
  * undone under `edit` on their food.
  */
+import { AsyncLocalStorage } from "node:async_hooks";
+
 import type { DbTransaction } from "@norish/db/drizzle";
 import type { StoredAIChange } from "@norish/db/repositories/ingredient-ai-changes";
 import type { SplitPart } from "@norish/db/repositories/ingredient-relocation";
@@ -74,6 +76,21 @@ import { announceMinted } from "./minted";
 import { resolveAgain } from "./resolve-again";
 import { forgetSpellingRules } from "./resolver";
 
+/** Shared through `globalThis`, as the held mints are, so a module copied into two chunks still sees it. */
+const OVERRIDING_KEY = Symbol.for("norish:ingredients-overriding");
+const g = globalThis as { [OVERRIDING_KEY]?: AsyncLocalStorage<true> };
+const overriding = (g[OVERRIDING_KEY] ??= new AsyncLocalStorage<true>());
+
+/** Run a whole-catalogue Clean up's work: a person's decisions and remembered undos are not read. */
+export function overridingDecisions<T>(run: () => Promise<T>): Promise<T> {
+  return overriding.run(true, run);
+}
+
+/** Whether the work running overrides a person's decisions and undos (`overridingDecisions`). */
+export function isOverriding(): boolean {
+  return overriding.getStore() === true;
+}
+
 /** Applying AI's answer: made, undone by a person before, decided by a person meanwhile, or a food gone. */
 export type ApplyOutcome = "applied" | "undone" | "decided" | "gone";
 
@@ -99,7 +116,7 @@ async function announceIfApplied<T extends string>(
  */
 async function lockForAI(tx: DbTransaction, ids: readonly string[]) {
   if (!(await lockFoods(tx, ids))) return "gone";
-  if (!(await isAskableByAI(tx, ids[0]!))) return "decided";
+  if (!isOverriding() && !(await isAskableByAI(tx, ids[0]!))) return "decided";
 
   return null;
 }
@@ -113,7 +130,7 @@ export async function mergeByAI(sourceId: string, targetId: string, sure: boolea
     const undo = await readMergeUndo(tx, sourceId);
 
     if (!undo) return "gone";
-    if (await wasMergeUndone(tx, targetId, undo.aliasIds)) return "undone";
+    if (!isOverriding() && (await wasMergeUndone(tx, targetId, undo.aliasIds))) return "undone";
     await mergeCatalogueIngredients(tx, sourceId, targetId, { keepFlag: true });
     await recordAIChange(tx, { ingredientId: targetId, sure, undo });
     if (!sure) await flagUnderOpenChange(tx, targetId);
@@ -135,7 +152,7 @@ export async function parentByAI(ingredientId: string, parentId: string | null, 
     const locked = await lockForAI(tx, ids);
 
     if (locked) return locked;
-    if (await wasParentUndone(tx, ingredientId, parentId)) return "undone";
+    if (!isOverriding() && (await wasParentUndone(tx, ingredientId, parentId))) return "undone";
 
     if (parentId && (await closesCycle(tx, ingredientId, parentId))) return "cycle";
     previous = (await findIngredientAncestors([ingredientId], tx)).get(ingredientId)?.[0] ?? null;
@@ -170,7 +187,9 @@ export async function renameByAI(ingredientId: string, formerName: string, name:
     const locked = await lockForAI(tx, [ingredientId]);
 
     if (locked) return locked;
-    if (!(await renameToPlainName(tx, ingredientId, name))) return "settled";
+    if (!(await renameToPlainName(tx, ingredientId, name, { evenSettled: isOverriding() }))) {
+      return "settled";
+    }
     await recordAIChange(tx, {
       ingredientId,
       sure: true,
@@ -209,7 +228,7 @@ export async function splitByAI(
       movedTo = await moveToFoodNamedFor(
         tx,
         { id: spelledByFood.aliasId, text: alias.text },
-        { ownerId: alias.ownerId, flagged: true, flagReason: "ai-queued" }
+        { ownerId: alias.ownerId }
       );
       // The food is itself named for the spelling: a split would delete it with the spelling on it.
       if (movedTo.id === ingredientId) return none("refused");
@@ -244,7 +263,7 @@ export async function deleteByAI(ingredientId: string): Promise<ApplyOutcome | "
     const food = await readDeletedFood(tx, ingredientId);
 
     if (!food) return "gone";
-    if (await wasDeletionUndone(tx, ingredientId)) return "undone";
+    if (!isOverriding() && (await wasDeletionUndone(tx, ingredientId))) return "undone";
     if (await isInAnyPantry(tx, ingredientId)) {
       await refreshAIFlag(tx, ingredientId, { unsure: true, reason: "ai-junk" });
 
@@ -293,7 +312,7 @@ async function lockAddedSpelling(
 
   if (!read || read.ingredientId !== ingredientId) return "gone";
   if (read.seeded) return "seeded";
-  if (await wasSpellingUndone(tx, aliasId)) return "undone";
+  if (!isOverriding() && (await wasSpellingUndone(tx, aliasId))) return "undone";
   if ((await countAliasesOf(tx, ingredientId)) <= 1) return "last-spelling";
   const { ingredientId: _on, seeded: _seeded, ...spelling } = read;
 

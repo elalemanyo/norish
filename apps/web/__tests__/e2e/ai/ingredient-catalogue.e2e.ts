@@ -4,7 +4,7 @@
  * What a household actually sees: a Dutch "ui" put in the Pantry leaves an
  * English recipe's "onion" off the list, because both are spellings of one
  * Ingredient; a food Norish was not sure about is marked on the Ingredients
- * page; AI asks about a food a recipe mints by itself, its merge or Plain Name
+ * page; with Clean up new ingredients on, AI asks about a food a recipe mints by itself, its merge or Plain Name
  * listed on Changed by AI and a merge undone from there; merging it into the food that holds an Aisle Link
  * files its grocery in that aisle; and a recipe line naming two foods puts
  * each on the list on its own. A food only a grocery names is not on the page, and AI leaves it,
@@ -30,6 +30,7 @@ import {
 } from "./ingredient-catalogue-support";
 import { seedGrocery } from "./ingredient-icons-support";
 import { readGroceryNames, readPantryNames } from "./pantry-support";
+import { updateAIConfig } from "./recipe-enrichment-support";
 
 test.describe.configure({ mode: "serial" });
 
@@ -49,6 +50,7 @@ let stack: AIE2EStack;
 test.beforeAll(async ({ browser, aiStack }) => {
   stack = aiStack;
   await resetCatalogueScenario();
+  await cleanUpNewIngredients(true);
 
   ids = await seedCatalogue([
     {
@@ -92,7 +94,15 @@ test.beforeAll(async ({ browser, aiStack }) => {
 
 test.afterAll(async () => {
   await page?.context().close();
+  await cleanUpNewIngredients(false);
 });
+
+/** Switch Clean up new ingredients, which every AI pass after a mint here needs. */
+async function cleanUpNewIngredients(cleanUp: boolean) {
+  await updateAIConfig(stack, {
+    automaticIngredients: { cleanUp, nutrition: false, conversions: false, icon: false },
+  });
+}
 
 /** The Pantry page, reached from the groceries page's switch. */
 async function openPantry(): Promise<Locator> {

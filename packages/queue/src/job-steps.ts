@@ -75,6 +75,8 @@ export const JOB_PIPELINES: Record<QueueName, string[]> = {
   [QUEUE_NAMES.INGREDIENT_REVIEW]: ["asking-ai"],
   // One step per food, "drawing-icon:3/12", each carrying what came of it.
   [QUEUE_NAMES.INGREDIENT_ICONS]: ["drawing-icon"],
+  // One step per food, "filling-gaps:3/12", each carrying what came of it.
+  [QUEUE_NAMES.INGREDIENT_FILL]: ["filling-gaps"],
 };
 
 /**

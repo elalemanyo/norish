@@ -20,12 +20,20 @@
       "added": "{date}에 추가됨",
       "remove": "연결 해제",
       "unavailable": "현재 사용할 수 없음",
+      "changePassword": "비밀번호 변경",
+      "currentPassword": "현재 비밀번호",
+      "newPassword": "새 비밀번호",
+      "confirmPassword": "새 비밀번호 확인",
+      "signOutOthers": "다른 세션 로그아웃",
+      "passwordChanged": "비밀번호가 변경되었습니다.",
       "errors": {
         "usedByAnotherAccount": "이 로그인은 이미 다른 계정에서 사용 중입니다.",
         "lastMethod": "로그인 방법이 하나 이상 필요합니다.",
         "signInAgain": "제거하려면 다시 로그인하세요.",
         "addFailed": "이 로그인 방법을 추가할 수 없습니다.",
-        "removeFailed": "이 로그인 방법을 제거할 수 없습니다."
+        "removeFailed": "이 로그인 방법을 제거할 수 없습니다.",
+        "wrongPassword": "현재 비밀번호가 올바르지 않습니다.",
+        "changeFailed": "비밀번호를 변경하지 못했습니다. 다시 시도하세요."
       }
     },
     "profile": {
@@ -393,12 +401,8 @@
     "flagged": "표시됨",
     "flagReasons": {
       "unknown": "Norish가 이것이 별도의 재료인지 확신하지 못했습니다.",
-      "ai-off": "AI가 꺼져 있어 Norish가 이미 아는 재료인지 확인하지 못했습니다.",
-      "ai-queued": "Norish에 새로 추가되었습니다. 곧 AI가 확인합니다.",
       "unknown-food": "이 이름과 단어를 공유하는 알려진 재료가 없어 AI에 묻지 않았습니다.",
       "ai-unsure": "AI에 알려진 재료인지 물었지만 확신하지 못했습니다.",
-      "ai-unavailable": "AI가 제때 응답하지 않았습니다.",
-      "ai-key-rejected": "AI 제공업체가 API 키를 거부해서 AI가 이 이름을 확인하지 못했습니다.",
       "food-gone": "AI가 연결한 재료가 이름이 합류하기 전에 병합되어 사라졌습니다.",
       "upgrade": "일치하는 알려진 재료를 찾지 못했습니다.",
       "seed-ambiguous": "카탈로그에 이것일 수 있는 재료가 여럿 있습니다.",
@@ -471,7 +475,8 @@
         "name": "{food} · {dataset}, 이름으로 찾음",
         "householdFood": "{food} · {dataset}, 우리 가구가 선택",
         "household": "우리 가구의 자체 값",
-        "taxonomy": "Open Food Facts"
+        "taxonomy": "Open Food Facts",
+        "ai": "AI 추정"
       },
       "correct": "수정",
       "correctTitle": "{name} 수정",
@@ -580,20 +585,6 @@
       "failed": "이 사진으로 아이콘을 만들 수 없습니다.",
       "generate": "AI로 생성",
       "generateFailed": "아이콘을 생성할 수 없습니다."
-    },
-    "drawIcons": {
-      "open": "아이콘 그리기",
-      "title": "아이콘 그리기",
-      "intro": "이미지 제공자가 각 식품의 아이콘을 그리며, 그 아이콘은 바로 그 식품의 아이콘이 됩니다. 식품의 패널에서 다른 아이콘을 지정할 수 있습니다.",
-      "scopeLabel": "대상 식품",
-      "scopes": {
-        "bare": "아이콘이 전혀 없는 식품만",
-        "unowned": "자체 아이콘이 없는 모든 식품"
-      },
-      "scopeSize": "{count, plural, =0 {아이콘 없음} other {아이콘 #개}}",
-      "start": "아이콘 그리기",
-      "progress": "아이콘 그리는 중 · {total, number}개 중 {done, number}개",
-      "drawing": "아이콘 그리는 중…"
     }
   },
   "admin": {
@@ -885,6 +876,58 @@
         "aiDisabled": "이 서버에서 AI가 비활성화되어 있습니다. 먼저 AI를 활성화하세요.",
         "error": "대량 보강을 시작하지 못했습니다",
         "imageCount": "{count, plural, =0 {생성되는 이미지가 없습니다.} other {#개의 이미지가 생성됩니다.}}"
+      },
+      "ingredientCatalogue": {
+        "title": "재료 카탈로그",
+        "subtitle": "AI가 새 재료에 하는 일",
+        "automatic": "새 재료에 자동 적용",
+        "automaticDescription": "카탈로그에 재료가 추가될 때 AI가 하는 일입니다.",
+        "automaticPlaceholder": "자동으로 실행되는 항목 없음",
+        "kinds": {
+          "cleanUp": "새 재료 정리",
+          "cleanUpDescription": "표기를 병합하고, 상위 항목과 기본 이름을 정하고, 음식이 아닌 것은 삭제",
+          "nutrition": "누락된 영양 정보 채우기",
+          "nutritionDescription": "재료에 없는 경우 100 g당 매크로 추정",
+          "conversions": "누락된 환산 정보 채우기",
+          "conversionsDescription": "재료에 없는 경우 밀도와 개당 무게 추정",
+          "icon": "누락된 아이콘 그리기",
+          "iconDescription": "상위 항목의 아이콘도 없는 재료에만 그립니다"
+        },
+        "cleanUpCatalogue": {
+          "title": "카탈로그 정리",
+          "description": "카탈로그에 이미 있는 재료에 대해 AI에게 묻습니다.",
+          "running": "정리가 진행 중입니다. 작업 대기열에서 확인하세요.",
+          "button": "카탈로그 정리",
+          "intro": "AI가 표기를 합치고, 상위 재료와 간단한 이름을 정하고, 음식이 아닌 것을 삭제합니다. 모든 변경은 AI가 변경함 목록에 실행 취소와 함께 표시됩니다.",
+          "scopeLabel": "대상 재료",
+          "scopes": {
+            "recipe-foods": "레시피 재료",
+            "recipe-foods-description": "레시피에서 들어왔고 아무도 결정하지 않은 재료",
+            "whole-catalogue": "전체 카탈로그",
+            "whole-catalogue-description": "기본 제공 재료를 포함한 모든 재료로, 사람이 결정하거나 실행 취소한 내용을 무시합니다. 기본 제공 재료는 삭제되지 않습니다."
+          },
+          "count": "{count, plural, other {AI가 재료 #개에 대해 묻습니다.}}",
+          "start": "정리",
+          "started": "{count, plural, other {재료 #개를 정리하는 중}}",
+          "error": "정리를 시작할 수 없습니다"
+        },
+        "fillGaps": {
+          "title": "빈 정보 채우기",
+          "description": "재료에 없는 정보를 AI가 채우게 합니다.",
+          "running": "빈 정보 채우기가 진행 중입니다. 작업 대기열에서 확인하세요.",
+          "button": "빈 정보 채우기",
+          "intro": "AI가 카탈로그의 모든 재료에 대해 자체 정보가 없는 항목만 채웁니다. 재료에 이미 있는 값은 절대 바꾸지 않습니다.",
+          "kindsLabel": "채울 항목",
+          "kinds": {
+            "nutrition": "영양 정보",
+            "conversions": "환산 정보",
+            "icons": "아이콘"
+          },
+          "count": "{count, plural, =0 {채울 항목 없음} other {재료 #개}}",
+          "start": "빈 정보 채우기",
+          "started": "빈 정보를 채우는 중입니다. 작업 대기열에서 확인하세요.",
+          "error": "빈 정보 채우기를 시작할 수 없습니다"
+        }
       }
     },
     "aiConfig": {
@@ -941,8 +984,6 @@
         "imageGeneration": "이미지 생성",
         "imageGenerationDescription": "이미지가 전혀 없는 새 레시피에 요리 사진을 그려줍니다"
       },
-      "automaticIngredients": "새 재료에 아이콘 그리기",
-      "automaticIngredientsDescription": "상위 항목의 아이콘도 없는 재료에만 그립니다.",
       "tagStrategy": "태그 전략",
       "tagStrategyDescription": "자동 또는 수동 실행 여부와 관계없이 자동 태그 지정이 사용할 수 있는 태그",
       "tagStrategies": {
@@ -1105,8 +1146,11 @@
       "ingredientPlainNameDescription": "AI가 재료 이름을 정리할 때 언어 모델에 보내며, 그 뒤에 이름과 다른 표기가 붙습니다. 이름에서 무엇을 지우고 무엇을 남길지 정합니다.",
       "ingredientPlainNamePlaceholder": "재료 이름 정리 프롬프트...",
       "ingredientSpellingCheck": "번역 확인 프롬프트",
-      "ingredientSpellingCheckDescription": "AI가 켜진 첫 시작 때 한 번, 사람이나 가져오기, 병합이 추가한 번역이 있는 카탈로그 식재료마다 언어 모델에 보내며, 그 뒤에 식재료와 그 번역, 번역마다 레시피 한 줄이 붙습니다. 어떤 번역이 그 식재료를 가리키는지, 식재료가 아닌지, 다른 식재료인지 정합니다.",
-      "ingredientSpellingCheckPlaceholder": "식재료 번역 확인 프롬프트..."
+      "ingredientSpellingCheckDescription": "전체 카탈로그를 정리할 때, 사람이나 가져오기, 병합이 추가한 번역이 있는 카탈로그 식재료마다 언어 모델에 보내며, 그 뒤에 식재료와 그 번역, 번역마다 레시피 한 줄이 붙습니다. 어떤 번역이 그 식재료를 가리키는지, 식재료가 아닌지, 다른 식재료인지 정합니다.",
+      "ingredientSpellingCheckPlaceholder": "식재료 번역 확인 프롬프트...",
+      "ingredientNutrition": "식재료 영양 프롬프트",
+      "ingredientNutritionDescription": "AI가 채울 수 있을 때, 자체 영양 정보나 밀도, 개당 무게가 없는 식재료에 대해 언어 모델에 보내며, 그 뒤에 식재료와 그것이 어떤 종류인지가 붙습니다. 식재료에 없는 것만 추정합니다.",
+      "ingredientNutritionPlaceholder": "식재료 영양 추정 프롬프트..."
     },
     "unsavedChanges": "저장되지 않은 변경사항",
     "jsonEditor": {
@@ -1160,6 +1204,7 @@
         "saving-link": "Save the link",
         "asking-ai": "Ask AI about the food",
         "drawing-icon": "식품 아이콘 그리기",
+        "filling-gaps": "식재료의 빈 정보 채우기",
         "naming": "식품 이름 정리"
       },
       "queues": {
@@ -1177,7 +1222,8 @@
         "image-generation": "이미지 생성",
         "store-lookup": "매장 조회",
         "ingredient-review": "AI에게 재료 묻기",
-        "ingredient-icons": "재료 아이콘 그리기"
+        "ingredient-icons": "재료 아이콘 그리기",
+        "ingredient-fill": "식재료 빈 정보 채우기"
       },
       "summary": {
         "failed": "{count} failed"
