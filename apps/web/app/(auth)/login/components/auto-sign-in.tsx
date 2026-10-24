@@ -6,6 +6,7 @@ import { Card, Spinner } from "@heroui/react";
 
 import type { ProviderInfo } from "@norish/shared/contracts";
 import { signIn } from "@norish/shared/lib/auth/client";
+import { addBasePath } from "@norish/shared/lib/base-path";
 
 import { ProviderIcon } from "./provider-icon";
 
@@ -24,7 +25,7 @@ export function AutoSignIn({ provider, callbackUrl }: AutoSignInProps) {
     signIn.social({
       provider: provider.id.toLowerCase(),
       callbackURL: callbackUrl,
-      errorCallbackURL: "/auth-error",
+      errorCallbackURL: addBasePath("/auth-error"),
     });
   }, [provider, callbackUrl]);
 

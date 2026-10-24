@@ -13,6 +13,7 @@ import { useTranslations } from "next-intl";
 
 import type { CookbookSummaryDTO } from "@norish/shared/contracts";
 import { ALLOWED_IMAGE_MIME_TYPES } from "@norish/shared/contracts";
+import { addBasePath } from "@norish/shared/lib/base-path";
 
 /**
  * How tall these panels open.
@@ -331,7 +332,7 @@ export function CookbookEditPanel({
                           alt=""
                           className="h-full w-full object-cover"
                           loading="lazy"
-                          src={recipe.image}
+                          src={addBasePath(recipe.image)}
                         />
                       ) : (
                         <PhotoIcon aria-hidden className="h-5 w-5 opacity-70" />

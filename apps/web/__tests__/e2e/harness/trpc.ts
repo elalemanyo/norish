@@ -84,13 +84,13 @@ async function overHttp<T>(
   const api = await request.newContext({
     baseURL,
     extraHTTPHeaders: {
-      origin: baseURL,
+      origin: new URL(baseURL).origin,
       cookie: cookies.map((cookie) => `${cookie.name}=${cookie.value}`).join("; "),
     },
   });
 
   try {
-    const response = await send(api, `/api/trpc/${procedure}`);
+    const response = await send(api, `${baseURL}/api/trpc/${procedure}`);
 
     if (!response.ok()) throw new TrpcHttpError(procedure, response.status());
 

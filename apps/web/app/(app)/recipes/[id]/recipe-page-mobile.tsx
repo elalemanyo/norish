@@ -48,7 +48,7 @@ import { useRecipeContextRequired } from "./context";
  * frames the recipe. On a phone the page follows the job instead, and
  * reference material comes after the cooking.
  */
-export default function RecipePageMobile() {
+export default function RecipePageMobile({ onPrint }: { onPrint: () => void }) {
   const { recipe, currentServings, allergies, allergySet } = useRecipeContextRequired();
   const { isFavorite: checkFavorite } = useFavoritesQuery();
   const { toggleFavorite } = useFavoritesMutation();
@@ -61,7 +61,7 @@ export default function RecipePageMobile() {
 
   const isFavorite = checkFavorite(recipe.id);
   const handleToggleFavorite = () => toggleFavorite(recipe.id);
-  const handleRateRecipe = (rating: number) => rateRecipe(recipe.id, rating);
+  const handleRateRecipe = (rating: number | null) => rateRecipe(recipe.id, rating);
 
   return (
     <div
@@ -116,7 +116,11 @@ export default function RecipePageMobile() {
                     onToggle={handleToggleFavorite}
                   />
                 )}
-                <ActionsMenu buttonClassName={RECIPE_HERO_CHROME_BUTTON_CLASS} id={recipe.id} />
+                <ActionsMenu
+                  buttonClassName={RECIPE_HERO_CHROME_BUTTON_CLASS}
+                  id={recipe.id}
+                  onPrint={onPrint}
+                />
               </>
             }
           />
@@ -206,6 +210,7 @@ export default function RecipePageMobile() {
             <Card.Content className="flex flex-col items-center gap-4 p-5">
               <p className="text-muted font-medium">{t("ratingPrompt")}</p>
               <StarRating
+                allowClear={userRating !== null}
                 isLoading={isRating || isRatingLoading}
                 value={userRating ?? averageRating}
                 onChange={handleRateRecipe}

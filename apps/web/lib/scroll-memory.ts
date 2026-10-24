@@ -1,5 +1,7 @@
 import type { VirtualItem } from "@tanstack/react-virtual";
 
+import { stripBasePath } from "@norish/shared/lib/base-path";
+
 // The window's last scrollY on each path.
 const scrollTops = new Map<string, number>();
 // A virtual list's measured rows by list key, so a revisit lays out at the remembered height.
@@ -10,7 +12,9 @@ let arrival: { path: string; top: number; back: boolean } | null = null;
 const READER_INPUT = ["wheel", "touchstart", "keydown", "pointerdown"] as const;
 
 if (typeof window !== "undefined") {
-  addEventListener("scroll", () => scrollTops.set(location.pathname, scrollY), { passive: true });
+  addEventListener("scroll", () => scrollTops.set(stripBasePath(location.pathname), scrollY), {
+    passive: true,
+  });
 }
 
 const pathOf = (href: string) => new URL(href, location.href).pathname;
