@@ -1,7 +1,6 @@
 import { createOpenApiFetchHandler, generateOpenApiDocument } from "trpc-to-openapi";
 
 import type { OperationId } from "@norish/shared/contracts/realtime/envelope";
-import { addBasePath } from "@norish/shared/lib/base-path";
 import { isOperationId } from "@norish/shared/lib/operation-helpers";
 
 import { createHttpContextFromHeaders } from "./context";
@@ -78,9 +77,6 @@ async function createOpenApiContext(req: Request) {
 }
 
 export function handleOpenApiRequest(req: Request) {
-  // Next.js strips the base path before a Route Handler sees the request, so
-  // the endpoint it matches stays bare. The document's server URL carries the
-  // prefix for the clients that read it.
   return createOpenApiFetchHandler({
     endpoint: "/api/v1",
     router: openApiRouter,
@@ -92,7 +88,7 @@ export function handleOpenApiRequest(req: Request) {
 // The spec is published on the docs site, so the server is a variable each reader
 // fills in with their own instance.
 export function getOpenApiDocument(): ReturnType<typeof generateOpenApiDocument> {
-  const serverUrl = `{server}${addBasePath("/api/v1")}`;
+  const serverUrl = "{server}/api/v1";
   const document = generateOpenApiDocument(openApiRouter, {
     title: "Norish Recipe API",
     description: "API access for Norish recipes and imports.",
