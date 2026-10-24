@@ -121,7 +121,12 @@ function ChangePasswordForm({ close }: { close: () => void }) {
           <Input autoComplete="new-password" variant="secondary" />
           <FieldError>{tSignup("errors.passwordMismatch")}</FieldError>
         </TextField>
-        <UiSwitch isSelected={revokeOtherSessions} onValueChange={setRevokeOtherSessions}>
+        {/* The label leads and the switch sits at the row's end; the whole row still toggles. */}
+        <UiSwitch
+          className="w-full [&_[data-slot=switch-content]]:w-full [&_[data-slot=switch-content]]:flex-row-reverse [&_[data-slot=switch-content]]:justify-between"
+          isSelected={revokeOtherSessions}
+          onValueChange={setRevokeOtherSessions}
+        >
           <Label>{t("signOutOthers")}</Label>
         </UiSwitch>
       </Modal.Body>
