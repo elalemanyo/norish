@@ -32,7 +32,7 @@ import StarRating from "@norish/ui/star-rating";
 import ServingsControl from "./components/servings-control";
 import { useRecipeContextRequired } from "./context";
 
-export default function RecipePageDesktop() {
+export default function RecipePageDesktop({ onPrint }: { onPrint: () => void }) {
   const {
     recipe,
     currentServings: _currentServings,
@@ -49,7 +49,7 @@ export default function RecipePageDesktop() {
 
   const isFavorite = checkFavorite(recipe.id);
   const handleToggleFavorite = () => toggleFavorite(recipe.id);
-  const handleRateRecipe = (rating: number) => rateRecipe(recipe.id, rating);
+  const handleRateRecipe = (rating: number | null) => rateRecipe(recipe.id, rating);
 
   return (
     <div className="hidden flex-col space-y-6 px-6 pb-10 md:flex">
@@ -72,7 +72,7 @@ export default function RecipePageDesktop() {
           <Card className="rounded-2xl">
             <Card.Content className="space-y-5 p-6">
               <ReadonlyRecipeSummary
-                actions={<ActionsMenu id={recipe.id} />}
+                actions={<ActionsMenu id={recipe.id} onPrint={onPrint} />}
                 allergies={allergies}
                 allergySet={allergySet}
                 recipe={recipe}
@@ -162,6 +162,7 @@ export default function RecipePageDesktop() {
               <div className="bg-surface-secondary mx-3 mt-4 mb-3 flex flex-col items-center gap-4 rounded-xl py-6">
                 <p className="text-muted font-medium">{t("ratingPrompt")}</p>
                 <StarRating
+                  allowClear={userRating !== null}
                   isLoading={isRating || isRatingLoading}
                   value={userRating ?? averageRating}
                   onChange={handleRateRecipe}
