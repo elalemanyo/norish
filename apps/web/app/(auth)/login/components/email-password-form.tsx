@@ -7,6 +7,7 @@ import { Button, FieldError, InputGroup, Label, Link, TextField } from "@heroui/
 import { useTranslations } from "next-intl";
 
 import { signIn } from "@norish/shared/lib/auth/client";
+import { APP_ROOT } from "@norish/shared/lib/base-path";
 
 import { AuthAlert } from "../../components/auth-alert";
 
@@ -15,7 +16,7 @@ interface EmailPasswordFormProps {
   registrationEnabled?: boolean;
 }
 export function EmailPasswordForm({
-  callbackUrl = "/",
+  callbackUrl = APP_ROOT,
   registrationEnabled = false,
 }: EmailPasswordFormProps) {
   const t = useTranslations("auth.emailPassword");
@@ -111,7 +112,7 @@ export function EmailPasswordForm({
           {t("noAccount")}{" "}
           <Link
             className="text-sm"
-            href={`/signup${callbackUrl !== "/" ? `?callbackUrl=${encodeURIComponent(callbackUrl)}` : ""}`}
+            href={`/signup${callbackUrl !== APP_ROOT ? `?callbackUrl=${encodeURIComponent(callbackUrl)}` : ""}`}
           >
             {t("signUp")}
           </Link>

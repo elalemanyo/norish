@@ -53,6 +53,9 @@ RUN --mount=type=cache,target=/root/.local/share/pnpm/store \
 ##############################
 FROM builder-base AS build
 
+ARG NEXT_PUBLIC_BASE_PATH=""
+ENV NEXT_PUBLIC_BASE_PATH=${NEXT_PUBLIC_BASE_PATH}
+
 WORKDIR /app
 
 COPY --from=deps /app/node_modules ./node_modules
@@ -237,6 +240,9 @@ ENV NODE_ENV=production \
   PORT=3000 \
   HOST="0.0.0.0"
 
+ARG NEXT_PUBLIC_BASE_PATH=""
+ENV NEXT_PUBLIC_BASE_PATH=${NEXT_PUBLIC_BASE_PATH}
+
 ARG NORISH_VERSION_REPORT_JSON
 
 RUN test -n "${NORISH_VERSION_REPORT_JSON}"
@@ -301,7 +307,7 @@ EXPOSE 3000
 VOLUME ["/app/uploads"]
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
-  CMD node -e "require('http').get('http://localhost:3000/api/v1/health/live', r => process.exit(r.statusCode===200?0:1))" || exit 1
+  CMD node -e "require('http').get('http://localhost:3000' + (process.env.NEXT_PUBLIC_BASE_PATH || '') + '/api/v1/health/live', r => process.exit(r.statusCode===200?0:1))" || exit 1
 
 ENTRYPOINT ["norish-entrypoint"]
 

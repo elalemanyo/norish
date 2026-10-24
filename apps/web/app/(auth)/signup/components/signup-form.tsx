@@ -8,13 +8,14 @@ import { Button, Description, FieldError, InputGroup, Label, Link, TextField } f
 import { useTranslations } from "next-intl";
 
 import { signUp } from "@norish/shared/lib/auth/client";
+import { APP_ROOT } from "@norish/shared/lib/base-path";
 
 import { AuthAlert } from "../../components/auth-alert";
 
 interface SignupFormProps {
   callbackUrl?: string;
 }
-export function SignupForm({ callbackUrl = "/" }: SignupFormProps) {
+export function SignupForm({ callbackUrl = APP_ROOT }: SignupFormProps) {
   const t = useTranslations("auth.signup");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -53,7 +54,7 @@ export function SignupForm({ callbackUrl = "/" }: SignupFormProps) {
           } else {
             // A full page load, like sign-in's redirect, so app/layout.tsx types it `sign-in`.
             setIsLeaving(true);
-            location.assign(safeOrigin(callbackUrl) ?? "/");
+            location.assign(safeOrigin(callbackUrl) ?? APP_ROOT);
           }
         })
         .catch(() => setError(t("errors.generic")))
@@ -174,7 +175,7 @@ export function SignupForm({ callbackUrl = "/" }: SignupFormProps) {
         {t("hasAccount")}{" "}
         <Link
           className="text-sm"
-          href={`/login${callbackUrl !== "/" ? `?callbackUrl=${encodeURIComponent(callbackUrl)}` : ""}`}
+          href={`/login${callbackUrl !== APP_ROOT ? `?callbackUrl=${encodeURIComponent(callbackUrl)}` : ""}`}
         >
           {t("signIn")}
         </Link>

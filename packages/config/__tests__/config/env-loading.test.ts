@@ -53,3 +53,19 @@ it("runs on the process environment alone when there is no file", async () => {
 
   expect(SERVER_CONFIG.VALKEY_URL).toBe("valkey://from-process:6379");
 });
+
+it("refuses an AUTH_URL whose path is not the base path the app was built for", async () => {
+  process.env.VALKEY_URL = "valkey://from-process:6379";
+  process.env.AUTH_URL = "https://example.com/norish";
+  delete process.env.NEXT_PUBLIC_BASE_PATH;
+
+  await expect(import("@norish/config/env-config-server")).rejects.toThrow("NEXT_PUBLIC_BASE_PATH");
+
+  vi.resetModules();
+  process.env.NEXT_PUBLIC_BASE_PATH = "/norish";
+  process.env.AUTH_URL = "https://example.com/norish/";
+
+  const { SERVER_CONFIG } = await import("@norish/config/env-config-server");
+
+  expect(SERVER_CONFIG.NEXT_PUBLIC_BASE_PATH).toBe("/norish");
+});

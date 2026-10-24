@@ -11,6 +11,7 @@ import { createUserContext } from "@norish/shared-react/contexts";
 import { useUser } from "@norish/shared-react/hooks";
 import { ReaderSeedProvider } from "@norish/shared-react/hooks/use-user";
 import { signOut as betterAuthSignOut } from "@norish/shared/lib/auth/client";
+import { addBasePath } from "@norish/shared/lib/base-path";
 
 // Create the shared base context
 const shared = createUserContext({
@@ -37,7 +38,7 @@ const shared = createUserContext({
       await clearOfflineStateForSignOut({
         discardQueue: options?.discardQueue ?? false,
       });
-      window.location.href = "/login?logout=true";
+      window.location.href = addBasePath("/login?logout=true");
     }, []);
   },
   useFreshUserQuery: (userId) => {

@@ -115,14 +115,15 @@ jobs:
   # serial spec stays whole, and are balanced by test count, not duration:
   # when one runs well past the main job, add a shard rather than reordering.
   e2e:
-    name: Browser E2E (${{ matrix.shard }}/${{ strategy.job-total }})
+    name: Browser E2E (${{ matrix.shard == 'base-path' && 'base path' || format('{0}/4', matrix.shard) }})
     runs-on: ubuntu-latest
     # On 2026-10-05 the unsharded suite hit 30 minutes at test 130 of 147.
     timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
-        shard: [1, 2, 3, 4]
+        # A build for a base path runs only the base-path project (see the E2E config).
+        shard: [1, 2, 3, 4, base-path]
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -134,6 +135,8 @@ jobs:
       # apps/web/__tests__/e2e/harness/production-stack.ts), so the web app and
       # what it depends on is all a shard builds.
       - name: Build
+        env:
+          NEXT_PUBLIC_BASE_PATH: ${{ matrix.shard == 'base-path' && '/norish' || '' }}
         run: pnpm run build --filter=@norish/web...
 
       - name: Install Playwright browsers
@@ -153,7 +156,7 @@ jobs:
         run: pnpm --filter @norish/parser-api run install:deps
 
       - name: Browser E2E
-        run: pnpm --filter @norish/web run test:e2e --shard=${{ matrix.shard }}/${{ strategy.job-total }}
+        run: pnpm --filter @norish/web run test:e2e ${{ matrix.shard != 'base-path' && format('--shard={0}/4', matrix.shard) || '' }}
 
       - name: Upload traces and results on failure
         if: failure()

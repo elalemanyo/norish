@@ -94,7 +94,7 @@ const commaSeparatedList = z
   )
   .pipe(z.array(z.string()));
 
-const ServerConfigSchema = z.object({
+const ServerConfigFields = z.object({
   NODE_ENV: z.enum(["development", "production"]),
 
   // Local server binding
@@ -102,6 +102,8 @@ const ServerConfigSchema = z.object({
   PORT: z.coerce.number().default(3000),
   // Public URL for auth callbacks etc.
   AUTH_URL: z.url().default("http://localhost:3000"),
+  // The URL prefix the web app was built for; AUTH_URL must carry the same path.
+  NEXT_PUBLIC_BASE_PATH: z.string().default(""),
   // Additional trusted origins (comma-separated URLs) for multi-domain access
   TRUSTED_ORIGINS: commaSeparatedList,
   // Reverse proxies (IPs or CIDR ranges, comma-separated) whose hops are
@@ -250,6 +252,17 @@ const ServerConfigSchema = z.object({
   // Can be overridden by admin UI settings stored in database
   ENABLED_LOCALES: commaSeparatedList,
 });
+
+// A build has no AUTH_URL of its own, only the default, so the check waits for the server.
+const ServerConfigSchema = ServerConfigFields.refine(
+  ({ AUTH_URL, NEXT_PUBLIC_BASE_PATH }) =>
+    process.env.NEXT_PHASE === "phase-production-build" ||
+    new URL(AUTH_URL).pathname.replace(/\/$/, "") === NEXT_PUBLIC_BASE_PATH,
+  {
+    path: ["AUTH_URL"],
+    message: "AUTH_URL's path must equal NEXT_PUBLIC_BASE_PATH, the prefix the app was built for",
+  }
+);
 
 export type ServerConfig = z.infer<typeof ServerConfigSchema>;
 export const INTERNAL_PARSER_API_HOST = "127.0.0.1";

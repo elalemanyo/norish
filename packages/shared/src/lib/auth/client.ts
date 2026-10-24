@@ -3,8 +3,11 @@
 import { apiKeyClient } from "@better-auth/api-key/client";
 import { createAuthClient } from "better-auth/react";
 
-// Create auth client with React hooks support
+import { BASE_PATH } from "../base-path";
+
+// The browser calls the auth routes at their public path, base path included.
 const authClient = createAuthClient({
+  basePath: `${BASE_PATH}/api/auth`,
   plugins: [apiKeyClient()],
 });
 

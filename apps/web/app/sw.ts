@@ -24,6 +24,9 @@ declare global {
 
 declare const self: ServiceWorkerGlobalScope;
 
+// The base path, from the worker's own URL: esbuild does not inline NEXT_PUBLIC_BASE_PATH here.
+const SW_BASE_PATH = self.location.pathname.replace(/\/serwist\/sw\.js$/, "");
+
 // Parity with the ExpirationPlugin cap the defaultCache page strategy carried;
 // the hand-rolled put below must bound the cache itself.
 const DOCUMENT_CACHE_LIMIT = 32;
@@ -128,13 +131,14 @@ const serwist = new Serwist({
     // path has no server behind it (see archive-download-protocol.ts).
     {
       matcher: ({ url, sameOrigin }) =>
-        sameOrigin && url.pathname.startsWith(SW_ARCHIVE_DOWNLOAD_PATH),
+        sameOrigin && url.pathname.startsWith(`${SW_BASE_PATH}${SW_ARCHIVE_DOWNLOAD_PATH}`),
       handler: async ({ url }) =>
-        respondWithArchiveDownload(url.pathname) ??
+        respondWithArchiveDownload(url.pathname.slice(SW_BASE_PATH.length)) ??
         new Response("Not an archive download", { status: 404 }),
     },
     {
-      matcher: ({ url, sameOrigin }) => sameOrigin && url.pathname.startsWith("/export/"),
+      matcher: ({ url, sameOrigin }) =>
+        sameOrigin && url.pathname.startsWith(`${SW_BASE_PATH}/export/`),
       handler: new NetworkOnly(),
     },
     // Documents race the network against the Reachability Deadline; shadows
@@ -173,7 +177,8 @@ const serwist = new Serwist({
     // its `/api/auth/*` rule — which this one now shadows — behaves as before;
     // the health probe bounds itself at 5s and never reaches it.
     {
-      matcher: ({ url, sameOrigin }) => sameOrigin && url.pathname.startsWith("/api/"),
+      matcher: ({ url, sameOrigin }) =>
+        sameOrigin && url.pathname.startsWith(`${SW_BASE_PATH}/api/`),
       handler: new NetworkOnly({ networkTimeoutSeconds: 10 }),
     },
     // Everything else keeps Serwist's Next.js-aware defaults: runtime page/RSC
@@ -188,7 +193,7 @@ const serwist = new Serwist({
   fallbacks: {
     entries: [
       {
-        url: "/~offline",
+        url: `${SW_BASE_PATH}/~offline`,
         matcher({ request }) {
           return request.destination === "document";
         },
@@ -216,7 +221,7 @@ self.addEventListener("notificationclick", (event) => {
         }
       }
 
-      return self.clients.openWindow("/");
+      return self.clients.openWindow(SW_BASE_PATH || "/");
     })
   );
 });

@@ -15,6 +15,7 @@ import {
   VALKEY_IMAGE,
   valkeyUrl,
 } from "../../../../../packages/shared-server/__tests__/helpers/valkey";
+import { BUILT_BASE_PATH } from "./build";
 import { MASTER_KEY } from "./environment";
 import { connectRepositories, disconnectRepositories } from "./repositories";
 
@@ -31,7 +32,7 @@ export interface HarnessUser {
 }
 
 interface ProductionStackOptions {
-  project: "offline" | "ai" | "realtime";
+  project: "offline" | "ai" | "realtime" | "base-path";
   databaseName: string;
   users: readonly [HarnessUser, HarnessUser];
   /**
@@ -155,8 +156,13 @@ export class ProductionStack {
   }
 
   /** Fixed for the stack's life: a restarted server keeps its origin. */
-  get baseURL(): string {
+  get origin(): string {
     return `http://localhost:${this.port}`;
+  }
+
+  /** The origin plus the base path the build was made for. */
+  get baseURL(): string {
+    return `${this.origin}${BUILT_BASE_PATH}`;
   }
 
   private get port(): number {
@@ -456,7 +462,8 @@ export class ProductionStack {
       DATABASE_URL: this.databaseUrl,
       VALKEY_URL: this.valkeyConnectionUrl!,
       AUTH_URL: this.baseURL,
-      TRUSTED_ORIGINS: this.baseURL,
+      TRUSTED_ORIGINS: this.origin,
+      NEXT_PUBLIC_BASE_PATH: BUILT_BASE_PATH,
       MASTER_KEY,
       UPLOADS_DIR: this.uploadsDir,
       LOG_LEVEL: "error",
@@ -501,7 +508,7 @@ export class ProductionStack {
   private async signUp(user: HarnessUser): Promise<void> {
     const response = await fetch(`${this.baseURL}/api/auth/sign-up/email`, {
       method: "POST",
-      headers: { "content-type": "application/json", origin: this.baseURL },
+      headers: { "content-type": "application/json", origin: this.origin },
       body: JSON.stringify(user),
     });
 

@@ -16,6 +16,7 @@ import {
   SIGN_IN_METHODS,
 } from "@norish/shared/contracts/dto/auth";
 import { authClient } from "@norish/shared/lib/auth/client";
+import { addBasePath } from "@norish/shared/lib/base-path";
 
 import { useUserSettingsContext } from "../context";
 
@@ -73,7 +74,11 @@ export default function SignInMethodsCard() {
   const add = useMutation({
     mutationFn: (provider: string) =>
       orThrow(
-        authClient.linkSocial({ provider, callbackURL: pathname, errorCallbackURL: pathname })
+        authClient.linkSocial({
+          provider,
+          callbackURL: addBasePath(pathname),
+          errorCallbackURL: addBasePath(pathname),
+        })
       ),
     onError: (error: { code?: string }) => showError(error.code, "addFailed"),
   });

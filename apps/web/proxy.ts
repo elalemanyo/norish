@@ -4,6 +4,7 @@ import { DESTINATION_HEADER, loginPath } from "@/lib/auth/login-redirect";
 
 import { hasCredential } from "@norish/auth/credentials";
 import { SERVER_CONFIG } from "@norish/config/env-config-server";
+import { addBasePath } from "@norish/shared/lib/base-path";
 
 /**
  * An optimistic check, as Next intends a proxy's to be: a request without a
@@ -23,7 +24,10 @@ export function proxy(request: NextRequest) {
     return NextResponse.next({ request: { headers } });
   }
 
-  return NextResponse.redirect(new URL(loginPath(destination), loginOrigin(request)), 307);
+  return NextResponse.redirect(
+    new URL(addBasePath(loginPath(destination)), loginOrigin(request)),
+    307
+  );
 }
 
 /** The public origin, from the X-Forwarded headers when a trusted reverse proxy sets them. */

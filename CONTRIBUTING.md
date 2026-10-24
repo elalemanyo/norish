@@ -261,6 +261,10 @@ pnpm test:e2e
 pnpm --filter @norish/web run test:e2e --project=offline
 pnpm --filter @norish/web run test:e2e --project=ai
 pnpm --filter @norish/web run test:e2e --project=realtime
+
+# A build for a base path runs only the base-path project
+NEXT_PUBLIC_BASE_PATH=/norish pnpm run build --filter=@norish/web...
+pnpm --filter @norish/web run test:e2e
 ```
 
 ## Adding Translations

@@ -15,6 +15,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { useLocale, useTranslations } from "next-intl";
 
 import { RecipeCategory, RecipeDashboardDTO, Slot } from "@norish/shared/contracts";
+import { addBasePath } from "@norish/shared/lib/base-path";
 import { dateKey } from "@norish/shared/lib/helpers";
 
 import { useAfterPlanning } from "./after-planning";
@@ -49,7 +50,11 @@ const MiniRecipeItem = memo(function MiniRecipeItem({
     <div className="hover:bg-surface-secondary flex cursor-pointer items-start gap-3 rounded-md px-2 py-2">
       <div className="bg-surface-tertiary relative h-20 w-20 shrink-0 overflow-hidden rounded-md">
         {recipe.image && (
-          <img alt={recipe.name} className="h-full w-full object-cover" src={recipe.image} />
+          <img
+            alt={recipe.name}
+            className="h-full w-full object-cover"
+            src={addBasePath(recipe.image)}
+          />
         )}
       </div>
       <div className="flex min-w-0 flex-col">
