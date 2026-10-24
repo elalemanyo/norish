@@ -1,6 +1,6 @@
 # Web base path
 
-Status: ready-for-human
+Status: done
 Type: task
 
 ## Problem
@@ -12,9 +12,10 @@ The app must be built for the prefix.
 
 ## Decision
 
-ADR-0040. `NEXT_PUBLIC_BASE_PATH` is a build-time value. Every absolute URL the
-app emits goes through `addBasePath`; the service worker derives its prefix from
-its own URL and registers with that scope. `AUTH_URL` includes the prefix.
+`NEXT_PUBLIC_BASE_PATH` is a build-time value. Every root-relative URL the app
+emits outside Next's own links and redirects goes through `addBasePath`, once, at
+the element that renders it; the service worker derives the path from its own URL.
+`AUTH_URL` carries the same path, and the server refuses to start when it does not.
 
 ## Acceptance
 

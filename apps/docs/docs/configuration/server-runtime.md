@@ -61,15 +61,14 @@ header themselves and get a sign-in rate limit of their own.
 
 ## Base path
 
-Serve Norish under a URL prefix, for example `https://example.com/norish`,
-when a reverse proxy already owns the domain root.
+Serve Norish under a path, like `https://example.com/norish`, when a reverse proxy already serves
+the domain.
 
-| Variable                | Description                     | Default              |
-| ----------------------- | ------------------------------- | -------------------- |
-| `NEXT_PUBLIC_BASE_PATH` | URL prefix the app is built for | (empty, domain root) |
+| Variable                | Description                     | Default           |
+| ----------------------- | ------------------------------- | ----------------- |
+| `NEXT_PUBLIC_BASE_PATH` | The path the image is built for | (empty, the root) |
 
-The value is baked into the image at build time because Next.js inlines it.
-Build the image with the prefix:
+The path is part of the build, so the published image serves the root. Build your own:
 
 ```bash
 docker build -f docker/Dockerfile \
@@ -78,13 +77,13 @@ docker build -f docker/Dockerfile \
   -t norish:base-path .
 ```
 
-Set `AUTH_URL` to the same prefix:
+Set `AUTH_URL` to the address with the path; Norish refuses to start when the two differ:
 
 ```dotenv
 AUTH_URL=https://example.com/norish
 ```
 
-The reverse proxy forwards the prefixed path unchanged:
+Have the proxy forward the path unchanged, WebSocket included:
 
 ```nginx
 location /norish {
@@ -95,13 +94,6 @@ location /norish {
   proxy_set_header Connection "upgrade";
 }
 ```
-
-The app, its static assets, the manifest, the service worker scope and the
-realtime socket all follow the prefix. The prefix must start with `/` and must
-not end with `/`. The published image is built for the root; rebuilding is the
-only way to change the prefix.
-
-![Norish served under /norish](/img/screenshots/base-path.png)
 
 ## Auth rate limiting
 

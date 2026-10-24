@@ -6,10 +6,7 @@ import { addBasePath, APP_ROOT } from "@norish/shared/lib/base-path";
  */
 export const DESTINATION_HEADER = "x-norish-destination";
 
-/**
- * The login page, returning to `destination` once the reader has signed in.
- * The callback carries the base path; the login path stays bare (ADR-0040).
- */
+/** The login page, returning to `destination` once signed in; only the callback carries the base path. */
 export function loginPath(destination: string | null): string {
   const callbackUrl = destination ? addBasePath(destination) : APP_ROOT;
 

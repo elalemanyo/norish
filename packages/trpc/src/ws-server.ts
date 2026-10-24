@@ -36,7 +36,7 @@ export const WS_CLOSE_SERVICE_RESTART = 1012;
 /** How long a client gets to answer the 1012 close frame before its socket is dropped. */
 const CLOSE_GRACE_MS = 2_000;
 
-/** The socket path, prefixed with the instance base path (ADR-0040). */
+/** The socket path, under the base path. */
 const TRPC_WS_PATH = addBasePath("/trpc");
 
 // ws exports differ between ESM (named exports) and CJS (default export with Server)
@@ -157,7 +157,7 @@ export function initTrpcWebSocket(server: Server) {
 
     trpcLogger.trace({ pathname: url.pathname, host }, "WebSocket upgrade request");
 
-    // Only handle the tRPC WebSocket path
+    // Only handle /trpc WebSocket path
     if (url.pathname !== TRPC_WS_PATH) {
       // In development, let Next.js HMR handle other WebSocket paths
       // In production, reject unknown WebSocket upgrades to prevent socket leaks

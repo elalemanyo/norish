@@ -24,10 +24,7 @@ declare global {
 
 declare const self: ServiceWorkerGlobalScope;
 
-// The worker's own URL carries the instance prefix: /norish/serwist/sw.js at a
-// base path, /serwist/sw.js at the root. Deriving it from `self.location`
-// keeps the paths inside the worker correct without relying on a build-time
-// constant that esbuild does not inline (ADR-0040).
+// The base path, from the worker's own URL: esbuild does not inline NEXT_PUBLIC_BASE_PATH here.
 const SW_BASE_PATH = self.location.pathname.replace(/\/serwist\/sw\.js$/, "");
 
 // Parity with the ExpirationPlugin cap the defaultCache page strategy carried;
