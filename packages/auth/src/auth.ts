@@ -19,6 +19,7 @@ import * as schema from "@norish/db/schema/auth";
 import { isRegistrationEnabled } from "@norish/shared-server/config/server-config-loader";
 import { authLogger } from "@norish/shared-server/logger";
 import { keepsOfferedSignInMethod, LAST_SIGN_IN_METHOD } from "@norish/shared/contracts/dto/auth";
+import { addBasePath } from "@norish/shared/lib/base-path";
 
 import {
   getPendingOIDCProfile,
@@ -292,18 +293,12 @@ function createBetterAuth() {
   // Wrap adapter factory to handle encrypted email lookups
   const encryptedEmailAdapter = createEncryptedEmailAdapter(baseAdapterFactory);
 
-  // Better Auth takes a path in `baseURL` as its route prefix, and Next.js
-  // strips the instance prefix before the Route Handler runs. Keep the origin
-  // in `baseURL` and put the full public route in `basePath`, then hand the
-  // handler a request URL that already carries the prefix (ADR-0040).
-  const authUrl = new URL(SERVER_CONFIG.AUTH_URL);
-  const authBasePath = `${authUrl.pathname.replace(/\/$/, "")}/api/auth`;
-
   return betterAuth({
     database: encryptedEmailAdapter,
     secret: AUTH_SECRET,
-    baseURL: authUrl.origin,
-    basePath: authBasePath,
+    // A path in `baseURL` would replace `basePath`, so the prefix rides on `basePath` alone.
+    baseURL: new URL(SERVER_CONFIG.AUTH_URL).origin,
+    basePath: addBasePath("/api/auth"),
     trustedOrigins: [
       SERVER_CONFIG.AUTH_URL,
       ...SERVER_CONFIG.TRUSTED_ORIGINS,
