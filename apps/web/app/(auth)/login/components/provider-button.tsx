@@ -4,7 +4,7 @@ import { Button } from "@heroui/react";
 import { useTranslations } from "next-intl";
 
 import { signIn } from "@norish/shared/lib/auth/client";
-import { APP_ROOT } from "@norish/shared/lib/base-path";
+import { addBasePath, APP_ROOT } from "@norish/shared/lib/base-path";
 
 import { ProviderIcon } from "./provider-icon";
 
@@ -25,7 +25,7 @@ export function ProviderButton({
     await signIn.social({
       provider: providerId.toLowerCase(),
       callbackURL: callbackUrl,
-      errorCallbackURL: "/auth-error",
+      errorCallbackURL: addBasePath("/auth-error"),
     });
   };
   return (

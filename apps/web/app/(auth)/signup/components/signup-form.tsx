@@ -175,7 +175,7 @@ export function SignupForm({ callbackUrl = APP_ROOT }: SignupFormProps) {
         {t("hasAccount")}{" "}
         <Link
           className="text-sm"
-          href={`/login${callbackUrl !== "/" ? `?callbackUrl=${encodeURIComponent(callbackUrl)}` : ""}`}
+          href={`/login${callbackUrl !== APP_ROOT ? `?callbackUrl=${encodeURIComponent(callbackUrl)}` : ""}`}
         >
           {t("signIn")}
         </Link>

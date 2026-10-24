@@ -12,6 +12,7 @@ import type {
   StepIngredientLineLike,
   StepIngredientRefLike,
 } from "@norish/shared/lib/step-ingredients";
+import { addBasePath } from "@norish/shared/lib/base-path";
 import { reconcileCookingTime } from "@norish/shared/lib/cooking-time";
 import { formatAmount } from "@norish/shared/lib/format-amount";
 import { formatMinutesHM } from "@norish/shared/lib/helpers";
@@ -128,7 +129,7 @@ export default function RecipePrintCard({
             className="recipe-print-photo"
             height={300}
             loading="eager"
-            src={image}
+            src={addBasePath(image)}
             width={300}
           />
         )}

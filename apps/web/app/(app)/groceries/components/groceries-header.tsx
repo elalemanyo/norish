@@ -6,6 +6,7 @@ import { Tabs } from "@heroui/react";
 import { AnimatePresence, motion } from "motion/react";
 import { useTranslations } from "next-intl";
 
+import { addBasePath } from "@norish/shared/lib/base-path";
 import { cssHeaderIcon, cssHeaderTab } from "@norish/web/config/css-tokens";
 
 import { GroceriesListActions } from "./groceries-page";
@@ -70,7 +71,7 @@ export function GroceriesHeader({ view }: { view: GroceriesView }) {
         <Tabs
           selectedKey={view}
           onSelectionChange={(key) =>
-            window.history.pushState(null, "", HREF[key as GroceriesView])
+            window.history.pushState(null, "", addBasePath(HREF[key as GroceriesView]))
           }
         >
           <Tabs.ListContainer className="shrink-0">

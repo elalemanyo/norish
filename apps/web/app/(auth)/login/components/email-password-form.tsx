@@ -112,7 +112,7 @@ export function EmailPasswordForm({
           {t("noAccount")}{" "}
           <Link
             className="text-sm"
-            href={`/signup${callbackUrl !== "/" ? `?callbackUrl=${encodeURIComponent(callbackUrl)}` : ""}`}
+            href={`/signup${callbackUrl !== APP_ROOT ? `?callbackUrl=${encodeURIComponent(callbackUrl)}` : ""}`}
           >
             {t("signUp")}
           </Link>
