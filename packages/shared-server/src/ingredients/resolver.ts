@@ -39,7 +39,7 @@ import { announceMinted, announcingAfter } from "./minted";
 
 /**
  * Which rules the first two rungs and the parent from words follow. Raised whenever they change, so
- * the startup pass looks at old Flagged Ingredients again under the new rules (`recheckUndecidedMints`).
+ * the startup pass looks at undecided mints again under the new rules (`recheckUndecidedMints`).
  */
 export const RUNG_VERSION = 10;
 

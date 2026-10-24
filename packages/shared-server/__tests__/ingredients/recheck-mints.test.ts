@@ -1,12 +1,12 @@
 // @vitest-environment node
 /**
- * The startup pass over old Flagged Ingredients, against a real database:
+ * The startup pass over old undecided mints, against a real database:
  * mints an instance's history left behind ("salt to taste", "verse
  * peterselie") reach the seeded Ingredients they name once the resolver's
  * rules improve, a person's decisions are left alone, and the pass runs once
  * per rung version.
  */
-import { eq } from "drizzle-orm";
+import { eq, inArray } from "drizzle-orm";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 
 import type { CatalogueActor } from "@norish/shared-server/ingredients/catalogue";
@@ -34,7 +34,7 @@ import {
 import { RepositoryTestBase } from "../../../db/__tests__/helpers/repository-test-base";
 import { seedEntry } from "../helpers/seed-entries";
 
-describe("looking at old Flagged Ingredients again", () => {
+describe("looking at old undecided mints again", () => {
   const testBase = new RepositoryTestBase("test_recheck_mints");
 
   let actor: CatalogueActor;
@@ -126,6 +126,38 @@ describe("looking at old Flagged Ingredients again", () => {
       flagged: true,
       parent: { id: seeded.get("en:parsley") },
     });
+  });
+
+  it("rechecks an unflagged mint no person decided about, as one made today", async () => {
+    const merged = await legacyMint("salt to taste");
+    const filed = await legacyMint("verse peterselie");
+
+    await getTestDb()
+      .update(ingredients)
+      .set({ flagged: false, flagReason: null })
+      .where(inArray(ingredients.id, [merged, filed]));
+
+    await expect(recheckUndecidedMintsOnRungChange()).resolves.toEqual({ merged: 1, filed: 1 });
+    expect(await shown(merged)).toBeNull();
+    expect(await shown(filed)).toMatchObject({
+      flagged: false,
+      parent: { id: seeded.get("en:parsley") },
+    });
+  });
+
+  it("leaves an unflagged mint a person decided about alone", async () => {
+    const distinct = await legacyMint("naar smaak zout");
+    const parented = await legacyMint("ground cumin");
+
+    await markDistinct(actor, distinct);
+    await getTestDb()
+      .update(ingredients)
+      .set({ parentId: seeded.get("en:salt")!, parentChosen: true, flagged: false })
+      .where(eq(ingredients.id, parented));
+
+    await expect(recheckUndecidedMintsOnRungChange()).resolves.toEqual({ merged: 0, filed: 0 });
+    expect(await shown(distinct)).toMatchObject({ flagged: false });
+    expect(await shown(parented)).toMatchObject({ parent: { id: seeded.get("en:salt") } });
   });
 
   it("leaves a grocery food alone: no parent from its words, no merge", async () => {
