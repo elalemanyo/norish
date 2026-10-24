@@ -40,6 +40,13 @@ claims at once, as your next OIDC sign-in would.
 and a password counts only while password sign-in is on. A method the server no longer offers stays
 listed as not currently available.
 
+**Change password** on the Password row asks for your current password and a new one of at least 8
+characters. **Sign out other sessions** is on by default: your other devices have to sign in again,
+this one stays signed in. The Password row shows whenever you have a password, even on a server that
+offers no other method.
+
+![The Change password dialog](/img/screenshots/settings-change-password.png)
+
 ![The Sign-in methods card in user settings](/img/screenshots/settings-sign-in-methods.png)
 
 ## Password

@@ -56,6 +56,7 @@ import { convertRecipeMeasurements } from "@norish/shared-server/recipes/measure
 import { selectWeightedRandomRecipe } from "@norish/shared-server/recipes/randomizer";
 import { FilterMode, RecipeCategory, SortOrder } from "@norish/shared/contracts";
 import { FullRecipeSchema, RecipeListResultSchema } from "@norish/shared/contracts/zod";
+import { addBasePath } from "@norish/shared/lib/base-path";
 import { isVideoUrl } from "@norish/shared/lib/helpers";
 import { ENRICHMENT_KINDS } from "@norish/shared/lib/recipe-enrichment";
 
@@ -434,7 +435,7 @@ export const importFromUrlProcedure = authedProcedure
     return {
       recipeId,
       status: "queued" as const,
-      statusUrl: `/api/v1/recipes/import/status/${recipeId}`,
+      statusUrl: addBasePath(`/api/v1/recipes/import/status/${recipeId}`),
     };
   });
 

@@ -59,6 +59,42 @@ Norish tells visitors apart by the `X-Forwarded-For` header your proxy adds, so 
 should be able to reach Norish's port. A visitor who connects to the port directly can set that
 header themselves and get a sign-in rate limit of their own.
 
+## Base path
+
+Serve Norish under a path, like `https://example.com/norish`, when a reverse proxy already serves
+the domain.
+
+| Variable                | Description                     | Default           |
+| ----------------------- | ------------------------------- | ----------------- |
+| `NEXT_PUBLIC_BASE_PATH` | The path the image is built for | (empty, the root) |
+
+The path is part of the build, so the published image serves the root. Build your own:
+
+```bash
+docker build -f docker/Dockerfile \
+  --build-arg NEXT_PUBLIC_BASE_PATH=/norish \
+  --build-arg NORISH_VERSION_REPORT_JSON="$(node tooling/monorepo/scripts/print-package-versions.mjs)" \
+  -t norish:base-path .
+```
+
+Set `AUTH_URL` to the address with the path; Norish refuses to start when the two differ:
+
+```dotenv
+AUTH_URL=https://example.com/norish
+```
+
+Have the proxy forward the path unchanged, WebSocket included:
+
+```nginx
+location /norish {
+  proxy_pass http://127.0.0.1:3000;
+  proxy_set_header Host $host;
+  proxy_set_header X-Forwarded-Proto $scheme;
+  proxy_set_header Upgrade $http_upgrade;
+  proxy_set_header Connection "upgrade";
+}
+```
+
 ## Auth rate limiting
 
 | Variable                  | Description                        | Default |

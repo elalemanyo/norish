@@ -53,6 +53,8 @@ export default withSerwist(
   withNextIntl({
     // Infer mode, through the Babel plugin (not the experimental Rust one).
     reactCompiler: true,
+    // Set at build time; the server reads the same NEXT_PUBLIC_BASE_PATH at runtime.
+    basePath: process.env.NEXT_PUBLIC_BASE_PATH || undefined,
     transpilePackages: workspacePackages,
     turbopack: {
       root: resolve(configDirectory, "../.."),

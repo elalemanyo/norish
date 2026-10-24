@@ -7,6 +7,7 @@ import ImageLightbox from "@/components/shared/image-lightbox";
 import { Carousel } from "@/components/ui/carousel";
 import { Button } from "@heroui/react";
 
+import { addBasePath } from "@norish/shared/lib/base-path";
 import { cssMediaControl } from "@norish/web/config/css-tokens";
 
 import type { ResolvedCookingModeStep } from "./cooking-mode-steps";
@@ -48,7 +49,7 @@ export function StepImages({ className = "", step }: StepImagesProps) {
               alt={`Step ${step.stepNumber} image 1`}
               className="object-cover"
               sizes="(min-width: 768px) 520px, 92vw"
-              src={primaryImage.image}
+              src={addBasePath(primaryImage.image)}
               onError={() => handleImageError(primaryImage.image)}
             />
           )}
@@ -83,7 +84,7 @@ export function StepImages({ className = "", step }: StepImagesProps) {
                         alt={`Step ${step.stepNumber} image ${index + 1}`}
                         className="object-cover"
                         sizes="(min-width: 768px) 384px, 92vw"
-                        src={image.image}
+                        src={addBasePath(image.image)}
                         onError={() => handleImageError(image.image)}
                       />
                     )}

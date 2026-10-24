@@ -5,6 +5,8 @@ import { TIME_ZONE_COOKIE } from "@/lib/reader-today";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
 
+import { BASE_PATH } from "@norish/shared/lib/base-path";
+
 import { appMetadata, appViewport } from "./metadata";
 import { AppThemeProvider } from "./providers/theme-provider";
 
@@ -13,7 +15,8 @@ import { AppThemeProvider } from "./providers/theme-provider";
 const SIGN_IN_REVEAL = `addEventListener("pagereveal", (event) => {
   if (!event.viewTransition) return;
   const from = window.navigation?.activation?.from?.url;
-  const isAuth = (url) => ["login", "signup"].includes(new URL(url).pathname.split("/")[1]);
+  const isAuth = (url) =>
+    ["login", "signup"].includes(new URL(url).pathname.slice(${BASE_PATH.length}).split("/")[1]);
   if (from && isAuth(from) && !isAuth(location.href)) event.viewTransition.types.add("sign-in");
   else event.viewTransition.skipTransition();
 });`;

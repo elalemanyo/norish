@@ -20,12 +20,20 @@
       "added": "Lagt til {date}",
       "remove": "Koble fra",
       "unavailable": "Ikke tilgjengelig for øyeblikket",
+      "changePassword": "Endre passord",
+      "currentPassword": "Nåværende passord",
+      "newPassword": "Nytt passord",
+      "confirmPassword": "Bekreft nytt passord",
+      "signOutOthers": "Logg ut andre økter",
+      "passwordChanged": "Passordet er endret.",
       "errors": {
         "usedByAnotherAccount": "Denne innloggingen brukes allerede av en annen konto.",
         "lastMethod": "Du trenger minst én måte å logge inn på.",
         "signInAgain": "Logg inn på nytt for å fjerne dette.",
         "addFailed": "Innloggingsmetoden kunne ikke legges til.",
-        "removeFailed": "Innloggingsmetoden kunne ikke fjernes."
+        "removeFailed": "Innloggingsmetoden kunne ikke fjernes.",
+        "wrongPassword": "Nåværende passord er feil.",
+        "changeFailed": "Kunne ikke endre passordet. Prøv igjen."
       }
     },
     "profile": {

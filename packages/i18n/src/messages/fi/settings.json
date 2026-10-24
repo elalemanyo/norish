@@ -20,12 +20,20 @@
       "added": "Lisätty {date}",
       "remove": "Katkaise yhteys",
       "unavailable": "Ei tällä hetkellä käytettävissä",
+      "changePassword": "Vaihda salasana",
+      "currentPassword": "Nykyinen salasana",
+      "newPassword": "Uusi salasana",
+      "confirmPassword": "Vahvista uusi salasana",
+      "signOutOthers": "Kirjaa muut istunnot ulos",
+      "passwordChanged": "Salasana vaihdettu.",
       "errors": {
         "usedByAnotherAccount": "Tätä kirjautumista käyttää jo toinen tili.",
         "lastMethod": "Tarvitset vähintään yhden tavan kirjautua.",
         "signInAgain": "Kirjaudu uudelleen poistaaksesi tämän.",
         "addFailed": "Kirjautumistapaa ei voitu lisätä.",
-        "removeFailed": "Kirjautumistapaa ei voitu poistaa."
+        "removeFailed": "Kirjautumistapaa ei voitu poistaa.",
+        "wrongPassword": "Nykyinen salasana on väärä.",
+        "changeFailed": "Salasanaa ei voitu vaihtaa. Yritä uudelleen."
       }
     },
     "profile": {

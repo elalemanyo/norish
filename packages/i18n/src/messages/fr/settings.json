@@ -20,12 +20,20 @@
       "added": "Ajouté le {date}",
       "remove": "Déconnecter",
       "unavailable": "Actuellement indisponible",
+      "changePassword": "Modifier le mot de passe",
+      "currentPassword": "Mot de passe actuel",
+      "newPassword": "Nouveau mot de passe",
+      "confirmPassword": "Confirmer le nouveau mot de passe",
+      "signOutOthers": "Déconnecter les autres sessions",
+      "passwordChanged": "Mot de passe modifié.",
       "errors": {
         "usedByAnotherAccount": "Cette connexion est déjà utilisée par un autre compte.",
         "lastMethod": "Il vous faut au moins une façon de vous connecter.",
         "signInAgain": "Reconnectez-vous pour supprimer ceci.",
         "addFailed": "Impossible d'ajouter cette méthode de connexion.",
-        "removeFailed": "Impossible de supprimer cette méthode de connexion."
+        "removeFailed": "Impossible de supprimer cette méthode de connexion.",
+        "wrongPassword": "Le mot de passe actuel est incorrect.",
+        "changeFailed": "Impossible de modifier le mot de passe. Réessayez."
       }
     },
     "profile": {

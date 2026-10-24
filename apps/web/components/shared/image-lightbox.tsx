@@ -7,6 +7,7 @@ import { Carousel } from "@/components/ui/carousel";
 import { XMarkIcon } from "@heroicons/react/16/solid";
 import { Button, Modal, Tooltip } from "@heroui/react";
 
+import { addBasePath } from "@norish/shared/lib/base-path";
 import { cssMediaControl } from "@norish/web/config/css-tokens";
 
 import { FallbackPlaceholder, useImageErrors } from "./fallback-image";
@@ -194,7 +195,7 @@ export default function ImageLightbox({
                             draggable={false}
                             height={760}
                             sizes="(min-width: 1280px) 1120px, 92vw"
-                            src={image.src}
+                            src={addBasePath(image.src)}
                             width={1120}
                             onError={() => handleImageError(image.src)}
                           />
@@ -218,7 +219,7 @@ export default function ImageLightbox({
                       key={`${image.src}-thumbnail-${index}`}
                       alt={image.alt || `Image ${index + 1}`}
                       index={index}
-                      src={image.src}
+                      src={addBasePath(image.src)}
                     />
                   ))}
                 </Carousel.Thumbnails>
@@ -239,7 +240,7 @@ export default function ImageLightbox({
                     draggable={false}
                     height={760}
                     sizes="(min-width: 1280px) 1120px, 92vw"
-                    src={currentImage.src}
+                    src={addBasePath(currentImage.src)}
                     width={1120}
                     onError={() => handleImageError(currentImage.src)}
                   />

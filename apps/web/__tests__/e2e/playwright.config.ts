@@ -1,5 +1,6 @@
 import { defineConfig } from "@playwright/test";
 
+import { BUILT_BASE_PATH } from "./harness/build";
 import { prepareRepositoryEnvironment } from "./harness/environment";
 
 // Workers load this file before any spec, so the environment is set before a repository is imported.
@@ -25,9 +26,12 @@ export default defineConfig({
     serviceWorkers: "allow",
     trace: "retain-on-failure",
   },
-  projects: [
-    { name: "offline", testMatch: "offline/**/*.e2e.ts" },
-    { name: "ai", testMatch: "ai/**/*.e2e.ts" },
-    { name: "realtime", testMatch: "realtime/**/*.e2e.ts" },
-  ],
+  // A build for a base path runs only the base-path project; a root build runs the rest.
+  projects: BUILT_BASE_PATH
+    ? [{ name: "base-path", testMatch: "base-path/**/*.e2e.ts" }]
+    : [
+        { name: "offline", testMatch: "offline/**/*.e2e.ts" },
+        { name: "ai", testMatch: "ai/**/*.e2e.ts" },
+        { name: "realtime", testMatch: "realtime/**/*.e2e.ts" },
+      ],
 });

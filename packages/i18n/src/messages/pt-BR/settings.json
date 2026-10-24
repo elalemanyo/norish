@@ -20,12 +20,20 @@
       "added": "Adicionado em {date}",
       "remove": "Desconectar",
       "unavailable": "Indisponível no momento",
+      "changePassword": "Alterar senha",
+      "currentPassword": "Senha atual",
+      "newPassword": "Nova senha",
+      "confirmPassword": "Confirmar nova senha",
+      "signOutOthers": "Encerrar outras sessões",
+      "passwordChanged": "Senha alterada.",
       "errors": {
         "usedByAnotherAccount": "Este login já é usado por outra conta.",
         "lastMethod": "Você precisa de pelo menos uma forma de entrar.",
         "signInAgain": "Entre novamente para remover isto.",
         "addFailed": "Não foi possível adicionar este método de login.",
-        "removeFailed": "Não foi possível remover este método de login."
+        "removeFailed": "Não foi possível remover este método de login.",
+        "wrongPassword": "A senha atual está incorreta.",
+        "changeFailed": "Não foi possível alterar a senha. Tente novamente."
       }
     },
     "profile": {

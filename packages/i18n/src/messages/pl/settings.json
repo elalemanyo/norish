@@ -20,12 +20,20 @@
       "added": "Dodano {date}",
       "remove": "Odłącz",
       "unavailable": "Obecnie niedostępne",
+      "changePassword": "Zmień hasło",
+      "currentPassword": "Obecne hasło",
+      "newPassword": "Nowe hasło",
+      "confirmPassword": "Potwierdź nowe hasło",
+      "signOutOthers": "Wyloguj inne sesje",
+      "passwordChanged": "Hasło zmienione.",
       "errors": {
         "usedByAnotherAccount": "To logowanie jest już używane przez inne konto.",
         "lastMethod": "Potrzebujesz co najmniej jednego sposobu logowania.",
         "signInAgain": "Zaloguj się ponownie, aby to usunąć.",
         "addFailed": "Nie udało się dodać tej metody logowania.",
-        "removeFailed": "Nie udało się usunąć tej metody logowania."
+        "removeFailed": "Nie udało się usunąć tej metody logowania.",
+        "wrongPassword": "Obecne hasło jest nieprawidłowe.",
+        "changeFailed": "Nie udało się zmienić hasła. Spróbuj ponownie."
       }
     },
     "profile": {

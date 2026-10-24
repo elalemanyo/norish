@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
+import { addBasePath } from "@norish/shared/lib/base-path";
 import { createClientLogger } from "@norish/shared/lib/logger";
 
 const logger = createClientLogger("timers");
@@ -28,7 +29,7 @@ function showTimerNotification(timer: { label: string; recipeName?: string }) {
 
       return registration.showNotification(title, {
         body: "Timer complete!",
-        icon: "/brand/icon-192.png",
+        icon: addBasePath("/brand/icon-192.png"),
         tag: "timer-complete",
         renotify: true,
         requireInteraction: true,

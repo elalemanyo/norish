@@ -19,6 +19,7 @@ import * as schema from "@norish/db/schema/auth";
 import { isRegistrationEnabled } from "@norish/shared-server/config/server-config-loader";
 import { authLogger } from "@norish/shared-server/logger";
 import { keepsOfferedSignInMethod, LAST_SIGN_IN_METHOD } from "@norish/shared/contracts/dto/auth";
+import { addBasePath } from "@norish/shared/lib/base-path";
 
 import {
   getPendingOIDCProfile,
@@ -295,7 +296,9 @@ function createBetterAuth() {
   return betterAuth({
     database: encryptedEmailAdapter,
     secret: AUTH_SECRET,
-    baseURL: SERVER_CONFIG.AUTH_URL,
+    // A path in `baseURL` would replace `basePath`, so the prefix rides on `basePath` alone.
+    baseURL: new URL(SERVER_CONFIG.AUTH_URL).origin,
+    basePath: addBasePath("/api/auth"),
     trustedOrigins: [
       SERVER_CONFIG.AUTH_URL,
       ...SERVER_CONFIG.TRUSTED_ORIGINS,
