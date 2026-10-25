@@ -3,7 +3,7 @@ import path from "node:path";
 import { config } from "dotenv";
 import { z } from "zod";
 
-import { DEFAULT_YT_DLP_VERSION } from "./zod/server-config";
+import { DEFAULT_YT_DLP_VERSION, TranscriptionProviderSchema } from "./zod/server-config";
 
 // Import server-only to ensure this file is only used on the server
 // Using dynamic import wrapped in IIFE for compatibility
@@ -207,9 +207,7 @@ const ServerConfigFields = z.object({
   INGREDIENT_REVIEW_CONCURRENCY: z.coerce.number().int().min(1).max(50).default(10),
 
   // Transcription Configuration (separate from AI_PROVIDER)
-  TRANSCRIPTION_PROVIDER: z
-    .enum(["openai", "mistral", "ollama", "lm-studio", "generic-openai", "disabled"])
-    .default("disabled"),
+  TRANSCRIPTION_PROVIDER: TranscriptionProviderSchema.default("disabled"),
   TRANSCRIPTION_ENDPOINT: z.string().optional(), // Required for local providers
   TRANSCRIPTION_API_KEY: z.string().optional(), // Can use AI_API_KEY if not set
   TRANSCRIPTION_MODEL: z.string().default("whisper-1"),

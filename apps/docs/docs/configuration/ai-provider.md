@@ -227,12 +227,12 @@ and RedNote count as videos.
 
 Transcription turns a video's audio into text.
 
-| Variable                 | Description                                     | Default     |
-| ------------------------ | ----------------------------------------------- | ----------- |
-| `TRANSCRIPTION_PROVIDER` | Transcription provider                          | `disabled`  |
-| `TRANSCRIPTION_ENDPOINT` | Transcription endpoint (local/custom providers) | (empty)     |
-| `TRANSCRIPTION_API_KEY`  | Transcription API key                           | (empty)     |
-| `TRANSCRIPTION_MODEL`    | Transcription model                             | `whisper-1` |
+| Variable                 | Description                                                                    | Default     |
+| ------------------------ | ------------------------------------------------------------------------------ | ----------- |
+| `TRANSCRIPTION_PROVIDER` | `openai`, `groq`, `mistral`, `azure`, `generic-openai`, `ollama` or `disabled` | `disabled`  |
+| `TRANSCRIPTION_ENDPOINT` | Transcription endpoint (local/custom providers)                                | (empty)     |
+| `TRANSCRIPTION_API_KEY`  | Transcription API key                                                          | (empty)     |
+| `TRANSCRIPTION_MODEL`    | Transcription model                                                            | `whisper-1` |
 
 When the endpoint or API key is empty, transcription uses the AI provider's.
 
