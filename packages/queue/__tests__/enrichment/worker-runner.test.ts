@@ -6,12 +6,17 @@ import type { RecipeEnrichmentJobData } from "@norish/queue/contracts/job-types"
 import { AIDisabledError, AIProviderError } from "@norish/shared-server/ai/runtime/errors";
 
 const mocks = vi.hoisted(() => ({
+  rateLimitWaitMs: vi.fn((_error: unknown): number | null => null),
   getRecipeFull: vi.fn(),
   publishLifecycle: vi.fn(),
   publishRecipeUpdated: vi.fn(),
   reportStep: vi.fn(),
 }));
 
+vi.mock("@norish/shared-server/ai/runtime/errors", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@norish/shared-server/ai/runtime/errors")>()),
+  rateLimitWaitMs: mocks.rateLimitWaitMs,
+}));
 vi.mock("@norish/db", () => ({ getRecipeFull: mocks.getRecipeFull }));
 vi.mock("@norish/shared-server/logger", () => ({
   createLogger: () => ({ debug: vi.fn(), info: vi.fn(), warn: vi.fn(), error: vi.fn() }),
@@ -58,6 +63,31 @@ describe("runEnrichmentJob", () => {
     await expect(
       runEnrichmentJob(job, vi.fn().mockRejectedValue(new AIDisabledError()))
     ).rejects.toBeInstanceOf(UnrecoverableError);
+  });
+
+  it("stops retrying a rate limit the SDK already retried, keeping the original as cause", async () => {
+    const job = { id: "job-1", data, attemptsMade: 0 } as Job<RecipeEnrichmentJobData>;
+    const rateLimited = new AIProviderError("The AI provider rate-limited the request.", {
+      retryable: true,
+    });
+
+    mocks.rateLimitWaitMs.mockImplementation((error) => (error === rateLimited ? 15_000 : null));
+
+    const error = await runEnrichmentJob(job, vi.fn().mockRejectedValue(rateLimited)).catch(
+      (err: unknown) => err
+    );
+
+    expect(error).toBeInstanceOf(UnrecoverableError);
+    expect((error as Error).cause).toBe(rateLimited);
+  });
+
+  it("finds a non-retryable AI failure wrapped in another error", async () => {
+    const job = { id: "job-1", data, attemptsMade: 0 } as Job<RecipeEnrichmentJobData>;
+    const wrapped = new Error("Image generation failed", { cause: new AIDisabledError() });
+
+    await expect(runEnrichmentJob(job, vi.fn().mockRejectedValue(wrapped))).rejects.toBeInstanceOf(
+      UnrecoverableError
+    );
   });
 
   it("keeps a retryable AI failure as an ordinary throw for BullMQ's attempts", async () => {

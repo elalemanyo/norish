@@ -252,7 +252,9 @@ describe("processImportJob", () => {
       });
 
       rateLimitWaitMs.mockImplementation((error) => (error === rateLimited ? 15_000 : null));
-      parseRecipeFromUrl.mockRejectedValue(wrapped(rateLimited));
+      const original = wrapped(rateLimited);
+
+      parseRecipeFromUrl.mockRejectedValue(original);
 
       const { processRecipeImportJob } = await import("../../src/recipe-import/worker");
       const failure = await processRecipeImportJob(job()).catch((error: unknown) => error);
@@ -261,6 +263,7 @@ describe("processImportJob", () => {
       expect((failure as Error).message).toBe(
         "Failed to process video recipe: The AI provider rate-limited the request."
       );
+      expect((failure as Error).cause).toBe(original);
     });
 
     it("stops retrying an AI error no retry can fix", async () => {

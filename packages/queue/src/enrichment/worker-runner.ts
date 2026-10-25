@@ -12,15 +12,13 @@
  */
 
 import type { Job } from "bullmq";
-import { UnrecoverableError } from "bullmq";
 
 import type { FullRecipeDTO } from "@norish/shared/contracts";
 import { getRecipeFull } from "@norish/db";
-import { AIError } from "@norish/shared-server/ai/runtime/errors";
 import { createLogger } from "@norish/shared-server/logger";
 
 import type { RecipeEnrichmentJobData } from "../contracts/job-types";
-import { isFinalFailure } from "../create-worker";
+import { isFinalFailure, isUnrecoverableAIFailure, unrecoverable } from "../create-worker";
 import { reportStep } from "../job-steps";
 import { publishEnrichmentLifecycle, publishEnrichmentRecipeUpdated } from "./announce";
 
@@ -72,11 +70,7 @@ export async function runEnrichmentJob(
   try {
     changed = await execute(recipe, job);
   } catch (error) {
-    if (error instanceof AIError && !error.retryable) {
-      throw new UnrecoverableError(error.message);
-    }
-
-    throw error;
+    throw isUnrecoverableAIFailure(error) ? unrecoverable(error) : error;
   }
 
   if (changed) {

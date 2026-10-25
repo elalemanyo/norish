@@ -5,13 +5,11 @@
  */
 
 import type { Job } from "bullmq";
-import { UnrecoverableError } from "bullmq";
 
 import type { RecipeImportJobData } from "@norish/queue/contracts/job-types";
 import { dashboardRecipe, recipeExistsByUrlForPolicy } from "@norish/db";
 import { getDecryptedTokensByUserId } from "@norish/db/repositories/site-auth-tokens";
 import { requireQueueApiHandler } from "@norish/queue/api-handlers";
-import { AIError, rateLimitWaitMs } from "@norish/shared-server/ai/runtime/errors";
 import { getRecipePermissionPolicy } from "@norish/shared-server/config/server-config-loader";
 import { createResolvedRecipe } from "@norish/shared-server/ingredients/recipe-lines";
 import { createLogger } from "@norish/shared-server/logger";
@@ -23,30 +21,17 @@ import { credentialSetsForUrl, rotateCredentialSet } from "@norish/shared/lib/si
 import { withTimeout } from "@norish/shared/lib/with-timeout";
 
 import { RECIPE_IMPORT_PROCESSING_TIMEOUT_MS } from "../config";
-import { createWorker, isFinalFailure } from "../create-worker";
+import {
+  createWorker,
+  isFinalFailure,
+  isUnrecoverableAIFailure,
+  unrecoverable,
+} from "../create-worker";
 import { announceUsableRecipe } from "../enrichment/announce";
 import { completeStep, reportStep } from "../job-steps";
 import { QUEUE_NAMES } from "../queue-names";
 
 const log = createLogger("worker:recipe-import");
-
-/**
- * An import failure no queue retry can fix: a non-retryable AI error, or a rate
- * limit the SDK already retried with backoff (#645). The video path wraps the
- * AI error, so the cause chain is walked to find it.
- */
-function unrecoverableAIFailure(error: unknown): UnrecoverableError | null {
-  if (!(error instanceof Error)) return null;
-
-  for (let current: unknown = error; current instanceof Error; current = current.cause) {
-    if (!(current instanceof AIError)) continue;
-    if (current.retryable && rateLimitWaitMs(current) === null) return null;
-
-    return new UnrecoverableError(error.message);
-  }
-
-  return null;
-}
 
 /**
  * Process a single recipe import job.
@@ -124,7 +109,7 @@ async function processImportJob(job: Job<RecipeImportJobData>): Promise<string> 
     // monitor shows why.
     if (error instanceof ErrorWithDetail) await completeStep(job, error.detail);
 
-    throw unrecoverableAIFailure(error) ?? error;
+    throw isUnrecoverableAIFailure(error) ? unrecoverable(error) : error;
   });
 
   log.debug({ parseResult }, "Recipe parse result");

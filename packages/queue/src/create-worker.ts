@@ -23,6 +23,7 @@
 import type { Job, Processor } from "bullmq";
 import { UnrecoverableError, WaitingError, Worker } from "bullmq";
 
+import { AIError, rateLimitWaitMs } from "@norish/shared-server/ai/runtime/errors";
 import { createLogger } from "@norish/shared-server/logger";
 
 import type { QueueName } from "./queue-names";
@@ -168,6 +169,20 @@ export function isCancelled(job: Pick<Job, "failedReason">): boolean {
  */
 export function isFinalFailure(job: Pick<Job, "attemptsMade" | "opts">, error: Error): boolean {
   return job.attemptsMade >= (job.opts.attempts ?? 1) || error instanceof UnrecoverableError;
+}
+
+/** Fails the job for good under the original's message, keeping the original as the cause. */
+export function unrecoverable(error: Error): UnrecoverableError {
+  return Object.assign(new UnrecoverableError(error.message), { cause: error });
+}
+
+/** A non-retryable AI error, or a rate limit the SDK already retried, anywhere in the cause chain. */
+export function isUnrecoverableAIFailure(error: unknown): error is Error {
+  for (let current = error; current instanceof Error; current = current.cause) {
+    if (current instanceof AIError) return !current.retryable || rateLimitWaitMs(current) !== null;
+  }
+
+  return false;
 }
 
 /**
