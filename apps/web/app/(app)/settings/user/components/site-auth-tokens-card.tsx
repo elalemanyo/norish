@@ -21,6 +21,8 @@ import {
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useFormatter, useTranslations } from "next-intl";
 
+import { TokenDomainSchema } from "@norish/shared/contracts/zod/site-auth-tokens";
+
 export default function SiteAuthTokensCard() {
   const t = useTranslations("settings.user.siteAuthTokens");
   const tErrors = useTranslations("common.errors");
@@ -106,7 +108,7 @@ export default function SiteAuthTokensCard() {
     setTokenToDelete(null);
   };
   // A token's domain is a full domain, which also covers its subdomains.
-  const isDomainBare = domain.trim() !== "" && !domain.includes(".");
+  const isDomainBare = domain.trim() !== "" && !TokenDomainSchema.safeParse(domain).success;
   const isFormValid = domain.trim() && !isDomainBare && name.trim() && value.trim();
 
   // Sorted so a site's accounts read as the sets they are, rather than in the

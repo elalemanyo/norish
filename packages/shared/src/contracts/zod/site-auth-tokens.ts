@@ -12,7 +12,7 @@ export const SiteAuthTokenInsertSchema = createInsertSchema(siteAuthTokens).omit
 });
 
 /** A full domain such as `instagram.com`, which also covers its subdomains. */
-const TokenDomainSchema = z
+export const TokenDomainSchema = z
   .string()
   .trim()
   .toLowerCase()
