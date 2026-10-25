@@ -1022,11 +1022,11 @@
       "transcription": "Transkrypcja",
       "transcriptionDescription": "Zamień dźwięk z wideo na tekst do ekstrakcji przepisu",
       "transcriptionProvider": "Dostawca transkrypcji",
-      "transcriptionProviderDescription": "Tylko OpenAI i kompatybilne endpointy OpenAI obsługują transkrypcję Whisper",
       "transcriptionProviders": {
         "disabled": "Wyłączone",
         "openai": "OpenAI Whisper",
         "groq": "Groq Whisper",
+        "mistral": "Mistral Voxtral",
         "azure": "Azure OpenAI Whisper",
         "ollama": "Ollama",
         "genericOpenai": "Ogólny kompatybilny z OpenAI"
@@ -1034,7 +1034,7 @@
       "transcriptionEndpoint": "URL endpointu",
       "transcriptionEndpointDescription": "Endpoint kompatybilny z OpenAI z obsługą Whisper lub endpoint Ollama",
       "transcriptionModel": "Model",
-      "transcriptionModelDescription": "Model Whisper używany do transkrypcji",
+      "transcriptionModelDescription": "Model używany do transkrypcji",
       "transcriptionModelPlaceholder": "Wybierz lub wpisz nazwę modelu",
       "transcriptionApiKey": "Klucz API",
       "transcriptionApiKeyDescription": "Jeśli nie ustawiono, użyje klucza API z konfiguracji AI",

@@ -47,6 +47,7 @@ const TRANSCRIPTION_PROVIDER_OPTIONS: TranscriptionProvider[] = [
   "disabled",
   "openai",
   "groq",
+  "mistral",
   "azure",
   "ollama",
   "generic-openai",
@@ -327,7 +328,6 @@ export default function VideoProcessingForm({ onDirtyChange }: VideoProcessingFo
           <Select.Value />
           <Select.Indicator />
         </Select.Trigger>
-        <span className="text-muted px-1 text-xs">{t("transcriptionProviderDescription")}</span>
         <Select.Popover>
           <ListBox>
             {TRANSCRIPTION_PROVIDER_OPTIONS.map((option) => {

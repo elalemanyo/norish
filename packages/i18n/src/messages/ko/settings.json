@@ -1022,11 +1022,11 @@
       "transcription": "전사",
       "transcriptionDescription": "레시피 추출을 위해 동영상 오디오를 텍스트로 변환",
       "transcriptionProvider": "음성 변환 제공업체",
-      "transcriptionProviderDescription": "OpenAI 및 OpenAI 호환 엔드포인트만 Whisper 음성 변환을 지원합니다.",
       "transcriptionProviders": {
         "disabled": "비활성",
         "openai": "OpenAI Whisper",
         "groq": "Groq Whisper",
+        "mistral": "Mistral Voxtral",
         "azure": "Azure OpenAI Whisper",
         "ollama": "Ollama",
         "genericOpenai": "일반 OpenAI 호환"
@@ -1034,7 +1034,7 @@
       "transcriptionEndpoint": "엔드포인트 URL",
       "transcriptionEndpointDescription": "Whisper를 지원하는 OpenAI 호환 엔드포인트 또는 Ollama 엔드포인트",
       "transcriptionModel": "모델",
-      "transcriptionModelDescription": "음성 변환에 사용할 Whisper 모델",
+      "transcriptionModelDescription": "음성 변환에 사용할 모델",
       "transcriptionModelPlaceholder": "모델명을 선택하거나 입력하세요.",
       "transcriptionApiKey": "API 키",
       "transcriptionApiKeyDescription": "설정되지 않은 경우 AI 구성 API 키로 대체됩니다.",

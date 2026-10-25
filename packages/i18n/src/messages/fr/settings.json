@@ -1022,11 +1022,11 @@
       "transcription": "Transcription",
       "transcriptionDescription": "Convertit l’audio en texte pour extraire les recettes",
       "transcriptionProvider": "Fournisseur de transcription",
-      "transcriptionProviderDescription": "Seuls OpenAI et les endpoints compatibles supportent Whisper",
       "transcriptionProviders": {
         "disabled": "Désactivé",
         "openai": "OpenAI Whisper",
         "groq": "Groq Whisper",
+        "mistral": "Mistral Voxtral",
         "azure": "Azure OpenAI Whisper",
         "ollama": "Ollama",
         "genericOpenai": "Compatible OpenAI générique"
@@ -1034,7 +1034,7 @@
       "transcriptionEndpoint": "URL de l'endpoint",
       "transcriptionEndpointDescription": "Endpoint compatible OpenAI supportant Whisper, ou endpoint Ollama",
       "transcriptionModel": "Modèle",
-      "transcriptionModelDescription": "Modèle Whisper utilisé pour la transcription",
+      "transcriptionModelDescription": "Modèle utilisé pour la transcription",
       "transcriptionModelPlaceholder": "Sélectionnez ou entrez le nom du modèle",
       "transcriptionApiKey": "Clé API",
       "transcriptionApiKeyDescription": "Utilise la clé AI config si vide",

@@ -1022,11 +1022,11 @@
       "transcription": "Transcripción",
       "transcriptionDescription": "Convertir el audio del vídeo a texto para extraer la receta",
       "transcriptionProvider": "Proveedor de transcripción",
-      "transcriptionProviderDescription": "Solo OpenAI y endpoints compatibles con OpenAI soportan transcripción Whisper",
       "transcriptionProviders": {
         "disabled": "Desactivado",
         "openai": "OpenAI Whisper",
         "groq": "Groq Whisper",
+        "mistral": "Mistral Voxtral",
         "azure": "Azure OpenAI Whisper",
         "ollama": "Ollama",
         "genericOpenai": "Compatible con OpenAI genérico"
@@ -1034,7 +1034,7 @@
       "transcriptionEndpoint": "URL del endpoint",
       "transcriptionEndpointDescription": "Endpoint compatible con OpenAI con soporte Whisper, o endpoint de Ollama",
       "transcriptionModel": "Modelo",
-      "transcriptionModelDescription": "Modelo Whisper a usar para la transcripción",
+      "transcriptionModelDescription": "Modelo a usar para la transcripción",
       "transcriptionModelPlaceholder": "Selecciona o introduce el nombre del modelo",
       "transcriptionApiKey": "Clave API",
       "transcriptionApiKeyDescription": "Usa la clave de configuración de IA si no se ha establecido",

@@ -15,7 +15,7 @@ import { normalizeOllamaEndpoint, normalizeOpenAICompatibleEndpoint } from "../r
 // ============================================================================
 
 /** Keywords for identifying audio/transcription models. */
-const AUDIO_MODEL_KEYWORDS = ["whisper", "audio", "speech", "transcri", "voice"];
+const AUDIO_MODEL_KEYWORDS = ["whisper", "audio", "speech", "transcri", "voice", "voxtral"];
 
 /** How each provider is named back to the administrator who configured it. */
 const PROVIDER_LABELS: Record<string, string> = {
@@ -73,7 +73,8 @@ export class ModelListingError extends Error {
 function isAudioModel(modelId: string): boolean {
   const lower = modelId.toLowerCase();
 
-  return AUDIO_MODEL_KEYWORDS.some((kw) => lower.includes(kw));
+  // Text-to-speech models speak, they do not transcribe: Mistral's are named voxtral-*-tts.
+  return AUDIO_MODEL_KEYWORDS.some((kw) => lower.includes(kw)) && !lower.includes("tts");
 }
 
 // ============================================================================
@@ -456,6 +457,7 @@ export async function listModels(
 const TRANSCRIPTION_MODEL_LISTS = {
   openai: "https://api.openai.com/v1/models",
   groq: "https://api.groq.com/openai/v1/models",
+  mistral: "https://api.mistral.ai/v1/models",
 } as const;
 
 /**
@@ -539,6 +541,7 @@ export async function listTranscriptionModels(
   switch (provider) {
     case "openai":
     case "groq":
+    case "mistral":
       if (!apiKey) {
         aiLogger.debug({ provider }, "Cannot list transcription models without API key");
 

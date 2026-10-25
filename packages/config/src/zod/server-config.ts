@@ -451,6 +451,7 @@ export type AIConfigInput = z.input<typeof AIConfigSchema>;
 export const TranscriptionProviderSchema = z.enum([
   "openai",
   "groq",
+  "mistral",
   "azure",
   "generic-openai",
   "ollama",
@@ -463,6 +464,7 @@ export type TranscriptionProvider = z.infer<typeof TranscriptionProviderSchema>;
 export const TRANSCRIPTION_PROVIDERS_ENABLED = [
   "openai",
   "groq",
+  "mistral",
   "azure",
   "generic-openai",
   "ollama",
@@ -472,6 +474,7 @@ export const TRANSCRIPTION_PROVIDERS_ENABLED = [
 export const TRANSCRIPTION_PROVIDERS_CLOUD = [
   "openai",
   "groq",
+  "mistral",
   "azure",
 ] as const satisfies readonly TranscriptionProvider[];
 
@@ -486,6 +489,7 @@ export const TRANSCRIPTION_PROVIDERS_NEED_ENDPOINT = [
 export const TRANSCRIPTION_PROVIDERS_WITH_MODEL_LISTING = [
   "openai",
   "groq",
+  "mistral",
   "generic-openai",
   "ollama",
 ] as const satisfies readonly TranscriptionProvider[];

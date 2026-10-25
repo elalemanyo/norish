@@ -1022,11 +1022,11 @@
       "transcription": "Litterointi",
       "transcriptionDescription": "Muunna videon ääni tekstiksi reseptin poimintaa varten",
       "transcriptionProvider": "Litterointipalvelu",
-      "transcriptionProviderDescription": "Vain OpenAI ja OpenAI-yhteensopivat päätepisteet tukevat Whisper-litterointia",
       "transcriptionProviders": {
         "disabled": "Pois käytöstä",
         "openai": "OpenAI Whisper",
         "groq": "Groq Whisper",
+        "mistral": "Mistral Voxtral",
         "azure": "Azure OpenAI Whisper",
         "ollama": "Ollama",
         "genericOpenai": "Yleinen OpenAI-yhteensopiva"
@@ -1034,7 +1034,7 @@
       "transcriptionEndpoint": "Päätepisteen osoite",
       "transcriptionEndpointDescription": "OpenAI-yhteensopiva päätepiste Whisper-tuella tai Ollama-päätepiste",
       "transcriptionModel": "Malli",
-      "transcriptionModelDescription": "Litterointiin käytettävä Whisper-malli",
+      "transcriptionModelDescription": "Litterointiin käytettävä malli",
       "transcriptionModelPlaceholder": "Valitse tai kirjoita mallin nimi",
       "transcriptionApiKey": "API-avain",
       "transcriptionApiKeyDescription": "Käyttää tekoälyasetusten API-avainta, jos tätä ei ole asetettu",

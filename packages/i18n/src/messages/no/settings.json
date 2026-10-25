@@ -1022,11 +1022,11 @@
       "transcription": "Transkripsjon",
       "transcriptionDescription": "Konverter videoens lyd til tekst for oppskriftuttrekking",
       "transcriptionProvider": "Transskripsjonsleverandør",
-      "transcriptionProviderDescription": "Bare OpenAI og OpenAI-kompatible endpoints støtter Whisper-transkripsjon",
       "transcriptionProviders": {
         "disabled": "Deaktivert",
         "openai": "OpenAI Whisper",
         "groq": "Groq Whisper",
+        "mistral": "Mistral Voxtral",
         "azure": "Azure OpenAI Whisper",
         "ollama": "Ollama",
         "genericOpenai": "Generisk OpenAI-kompatibel"
@@ -1034,7 +1034,7 @@
       "transcriptionEndpoint": "Endpoint-URL",
       "transcriptionEndpointDescription": "OpenAI-kompatibelt endpoint med Whisper-støtte, eller Ollama-endpoint",
       "transcriptionModel": "Modell",
-      "transcriptionModelDescription": "Whisper-modell som brukes ved transkripsjon",
+      "transcriptionModelDescription": "Modell som brukes ved transkripsjon",
       "transcriptionModelPlaceholder": "Velg eller skriv inn modellnavn",
       "transcriptionApiKey": "API-nøkkel",
       "transcriptionApiKeyDescription": "Faller tilbake på AI-konfigurasjonens API-nøkkel hvis ikke angitt",

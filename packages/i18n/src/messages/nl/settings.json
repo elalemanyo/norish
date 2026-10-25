@@ -1022,11 +1022,11 @@
       "transcription": "Transcriptie",
       "transcriptionDescription": "Converteer video-audio naar tekst voor receptextractie",
       "transcriptionProvider": "Transcriptieprovider",
-      "transcriptionProviderDescription": "Alleen OpenAI en OpenAI-compatibele endpoints ondersteunen Whisper-transcriptie",
       "transcriptionProviders": {
         "disabled": "Uitgeschakeld",
         "openai": "OpenAI Whisper",
         "groq": "Groq Whisper",
+        "mistral": "Mistral Voxtral",
         "azure": "Azure OpenAI Whisper",
         "ollama": "Ollama",
         "genericOpenai": "Generieke OpenAI-compatibel"
@@ -1034,7 +1034,7 @@
       "transcriptionEndpoint": "Endpoint URL",
       "transcriptionEndpointDescription": "OpenAI-compatibele endpoint met Whisper-ondersteuning, of Ollama endpoint",
       "transcriptionModel": "Model",
-      "transcriptionModelDescription": "Whisper-model voor transcriptie",
+      "transcriptionModelDescription": "Model voor transcriptie",
       "transcriptionModelPlaceholder": "Selecteer of voer modelnaam in",
       "transcriptionApiKey": "API-sleutel",
       "transcriptionApiKeyDescription": "Valt terug op AI-configuratie API-sleutel indien niet ingesteld",

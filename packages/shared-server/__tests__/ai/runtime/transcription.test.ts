@@ -301,6 +301,34 @@ describe("transcription requests reach the provider correctly", () => {
     expect(form.get("model")).toBe("whisper-large-v3");
   });
 
+  it("mistral posts multipart form data to api.mistral.ai with the bearer key (#644)", async () => {
+    const sent: { url: string; init?: RequestInit }[] = [];
+
+    transport.stub = vi.fn(async (url: string | URL | Request, init?: RequestInit) => {
+      sent.push({ url: String(url), init });
+
+      return new Response(
+        JSON.stringify({ model: "voxtral-mini-latest", text: "mistral transcript", segments: [] }),
+        { status: 200, headers: { "content-type": "application/json" } }
+      );
+    });
+    mockGetVideoConfig.mockResolvedValue(
+      videoConfig({
+        transcriptionProvider: "mistral",
+        transcriptionApiKey: "mistral-key",
+        transcriptionModel: "voxtral-mini-latest",
+      })
+    );
+
+    const transcript = await transcribe(audioPath);
+
+    expect(transcript).toBe("mistral transcript");
+    expect(sent).toHaveLength(1);
+    expect(sent[0]!.url).toBe("https://api.mistral.ai/v1/audio/transcriptions");
+    expect(new Headers(sent[0]!.init?.headers).get("authorization")).toBe("Bearer mistral-key");
+    expect((sent[0]!.init?.body as FormData).get("model")).toBe("voxtral-mini-latest");
+  });
+
   it("falls back to the AI configuration's endpoint and key when transcription has none", async () => {
     mockGetVideoConfig.mockResolvedValue(
       videoConfig({

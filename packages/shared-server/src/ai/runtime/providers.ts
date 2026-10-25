@@ -476,7 +476,7 @@ export interface TranscriptionClientOptions {
  * Build a transcription model for the providers the AI SDK serves natively.
  */
 export function createTranscriptionModel(
-  provider: "openai" | "groq" | "azure",
+  provider: "openai" | "groq" | "azure" | "mistral",
   { apiKey, model, endpoint, timeoutMs }: TranscriptionClientOptions
 ): TranscriptionModel {
   const customFetch = createFetchWithTimeout(timeoutMs);
@@ -487,6 +487,9 @@ export function createTranscriptionModel(
 
     case "groq":
       return createGroq({ apiKey, fetch: customFetch }).transcription(model);
+
+    case "mistral":
+      return createMistral({ apiKey, fetch: customFetch }).transcription(model);
 
     case "azure": {
       const azure = endpoint

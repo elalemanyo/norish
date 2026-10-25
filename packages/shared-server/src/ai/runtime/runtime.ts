@@ -529,7 +529,8 @@ async function transcribeWithProvider(
   switch (provider) {
     case "openai":
     case "groq":
-    case "azure": {
+    case "azure":
+    case "mistral": {
       const result = await transcribeWithModel({
         model: createTranscriptionModel(provider, { apiKey, model, endpoint, timeoutMs }),
         audio: await readFile(audioPath),

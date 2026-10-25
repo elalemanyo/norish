@@ -1022,11 +1022,11 @@
       "transcription": "Транскрипция",
       "transcriptionDescription": "Преобразувай аудиото от видеото в текст за извличане на рецепта",
       "transcriptionProvider": "Доставчик за транскрипция",
-      "transcriptionProviderDescription": "Само OpenAI и OpenAI-съвместими крайни точки поддържат Whisper транскрипция",
       "transcriptionProviders": {
         "disabled": "Изключено",
         "openai": "OpenAI Whisper",
         "groq": "Groq Whisper",
+        "mistral": "Mistral Voxtral",
         "azure": "Azure OpenAI Whisper",
         "ollama": "Ollama",
         "genericOpenai": "Общ OpenAI-съвместим"
@@ -1034,7 +1034,7 @@
       "transcriptionEndpoint": "URL адрес на крайната точка",
       "transcriptionEndpointDescription": "OpenAI-съвместима крайна точка с поддръжка на Whisper, или крайна точка на Ollama",
       "transcriptionModel": "Модел",
-      "transcriptionModelDescription": "Whisper модел, използван за транскрипция",
+      "transcriptionModelDescription": "Модел, използван за транскрипция",
       "transcriptionModelPlaceholder": "Избери или въведи име на модел",
       "transcriptionApiKey": "API ключ",
       "transcriptionApiKeyDescription": "Използва API ключа от AI конфигурацията, ако не е зададен",

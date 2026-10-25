@@ -1022,11 +1022,11 @@
       "transcription": "Транскрибация",
       "transcriptionDescription": "Преобразование аудио в текст для извлечения рецептов",
       "transcriptionProvider": "Провайдер транскрибации",
-      "transcriptionProviderDescription": "Только OpenAI и совместимые эндпоинты поддерживают транскрибацию Whisper",
       "transcriptionProviders": {
         "disabled": "Отключено",
         "openai": "OpenAI Whisper",
         "groq": "Groq Whisper",
+        "mistral": "Mistral Voxtral",
         "azure": "Azure OpenAI Whisper",
         "ollama": "Ollama",
         "genericOpenai": "Совместимый с OpenAI"
@@ -1034,7 +1034,7 @@
       "transcriptionEndpoint": "URL эндпоинта",
       "transcriptionEndpointDescription": "OpenAI-совместимый эндпоинт с поддержкой Whisper или эндпоинт Ollama",
       "transcriptionModel": "Модель",
-      "transcriptionModelDescription": "Модель Whisper для транскрибации",
+      "transcriptionModelDescription": "Модель для транскрибации",
       "transcriptionModelPlaceholder": "Выберите или введите название модели",
       "transcriptionApiKey": "API-ключ",
       "transcriptionApiKeyDescription": "Если не задан, используется API-ключ из настроек ИИ",

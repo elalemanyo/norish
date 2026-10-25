@@ -208,7 +208,7 @@ const ServerConfigFields = z.object({
 
   // Transcription Configuration (separate from AI_PROVIDER)
   TRANSCRIPTION_PROVIDER: z
-    .enum(["openai", "ollama", "lm-studio", "generic-openai", "disabled"])
+    .enum(["openai", "mistral", "ollama", "lm-studio", "generic-openai", "disabled"])
     .default("disabled"),
   TRANSCRIPTION_ENDPOINT: z.string().optional(), // Required for local providers
   TRANSCRIPTION_API_KEY: z.string().optional(), // Can use AI_API_KEY if not set

@@ -235,3 +235,6 @@ Transcription turns a video's audio into text.
 | `TRANSCRIPTION_MODEL`    | Transcription model                             | `whisper-1` |
 
 When the endpoint or API key is empty, transcription uses the AI provider's.
+
+Mistral transcribes with Voxtral: set the provider to `mistral`, a Mistral API
+key and a model such as `voxtral-mini-latest`.
