@@ -231,12 +231,16 @@ describe("fetchRenderedPage – auth token injection", () => {
     ]);
   });
 
-  it("sets an http page's cookie tokens without secure", async () => {
-    const tokens = [makeToken({ name: "session", value: "s", type: "cookie" })];
+  it("sends an http page no tokens, so none cross the network in the clear", async () => {
+    const tokens = [
+      makeToken({ name: "session", value: "s", type: "cookie" }),
+      makeToken({ name: "Authorization", value: "Bearer s", type: "header" }),
+    ];
 
     await fetchRenderedPage("http://example.com/page", tokens);
 
-    expect(setFromPage().cookies).toEqual(["session=s; path=/; domain=example.com"]);
+    expect(setFromPage()).toEqual({ cookies: undefined, visited: ["http://example.com/page"] });
+    expect(mockCdpSend).not.toHaveBeenCalled();
   });
 });
 

@@ -377,7 +377,16 @@ async function renderInObscura(
     const browser = await getBrowser(endpoint, cdpToken);
 
     const { hostname, protocol } = new URL(targetUrl);
-    const onSite = tokensOnSite(hostname, tokens);
+    // As in the plain fetch, no token goes over http, where it would travel in the clear.
+    const onSite = protocol === "https:" ? tokensOnSite(hostname, tokens) : [];
+
+    if (protocol !== "https:" && tokens?.length) {
+      log.info(
+        { url: targetUrl, tokens: tokens.length },
+        "Site Auth Tokens withheld from an http page"
+      );
+    }
+
     const headerTokens = onSite.filter((t) => t.type === "header");
     const cookieTokens = onSite.filter((t) => t.type === "cookie");
 
@@ -390,11 +399,8 @@ async function renderInObscura(
       await sendHeadersToTheirSite(context, page, headerTokens, targetUrl);
 
     // Obscura never sends a cookie set over CDP but does send one a page sets, so the tokens are set
-    // from the target's origin, for the token's domain, and stay within it.
+    // from the target's origin, for the token's domain, secure, and stay within it.
     if (cookieTokens.length > 0) {
-      // Secure on an https page, so the browser never sends them over http.
-      const secure = protocol === "https:" ? "; secure" : "";
-
       await page.goto(new URL("/robots.txt", targetUrl).href, {
         waitUntil: "domcontentloaded",
         timeout,
@@ -405,7 +411,7 @@ async function renderInObscura(
         },
         cookieTokens.map(
           ({ name, value, domain }) =>
-            `${name}=${value}; path=/; domain=${domain.toLowerCase()}${secure}`
+            `${name}=${value}; path=/; domain=${domain.toLowerCase()}; secure`
         )
       );
     }
