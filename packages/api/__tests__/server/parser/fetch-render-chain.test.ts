@@ -21,6 +21,8 @@ vi.mock("@norish/api/obscura", () => ({ getBrowser: mockGetBrowser }));
 vi.mock("@norish/shared-server/logger", () => ({ parserLogger: log }));
 
 let renderers: PageRenderersConfig;
+/** The status Obscura's page answers with. */
+let documentStatus: number;
 
 vi.mock("@norish/shared-server/config/server-config-loader", () => ({
   getPageRenderersConfig: async () => renderers,
@@ -30,6 +32,15 @@ const padding = "x".repeat(30_000);
 const REAL_PAGE = `<html><head><title>Lasagne</title></head><body>${padding}</body></html>`;
 const SOLVED_PAGE = `<html><head><title>Lasagne, solved</title></head><body>${padding}</body></html>`;
 const CHALLENGE = `<html><head><title>Just a moment...</title></head><body>${padding}</body></html>`;
+/** Akamai's block page, which Obscura gets with a 200. */
+const AKAMAI_BLOCK = `<HTML><HEAD>
+<TITLE>Access Denied</TITLE>
+</HEAD><BODY>
+<H1>Access Denied</H1>
+You don't have permission to access "http&#58;&#47;&#47;www&#46;ah&#46;nl&#47;allerhande&#47;recept&#47;R&#45;R1199735" on this server.<P>
+Reference&#32;&#35;18&#46;5e3c1302&#46;1761400000&#46;1a2b3c4d
+</BODY>
+</HTML>`;
 const SOLVER = "http://flaresolverr:8191/v1";
 
 const TOKENS: SiteAuthTokenDecryptedDto[] = [
@@ -80,6 +91,7 @@ beforeEach(() => {
     allowPrivateAddresses: false,
     navigationTimeoutMs: 30_000,
   };
+  documentStatus = 200;
   mockContent.mockResolvedValue(REAL_PAGE);
   mockCdpSend.mockImplementation(async (_method: string, params: { scopeDomain?: string }) => ({
     scopeDomain: params.scopeDomain,
@@ -89,7 +101,7 @@ beforeEach(() => {
       newCDPSession: async () => ({ send: mockCdpSend }),
       close: async () => undefined,
       newPage: async () => ({
-        goto: vi.fn(async () => ({ status: () => 403 })),
+        goto: vi.fn(async () => ({ status: () => documentStatus })),
         content: mockContent,
         evaluate: vi.fn(),
         on: vi.fn(),
@@ -107,10 +119,35 @@ describe("renderPage – the order", () => {
 
     await expect(renderPage("https://example.com/r")).resolves.toEqual({
       html: REAL_PAGE,
-      status: 403,
+      status: 200,
     });
     expect(solver).not.toHaveBeenCalled();
     expect(answeredBy()).toEqual(["obscura"]);
+  });
+
+  it.each([401, 403, 429])(
+    "moves on to the solver when Obscura's page answered %i",
+    async (status) => {
+      documentStatus = status;
+      solverAnswers(solved(SOLVED_PAGE));
+
+      await expect(renderPage("https://example.com/r")).resolves.toEqual({
+        html: SOLVED_PAGE,
+        status: null,
+      });
+      expect(answeredBy()).toEqual(["solver"]);
+    }
+  );
+
+  it("moves on to the solver when Obscura is shown Akamai's block page with a 200", async () => {
+    mockContent.mockResolvedValue(AKAMAI_BLOCK);
+    solverAnswers(solved(SOLVED_PAGE));
+
+    await expect(renderPage("https://example.com/r")).resolves.toEqual({
+      html: SOLVED_PAGE,
+      status: null,
+    });
+    expect(answeredBy()).toEqual(["solver"]);
   });
 
   it("moves on to the solver when Obscura returns no HTML", async () => {
@@ -135,6 +172,7 @@ describe("renderPage – the order", () => {
   });
 
   it("reads nothing when the solver does no better, so the import fails as unreadable", async () => {
+    documentStatus = 403;
     mockContent.mockResolvedValue(CHALLENGE);
     solverAnswers(solved(CHALLENGE));
 

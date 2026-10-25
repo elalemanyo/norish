@@ -240,16 +240,16 @@ describe("fetchRenderedPage – rendered-page contract", () => {
 });
 
 describe("renderPage – the status a site answered with", () => {
-  it("reports the status the document arrived with", async () => {
+  it("reports a refused document's status, with no HTML", async () => {
     mockGoto.mockResolvedValue(fakeResponse(403));
 
     await expect(renderPage("https://example.com/recipe")).resolves.toEqual({
-      html: "<html><head><title>Rendered</title></head></html>",
+      html: "",
       status: 403,
     });
   });
 
-  it("reports the real page's status when a bot check answers 403 first", async () => {
+  it("reads the real page when a bot check answers 403 first", async () => {
     mockGoto.mockImplementation(async () => {
       emitResponse(fakeResponse(403));
       emitResponse(fakeResponse(200));
@@ -257,7 +257,8 @@ describe("renderPage – the status a site answered with", () => {
       return fakeResponse(403);
     });
 
-    await expect(renderPage("https://example.com/recipe")).resolves.toMatchObject({
+    await expect(renderPage("https://example.com/recipe")).resolves.toEqual({
+      html: "<html><head><title>Rendered</title></head></html>",
       status: 200,
     });
   });

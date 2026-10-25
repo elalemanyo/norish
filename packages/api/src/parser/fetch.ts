@@ -17,18 +17,25 @@ const PLAIN_FETCH_TIMEOUT_MS = 15_000;
 /** A solver launches a browser before it navigates, so it is given this on top of the timeout. */
 const SOLVER_LAUNCH_MS = 15_000;
 const MAX_REDIRECTS = 10;
-/** Below this, a page with no title of its own is a bot check rather than a page. */
+/** Below this, a page with no title of its own, or a block page's title, is a bot check. */
 const STUB_MAX_BYTES = 20_000;
 const CLOUDFLARE_CHALLENGE = /<title>\s*Just a moment(?:\.\.\.|…)|cf-challenge|_cf_chl_opt/i;
+/** Akamai's, Cloudflare's and a web server's own refusals, with an optional "| Site" after them. */
+const BLOCK_TITLE =
+  /<title>\s*(?:Access Denied|Attention Required!|403 Forbidden)\s*(?:\|[^<]*)?<\/title>/i;
+const REFUSAL_STATUSES = new Set([401, 403, 429]);
 
 /**
- * Whether returned HTML is a bot check rather than the page: Cloudflare's challenge markup, or a
- * small stub with no title of its own. The one reading every caller and the renderer chain share.
+ * Whether returned HTML is a bot check rather than the page: Cloudflare's challenge markup, a
+ * small stub with no title of its own or a block page's title, or a page a renderer was refused
+ * with. The one reading every caller and the renderer chain share.
  */
-export function isBotCheck(html: string): boolean {
+export function isBotCheck(html: string, status?: number | null): boolean {
   return (
+    REFUSAL_STATUSES.has(status ?? 0) ||
     CLOUDFLARE_CHALLENGE.test(html) ||
-    (html.length < STUB_MAX_BYTES && !/<title>\s*[^<\s][^<]*<\/title>/i.test(html))
+    (html.length < STUB_MAX_BYTES &&
+      (BLOCK_TITLE.test(html) || !/<title>\s*[^<\s][^<]*<\/title>/i.test(html)))
   );
 }
 
@@ -290,7 +297,8 @@ export async function renderPage(
   }
 
   const renderers = await getPageRenderersConfig();
-  const isReadable = (page: RenderedPage) => page.html !== "" && !isBotCheck(page.html);
+  const isReadable = (page: RenderedPage) =>
+    page.html !== "" && !isBotCheck(page.html, page.status);
   let status: number | null = null;
 
   if (renderers.obscura.enabled) {
