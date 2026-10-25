@@ -7,7 +7,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { PageRenderersConfig } from "@norish/config/zod/server-config";
 import { ServerConfigKeys } from "@norish/config/zod/server-config";
-import { adminConfigProcedures } from "@norish/trpc/routers/admin/config";
+import { pageRenderersProcedures } from "@norish/trpc/routers/admin/page-renderers";
 
 import { getConfig, resetServerConfigMocks, setConfig } from "../mocks/server-config";
 import { isUserServerAdmin } from "../mocks/users";
@@ -31,7 +31,7 @@ const STORED: PageRenderersConfig = {
 function createCaller(admin = true) {
   const ctx = createMockAdminContext(admin ? createMockAdminUser() : createMockUser());
 
-  return adminConfigProcedures.createCaller(ctx as never);
+  return pageRenderersProcedures.createCaller(ctx as never);
 }
 
 beforeEach(() => {
