@@ -32,6 +32,8 @@ vi.mock("@norish/shared-server/config/server-config-loader", () => ({
 const DNS: Record<string, string[]> = {
   chromium: ["172.18.0.5"],
   "chromium.v6": ["fd00::5"],
+  "chromium.dual": ["fd00::5", "172.18.0.5"],
+  localhost: ["::1", "127.0.0.1"],
   "router.lan": ["192.168.1.1"],
 };
 
@@ -221,6 +223,11 @@ describe("renderPage – the Chromium browser's endpoint", () => {
       "ws://172.18.0.5:9222/devtools/browser/abc?x=1",
     ],
     ["http://chromium.v6:9222", "http://[fd00::5]:9222/"],
+    // The shipped image's socat listens on IPv4 only.
+    ["http://chromium.dual:9222", "http://172.18.0.5:9222/"],
+    // Chromium takes a localhost Host header, and its DevTools listen on 127.0.0.1, not ::1.
+    ["http://localhost:9222", "http://localhost:9222"],
+    ["http://chromium.localhost:9222", "http://chromium.localhost:9222"],
     // A hosted browser sits behind a TLS proxy that has no such check.
     ["wss://browser.example/cdp?token=x", "wss://browser.example/cdp?token=x"],
     ["https://browser.example:9222", "https://browser.example:9222"],
@@ -254,6 +261,31 @@ describe("renderPage – the Chromium browser's endpoint", () => {
       expect.objectContaining({ renderer: "chromium", endpoint: "http://chromium-gone:9222" }),
       expect.stringContaining("not reachable")
     );
+  });
+
+  it("keeps one connection while a name's records come back in a rotating order", async () => {
+    renderers.chromium.endpoint = "http://chromium.rr:9222";
+    chromiumServing(page);
+
+    try {
+      for (const records of [
+        ["172.18.0.7", "172.18.0.5", "172.18.0.6"],
+        ["172.18.0.5", "172.18.0.6", "172.18.0.7"],
+        ["172.18.0.6", "172.18.0.7", "172.18.0.5"],
+      ]) {
+        DNS["chromium.rr"] = records;
+        await expect(renderPage("https://example.com/r")).resolves.toMatchObject({
+          html: REAL_PAGE,
+        });
+      }
+    } finally {
+      delete DNS["chromium.rr"];
+    }
+
+    expect(connectOverCDP).toHaveBeenCalledExactlyOnceWith("http://172.18.0.5:9222/", {
+      headers: {},
+      timeout: expect.any(Number),
+    });
   });
 
   it("replaces the connection once the name resolves to a new address", async () => {

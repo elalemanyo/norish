@@ -276,12 +276,20 @@ function loadedContent(page: Page): Promise<string | null> {
 async function byAddress(endpoint: string): Promise<string> {
   const url = URL.parse(endpoint);
 
-  if (!url || !/^(?:http|ws):$/.test(url.protocol) || isIP(url.hostname.replace(/^\[|\]$/g, ""))) {
+  if (
+    !url ||
+    !/^(?:http|ws):$/.test(url.protocol) ||
+    isIP(url.hostname.replace(/^\[|\]$/g, "")) ||
+    /(?:^|\.)localhost$/.test(url.hostname)
+  ) {
     return endpoint;
   }
 
-  // A name that does not resolve is dialled as given, so the failure names it.
-  const [resolved] = await lookup(url.hostname, { all: true }).catch(() => []);
+  // A name that does not resolve is dialled as given, so the failure names it. IPv4 first, where
+  // the shipped image's socat listens, then the lowest, so rotating records keep one connection.
+  const [resolved] = (await lookup(url.hostname, { all: true }).catch(() => [])).sort(
+    (a, b) => a.family - b.family || a.address.localeCompare(b.address)
+  );
 
   if (!resolved) return endpoint;
   url.hostname = resolved.family === 6 ? `[${resolved.address}]` : resolved.address;
