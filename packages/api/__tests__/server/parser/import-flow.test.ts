@@ -39,7 +39,6 @@ vi.mock("@norish/shared/lib/helpers", async (importOriginal) => ({
 
 vi.mock("@norish/api/parser/fetch", () => ({
   plainFetch: mockPlainFetch,
-  isCloudflareChallenge: (html: string) => html.includes("Just a moment..."),
   renderPage: async (...args: unknown[]) => ({
     html: await mockFetchRenderedPage(...args),
     status: mockRenderStatus(),
@@ -260,23 +259,7 @@ describe("parseRecipeFromUrl import flow", () => {
 
       await parseRecipeFromUrl("https://example.com/recipe", "recipe-1", false, tokens);
 
-      expect(mockFetchRenderedPage).toHaveBeenCalledWith(
-        "https://example.com/recipe",
-        tokens,
-        expect.any(Function),
-        30_000
-      );
-    });
-
-    it("waits for the rendered page to get past a Cloudflare challenge", async () => {
-      const { parseRecipeFromUrl } = await import("@norish/api/parser");
-
-      await parseRecipeFromUrl("https://example.com/recipe", "recipe-1");
-
-      const isSettled = mockFetchRenderedPage.mock.calls[0]?.[2] as (html: string) => boolean;
-
-      expect(isSettled("<title>Just a moment...</title>")).toBe(false);
-      expect(isSettled("<title>Lentil soup</title>")).toBe(true);
+      expect(mockFetchRenderedPage).toHaveBeenCalledWith("https://example.com/recipe", tokens);
     });
   });
 

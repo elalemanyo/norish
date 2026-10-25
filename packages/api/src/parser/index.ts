@@ -1,7 +1,7 @@
 import type { PageSummary } from "@norish/api/parser/page-summary";
 import type { SiteAuthTokenDecryptedDto } from "@norish/shared/contracts/dto/site-auth-tokens";
 import { extractSanitizedBody } from "@norish/api/parser/extraction-sanitizer";
-import { isCloudflareChallenge, plainFetch, renderPage } from "@norish/api/parser/fetch";
+import { plainFetch, renderPage } from "@norish/api/parser/fetch";
 import { isParseComplete, isRecipe } from "@norish/api/parser/import-triage";
 import { extractRecipeNodesFromJsonLd } from "@norish/api/parser/jsonld";
 import { summarisePage } from "@norish/api/parser/page-summary";
@@ -69,8 +69,6 @@ interface StructuredParseOutcome {
  * browser its TLS handshake doesn't match, and lets a self-named one through.
  */
 const PLAIN_FETCH_USER_AGENT = "Norish";
-/** How long a rendered recipe page is given to get past a Cloudflare challenge. */
-const CHALLENGE_SETTLE_TIMEOUT_MS = 30_000;
 
 /** Statuses that mean the site turned the request away rather than failed to serve it. */
 const REFUSAL_STATUSES = new Set([401, 403, 429]);
@@ -243,7 +241,7 @@ async function tryHandleVideoUrl(
 
 /**
  * A plain fetch first: a page whose HTML already holds a JSON-LD recipe needs no browser.
- * Anything else is rendered in Obscura, which is given time to get past a Cloudflare challenge.
+ * Anything else is rendered in Obscura.
  */
 async function fetchRecipePage(
   url: string,
@@ -257,12 +255,7 @@ async function fetchRecipePage(
     return { html: plain.html, status: plain.status };
   }
 
-  return renderPage(
-    url,
-    tokens,
-    (html) => !isCloudflareChallenge(html),
-    CHALLENGE_SETTLE_TIMEOUT_MS
-  );
+  return renderPage(url, tokens);
 }
 
 export async function parseRecipeFromUrl(

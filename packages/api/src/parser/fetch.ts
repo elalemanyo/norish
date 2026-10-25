@@ -24,11 +24,7 @@ function sleep(ms: number): Promise<void> {
  * mid-navigation throws, which is a page still becoming itself and counts as
  * unsettled.
  */
-async function settledContent(
-  page: Page,
-  isSettled: (html: string) => boolean,
-  settleTimeoutMs: number
-): Promise<string> {
+async function settledContent(page: Page, isSettled: (html: string) => boolean): Promise<string> {
   const read = async (): Promise<string | null> => {
     try {
       return await page.content();
@@ -36,7 +32,7 @@ async function settledContent(
       return null;
     }
   };
-  const deadline = Date.now() + settleTimeoutMs;
+  const deadline = Date.now() + SETTLE_TIMEOUT_MS;
   let html = await read();
 
   while ((html === null || !isSettled(html)) && Date.now() < deadline) {
@@ -100,12 +96,6 @@ export function headerScope(hostname: string, tokens: SiteAuthTokenDecryptedDto[
     (narrowest, domain) => (domain.length > narrowest.length ? domain : narrowest),
     ""
   );
-}
-
-/** Cloudflare's "Just a moment..." interstitial, which replaces itself once its script passes. */
-export function isCloudflareChallenge(html: string): boolean {
-  // Not `challenge-platform`: Cloudflare injects that script into the real page too.
-  return /<title>\s*Just a moment\.\.\.\s*<\/title>/i.test(html) || /cf[-_]chl/.test(html);
 }
 
 /** A page fetched without a browser. */
@@ -230,8 +220,7 @@ export async function fetchRenderedPage(
 export async function renderPage(
   targetUrl: string,
   tokens?: SiteAuthTokenDecryptedDto[],
-  isSettled?: (html: string) => boolean,
-  settleTimeoutMs = SETTLE_TIMEOUT_MS
+  isSettled?: (html: string) => boolean
 ): Promise<RenderedPage> {
   // Only a web page reaches the browser, so a link stored before imports refused other schemes
   // (file:, gopher:) is never rendered.
@@ -292,16 +281,14 @@ export async function renderPage(
       waitUntil: "load",
       // The whole navigation budget. One deadline rather than a stack of them:
       // page settling is Obscura's job, and waiting past the navigation for a
-      // page to become itself has its own deadline, `settleTimeoutMs`, because only a
+      // page to become itself has its own deadline, SETTLE_TIMEOUT_MS, because only a
       // caller can tell that it has not.
       timeout: SERVER_CONFIG.OBSCURA_NAVIGATION_TIMEOUT_MS,
     });
 
     status ??= response?.status() ?? null;
 
-    const html = isSettled
-      ? await settledContent(page, isSettled, settleTimeoutMs)
-      : await page.content();
+    const html = isSettled ? await settledContent(page, isSettled) : await page.content();
 
     return { html, status };
   } catch (error) {

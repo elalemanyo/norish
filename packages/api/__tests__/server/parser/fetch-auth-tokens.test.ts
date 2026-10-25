@@ -2,12 +2,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { SiteAuthTokenDecryptedDto } from "@norish/shared/contracts/dto/site-auth-tokens";
-import {
-  fetchRenderedPage,
-  headerScope,
-  isCloudflareChallenge,
-  plainFetch,
-} from "@norish/api/parser/fetch";
+import { fetchRenderedPage, headerScope, plainFetch } from "@norish/api/parser/fetch";
 
 // ---------------------------------------------------------------------------
 // Obscura is reached through Playwright; the browser object stays mocked so
@@ -373,20 +368,5 @@ describe("plainFetch – Site Auth Tokens across redirects", () => {
       status: 403,
       url: "https://example.com/r/1",
     });
-  });
-});
-
-describe("isCloudflareChallenge", () => {
-  it("knows the interstitial by its title or its challenge options", () => {
-    expect(isCloudflareChallenge("<title>Just a moment...</title>")).toBe(true);
-    expect(isCloudflareChallenge("<script>window._cf_chl_opt = {}</script>")).toBe(true);
-  });
-
-  it("does not mistake a real page carrying Cloudflare's bot script for one", () => {
-    expect(
-      isCloudflareChallenge(
-        '<title>Best Lentil Soup</title><script src="/cdn-cgi/challenge-platform/scripts/jsd/main.js"></script>'
-      )
-    ).toBe(false);
   });
 });
