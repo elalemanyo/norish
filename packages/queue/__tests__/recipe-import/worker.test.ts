@@ -17,7 +17,10 @@ import {
   AIProviderError,
   AIResponseError,
 } from "@norish/shared-server/ai/runtime/errors";
-import { NOT_A_RECIPE_REASON } from "@norish/shared/contracts/realtime/recipes";
+import {
+  NOT_A_RECIPE_REASON,
+  PRIVATE_ADDRESS_REASON,
+} from "@norish/shared/contracts/realtime/recipes";
 import { ErrorWithDetail } from "@norish/shared/lib/error-extensions";
 
 const createRecipeWithRefs = vi.fn();
@@ -321,6 +324,35 @@ describe("processImportJob", () => {
       id: "parsing",
       detail: { pythonParser },
     });
+  });
+
+  it("stops retrying a private address the server refuses", async () => {
+    parseRecipeFromUrl.mockRejectedValue(new Error(PRIVATE_ADDRESS_REASON));
+
+    const { processRecipeImportJob } = await import("../../src/recipe-import/worker");
+    const job = {
+      id: "job-1",
+      attemptsMade: 0,
+      opts: { attempts: 3 },
+      progress: 0,
+      updateProgress: vi.fn(async (progress: unknown) => {
+        job.progress = progress;
+      }),
+      log: vi.fn(async () => 0),
+      data: {
+        url: "http://192.168.1.1/",
+        recipeId: "recipe-78",
+        userId: "user-1",
+        householdKey: "household-1",
+        householdUserIds: null,
+      },
+    };
+    const failure = await processRecipeImportJob(job as unknown as Job<RecipeImportJobData>).catch(
+      (error: unknown) => error
+    );
+
+    expect(failure).toBeInstanceOf(UnrecoverableError);
+    expect((failure as Error).message).toBe(PRIVATE_ADDRESS_REASON);
   });
 
   it("carries a possibly incomplete parse to the job monitor and the importer's toast", async () => {

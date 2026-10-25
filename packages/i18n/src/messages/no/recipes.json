@@ -321,6 +321,7 @@
     "failedDescription": "Noe gikk galt under behandling av oppskriften din. Sjekk nettleserkonsollen for tekniske detaljer.",
     "incomplete": "Denne oppskriften kan være ufullstendig. Sammenlign den med kilden.",
     "notARecipe": "Denne siden ser ikke ut som en oppskrift.",
+    "privateAddress": "Import fra private nettverksadresser er ikke tillatt på denne serveren.",
     "batchImported": "Oppskrifter importert",
     "batchImportedDescription": "{count} oppskrifter importert fra arkiv",
     "view": "Se",

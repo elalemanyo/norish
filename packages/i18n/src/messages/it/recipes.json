@@ -321,6 +321,7 @@
     "failedDescription": "Qualcosa è andato storto durante l'elaborazione della ricetta. Controlla la console del browser per i dettagli tecnici.",
     "incomplete": "Questa ricetta potrebbe essere incompleta. Confrontala con la fonte.",
     "notARecipe": "Questa pagina non sembra una ricetta.",
+    "privateAddress": "Le importazioni da indirizzi di rete privati non sono consentite su questo server.",
     "batchImported": "Ricette importate",
     "batchImportedDescription": "{count} ricette importate dall'archivio",
     "view": "Visualizza",

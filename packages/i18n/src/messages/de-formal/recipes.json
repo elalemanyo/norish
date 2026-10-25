@@ -321,6 +321,7 @@
     "failedDescription": "Beim Verarbeiten Ihres Rezepts ist ein Fehler aufgetreten. Sehen Sie in der Browser-Konsole nach technischen Details.",
     "incomplete": "Dieses Rezept ist möglicherweise unvollständig. Vergleichen Sie es mit der Quelle.",
     "notARecipe": "Diese Seite scheint kein Rezept zu sein.",
+    "privateAddress": "Importe von privaten Netzwerkadressen sind auf diesem Server nicht erlaubt.",
     "batchImported": "Rezepte importiert",
     "batchImportedDescription": "{count} Rezepte aus Archiv importiert",
     "view": "Anzeigen",

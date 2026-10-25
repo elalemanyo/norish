@@ -16,7 +16,10 @@ import { createLogger } from "@norish/shared-server/logger";
 import { withDishColor } from "@norish/shared-server/media/dish-color";
 import { deleteRecipeImagesDir } from "@norish/shared-server/media/storage";
 import { recipes } from "@norish/shared-server/realtime/recipes";
-import { NOT_A_RECIPE_REASON } from "@norish/shared/contracts/realtime/recipes";
+import {
+  NOT_A_RECIPE_REASON,
+  PRIVATE_ADDRESS_REASON,
+} from "@norish/shared/contracts/realtime/recipes";
 import { ErrorWithDetail } from "@norish/shared/lib/error-extensions";
 import { credentialSetsForUrl, rotateCredentialSet } from "@norish/shared/lib/site-auth-tokens";
 import { withTimeout } from "@norish/shared/lib/with-timeout";
@@ -109,8 +112,11 @@ async function processImportJob(job: Job<RecipeImportJobData>): Promise<string> 
     // and a summary of the page) leaves it on the parsing step, so the job
     // monitor shows why.
     if (error instanceof ErrorWithDetail) await completeStep(job, error.detail);
-    // The Decision Model's clear verdict would only repeat on a refetch.
-    if (error instanceof ErrorWithDetail && error.message === NOT_A_RECIPE_REASON) {
+    // A Decision Model verdict or a refused private address would only repeat on a refetch.
+    if (
+      error instanceof Error &&
+      (error.message === NOT_A_RECIPE_REASON || error.message === PRIVATE_ADDRESS_REASON)
+    ) {
       throw unrecoverable(error);
     }
 

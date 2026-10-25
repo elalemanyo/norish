@@ -321,6 +321,7 @@
     "failedDescription": "Er ging iets mis tijdens het verwerken van je recept. Bekijk de browserconsole voor technische details.",
     "incomplete": "Dit recept is mogelijk onvolledig. Vergelijk het met de bron.",
     "notARecipe": "Deze pagina lijkt geen recept te zijn.",
+    "privateAddress": "Imports van privénetwerkadressen zijn op deze server niet toegestaan.",
     "batchImported": "Recepten geïmporteerd",
     "batchImportedDescription": "{count} recepten geïmporteerd uit archief",
     "view": "Bekijk",

@@ -321,6 +321,7 @@
     "failedDescription": "Coś poszło nie tak. Sprawdź konsolę przeglądarki.",
     "incomplete": "Ten przepis może być niekompletny. Porównaj go ze źródłem.",
     "notARecipe": "Ta strona nie wygląda na przepis.",
+    "privateAddress": "Importowanie z prywatnych adresów sieciowych jest na tym serwerze niedozwolone.",
     "batchImported": "Przepisy zaimportowane",
     "batchImportedDescription": "{count} przepisów zaimportowanych z archiwum",
     "view": "Zobacz",

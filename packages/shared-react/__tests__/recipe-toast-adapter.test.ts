@@ -1,7 +1,10 @@
 import { describe, expect, it, vi } from "vitest";
 
 import type { RecipeDashboardDTO } from "@norish/shared/contracts";
-import { NOT_A_RECIPE_REASON } from "@norish/shared/contracts/realtime/recipes";
+import {
+  NOT_A_RECIPE_REASON,
+  PRIVATE_ADDRESS_REASON,
+} from "@norish/shared/contracts/realtime/recipes";
 
 import { createRecipeSubscriptionToasts } from "../src/contexts/recipes/recipe-toast-adapter";
 
@@ -43,10 +46,15 @@ describe("recipe import toasts", () => {
     const { show, callbacks } = toasts();
 
     callbacks.onFailed?.({ reason: NOT_A_RECIPE_REASON });
+    callbacks.onFailed?.({ reason: PRIVATE_ADDRESS_REASON });
     callbacks.onFailed?.({ reason: "Python parser failed: WebsiteNotImplementedError" });
 
     expect(
       show.mock.calls.map(([toast]) => (toast as { description: string }).description)
-    ).toEqual(["recipes.toasts.notARecipe", "recipes.toasts.failedDescription"]);
+    ).toEqual([
+      "recipes.toasts.notARecipe",
+      "recipes.toasts.privateAddress",
+      "recipes.toasts.failedDescription",
+    ]);
   });
 });

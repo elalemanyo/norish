@@ -16,7 +16,10 @@ import {
 } from "@norish/shared-server/config/server-config-loader";
 import { parserLogger as log } from "@norish/shared-server/logger";
 import { FullRecipeInsertDTO } from "@norish/shared/contracts/dto/recipe";
-import { NOT_A_RECIPE_REASON } from "@norish/shared/contracts/realtime/recipes";
+import {
+  NOT_A_RECIPE_REASON,
+  PRIVATE_ADDRESS_REASON,
+} from "@norish/shared/contracts/realtime/recipes";
 import { ErrorWithDetail } from "@norish/shared/lib/error-extensions";
 import { hasRecipeName, hasSteps, isVideoUrl } from "@norish/shared/lib/helpers";
 
@@ -249,9 +252,7 @@ async function fetchRecipePage(
 ): Promise<{ html: string; status: number | null }> {
   const plain = await plainFetch(url, PLAIN_FETCH_USER_AGENT, { tokens });
 
-  if (plain.refused) {
-    throw new Error("Imports from private network addresses are not allowed on this server.");
-  }
+  if (plain.refused) throw new Error(PRIVATE_ADDRESS_REASON);
 
   if (plain.status === 200 && extractRecipeNodesFromJsonLd(plain.html).length > 0) {
     log.info({ url }, "Plain fetch found a recipe, skipping the browser");

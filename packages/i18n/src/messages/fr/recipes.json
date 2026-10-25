@@ -321,6 +321,7 @@
     "failedDescription": "Une erreur s'est produite pendant le traitement de votre recette. Consultez la console du navigateur pour les détails techniques.",
     "incomplete": "Cette recette est peut-être incomplète. Comparez-la avec la source.",
     "notARecipe": "Cette page ne semble pas être une recette.",
+    "privateAddress": "Les imports depuis des adresses de réseau privé ne sont pas autorisés sur ce serveur.",
     "batchImported": "Recettes importées",
     "batchImportedDescription": "{count} recettes importées depuis l'archive",
     "view": "Voir",

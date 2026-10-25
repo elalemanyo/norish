@@ -33,6 +33,10 @@ export type RecipeShareEvent = z.infer<typeof RecipeShareEventSchema>;
 /** The `failed` reason of an import whose page is clearly not a recipe, which clients translate. */
 export const NOT_A_RECIPE_REASON = "This page doesn't look like a recipe.";
 
+/** The `failed` reason of an import of a private address the administrator does not allow. */
+export const PRIVATE_ADDRESS_REASON =
+  "Imports from private network addresses are not allowed on this server.";
+
 export const recipesRealtime = defineRealtimeCatalogue("recipe", {
   // z.custom: RecipeDashboardDTO has no standalone zod schema yet.
   created: { scope: "policy", payload: z.custom<{ recipe: RecipeDashboardDTO }>() },

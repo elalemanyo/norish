@@ -321,6 +321,7 @@
     "failedDescription": "Algo deu errado ao processar sua receita. Verifique o console do navegador para detalhes técnicos.",
     "incomplete": "Esta receita pode estar incompleta. Compare-a com a fonte.",
     "notARecipe": "Esta página não parece ser uma receita.",
+    "privateAddress": "Importações de endereços de rede privada não são permitidas neste servidor.",
     "batchImported": "Receitas importadas",
     "batchImportedDescription": "{count} receitas importadas do arquivo",
     "view": "Ver",

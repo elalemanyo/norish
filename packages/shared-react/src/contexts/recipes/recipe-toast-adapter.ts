@@ -1,4 +1,7 @@
-import { NOT_A_RECIPE_REASON } from "@norish/shared/contracts/realtime/recipes";
+import {
+  NOT_A_RECIPE_REASON,
+  PRIVATE_ADDRESS_REASON,
+} from "@norish/shared/contracts/realtime/recipes";
 
 import type {
   RatingsSubscriptionCallbacks,
@@ -8,6 +11,12 @@ import type { ToastAdapter, ToastSeverity } from "../toast-adapter";
 import { readToastMessage } from "../toast-adapter";
 
 export type RecipeToastSeverity = ToastSeverity;
+
+/** The server reasons a person can act on, each with its translation. */
+const TRANSLATED_REASONS: Record<string, string> = {
+  [NOT_A_RECIPE_REASON]: "recipes.toasts.notARecipe",
+  [PRIVATE_ADDRESS_REASON]: "recipes.toasts.privateAddress",
+};
 export type RecipeToastAdapter = ToastAdapter;
 
 export function createRecipeImportToasts(adapter: RecipeToastAdapter) {
@@ -56,14 +65,15 @@ export function createRecipeSubscriptionToasts(
       });
     },
     onFailed: (payload) => {
+      const reasonKey = payload.reason ? TRANSLATED_REASONS[payload.reason] : undefined;
+
       adapter.show({
         severity: "danger",
         title: adapter.translate("recipes.toasts.failed"),
-        // Server reasons stay in the job monitor; the one a person can act on is translated.
-        description:
-          payload.reason === NOT_A_RECIPE_REASON
-            ? adapter.translate("recipes.toasts.notARecipe")
-            : (readToastMessage(payload) ?? adapter.translate("recipes.toasts.failedDescription")),
+        // Server reasons stay in the job monitor; the ones a person can act on are translated.
+        description: reasonKey
+          ? adapter.translate(reasonKey)
+          : (readToastMessage(payload) ?? adapter.translate("recipes.toasts.failedDescription")),
       });
     },
   };

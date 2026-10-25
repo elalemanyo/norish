@@ -321,6 +321,7 @@
     "failedDescription": "Something went wrong while processing your recipe. Check the browser console for technical details.",
     "incomplete": "This recipe may be incomplete. Check it against the source.",
     "notARecipe": "This page doesn't look like a recipe.",
+    "privateAddress": "Imports from private network addresses are not allowed on this server.",
     "batchImported": "Recipes imported",
     "batchImportedDescription": "{count} recipes imported from archive",
     "view": "View",
