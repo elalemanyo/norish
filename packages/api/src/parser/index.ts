@@ -18,13 +18,13 @@ import { parserLogger as log } from "@norish/shared-server/logger";
 import { FullRecipeInsertDTO } from "@norish/shared/contracts/dto/recipe";
 import { NOT_A_RECIPE_REASON } from "@norish/shared/contracts/realtime/recipes";
 import { ErrorWithDetail } from "@norish/shared/lib/error-extensions";
-import { hasRecipeName, isVideoUrl } from "@norish/shared/lib/helpers";
+import { hasRecipeName, hasSteps, isVideoUrl } from "@norish/shared/lib/helpers";
 
 export interface ParseRecipeResult {
   recipe: FullRecipeInsertDTO;
   /** Whether AI was used for extraction (affects auto-tagging) */
   usedAI: boolean;
-  /** Import triage scored the kept structured parse as incomplete */
+  /** Import triage scored the structured parse as incomplete, and nothing better came */
   incomplete?: boolean;
   /**
    * Why the Python parser came up empty when AI extraction stood in for it,
@@ -131,7 +131,7 @@ async function tryExtractWithAI(
 
 /**
  * Try AI extraction with smallest/cleanest input first (JSON-LD),
- * then fall back to full HTML.
+ * then the full HTML, which may hold a method the JSON-LD lacks.
  */
 async function extractWithAIPreference(
   html: string,
@@ -147,7 +147,14 @@ async function extractWithAIPreference(
 
     const fromJsonLd = await tryExtractWithAI(jsonLdInput, recipeId, url, requireAI, html);
 
-    if (fromJsonLd) return fromJsonLd;
+    if (fromJsonLd && hasSteps(fromJsonLd)) return fromJsonLd;
+
+    if (fromJsonLd) {
+      log.info({ url }, "AI: JSON-LD held no steps, trying the full HTML");
+      const fromHtml = await tryExtractWithAI(html, recipeId, url, requireAI, html);
+
+      return fromHtml && hasSteps(fromHtml) ? fromHtml : fromJsonLd;
+    }
   }
 
   log.info({ url }, "AI: using full HTML as input");
@@ -298,7 +305,7 @@ export async function parseRecipeFromUrl(
 
       const recipe = await extractWithAIPreference(html, recipeId, url, false);
 
-      if (recipe) return { recipe, usedAI: true };
+      if (recipe) return { recipe, usedAI: true, ...(hasSteps(recipe) ? {} : { incomplete }) };
     }
 
     return { recipe: structured.recipe, usedAI: false, ...(incomplete ? { incomplete } : {}) };

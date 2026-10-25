@@ -289,6 +289,45 @@ describe("parseRecipeFromUrl import flow", () => {
     expect(mockExtractRecipeWithAI).toHaveBeenCalled();
   });
 
+  describe("AI extraction from JSON-LD without steps", () => {
+    const withJsonLd = `<html><head><script type="application/ld+json">${JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "Recipe",
+      name: "Lentil soup",
+    })}</script></head><body>the method</body></html>`;
+    const stepless = { ...aiRecipe, name: "JSON-LD Recipe", steps: [] };
+
+    beforeEach(() => {
+      mockFetchRenderedPage.mockResolvedValue(withJsonLd);
+    });
+
+    it("tries the full HTML for the method", async () => {
+      mockExtractRecipeWithAI.mockResolvedValueOnce(stepless).mockResolvedValueOnce(aiRecipe);
+
+      const { parseRecipeFromUrl } = await import("@norish/api/parser");
+      const result = await parseRecipeFromUrl("https://example.com/recipe", "recipe-1", true);
+
+      expect(result).toMatchObject({ recipe: aiRecipe, usedAI: true });
+      expect(mockExtractRecipeWithAI).toHaveBeenLastCalledWith(
+        withJsonLd,
+        "recipe-1",
+        "https://example.com/recipe",
+        withJsonLd
+      );
+    });
+
+    it("keeps the JSON-LD result when the full HTML has no steps either", async () => {
+      mockExtractRecipeWithAI
+        .mockResolvedValueOnce(stepless)
+        .mockResolvedValueOnce({ ...aiRecipe, steps: [] });
+
+      const { parseRecipeFromUrl } = await import("@norish/api/parser");
+      const result = await parseRecipeFromUrl("https://example.com/recipe", "recipe-1", true);
+
+      expect(result).toMatchObject({ recipe: stepless, usedAI: true });
+    });
+  });
+
   it("uses AI directly when alwaysUseAI is enabled", async () => {
     mockShouldAlwaysUseAI.mockResolvedValue(true);
 
@@ -608,6 +647,18 @@ describe("parseRecipeFromUrl import flow", () => {
 
       expect(mockIsParseComplete).toHaveBeenCalledWith(structuredRecipe);
       expect(result).toMatchObject({ recipe: aiRecipe, usedAI: true });
+    });
+
+    it("keeps the incomplete flag when AI extraction brings no steps either", async () => {
+      const stepless = { ...aiRecipe, steps: [] };
+
+      mockIsParseComplete.mockResolvedValue(false);
+      mockExtractRecipeWithAI.mockResolvedValue(stepless);
+
+      const { parseRecipeFromUrl } = await import("@norish/api/parser");
+      const result = await parseRecipeFromUrl("https://example.com/recipe", "recipe-1");
+
+      expect(result).toEqual({ recipe: stepless, usedAI: true, incomplete: true });
     });
 
     it("keeps a structured parse the Decision Model scores as complete", async () => {
