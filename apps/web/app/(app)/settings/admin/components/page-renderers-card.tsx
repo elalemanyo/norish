@@ -6,6 +6,7 @@ import { SettingsCard } from "@/app/(app)/settings/components/settings-card";
 import SettingsSwitch from "@/app/(app)/settings/components/settings-switch";
 import { useTRPC } from "@/app/providers/trpc-provider";
 import { ActionButton, ActionButtonGroup } from "@/components/shared/action-button";
+import SecretInput from "@/components/shared/secret-input";
 import { showSafeErrorToast } from "@/lib/ui/safe-error-toast";
 import { GlobeAltIcon } from "@heroicons/react/24/outline";
 import { Description, Input, Label, Separator, TextField, toast } from "@heroui/react";
@@ -41,7 +42,6 @@ export default function PageRenderersCard() {
   const t = useTranslations("settings.admin.pageRenderers");
   const tActions = useTranslations("common.actions");
   const tErrors = useTranslations("common.errors");
-  const tSecret = useTranslations("common.secret");
   const trpc = useTRPC();
   const stored = useQuery(trpc.admin.getPageRenderers.queryOptions());
   const [form, setForm] = useState(() => formFrom(stored.data));
@@ -118,15 +118,14 @@ export default function PageRenderersCard() {
             <Label>{t("obscuraEndpoint")}</Label>
             <Input placeholder={OBSCURA_PLACEHOLDER} variant="secondary" />
           </TextField>
-          <TextField type="password" value={form.cdpToken} onChange={set("cdpToken")}>
-            <Label>{t("cdpToken")}</Label>
-            <Input placeholder={hasStoredToken ? "••••••••••••" : undefined} variant="secondary" />
-            <Description>
-              {hasStoredToken
-                ? `${t("cdpTokenDescription")} ${tSecret("keepsCurrent")}`
-                : t("cdpTokenDescription")}
-            </Description>
-          </TextField>
+          <SecretInput
+            description={t("cdpTokenDescription")}
+            isConfigured={hasStoredToken}
+            label={t("cdpToken")}
+            placeholder=""
+            value={form.cdpToken}
+            onValueChange={set("cdpToken")}
+          />
         </>
       )}
 

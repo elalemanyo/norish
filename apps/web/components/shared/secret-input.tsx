@@ -18,9 +18,10 @@ interface SecretInputProps {
   isConfigured: boolean;
   /**
    * Fetches the stored secret so it can be shown. Its answer is displayed and
-   * never handed to the caller: looking at a key is not editing it.
+   * never handed to the caller: looking at a key is not editing it. Without it
+   * a stored secret is never shown.
    */
-  onReveal: () => Promise<string | null>;
+  onReveal?: () => Promise<string | null>;
   placeholder?: string;
   description?: string;
   isDisabled?: boolean;
@@ -74,7 +75,7 @@ export default function SecretInput({
   // and its placeholder says a value is already saved.
   const hasTypedValue = value !== "";
   const displayValue = hasTypedValue ? value : (storedSecret ?? "");
-  const hasSomethingToShow = hasTypedValue || isConfigured;
+  const hasSomethingToShow = hasTypedValue || (isConfigured && onReveal !== undefined);
 
   const handleChange = useCallback(
     (next: string) => {
@@ -93,7 +94,7 @@ export default function SecretInput({
       return;
     }
 
-    if (!hasTypedValue && isConfigured && storedSecret === null) {
+    if (!hasTypedValue && isConfigured && storedSecret === null && onReveal) {
       await whileLoading(() => onReveal().then(setStoredSecret));
     }
     setIsVisible(true);
