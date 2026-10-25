@@ -56,6 +56,7 @@ vi.mock("@norish/shared-server/logger", () => {
 });
 
 const { generateStructured } = await import("@norish/shared-server/ai/runtime/runtime");
+const { aiLogger } = await import("@norish/shared-server/logger");
 const { AIProviderError, isTimedOut } = await import("@norish/shared-server/ai/runtime/errors");
 const { createModelUseLedger, runWithModelUseLedger } =
   await import("@norish/shared-server/ai/runtime/model-use-ledger");
@@ -261,6 +262,25 @@ describe("a failure that is not about the request's shape", () => {
 
     expect((failure as Error).message).toContain("API key");
     expect(captured).toHaveLength(1);
+  });
+
+  it("is logged as the typed error, leaving the request body to the debug line (#645)", async () => {
+    vi.mocked(aiLogger.error).mockClear();
+    vi.mocked(aiLogger.debug).mockClear();
+    replies = [() => ({ status: 401, body: { error: { message: "invalid key" } } })];
+
+    const failure = await generate().catch((error: unknown) => error);
+    const [fields, message] = vi.mocked(aiLogger.error).mock.calls.at(-1) as unknown as [
+      Record<string, unknown>,
+      string,
+    ];
+
+    expect(message).toBe("AI request failed");
+    expect(fields).toMatchObject({ err: failure, statusCode: 401, retryable: false });
+    expect(vi.mocked(aiLogger.debug)).toHaveBeenCalledWith(
+      expect.objectContaining({ err: (failure as Error).cause }),
+      "AI request failed: raw provider error"
+    );
   });
 });
 

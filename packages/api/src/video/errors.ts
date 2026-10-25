@@ -1,3 +1,5 @@
+import { AIError, AIResponseError } from "@norish/shared-server/ai/runtime/errors";
+
 /**
  * The media itself could not be had: the download turned up nothing, or length
  * validation refused what was there.
@@ -20,4 +22,12 @@ export class MediaUnavailableError extends Error {
 /** Whether a thrown value says the media could not be had. */
 export function isMediaUnavailable(error: unknown): error is MediaUnavailableError {
   return error instanceof MediaUnavailableError;
+}
+
+/**
+ * Whether a failed caption extraction still leaves transcription worth trying:
+ * not when the AI provider itself refused, is off, or is misconfigured (#645).
+ */
+export function captionFailureAllowsTranscription(error: unknown): boolean {
+  return !(error instanceof AIError) || error instanceof AIResponseError;
 }

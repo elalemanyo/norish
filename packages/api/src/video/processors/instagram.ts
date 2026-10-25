@@ -13,7 +13,7 @@ import { downloadImage } from "@norish/shared-server/media/storage";
 
 import type { VideoMetadata, VideoProcessorContext } from "../types";
 import { BaseVideoProcessor } from "../base-processor";
-import { isMediaUnavailable } from "../errors";
+import { captionFailureAllowsTranscription, isMediaUnavailable } from "../errors";
 
 /** The page's description meta tag, with either attribute order. */
 const CAPTION_META_PATTERNS = [
@@ -226,6 +226,10 @@ export class InstagramProcessor extends BaseVideoProcessor {
 
           return this.addVideoToRecipe(recipe, savedVideo);
         } catch (descriptionExtractionError) {
+          if (!captionFailureAllowsTranscription(descriptionExtractionError)) {
+            throw descriptionExtractionError;
+          }
+
           log.info(
             { url, err: descriptionExtractionError },
             "Description extraction failed, falling back to transcription"

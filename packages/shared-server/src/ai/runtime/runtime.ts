@@ -24,6 +24,7 @@ import { readFile } from "node:fs/promises";
 import { extname } from "node:path";
 import type { z } from "zod";
 import {
+  APICallError,
   asSchema,
   experimental_decide as decideWithModel,
   generateImage as generateImageWithModel,
@@ -54,6 +55,7 @@ import {
 import { aiLogger } from "@norish/shared-server/logger";
 
 import type { PromptName } from "../prompts/loader";
+import type { AIError } from "./errors";
 import type { ImageTier } from "./providers";
 import { fillPrompt, loadPrompt } from "../prompts/loader";
 import {
@@ -270,16 +272,36 @@ async function requestObject<T>({
   return { output: result.output, tokens: result.usage ? reportedTokens(result.usage) : undefined };
 }
 
+/**
+ * Log a failure as the typed error plus its status code. The raw SDK error
+ * carries the request body and response headers, so it is logged at debug only.
+ */
+function logFailure(
+  level: "error" | "warn",
+  error: unknown,
+  context: Record<string, unknown>,
+  message: string
+): AIError {
+  const aiError = toAIError(error);
+  const cause = aiError.cause;
+
+  aiLogger[level](
+    {
+      ...context,
+      err: aiError,
+      statusCode: APICallError.isInstance(cause) ? cause.statusCode : undefined,
+      retryable: aiError.retryable,
+    },
+    message
+  );
+  aiLogger.debug({ ...context, err: error }, `${message}: raw provider error`);
+
+  return aiError;
+}
+
 /** Log a failed request once, as the typed error the caller will see. */
 function reportFailure(promptName: StructuredPromptName, error: unknown): never {
-  const aiError = toAIError(error);
-
-  aiLogger.error(
-    { err: error, feature: promptName, retryable: aiError.retryable },
-    "AI request failed"
-  );
-
-  throw aiError;
+  throw logFailure("error", error, { feature: promptName }, "AI request failed");
 }
 
 /**
@@ -373,8 +395,10 @@ async function requestStructured<T>(request: {
       reportFailure(promptName, error);
     }
 
-    aiLogger.warn(
-      { err: error, feature: promptName, provider: config.provider },
+    logFailure(
+      "warn",
+      error,
+      { feature: promptName, provider: config.provider },
       "Endpoint refused a JSON-schema request, retrying in plain JSON mode"
     );
 
@@ -383,8 +407,10 @@ async function requestStructured<T>(request: {
     } catch (fallbackError) {
       if (!isRequestShapeRejection(fallbackError)) reportFailure(promptName, fallbackError);
 
-      aiLogger.error(
-        { err: fallbackError, feature: promptName, provider: config.provider },
+      logFailure(
+        "error",
+        fallbackError,
+        { feature: promptName, provider: config.provider },
         "Endpoint served neither JSON-schema nor plain JSON output"
       );
 
@@ -479,9 +505,8 @@ export async function transcribe(audioPath: string): Promise<string> {
 
     return transcript;
   } catch (error) {
-    const aiError = toAIError(error);
+    const aiError = logFailure("error", error, { provider, model }, "Transcription failed");
 
-    aiLogger.error({ err: error, provider, retryable: aiError.retryable }, "Transcription failed");
     recordModelUse({ provider, model, outcome: "failed" });
     noteKeyRejection("video_config", error);
 
@@ -711,8 +736,10 @@ export async function generateImage(options: GenerateImageOptions): Promise<Gene
         "Image provider's rate limit"
       );
     } else {
-      aiLogger.error(
-        { err: error, feature: promptName, provider, model, retryable: aiError.retryable },
+      logFailure(
+        "error",
+        error,
+        { feature: promptName, provider, model },
         "Image generation failed"
       );
     }
@@ -1016,21 +1043,16 @@ export async function decide<const Q extends DecisionQuestions>(
 
     return result;
   } catch (error) {
-    const aiError = toAIError(error);
-
     // Warn, not error: every feature that decides has a fallback and says at
     // its own level what the failure meant, so the runtime's line is the
     // provider detail beside it, not a second alarm for a handled case.
-    aiLogger.warn(
-      {
-        err: error,
-        feature,
-        provider: settings.provider,
-        model: settings.model,
-        retryable: aiError.retryable,
-      },
+    const aiError = logFailure(
+      "warn",
+      error,
+      { feature, provider: settings.provider, model: settings.model },
       "Decision failed"
     );
+
     recordModelUse({ provider: settings.provider, model: settings.model, outcome: "failed" });
     noteKeyRejection("decision_config", error);
 

@@ -7,10 +7,16 @@
  * the worker threads it into the write.
  */
 import type { Job } from "bullmq";
+import { UnrecoverableError } from "bullmq";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { RecipeImportJobData } from "@norish/queue/contracts/job-types";
 import { readStepProgress } from "@norish/queue/job-steps";
+import {
+  AIConfigurationError,
+  AIProviderError,
+  AIResponseError,
+} from "@norish/shared-server/ai/runtime/errors";
 import { ErrorWithDetail } from "@norish/shared/lib/error-extensions";
 
 const createRecipeWithRefs = vi.fn();
@@ -20,6 +26,13 @@ const getDecryptedTokensByUserId = vi.fn();
 const publishRecipe = vi.fn(async () => undefined);
 const parseRecipeFromUrl = vi.fn();
 const withDishColor = vi.fn();
+/** Which errors read as a rate limit; the reading itself is pinned in errors.test.ts. */
+const rateLimitWaitMs = vi.hoisted(() => vi.fn((_error: unknown): number | null => null));
+
+vi.mock("@norish/shared-server/ai/runtime/errors", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@norish/shared-server/ai/runtime/errors")>()),
+  rateLimitWaitMs,
+}));
 
 vi.mock("@norish/db", () => ({
   createRecipeWithRefs,
@@ -208,6 +221,64 @@ describe("processImportJob", () => {
       usedAI: true,
       pythonParser,
       page,
+    });
+  });
+
+  describe("an AI failure (#645)", () => {
+    const job = () =>
+      ({
+        id: "job-1",
+        attemptsMade: 0,
+        opts: { attempts: 3 },
+        progress: 0,
+        updateProgress: vi.fn(async () => undefined),
+        log: vi.fn(async () => 0),
+        data: {
+          url: "https://www.instagram.com/reel/ABC123/",
+          recipeId: "recipe-77",
+          userId: "user-1",
+          householdKey: "household-1",
+          householdUserIds: null,
+        },
+      }) as unknown as Job<RecipeImportJobData>;
+
+    /** How the video path hands an AI failure up: wrapped, with the original as cause. */
+    const wrapped = (cause: Error) =>
+      new Error(`Failed to process video recipe: ${cause.message}`, { cause });
+
+    it("stops retrying a rate limit the SDK already retried", async () => {
+      const rateLimited = new AIProviderError("The AI provider rate-limited the request.", {
+        retryable: true,
+      });
+
+      rateLimitWaitMs.mockImplementation((error) => (error === rateLimited ? 15_000 : null));
+      parseRecipeFromUrl.mockRejectedValue(wrapped(rateLimited));
+
+      const { processRecipeImportJob } = await import("../../src/recipe-import/worker");
+      const failure = await processRecipeImportJob(job()).catch((error: unknown) => error);
+
+      expect(failure).toBeInstanceOf(UnrecoverableError);
+      expect((failure as Error).message).toBe(
+        "Failed to process video recipe: The AI provider rate-limited the request."
+      );
+    });
+
+    it("stops retrying an AI error no retry can fix", async () => {
+      parseRecipeFromUrl.mockRejectedValue(wrapped(new AIConfigurationError("No API key.")));
+
+      const { processRecipeImportJob } = await import("../../src/recipe-import/worker");
+
+      await expect(processRecipeImportJob(job())).rejects.toBeInstanceOf(UnrecoverableError);
+    });
+
+    it("leaves a retryable AI error to the queue's attempts", async () => {
+      const unusable = wrapped(new AIResponseError("missing required fields"));
+
+      parseRecipeFromUrl.mockRejectedValue(unusable);
+
+      const { processRecipeImportJob } = await import("../../src/recipe-import/worker");
+
+      await expect(processRecipeImportJob(job())).rejects.toBe(unusable);
     });
   });
 

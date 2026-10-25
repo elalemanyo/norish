@@ -217,15 +217,10 @@ async function tryHandleVideoUrl(
     throw new Error("Video recipe parsing is not enabled.");
   }
 
-  try {
-    const { processVideoRecipe } = await import("@norish/api/video/processor");
-    const recipe = await processVideoRecipe(url, recipeId, tokens);
+  const { processVideoRecipe } = await import("@norish/api/video/processor");
+  const recipe = await processVideoRecipe(url, recipeId, tokens);
 
-    return { recipe, usedAI: true };
-  } catch (error: unknown) {
-    log.error({ err: error }, "Video processing failed");
-    throw error;
-  }
+  return { recipe, usedAI: true };
 }
 
 export async function parseRecipeFromUrl(

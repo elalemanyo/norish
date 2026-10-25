@@ -23,6 +23,7 @@ import type { VideoMetadata } from "@norish/api/video/types";
 import type { FullRecipeInsertDTO } from "@norish/shared/contracts/dto/recipe";
 import { MediaUnavailableError } from "@norish/api/video/errors";
 import { InstagramProcessor } from "@norish/api/video/processors/instagram";
+import { AIProviderError, AIResponseError } from "@norish/shared-server/ai/runtime/errors";
 
 /** Every boundary the processor reaches through, and nothing else. */
 const boundary = vi.hoisted(() => ({
@@ -217,6 +218,36 @@ describe("an Unclassified Post", () => {
 
     await expect(process()).rejects.toThrow("AI provider returned an error");
     expect(boundary.extractRecipeWithAI).not.toHaveBeenCalled();
+  });
+});
+
+describe("a caption extraction that fails (#645)", () => {
+  beforeEach(() => {
+    boundary.getVideoMetadata.mockResolvedValue(
+      metadata({ videoStream: "present", duration: 47, description: LONG_CAPTION })
+    );
+    boundary.downloadVideoAudio.mockResolvedValue("/tmp/a.mp3");
+    boundary.transcribe.mockResolvedValue("first, boil the water");
+  });
+
+  it("fails the import without transcribing when the AI provider refused", async () => {
+    const rateLimited = new AIProviderError("The AI provider rate-limited the request.", {
+      retryable: true,
+    });
+
+    boundary.extractRecipeFromVideo.mockRejectedValue(rateLimited);
+
+    await expect(process()).rejects.toBe(rateLimited);
+    expect(boundary.transcribe).not.toHaveBeenCalled();
+  });
+
+  it("falls back to transcription when the caption held no usable recipe", async () => {
+    boundary.extractRecipeFromVideo
+      .mockRejectedValueOnce(new AIResponseError("missing required fields"))
+      .mockResolvedValueOnce(recipe());
+
+    await expect(process()).resolves.toMatchObject({ name: "Pasta" });
+    expect(boundary.transcribe).toHaveBeenCalledWith("/tmp/a.mp3");
   });
 });
 

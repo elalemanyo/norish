@@ -6,6 +6,7 @@ import { videoLogger as log } from "@norish/shared-server/logger";
 
 import type { VideoProcessorContext } from "../types";
 import { BaseVideoProcessor } from "../base-processor";
+import { captionFailureAllowsTranscription } from "../errors";
 
 /**
  * YouTube video processor.
@@ -79,6 +80,10 @@ export class YouTubeProcessor extends BaseVideoProcessor {
 
           return this.addVideoToRecipe(recipe, savedVideo);
         } catch (captionExtractionError) {
+          if (!captionFailureAllowsTranscription(captionExtractionError)) {
+            throw captionExtractionError;
+          }
+
           log.info(
             { url, err: captionExtractionError },
             "Caption/description extraction failed, falling back to transcription"
