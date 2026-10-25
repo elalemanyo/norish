@@ -161,14 +161,15 @@ function tokensOnSite(
   hostname: string,
   tokens: SiteAuthTokenDecryptedDto[] = []
 ): SiteAuthTokenDecryptedDto[] {
-  return tokens.filter(({ domain }) => isHostOnDomain(hostname, domain.toLowerCase()));
+  return tokens.filter(({ domain }) => isHostOnDomain(hostname, domain));
 }
 
 /** The narrowest token domain the host is on. */
 export function headerScope(hostname: string, tokens: SiteAuthTokenDecryptedDto[]): string {
-  return tokensOnSite(hostname, tokens)
-    .map(({ domain }) => domain.toLowerCase())
-    .reduce((narrowest, domain) => (domain.length > narrowest.length ? domain : narrowest), "");
+  return tokensOnSite(hostname, tokens).reduce(
+    (narrowest, { domain }) => (domain.length > narrowest.length ? domain : narrowest),
+    ""
+  );
 }
 
 /** A page fetched without a browser. */
@@ -580,8 +581,7 @@ async function setTokensInObscura(
         for (const line of lines) document.cookie = line;
       },
       cookieTokens.map(
-        ({ name, value, domain }) =>
-          `${name}=${value}; path=/; domain=${domain.toLowerCase()}; secure`
+        ({ name, value, domain }) => `${name}=${value}; path=/; domain=${domain}; secure`
       )
     );
   }
@@ -601,7 +601,7 @@ async function prepareChromiumPage(
 ): Promise<void> {
   const headerTokens = tokens.filter((token) => token.type === "header");
   const cookieTokens = tokens.filter((token) => token.type === "cookie");
-  const headerDomains = new Set(headerTokens.map(({ domain }) => domain.toLowerCase()));
+  const headerDomains = new Set(headerTokens.map(({ domain }) => domain));
   // The site and its subdomains, with or without a port. A `*` can still match past the host, so
   // each paused request is checked by its own host.
   const patterns = [
@@ -627,7 +627,7 @@ async function prepareChromiumPage(
       cookieTokens.map(({ name, value, domain }) => ({
         name,
         value,
-        domain: `.${domain.toLowerCase()}`,
+        domain: `.${domain}`,
         path: "/",
         secure: true,
       }))

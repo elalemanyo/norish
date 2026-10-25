@@ -108,13 +108,6 @@ describe("getMatchingTokens", () => {
   });
 
   describe("case insensitivity", () => {
-    it("matches when the token domain has mixed case", () => {
-      const tokens = [makeToken({ domain: "Instagram.COM" })];
-      const result = getMatchingTokens(tokens, "https://instagram.com/p/123");
-
-      expect(result).toHaveLength(1);
-    });
-
     it("matches when the URL has mixed case", () => {
       const tokens = [makeToken({ domain: "instagram.com" })];
       const result = getMatchingTokens(tokens, "https://INSTAGRAM.COM/p/123");

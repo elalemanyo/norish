@@ -21,7 +21,7 @@ export function getMatchingTokens(
 
   if (!hostname) return [];
 
-  return tokens.filter((token) => isHostOnDomain(hostname, token.domain.toLowerCase()));
+  return tokens.filter((token) => isHostOnDomain(hostname, token.domain));
 }
 
 /**
