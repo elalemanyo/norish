@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import logging
 import os
+import re
 import signal
 import threading
 import time
@@ -337,7 +338,12 @@ def _map_failure_code(error: Exception) -> FailureCode:
     return "ParserError"
 
 
+# extruct drops every JSON-LD block on a page when one tag is empty.
+EMPTY_JSON_LD = re.compile(r"<script[^>]*application/ld\+json[^>]*>\s*</script>", re.IGNORECASE)
+
+
 def _run_scraper(html: str, url: str) -> tuple[Any, Literal["supported", "wild"]]:
+    html = EMPTY_JSON_LD.sub("", html)
     try:
         return scrape_html(html=html, org_url=url, best_image=True), "supported"
     except WebsiteNotImplementedError:
