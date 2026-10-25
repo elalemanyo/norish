@@ -4,49 +4,56 @@ import { chromium } from "playwright-core";
 import { serverLogger as log } from "@norish/shared-server/logger";
 import { withTimeout } from "@norish/shared/lib/with-timeout";
 
+/** A CDP Page Renderer. */
+export type BrowserRenderer = "obscura" | "chromium";
+
 /**
- * A connection to Obscura, the first Page Renderer, opened for one endpoint and token. Playwright
- * Core dials its CDP endpoint as given, with no debugger-metadata probe and no hostname rewriting.
+ * A connection to a CDP Page Renderer, opened for one endpoint and token. Playwright Core dials
+ * its CDP endpoint as given, with no debugger-metadata probe and no hostname rewriting.
  */
 interface Connection {
   key: string;
-  /** Shared while it opens, so two imports arriving while Obscura is cold open one connection. */
+  /** Shared while it opens, so two imports arriving while the browser is cold open one connection. */
   opening: Promise<Browser>;
   browser?: Browser;
 }
 
-let connection: Connection | null = null;
+/** One per renderer, so a setting change or a dropped browser replaces only that renderer's. */
+const connections = new Map<BrowserRenderer, Connection>();
 
 /**
- * Connect within `timeoutMs`, the part of a render's deadline that is left. An Obscura that cannot
+ * Connect within `timeoutMs`, the part of a render's deadline that is left. A renderer that cannot
  * be reached is logged for the administrator and answers null.
  */
 export async function getBrowser(
+  renderer: BrowserRenderer,
   endpoint: string,
   token: string | undefined,
   timeoutMs: number
 ): Promise<Browser | null> {
   const key = `${endpoint}\n${token ?? ""}`;
+  let connection = connections.get(renderer);
 
   // One connection serves every import; contexts, not connections, are what keeps concurrent
-  // imports isolated. A connection Obscura dropped, because it restarted say, is replaced here.
+  // imports isolated. A connection the browser dropped, because it restarted say, is replaced here.
   if (connection?.key !== key || connection.browser?.isConnected() === false) {
     if (connection) void close(connection);
-    connection = connect(endpoint, token, key, timeoutMs);
+    connection = connect(renderer, endpoint, token, key, timeoutMs);
+    connections.set(renderer, connection);
   }
 
   const { opening } = connection;
 
   try {
     // A caller joining an attempt opened for another render still gives up at its own deadline.
-    return await withTimeout(() => opening, timeoutMs, "Connecting to Obscura");
+    return await withTimeout(() => opening, timeoutMs, `Connecting to ${renderer}`);
   } catch (error) {
     // A hosted browser may take its token in the query string, so no query string is logged.
     const hidden = (text: string) => text.replace(/[?#]\S*/g, "");
 
     log.error(
-      { renderer: "obscura", endpoint: hidden(endpoint), reason: hidden(String(error)) },
-      `Obscura is not reachable at ${hidden(endpoint)}. Start the obscura service or check its endpoint and CDP token in admin settings.`
+      { renderer, endpoint: hidden(endpoint), reason: hidden(String(error)) },
+      `The ${renderer} Page Renderer is not reachable at ${hidden(endpoint)}. Start it or check its endpoint in admin settings.`
     );
 
     return null;
@@ -54,6 +61,7 @@ export async function getBrowser(
 }
 
 function connect(
+  renderer: BrowserRenderer,
   endpoint: string,
   token: string | undefined,
   key: string,
@@ -70,8 +78,8 @@ function connect(
       opened.browser = browser;
     },
     () => {
-      // A failed attempt is not cached, so the next import retries once Obscura is back.
-      if (connection === opened) connection = null;
+      // A failed attempt is not cached, so the next import retries once the browser is back.
+      if (connections.get(renderer) === opened) connections.delete(renderer);
     }
   );
 
@@ -83,16 +91,16 @@ async function close(closing: Connection): Promise<void> {
   const browser = await closing.opening.catch(() => null);
 
   await browser?.close().catch((error: unknown) => {
-    log.error({ err: error }, "Error closing the Obscura connection");
+    log.error({ err: error }, "Error closing a browser connection");
   });
 }
 
-export async function closeBrowser() {
-  const closing = connection;
+/** Close every renderer's connection. */
+export async function closeBrowsers(): Promise<void> {
+  const closing = [...connections.values()];
 
-  connection = null;
-
-  if (closing) await close(closing);
+  connections.clear();
+  await Promise.all(closing.map(close));
 }
 
 // Graceful shutdown - register handlers only once
@@ -101,8 +109,8 @@ let shutdownHandlersRegistered = false;
 function registerShutdownHandlers() {
   if (shutdownHandlersRegistered) return;
   shutdownHandlersRegistered = true;
-  process.on("SIGINT", closeBrowser);
-  process.on("SIGTERM", closeBrowser);
+  process.on("SIGINT", closeBrowsers);
+  process.on("SIGTERM", closeBrowsers);
 }
 
 registerShutdownHandlers();

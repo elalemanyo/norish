@@ -32,7 +32,7 @@ const { mockGetBrowser, mockNewContext, mockNewPage, mockGoto, mockContent, mock
     return { mockGetBrowser, mockNewContext, mockNewPage, mockGoto, mockContent, mockClose };
   });
 
-vi.mock("@norish/api/obscura", () => ({ getBrowser: mockGetBrowser }));
+vi.mock("@norish/api/parser/browser-connections", () => ({ getBrowser: mockGetBrowser }));
 
 let renderers: PageRenderersConfig;
 
@@ -159,7 +159,12 @@ describe("fetchRenderedPage – rendered-page contract", () => {
     vi.useFakeTimers({ toFake: ["Date"] });
     await fetchRenderedPage("https://example.com/recipe");
 
-    expect(mockGetBrowser).toHaveBeenCalledWith("ws://obscura:9222", "cdp-token", 30_000);
+    expect(mockGetBrowser).toHaveBeenCalledWith(
+      "obscura",
+      "ws://obscura:9222",
+      "cdp-token",
+      30_000
+    );
   });
 
   it("reports no HTML without dialling Obscura when it is switched off", async () => {

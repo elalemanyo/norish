@@ -46,7 +46,7 @@ const { mockAddCookies, mockCdpSend, mockEvaluate, mockGoto, mockNewContext, moc
     };
   });
 
-vi.mock("@norish/api/obscura", () => ({
+vi.mock("@norish/api/parser/browser-connections", () => ({
   getBrowser: mockGetBrowser,
 }));
 

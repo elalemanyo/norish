@@ -13,13 +13,13 @@ Spec: `.scratch/chromium-browser-renderer/spec.md` (One browser render; Connecti
 
 **Blocked by:** None (can start immediately).
 
-**Status:** ready-for-agent
+**Status:** done
 
-- [ ] Two renderer names with different endpoints keep separate connections. Concurrent renders on both never close each other's connection.
-- [ ] A setting change replaces only that renderer's connection, and shutdown closes all of them.
-- [ ] An older connection attempt that resolves last is closed, never cached. The test fails before the fix.
-- [ ] One Obscura attempt with cookie tokens finishes within the navigation timeout plus the settle deadline. Today the connection, robots.txt navigation and main navigation each get their own. The test fails before the fix.
-- [ ] An unreachable endpoint is logged at error level, without its query string.
-- [ ] The swallowed-error branches in callers' tests are removed, or made reachable.
-- [ ] Obscura's names (function names, log text, error strings) leave the shared path. Obscura-specific wording stays in Obscura's token-setting step.
-- [ ] The existing chain, token and private-address tests pass unchanged in what they assert.
+- [x] Two renderer names with different endpoints keep separate connections. Concurrent renders on both never close each other's connection.
+- [x] A setting change replaces only that renderer's connection, and shutdown closes all of them.
+- [x] An older connection attempt that resolves last is closed, never cached. The test fails before the fix.
+- [x] One Obscura attempt with cookie tokens finishes within the navigation timeout plus the settle deadline. Today the connection, robots.txt navigation and main navigation each get their own. The test fails before the fix.
+- [x] An unreachable endpoint is logged at error level, without its query string.
+- [x] The swallowed-error branches in callers' tests are removed, or made reachable.
+- [x] Obscura's names (function names, log text, error strings) leave the shared path. Obscura-specific wording stays in Obscura's token-setting step.
+- [x] The existing chain, token and private-address tests pass unchanged in what they assert.

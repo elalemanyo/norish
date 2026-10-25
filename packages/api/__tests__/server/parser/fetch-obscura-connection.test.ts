@@ -8,7 +8,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { PageRenderersConfig } from "@norish/config/zod/server-config";
 import type { SiteAuthTokenDecryptedDto } from "@norish/shared/contracts/dto/site-auth-tokens";
-import { closeBrowser } from "@norish/api/obscura";
+import { closeBrowsers } from "@norish/api/parser/browser-connections";
 import { renderPage } from "@norish/api/parser/fetch";
 
 const { connectOverCDP, log } = vi.hoisted(() => ({
@@ -48,7 +48,7 @@ function fakeBrowser(
 }
 
 beforeEach(async () => {
-  await closeBrowser();
+  await closeBrowsers();
   vi.clearAllMocks();
   connectOverCDP.mockReset();
   renderers = {

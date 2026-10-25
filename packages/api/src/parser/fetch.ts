@@ -3,9 +3,9 @@ import { BlockList } from "node:net";
 import type { BrowserContext, Page } from "playwright-core";
 import { z } from "zod";
 
-import type { PageRenderersConfig } from "@norish/config/zod/server-config";
+import type { BrowserRenderer } from "@norish/api/parser/browser-connections";
 import type { SiteAuthTokenDecryptedDto } from "@norish/shared/contracts/dto/site-auth-tokens";
-import { getBrowser } from "@norish/api/obscura";
+import { getBrowser } from "@norish/api/parser/browser-connections";
 import { getPageRenderersConfig } from "@norish/shared-server/config/server-config-loader";
 import { parserLogger as log } from "@norish/shared-server/logger";
 import { isHostOnDomain } from "@norish/shared/lib/helpers";
@@ -258,7 +258,7 @@ declare const document: { cookie: string };
 /**
  * Render a page with the Page Renderers that are switched on and return its HTML.
  *
- * Obscura owns the browser identity, JavaScript execution, page settling,
+ * The renderer owns the browser identity, JavaScript execution, page settling,
  * stealth and tracker blocking. Norish adds exactly one thing: the requesting
  * user's Site Auth Tokens, in a context that belongs to this fetch alone.
  *
@@ -298,7 +298,15 @@ export async function renderPage(
   let status: number | null = null;
 
   if (renderers.obscura.enabled) {
-    const rendered = await renderInObscura(targetUrl, renderers, tokens, isSettled);
+    const rendered = await renderInBrowser(
+      "obscura",
+      renderers.obscura,
+      renderers.navigationTimeoutMs,
+      targetUrl,
+      tokens,
+      isSettled,
+      setTokensInObscura
+    );
 
     if (isReadable(rendered)) return answered("obscura", targetUrl, rendered);
     status = rendered.status;
@@ -370,21 +378,36 @@ async function renderInSolver(
   return { html: "", status: null };
 }
 
-async function renderInObscura(
+/**
+ * How a browser is handed the Site Auth Tokens on the target's https site, before its main
+ * navigation. A navigation of its own keeps within `timeLeft()`.
+ */
+type SetTokens = (
+  context: BrowserContext,
+  page: Page,
+  tokens: SiteAuthTokenDecryptedDto[],
   targetUrl: string,
-  renderers: PageRenderersConfig,
-  tokens?: SiteAuthTokenDecryptedDto[],
-  isSettled?: (html: string) => boolean
+  timeLeft: () => number
+) => Promise<void>;
+
+/** Render a page in a CDP Page Renderer, in a context of this fetch's own. */
+async function renderInBrowser(
+  renderer: BrowserRenderer,
+  { endpoint, cdpToken }: { endpoint: string; cdpToken?: string },
+  navigationTimeoutMs: number,
+  targetUrl: string,
+  tokens: SiteAuthTokenDecryptedDto[] | undefined,
+  isSettled: ((html: string) => boolean) | undefined,
+  setTokens: SetTokens
 ): Promise<RenderedPage> {
-  const { endpoint, cdpToken } = renderers.obscura;
   // One deadline for the connection and every navigation; 0 would turn Playwright's timeout off.
-  const deadline = Date.now() + renderers.navigationTimeoutMs;
+  const deadline = Date.now() + navigationTimeoutMs;
   const timeLeft = () => Math.max(deadline - Date.now(), 1);
   let context: BrowserContext | undefined;
   let status: number | null = null;
 
   try {
-    const browser = await getBrowser(endpoint, cdpToken, timeLeft());
+    const browser = await getBrowser(renderer, endpoint, cdpToken, timeLeft());
 
     if (!browser) return { html: "", status };
 
@@ -399,34 +422,12 @@ async function renderInObscura(
       );
     }
 
-    const headerTokens = onSite.filter((t) => t.type === "header");
-    const cookieTokens = onSite.filter((t) => t.type === "cookie");
-
     // A fresh context per fetch, so one importer's tokens never reach another's page.
     context = await browser.newContext();
 
     const page = await context.newPage();
 
-    if (headerTokens.length > 0)
-      await sendHeadersToTheirSite(context, page, headerTokens, targetUrl);
-
-    // Obscura never sends a cookie set over CDP but does send one a page sets, so the tokens are set
-    // from the target's origin, for the token's domain, secure, and stay within it.
-    if (cookieTokens.length > 0) {
-      await page.goto(new URL("/robots.txt", targetUrl).href, {
-        waitUntil: "domcontentloaded",
-        timeout: timeLeft(),
-      });
-      await page.evaluate(
-        (lines) => {
-          for (const line of lines) document.cookie = line;
-        },
-        cookieTokens.map(
-          ({ name, value, domain }) =>
-            `${name}=${value}; path=/; domain=${domain.toLowerCase()}; secure`
-        )
-      );
-    }
+    if (onSite.length > 0) await setTokens(context, page, onSite, targetUrl, timeLeft);
 
     page.on("response", (response) => {
       if (response.request().isNavigationRequest() && response.frame() === page.mainFrame()) {
@@ -447,14 +448,46 @@ async function renderInObscura(
 
     return { html, status };
   } catch (error) {
-    log.warn({ err: error, url: targetUrl }, "Obscura could not render the page");
+    log.warn({ err: error, url: targetUrl, renderer }, "A Page Renderer could not render the page");
 
     return { html: "", status };
   } finally {
     if (context) {
       await context.close().catch((err) => {
-        log.debug({ err }, "Failed to close the Obscura browser context during cleanup");
+        log.debug({ err, renderer }, "Failed to close a browser context during cleanup");
       });
     }
+  }
+}
+
+/** Obscura's tokens: headers through its `scopeDomain`, cookies set from the target's own origin. */
+async function setTokensInObscura(
+  context: BrowserContext,
+  page: Page,
+  tokens: SiteAuthTokenDecryptedDto[],
+  targetUrl: string,
+  timeLeft: () => number
+): Promise<void> {
+  const headerTokens = tokens.filter((t) => t.type === "header");
+  const cookieTokens = tokens.filter((t) => t.type === "cookie");
+
+  if (headerTokens.length > 0) await sendHeadersToTheirSite(context, page, headerTokens, targetUrl);
+
+  // Obscura never sends a cookie set over CDP but does send one a page sets, so the tokens are set
+  // from the target's origin, for the token's domain, secure, and stay within it.
+  if (cookieTokens.length > 0) {
+    await page.goto(new URL("/robots.txt", targetUrl).href, {
+      waitUntil: "domcontentloaded",
+      timeout: timeLeft(),
+    });
+    await page.evaluate(
+      (lines) => {
+        for (const line of lines) document.cookie = line;
+      },
+      cookieTokens.map(
+        ({ name, value, domain }) =>
+          `${name}=${value}; path=/; domain=${domain.toLowerCase()}; secure`
+      )
+    );
   }
 }

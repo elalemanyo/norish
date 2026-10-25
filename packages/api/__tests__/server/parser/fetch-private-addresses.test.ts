@@ -15,7 +15,7 @@ const { lookup, mockGetBrowser } = vi.hoisted(() => ({
 }));
 
 vi.mock("node:dns/promises", () => ({ lookup }));
-vi.mock("@norish/api/obscura", () => ({ getBrowser: mockGetBrowser }));
+vi.mock("@norish/api/parser/browser-connections", () => ({ getBrowser: mockGetBrowser }));
 vi.mock("@norish/shared-server/logger", () => ({
   parserLogger: { debug: vi.fn(), warn: vi.fn(), info: vi.fn(), error: vi.fn() },
 }));

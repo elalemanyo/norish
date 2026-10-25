@@ -17,7 +17,7 @@ const { mockGetBrowser, mockContent, mockCdpSend, log } = vi.hoisted(() => ({
   log: { debug: vi.fn(), warn: vi.fn(), info: vi.fn(), error: vi.fn() },
 }));
 
-vi.mock("@norish/api/obscura", () => ({ getBrowser: mockGetBrowser }));
+vi.mock("@norish/api/parser/browser-connections", () => ({ getBrowser: mockGetBrowser }));
 vi.mock("@norish/shared-server/logger", () => ({ parserLogger: log }));
 
 let renderers: PageRenderersConfig;
