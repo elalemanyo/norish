@@ -2,6 +2,7 @@ import type { Browser } from "playwright-core";
 import { chromium } from "playwright-core";
 
 import { serverLogger as log } from "@norish/shared-server/logger";
+import { withTimeout } from "@norish/shared/lib/with-timeout";
 
 /**
  * The connection to Obscura, the first Page Renderer. Playwright Core dials its CDP endpoint as
@@ -18,7 +19,12 @@ let browserKey = "";
  */
 let connecting: { key: string; promise: Promise<Browser> } | null = null;
 
-export async function getBrowser(endpoint: string, token?: string): Promise<Browser> {
+/** Connect within `timeoutMs`, the part of a render's deadline that is left. */
+export async function getBrowser(
+  endpoint: string,
+  token: string | undefined,
+  timeoutMs: number
+): Promise<Browser> {
   const key = `${endpoint}\n${token ?? ""}`;
 
   if (browser && browserKey !== key) void closeBrowser();
@@ -27,11 +33,16 @@ export async function getBrowser(endpoint: string, token?: string): Promise<Brow
   // keeps concurrent imports isolated. A connection Obscura dropped — because
   // it restarted, say — is replaced here rather than by restarting Norish.
   if (browser?.isConnected()) return browser;
-  if (connecting?.key === key) return connecting.promise;
+  if (connecting?.key === key) {
+    const joined = connecting.promise;
+
+    // Joining an attempt opened for another render, so its deadline is not this one's.
+    return withTimeout(() => joined, timeoutMs, "Connecting to Obscura");
+  }
 
   const headers: Record<string, string> = token ? { Authorization: `Bearer ${token}` } : {};
   const promise = chromium
-    .connectOverCDP(endpoint, { headers })
+    .connectOverCDP(endpoint, { headers, timeout: timeoutMs })
     .then((connected) => {
       // A connection that opened for an older setting meanwhile is replaced, not left open.
       if (browser && browser !== connected) void closeBrowser();

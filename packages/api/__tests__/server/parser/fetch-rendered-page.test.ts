@@ -14,7 +14,7 @@
  * rendered page is the page it asked for: a shop's bot check and a shop's
  * empty results page are the same two kilobytes to everybody else.
  */
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { PageRenderersConfig } from "@norish/config/zod/server-config";
 import type { SiteAuthTokenDecryptedDto } from "@norish/shared/contracts/dto/site-auth-tokens";
@@ -116,6 +116,8 @@ beforeEach(() => {
   mockGetBrowser.mockResolvedValue({ newContext: mockNewContext });
 });
 
+afterEach(() => vi.useRealTimers());
+
 describe("fetchRenderedPage – rendered-page contract", () => {
   it("never hands the browser a link that is not a web page", async () => {
     mockGetBrowser.mockClear();
@@ -141,6 +143,8 @@ describe("fetchRenderedPage – rendered-page contract", () => {
   });
 
   it("navigates once, under one bounded deadline", async () => {
+    // Held still, so none of the deadline is used up on the way to the navigation.
+    vi.useFakeTimers({ toFake: ["Date"] });
     await fetchRenderedPage("https://example.com/recipe");
 
     expect(mockGoto).toHaveBeenCalledOnce();
@@ -152,9 +156,10 @@ describe("fetchRenderedPage – rendered-page contract", () => {
   });
 
   it("dials the Obscura endpoint and token the administrator saved", async () => {
+    vi.useFakeTimers({ toFake: ["Date"] });
     await fetchRenderedPage("https://example.com/recipe");
 
-    expect(mockGetBrowser).toHaveBeenCalledWith("ws://obscura:9222", "cdp-token");
+    expect(mockGetBrowser).toHaveBeenCalledWith("ws://obscura:9222", "cdp-token", 30_000);
   });
 
   it("reports no HTML without dialling Obscura when it is switched off", async () => {

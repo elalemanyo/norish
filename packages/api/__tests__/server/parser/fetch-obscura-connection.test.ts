@@ -3,9 +3,10 @@
  * Obscura's endpoint and token come from the Page Renderers setting, so a save in admin settings
  * reaches the next render without a restart: the cached connection is replaced when either changes.
  */
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { PageRenderersConfig } from "@norish/config/zod/server-config";
+import type { SiteAuthTokenDecryptedDto } from "@norish/shared/contracts/dto/site-auth-tokens";
 import { closeBrowser } from "@norish/api/obscura";
 import { renderPage } from "@norish/api/parser/fetch";
 
@@ -24,16 +25,20 @@ vi.mock("@norish/shared-server/config/server-config-loader", () => ({
   getPageRenderersConfig: async () => renderers,
 }));
 
-/** A connected Obscura whose every page renders `html`. */
-function fakeBrowser(html: string) {
+/** A connected Obscura whose every page renders `html`, navigating through `goto`. */
+function fakeBrowser(
+  html: string,
+  goto: (url: string, options: { timeout?: number }) => Promise<unknown> = async () => undefined
+) {
   return {
     isConnected: () => true,
     close: vi.fn().mockResolvedValue(undefined),
     newContext: vi.fn(async () => ({
       close: vi.fn().mockResolvedValue(undefined),
       newPage: vi.fn(async () => ({
-        goto: vi.fn().mockResolvedValue(undefined),
+        goto: vi.fn(goto),
         content: vi.fn().mockResolvedValue(html),
+        evaluate: vi.fn(),
         on: vi.fn(),
         mainFrame: vi.fn(),
       })),
@@ -62,6 +67,7 @@ describe("renderPage – the Obscura connection follows the setting", () => {
     expect(connectOverCDP).toHaveBeenCalledOnce();
     expect(connectOverCDP).toHaveBeenCalledWith("ws://obscura:9222", {
       headers: { Authorization: "Bearer first" },
+      timeout: expect.any(Number),
     });
   });
 
@@ -90,6 +96,53 @@ describe("renderPage – the Obscura connection follows the setting", () => {
     expect(second.close).toHaveBeenCalled();
     expect(connectOverCDP).toHaveBeenLastCalledWith("ws://browser.lan:9333", {
       headers: { Authorization: "Bearer rotated" },
+      timeout: expect.any(Number),
     });
+  });
+});
+
+describe("renderPage – one deadline per attempt", () => {
+  afterEach(() => vi.useRealTimers());
+
+  it("connects and navigates within the navigation timeout, and settles within its own", async () => {
+    vi.useFakeTimers();
+    // Every edge takes 20 s and honours the timeout it is given, as Playwright's do.
+    const slow = <T>(value: T, timeout = 0) =>
+      new Promise<T>((resolve, reject) => {
+        setTimeout(() => resolve(value), 20_000);
+        if (timeout > 0) setTimeout(() => reject(new Error(`Timeout ${timeout}ms`)), timeout);
+      });
+    const browser = fakeBrowser("<html>still checking</html>", async (_url, { timeout }) =>
+      slow(null, timeout)
+    );
+    const cookie: SiteAuthTokenDecryptedDto = {
+      id: "00000000-0000-0000-0000-000000000000",
+      userId: "user-1",
+      domain: "example.com",
+      name: "session",
+      value: "s",
+      type: "cookie",
+      createdAt: new Date("2025-01-01"),
+      updatedAt: new Date("2025-01-01"),
+    };
+
+    connectOverCDP.mockImplementation(
+      async (_endpoint: string, { timeout }: { timeout?: number }) => slow(browser, timeout)
+    );
+    renderers.navigationTimeoutMs = 30_000;
+
+    const started = Date.now();
+    const finished = renderPage("https://example.com/r", [cookie], () => false).then((page) => ({
+      page,
+      took: Date.now() - started,
+    }));
+
+    await vi.runAllTimersAsync();
+
+    const { page, took } = await finished;
+
+    // The navigation timeout, then the settle deadline of 15 s, and no stack of them.
+    expect(took).toBeLessThanOrEqual(30_000 + 15_000);
+    expect(page).toEqual({ html: "", status: null });
   });
 });

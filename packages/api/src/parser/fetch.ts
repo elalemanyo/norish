@@ -377,12 +377,14 @@ async function renderInObscura(
   isSettled?: (html: string) => boolean
 ): Promise<RenderedPage> {
   const { endpoint, cdpToken } = renderers.obscura;
-  const timeout = renderers.navigationTimeoutMs;
+  // One deadline for the connection and every navigation; 0 would turn Playwright's timeout off.
+  const deadline = Date.now() + renderers.navigationTimeoutMs;
+  const timeLeft = () => Math.max(deadline - Date.now(), 1);
   let context: BrowserContext | undefined;
   let status: number | null = null;
 
   try {
-    const browser = await getBrowser(endpoint, cdpToken);
+    const browser = await getBrowser(endpoint, cdpToken, timeLeft());
 
     const { hostname, protocol } = new URL(targetUrl);
     // As in the plain fetch, no token goes over http, where it would travel in the clear.
@@ -411,7 +413,7 @@ async function renderInObscura(
     if (cookieTokens.length > 0) {
       await page.goto(new URL("/robots.txt", targetUrl).href, {
         waitUntil: "domcontentloaded",
-        timeout,
+        timeout: timeLeft(),
       });
       await page.evaluate(
         (lines) => {
@@ -432,11 +434,9 @@ async function renderInObscura(
 
     const response = await page.goto(targetUrl, {
       waitUntil: "load",
-      // The whole navigation budget. One deadline rather than a stack of them:
-      // page settling is Obscura's job, and waiting past the navigation for a
-      // page to become itself has its own deadline, SETTLE_TIMEOUT_MS, because only a
-      // caller can tell that it has not.
-      timeout,
+      // What is left of the one deadline. Waiting past it for the page to become itself has its
+      // own, SETTLE_TIMEOUT_MS, because only a caller can tell that it has not.
+      timeout: timeLeft(),
     });
 
     status ??= response?.status() ?? null;

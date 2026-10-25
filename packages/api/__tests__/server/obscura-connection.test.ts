@@ -5,7 +5,7 @@
  * connection Obscura dropped is replaced on the next call, and that a failure
  * reads as an Obscura problem. Everything past `connectOverCDP` is Obscura's.
  */
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 const { mockConnectOverCDP } = vi.hoisted(() => ({ mockConnectOverCDP: vi.fn() }));
 
@@ -14,6 +14,7 @@ vi.mock("playwright-core", () => ({
 }));
 
 const ENDPOINT = "ws://obscura.test:9222";
+const TIMEOUT = 30_000;
 
 vi.mock("@norish/shared-server/logger", () => ({
   serverLogger: { debug: vi.fn(), warn: vi.fn(), info: vi.fn(), error: vi.fn() },
@@ -33,6 +34,8 @@ function connectedBrowser() {
   };
 }
 
+afterEach(() => vi.useRealTimers());
+
 describe("getBrowser – the Obscura connection", () => {
   it("connects to the configured Obscura endpoint", async () => {
     const browser = connectedBrowser();
@@ -41,9 +44,10 @@ describe("getBrowser – the Obscura connection", () => {
 
     const { getBrowser } = await loadModule();
 
-    await expect(getBrowser(ENDPOINT)).resolves.toBe(browser);
+    await expect(getBrowser(ENDPOINT, undefined, TIMEOUT)).resolves.toBe(browser);
     expect(mockConnectOverCDP).toHaveBeenCalledExactlyOnceWith("ws://obscura.test:9222", {
       headers: {},
+      timeout: TIMEOUT,
     });
   });
 
@@ -52,9 +56,10 @@ describe("getBrowser – the Obscura connection", () => {
 
     const { getBrowser } = await loadModule();
 
-    await getBrowser(ENDPOINT, "a".repeat(64));
+    await getBrowser(ENDPOINT, "a".repeat(64), TIMEOUT);
     expect(mockConnectOverCDP).toHaveBeenCalledExactlyOnceWith("ws://obscura.test:9222", {
       headers: { Authorization: `Bearer ${"a".repeat(64)}` },
+      timeout: TIMEOUT,
     });
   });
 
@@ -62,9 +67,9 @@ describe("getBrowser – the Obscura connection", () => {
     mockConnectOverCDP.mockResolvedValue(connectedBrowser());
 
     const { getBrowser } = await loadModule();
-    const first = await getBrowser(ENDPOINT);
+    const first = await getBrowser(ENDPOINT, undefined, TIMEOUT);
 
-    await expect(getBrowser(ENDPOINT)).resolves.toBe(first);
+    await expect(getBrowser(ENDPOINT, undefined, TIMEOUT)).resolves.toBe(first);
     expect(mockConnectOverCDP).toHaveBeenCalledOnce();
   });
 
@@ -83,13 +88,31 @@ describe("getBrowser – the Obscura connection", () => {
     // Both start before either finishes: without shared in-flight state the
     // second connection would orphan the first, and shutdown would only know
     // about one of them.
-    const first = getBrowser(ENDPOINT);
-    const second = getBrowser(ENDPOINT);
+    const first = getBrowser(ENDPOINT, undefined, TIMEOUT);
+    const second = getBrowser(ENDPOINT, undefined, TIMEOUT);
 
     connect(browser);
 
     await expect(first).resolves.toBe(browser);
     await expect(second).resolves.toBe(browser);
+    expect(mockConnectOverCDP).toHaveBeenCalledOnce();
+  });
+
+  it("gives up on a connection still opening at the joining caller's own deadline", async () => {
+    vi.useFakeTimers();
+    mockConnectOverCDP.mockImplementation(async () => new Promise(() => {}));
+
+    const { getBrowser } = await loadModule();
+
+    void getBrowser(ENDPOINT, undefined, TIMEOUT);
+
+    const joining = getBrowser(ENDPOINT, undefined, 5_000);
+    const settled = vi.fn();
+
+    joining.then(settled, settled);
+    await vi.advanceTimersByTimeAsync(5_000);
+
+    expect(settled).toHaveBeenCalledOnce();
     expect(mockConnectOverCDP).toHaveBeenCalledOnce();
   });
 
@@ -101,10 +124,10 @@ describe("getBrowser – the Obscura connection", () => {
 
     const { getBrowser } = await loadModule();
 
-    await getBrowser(ENDPOINT);
+    await getBrowser(ENDPOINT, undefined, TIMEOUT);
     dropped.isConnected.mockReturnValue(false);
 
-    await expect(getBrowser(ENDPOINT)).resolves.toBe(replacement);
+    await expect(getBrowser(ENDPOINT, undefined, TIMEOUT)).resolves.toBe(replacement);
     expect(mockConnectOverCDP).toHaveBeenCalledTimes(2);
   });
 
@@ -121,8 +144,8 @@ describe("getBrowser – the Obscura connection", () => {
     );
 
     const { getBrowser } = await loadModule();
-    const first = getBrowser(ENDPOINT);
-    const second = getBrowser("ws://elsewhere.test:9222");
+    const first = getBrowser(ENDPOINT, undefined, TIMEOUT);
+    const second = getBrowser("ws://elsewhere.test:9222", undefined, TIMEOUT);
 
     // The newer connection opens first; the older one lands after it.
     connects[1]?.(newer);
@@ -140,8 +163,8 @@ describe("getBrowser – the Obscura connection", () => {
 
     const { getBrowser } = await loadModule();
 
-    await expect(getBrowser(ENDPOINT)).rejects.toThrow(/Obscura/);
-    await expect(getBrowser(ENDPOINT)).rejects.toThrow(/admin settings/);
+    await expect(getBrowser(ENDPOINT, undefined, TIMEOUT)).rejects.toThrow(/Obscura/);
+    await expect(getBrowser(ENDPOINT, undefined, TIMEOUT)).rejects.toThrow(/admin settings/);
   });
 
   it("retries the connection after a failure instead of caching it", async () => {
@@ -151,8 +174,8 @@ describe("getBrowser – the Obscura connection", () => {
 
     const { getBrowser } = await loadModule();
 
-    await expect(getBrowser(ENDPOINT)).rejects.toThrow();
-    await expect(getBrowser(ENDPOINT)).resolves.toBe(browser);
+    await expect(getBrowser(ENDPOINT, undefined, TIMEOUT)).rejects.toThrow();
+    await expect(getBrowser(ENDPOINT, undefined, TIMEOUT)).resolves.toBe(browser);
   });
 });
 
@@ -164,12 +187,12 @@ describe("closeBrowser – process shutdown", () => {
 
     const { getBrowser, closeBrowser } = await loadModule();
 
-    await getBrowser(ENDPOINT);
+    await getBrowser(ENDPOINT, undefined, TIMEOUT);
     await closeBrowser();
 
     expect(browser.close).toHaveBeenCalledOnce();
 
-    await getBrowser(ENDPOINT);
+    await getBrowser(ENDPOINT, undefined, TIMEOUT);
     expect(mockConnectOverCDP).toHaveBeenCalledTimes(2);
   });
 
@@ -181,7 +204,7 @@ describe("closeBrowser – process shutdown", () => {
 
     const { getBrowser, closeBrowser } = await loadModule();
 
-    await getBrowser(ENDPOINT);
+    await getBrowser(ENDPOINT, undefined, TIMEOUT);
     await expect(closeBrowser()).resolves.toBeUndefined();
   });
 });
