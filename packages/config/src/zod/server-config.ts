@@ -392,6 +392,9 @@ export const DEFAULT_TAG_STRATEGY: TagStrategy = "predefined";
 /** Restrictive by default: an administrator opts in to letting AI mint Cuisines. */
 export const DEFAULT_CUISINE_STRATEGY: CuisineStrategy = "existing";
 
+/** How long an AI request may run when the AI block stores no timeout. */
+export const DEFAULT_AI_TIMEOUT_MS = 300_000;
+
 export const AIConfigInputSchema = z.object({
   enabled: z.boolean(),
   provider: AIProviderSchema,
@@ -401,7 +404,7 @@ export const AIConfigInputSchema = z.object({
   apiKey: z.string().optional(),
   temperature: z.number().min(0).max(2),
   maxTokens: z.number().int().positive(),
-  timeoutMs: z.number().int().positive().optional().default(300000),
+  timeoutMs: z.number().int().positive().optional().default(DEFAULT_AI_TIMEOUT_MS),
   alwaysUseAI: z.boolean().default(false),
   tagStrategy: TagStrategySchema.optional(),
   cuisineStrategy: CuisineStrategySchema.optional(),

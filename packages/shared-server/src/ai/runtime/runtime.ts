@@ -40,6 +40,7 @@ import type {
   TranscriptionProvider,
 } from "@norish/config/zod/server-config";
 import {
+  DEFAULT_AI_TIMEOUT_MS,
   isCloudTranscriptionProvider,
   isDecisionConfigValid,
   isImageGenerationConfigValid,
@@ -86,9 +87,6 @@ import {
   requestOllamaTranscription,
 } from "./providers";
 import { SYSTEM_MESSAGES as SYSTEM_MESSAGE_TEXTS } from "./system-messages";
-
-/** The AI block's default timeout, for requests that run without one stored. */
-const DEFAULT_AI_TIMEOUT_MS = 300_000;
 
 // ============================================================================
 // System messages — code-owned, keyed by the prompt they accompany

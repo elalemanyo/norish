@@ -3,7 +3,11 @@ import path from "node:path";
 import { config } from "dotenv";
 import { z } from "zod";
 
-import { DEFAULT_YT_DLP_VERSION, TranscriptionProviderSchema } from "./zod/server-config";
+import {
+  DEFAULT_AI_TIMEOUT_MS,
+  DEFAULT_YT_DLP_VERSION,
+  TranscriptionProviderSchema,
+} from "./zod/server-config";
 
 // Import server-only to ensure this file is only used on the server
 // Using dynamic import wrapped in IIFE for compatibility
@@ -180,7 +184,7 @@ const ServerConfigFields = z.object({
   AI_API_KEY: z.string().optional(),
   AI_TEMPERATURE: z.coerce.number().min(0).max(2).default(1.0),
   AI_MAX_TOKENS: z.coerce.number().default(10000),
-  AI_TIMEOUT_MS: z.coerce.number().default(300000),
+  AI_TIMEOUT_MS: z.coerce.number().default(DEFAULT_AI_TIMEOUT_MS),
 
   // Video Processing Configuration
   VIDEO_PARSING_ENABLED: z

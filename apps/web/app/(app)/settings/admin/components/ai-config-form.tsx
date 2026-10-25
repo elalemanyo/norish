@@ -28,6 +28,7 @@ import type {
   TagStrategy,
 } from "@norish/config/zod/server-config";
 import {
+  DEFAULT_AI_TIMEOUT_MS,
   DEFAULT_AUTOMATIC_ENRICHMENT,
   DEFAULT_CUISINE_STRATEGY,
   DEFAULT_TAG_STRATEGY,
@@ -87,7 +88,7 @@ export default function AIConfigForm({ onDirtyChange }: AIConfigFormProps) {
   const [apiKey, setApiKey] = useState("");
   const [temperature, setTemperature] = useState(aiConfig?.temperature ?? 0);
   const [maxTokens, setMaxTokens] = useState(aiConfig?.maxTokens ?? 10000);
-  const [timeoutMs, setTimeoutMs] = useState(aiConfig?.timeoutMs ?? 300000);
+  const [timeoutMs, setTimeoutMs] = useState(aiConfig?.timeoutMs ?? DEFAULT_AI_TIMEOUT_MS);
   const [alwaysUseAI, setAlwaysUseAI] = useState(aiConfig?.alwaysUseAI ?? false);
   const [tagStrategy, setTagStrategy] = useState<TagStrategy>(
     aiConfig?.tagStrategy ?? DEFAULT_TAG_STRATEGY
@@ -188,7 +189,7 @@ export default function AIConfigForm({ onDirtyChange }: AIConfigFormProps) {
       setVisionModel(aiConfig.visionModel ?? "");
       setTemperature(aiConfig.temperature);
       setMaxTokens(aiConfig.maxTokens);
-      setTimeoutMs(aiConfig.timeoutMs ?? 300000);
+      setTimeoutMs(aiConfig.timeoutMs ?? DEFAULT_AI_TIMEOUT_MS);
       setAlwaysUseAI(aiConfig.alwaysUseAI ?? false);
       setTagStrategy(aiConfig.tagStrategy ?? DEFAULT_TAG_STRATEGY);
       setCuisineStrategy(aiConfig.cuisineStrategy ?? DEFAULT_CUISINE_STRATEGY);
@@ -213,7 +214,7 @@ export default function AIConfigForm({ onDirtyChange }: AIConfigFormProps) {
       visionModel !== (aiConfig.visionModel ?? "") ||
       temperature !== aiConfig.temperature ||
       maxTokens !== aiConfig.maxTokens ||
-      timeoutMs !== (aiConfig.timeoutMs ?? 300000) ||
+      timeoutMs !== (aiConfig.timeoutMs ?? DEFAULT_AI_TIMEOUT_MS) ||
       alwaysUseAI !== (aiConfig.alwaysUseAI ?? false) ||
       tagStrategy !== (aiConfig.tagStrategy ?? DEFAULT_TAG_STRATEGY) ||
       cuisineStrategy !== (aiConfig.cuisineStrategy ?? DEFAULT_CUISINE_STRATEGY) ||
@@ -504,7 +505,7 @@ export default function AIConfigForm({ onDirtyChange }: AIConfigFormProps) {
         isDisabled={!enabled}
         type="number"
         value={timeoutMs.toString()}
-        onChange={(value) => setTimeoutMs(parseInt(value) || 300000)}
+        onChange={(value) => setTimeoutMs(parseInt(value) || DEFAULT_AI_TIMEOUT_MS)}
       >
         <Label>{t("requestTimeout")}</Label>
         <Input variant="secondary" />
