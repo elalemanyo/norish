@@ -485,10 +485,31 @@ describe("renderPage – Site Auth Tokens in the Chromium browser", () => {
       "Fetch.enable",
       {
         patterns: [
-          { urlPattern: "https://example.com*", requestStage: "Request" },
-          { urlPattern: "https://*.example.com*", requestStage: "Request" },
+          { urlPattern: "https://example.com/*", requestStage: "Request" },
+          { urlPattern: "https://example.com:*", requestStage: "Request" },
+          { urlPattern: "https://*.example.com/*", requestStage: "Request" },
+          { urlPattern: "https://*.example.com:*", requestStage: "Request" },
         ],
       },
+    ]);
+  });
+
+  it("pauses no request to a host that only starts with the token's domain, and one with a port", async () => {
+    renderers.allowPrivateAddresses = true;
+    const { headersTo, paused } = chromiumServing({
+      "https://www.example.com:8443/r": { redirect: "https://example.com.evil.com/landing" },
+      "https://example.com.evil.com/landing": { documents: [{ html: REAL_PAGE }] },
+    });
+
+    await renderPage("https://www.example.com:8443/r", [HEADER]);
+
+    expect(paused).toEqual(["https://www.example.com:8443/r"]);
+    expect(headersTo).toEqual([
+      {
+        url: "https://www.example.com:8443/r",
+        headers: { ...BROWSER_HEADERS, Authorization: "Bearer abc" },
+      },
+      { url: "https://example.com.evil.com/landing", headers: BROWSER_HEADERS },
     ]);
   });
 

@@ -602,10 +602,16 @@ async function prepareChromiumPage(
   const headerTokens = tokens.filter((token) => token.type === "header");
   const cookieTokens = tokens.filter((token) => token.type === "cookie");
   const headerDomains = new Set(headerTokens.map(({ domain }) => domain.toLowerCase()));
-  // `*` also matches a port or a lookalike host, so these only narrow what is paused.
+  // The site and its subdomains, with or without a port. A `*` can still match past the host, so
+  // each paused request is checked by its own host.
   const patterns = [
     ...[...headerDomains].flatMap((domain) =>
-      [`https://${domain}*`, `https://*.${domain}*`].map((urlPattern) => ({
+      [
+        `https://${domain}/*`,
+        `https://${domain}:*`,
+        `https://*.${domain}/*`,
+        `https://*.${domain}:*`,
+      ].map((urlPattern) => ({
         urlPattern,
         requestStage: "Request" as const,
       }))
