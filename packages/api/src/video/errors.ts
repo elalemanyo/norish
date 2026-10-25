@@ -25,8 +25,8 @@ export function isMediaUnavailable(error: unknown): error is MediaUnavailableErr
 }
 
 /**
- * Whether a failed caption extraction still leaves transcription worth trying:
- * not when the AI provider itself refused, is off, or is misconfigured (#645).
+ * Whether transcription is still worth trying after a failed caption extraction: only
+ * when it was no AI error or an AIResponseError, so a refusal, timeout or 5xx is not (#645).
  */
 export function captionFailureAllowsTranscription(error: unknown): boolean {
   return !(error instanceof AIError) || error instanceof AIResponseError;

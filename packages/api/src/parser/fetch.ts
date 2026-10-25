@@ -109,9 +109,8 @@ export interface PlainPage {
 }
 
 /**
- * Fetch a page over plain HTTP. Redirects are followed by hand so each Site Auth Token
- * reaches only hosts on its own domain (its `headerScope` on the first host), never the
- * target of a redirect to another site. Only web links are fetched.
+ * Fetch a web page without a browser, following redirects by hand so Site Auth Tokens
+ * go only to https hops on their own domain.
  */
 export async function plainFetch(
   targetUrl: string,

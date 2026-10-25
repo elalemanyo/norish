@@ -286,11 +286,8 @@ export async function parseRecipeFromUrl(
   const aiEnabled = await isAIEnabled();
 
   if (structured.recipe) {
-    // Import triage, question 3: a parse the Decision Model scores as
-    // incomplete goes through AI extraction as `alwaysUseAI` would. When
-    // extraction has nothing better, or AI is off, the parse is kept and
-    // flagged. No Decision Model, or no opinion, and success means what it
-    // always has: a name.
+    // Import triage, question 3: an incomplete parse goes through AI extraction, and stays
+    // flagged when it is kept or replaced by a recipe without steps.
     const incomplete = (await isParseComplete(structured.recipe)) === false;
 
     if (incomplete && aiEnabled) {
