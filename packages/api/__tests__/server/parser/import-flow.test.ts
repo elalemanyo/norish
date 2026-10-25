@@ -529,6 +529,21 @@ describe("parseRecipeFromUrl import flow", () => {
     expect(mockExtractRecipeWithAI).not.toHaveBeenCalled();
   });
 
+  it("names the site that refused the plain fetch when a solver hands back its refusal page", async () => {
+    mockPlainFetch.mockResolvedValue({ html: "", status: 403, url: "" });
+    mockRenderStatus.mockReturnValue(null);
+    mockAdaptRecipeScrapersResponse.mockResolvedValue({ ...structuredRecipe, name: "" });
+    mockFetchRenderedPage.mockResolvedValue(
+      "<html><head><title>Access Denied</title></head><body>Access Denied</body></html>"
+    );
+
+    const { parseRecipeFromUrl } = await import("@norish/api/parser");
+
+    await expect(
+      parseRecipeFromUrl("https://www.ah.nl/allerhande/recept/R-R1202415", "recipe-1")
+    ).rejects.toThrow("ah.nl refused the request (HTTP 403)");
+  });
+
   it("keeps a recipe that parsed even though the first answer was a refusal", async () => {
     mockRenderStatus.mockReturnValue(429);
 

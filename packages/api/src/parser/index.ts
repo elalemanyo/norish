@@ -268,9 +268,11 @@ async function fetchRecipePage(
   }
 
   const rendered = await renderPage(url, tokens);
+  // The solver reports no status, so the plain fetch's refusal stays readable.
+  const status = rendered.status ?? plain.status;
 
-  if (rendered.html) return rendered;
-  if (isBotCheck(plain.html)) return { html: "", status: rendered.status ?? plain.status };
+  if (rendered.html) return { html: rendered.html, status };
+  if (isBotCheck(plain.html)) return { html: "", status };
 
   return { html: plain.html, status: plain.status };
 }
