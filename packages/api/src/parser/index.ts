@@ -1,7 +1,7 @@
 import type { PageSummary } from "@norish/api/parser/page-summary";
 import type { SiteAuthTokenDecryptedDto } from "@norish/shared/contracts/dto/site-auth-tokens";
 import { extractSanitizedBody } from "@norish/api/parser/extraction-sanitizer";
-import { plainFetch, renderPage } from "@norish/api/parser/fetch";
+import { isBotCheck, plainFetch, renderPage } from "@norish/api/parser/fetch";
 import { isParseComplete, isRecipe } from "@norish/api/parser/import-triage";
 import { extractRecipeNodesFromJsonLd } from "@norish/api/parser/jsonld";
 import { summarisePage } from "@norish/api/parser/page-summary";
@@ -83,6 +83,13 @@ function siteName(url: string): string {
   } catch {
     return "The site";
   }
+}
+
+/** "ah.nl refused the request (HTTP 403)" for a refusal status, otherwise null. */
+function refusalMessage(url: string, status: number | null): string | null {
+  return status !== null && REFUSAL_STATUSES.has(status)
+    ? `${siteName(url)} refused the request (HTTP ${status})`
+    : null;
 }
 
 const NON_RECIPE_FAILURE_CODES = new Set(["NoSchemaFoundInWildMode", "RecipeSchemaNotFound"]);
@@ -244,7 +251,7 @@ async function tryHandleVideoUrl(
 
 /**
  * A plain fetch first: a page whose HTML already holds a JSON-LD recipe needs no browser.
- * Anything else goes to the Page Renderers.
+ * Anything else goes to the Page Renderers, and the plain page stands in when none reads it.
  */
 async function fetchRecipePage(
   url: string,
@@ -260,7 +267,12 @@ async function fetchRecipePage(
     return { html: plain.html, status: plain.status };
   }
 
-  return renderPage(url, tokens);
+  const rendered = await renderPage(url, tokens);
+
+  if (rendered.html) return rendered;
+  if (isBotCheck(plain.html)) return { html: "", status: rendered.status ?? plain.status };
+
+  return { html: plain.html, status: plain.status };
 }
 
 export async function parseRecipeFromUrl(
@@ -275,7 +287,7 @@ export async function parseRecipeFromUrl(
 
   const { html, status } = await fetchRecipePage(url, tokens);
 
-  if (!html) throw new Error("Cannot fetch recipe page.");
+  if (!html) throw new Error(refusalMessage(url, status) ?? "Cannot fetch recipe page.");
 
   const useAIOnly = Boolean(forceAI || (await shouldAlwaysUseAI()));
 
@@ -310,9 +322,9 @@ export async function parseRecipeFromUrl(
   // and saying so beats blaming the parser for it. Only when the parser also
   // came up empty: a bot check that answers 403 and then hands over the real
   // page parses fine and never gets here.
-  if (structured.failure && status !== null && REFUSAL_STATUSES.has(status)) {
-    const refusal = `${siteName(url)} refused the request (HTTP ${status})`;
+  const refusal = structured.failure ? refusalMessage(url, status) : null;
 
+  if (structured.failure && refusal) {
     log.warn({ url, status, failureCode: structured.failure.code }, "Site refused the request");
     throw new ErrorWithDetail(
       refusal,

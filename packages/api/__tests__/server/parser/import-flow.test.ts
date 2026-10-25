@@ -38,6 +38,7 @@ vi.mock("@norish/shared/lib/helpers", async (importOriginal) => ({
 }));
 
 vi.mock("@norish/api/parser/fetch", () => ({
+  isBotCheck: (html: string) => html.includes("Just a moment"),
   plainFetch: mockPlainFetch,
   renderPage: async (...args: unknown[]) => ({
     html: await mockFetchRenderedPage(...args),
@@ -261,6 +262,47 @@ describe("parseRecipeFromUrl import flow", () => {
 
       expect(mockFetchRenderedPage).toHaveBeenCalledWith("https://example.com/recipe", tokens);
     });
+
+    it("reads the plain page when no Page Renderer reads it", async () => {
+      const plainHtml = "<html><body>a recipe</body></html>";
+
+      mockPlainFetch.mockResolvedValue({ html: plainHtml, status: 200, url: "" });
+      mockFetchRenderedPage.mockResolvedValue("");
+      mockRenderStatus.mockReturnValue(null);
+
+      const { parseRecipeFromUrl } = await import("@norish/api/parser");
+
+      await expect(
+        parseRecipeFromUrl("https://example.com/recipe", "recipe-1")
+      ).resolves.toMatchObject({ recipe: structuredRecipe });
+      expect(mockCallRecipeScrapersParser).toHaveBeenCalledWith({
+        url: "https://example.com/recipe",
+        html: plainHtml,
+      });
+    });
+
+    it.each([
+      ["names the site that refused", 403, "example.com refused the request (HTTP 403)"],
+      ["cannot fetch", 200, "Cannot fetch recipe page."],
+    ])(
+      "%s when the plain page is a bot check no Page Renderer gets past",
+      async (_case, status, message) => {
+        mockPlainFetch.mockResolvedValue({
+          html: "<html><head><title>Just a moment...</title></head></html>",
+          status,
+          url: "",
+        });
+        mockFetchRenderedPage.mockResolvedValue("");
+        mockRenderStatus.mockReturnValue(null);
+
+        const { parseRecipeFromUrl } = await import("@norish/api/parser");
+
+        await expect(parseRecipeFromUrl("https://example.com/recipe", "recipe-1")).rejects.toThrow(
+          message
+        );
+        expect(mockCallRecipeScrapersParser).not.toHaveBeenCalled();
+      }
+    );
 
     it("names a private address the server refused, and renders nothing", async () => {
       mockPlainFetch.mockResolvedValue({
