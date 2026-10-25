@@ -164,6 +164,22 @@ function tokensOnSite(
   return tokens.filter(({ domain }) => isHostOnDomain(hostname, domain));
 }
 
+/** The tokens a request carries: its site's, and none over http, where they travel in the clear. */
+function tokensFor(
+  { hostname, protocol }: URL,
+  tokens?: SiteAuthTokenDecryptedDto[]
+): SiteAuthTokenDecryptedDto[] {
+  return protocol === "https:" ? tokensOnSite(hostname, tokens) : [];
+}
+
+/** Tokens split into those sent as headers and those sent as cookies. */
+function byType(tokens: SiteAuthTokenDecryptedDto[]) {
+  return {
+    headerTokens: tokens.filter(({ type }) => type === "header"),
+    cookieTokens: tokens.filter(({ type }) => type === "cookie"),
+  };
+}
+
 /** The narrowest token domain the host is on. */
 export function headerScope(hostname: string, tokens: SiteAuthTokenDecryptedDto[]): string {
   return tokensOnSite(hostname, tokens).reduce(
@@ -213,21 +229,13 @@ export async function plainFetch(
         return { html: "", status: null, url, refused: true };
       }
 
-      const onSite =
-        parsed.protocol === "https:" ? tokensOnSite(parsed.hostname, options.tokens) : [];
-      const cookie = onSite
-        .filter((token) => token.type === "cookie")
-        .map(({ name, value }) => `${name}=${value}`)
-        .join("; ");
+      const { headerTokens, cookieTokens } = byType(tokensFor(parsed, options.tokens));
+      const cookie = cookieTokens.map(({ name, value }) => `${name}=${value}`).join("; ");
       const response = await fetch(url, {
         headers: {
           "user-agent": userAgent,
           ...options.headers,
-          ...Object.fromEntries(
-            onSite
-              .filter((token) => token.type === "header")
-              .map(({ name, value }) => [name, value])
-          ),
+          ...Object.fromEntries(headerTokens.map(({ name, value }) => [name, value])),
           ...(cookie ? { cookie } : {}),
         },
         redirect: "manual",
@@ -348,8 +356,14 @@ export async function renderPage(
     page.html !== "" && !isBotCheck(page.html, page.status);
   // Asked once, by the first renderer that honours Allow private addresses; Obscura has its own deny.
   let refused: Promise<boolean> | undefined;
-  const isRefused = () =>
-    (refused ??= isRefusedHost(new URL(targetUrl).hostname, renderers.allowPrivateAddresses));
+  const isRefused = async (renderer: string) => {
+    refused ??= isRefusedHost(new URL(targetUrl).hostname, renderers.allowPrivateAddresses);
+
+    if (!(await refused)) return false;
+    log.warn({ url: targetUrl }, `Refused to send a private address to the ${renderer}`);
+
+    return true;
+  };
   let status: number | null = null;
 
   if (renderers.obscura.enabled) {
@@ -367,24 +381,20 @@ export async function renderPage(
     status = rendered.status;
   }
 
-  if (renderers.chromium.enabled) {
-    if (await isRefused()) {
-      log.warn({ url: targetUrl }, "Refused to send a private address to the Chromium browser");
-    } else {
-      const rendered = await renderInBrowser(
-        "chromium",
-        { endpoint: await byAddress(renderers.chromium.endpoint) },
-        renderers.navigationTimeoutMs,
-        targetUrl,
-        tokens,
-        isSettled,
-        (context, page, onSite) =>
-          prepareChromiumPage(context, page, onSite, renderers.allowPrivateAddresses)
-      );
+  if (renderers.chromium.enabled && !(await isRefused("Chromium browser"))) {
+    const rendered = await renderInBrowser(
+      "chromium",
+      { endpoint: await byAddress(renderers.chromium.endpoint) },
+      renderers.navigationTimeoutMs,
+      targetUrl,
+      tokens,
+      isSettled,
+      (context, page, onSite) =>
+        prepareChromiumPage(context, page, onSite, renderers.allowPrivateAddresses)
+    );
 
-      if (isReadable(rendered)) return answered("chromium", targetUrl, rendered);
-      status = rendered.status ?? status;
-    }
+    if (isReadable(rendered)) return answered("chromium", targetUrl, rendered);
+    status = rendered.status ?? status;
   }
 
   if (renderers.solver.enabled && renderers.solver.endpoint) {
@@ -396,9 +406,7 @@ export async function renderPage(
       );
     }
 
-    if (await isRefused()) {
-      log.warn({ url: targetUrl }, "Refused to send a private address to the solver");
-    } else {
+    if (!(await isRefused("solver"))) {
       const solved = await renderInSolver(
         targetUrl,
         renderers.solver.endpoint,
@@ -490,11 +498,10 @@ async function renderInBrowser(
 
     if (!browser) return "";
 
-    const { hostname, protocol } = new URL(targetUrl);
-    // As in the plain fetch, no token goes over http, where it would travel in the clear.
-    const onSite = protocol === "https:" ? tokensOnSite(hostname, tokens) : [];
+    const target = new URL(targetUrl);
+    const onSite = tokensFor(target, tokens);
 
-    if (protocol !== "https:" && tokens?.length) {
+    if (target.protocol !== "https:" && tokens?.length) {
       log.info(
         { url: targetUrl, tokens: tokens.length },
         "Site Auth Tokens withheld from an http page"
@@ -564,8 +571,7 @@ async function setTokensInObscura(
   targetUrl: string,
   timeLeft: () => number
 ): Promise<void> {
-  const headerTokens = tokens.filter((t) => t.type === "header");
-  const cookieTokens = tokens.filter((t) => t.type === "cookie");
+  const { headerTokens, cookieTokens } = byType(tokens);
 
   if (headerTokens.length > 0) await sendHeadersToTheirSite(context, page, headerTokens, targetUrl);
 
@@ -599,8 +605,7 @@ async function prepareChromiumPage(
   tokens: SiteAuthTokenDecryptedDto[],
   allowPrivateAddresses: boolean
 ): Promise<void> {
-  const headerTokens = tokens.filter((token) => token.type === "header");
-  const cookieTokens = tokens.filter((token) => token.type === "cookie");
+  const { headerTokens, cookieTokens } = byType(tokens);
   const headerDomains = new Set(headerTokens.map(({ domain }) => domain));
   // The site and its subdomains, with or without a port. A `*` can still match past the host, so
   // each paused request is checked by its own host.
@@ -640,13 +645,13 @@ async function prepareChromiumPage(
 
   cdp.on("Fetch.requestPaused", ({ requestId, request, resourceType }) => {
     const answer = async () => {
-      const { hostname, protocol } = new URL(request.url);
+      const url = new URL(request.url);
 
       // A host that does not resolve rejects here and is failed, so Chromium never resolves it.
       if (
         resourceType === "Document" &&
         !allowPrivateAddresses &&
-        (await addressesOf(hostname)).some(isPrivate)
+        (await addressesOf(url.hostname)).some(isPrivate)
       ) {
         log.warn({ url: request.url }, "Refused a private address in the Chromium browser");
         await cdp.send("Fetch.failRequest", { requestId, errorReason: "BlockedByClient" });
@@ -655,7 +660,7 @@ async function prepareChromiumPage(
       }
 
       // As in the plain fetch, a header goes only to an https request on its own site.
-      const onSite = protocol === "https:" ? tokensOnSite(hostname, headerTokens) : [];
+      const onSite = tokensFor(url, headerTokens);
       const replaced = new Set(onSite.map(({ name }) => name.toLowerCase()));
 
       await cdp.send(
