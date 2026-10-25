@@ -452,30 +452,23 @@ export async function listModels(
 // Transcription Models
 // ============================================================================
 
-/**
- * List available transcription (Whisper) models from OpenAI.
- */
-export async function listOpenAITranscriptionModels(apiKey: string): Promise<AvailableModel[]> {
-  const models = await fetchModelsRaw({
-    url: "https://api.openai.com/v1/models",
-    headers: { Authorization: `Bearer ${apiKey}` },
-    provider: "openai",
-  });
-
-  return models
-    .filter((m) => isAudioModel(m.id))
-    .map((m) => ({ id: m.id, name: m.id, supportsVision: false }))
-    .sort((a, b) => a.id.localeCompare(b.id));
-}
+/** Cloud transcription providers' model lists, all OpenAI-shaped and keyed by bearer token. */
+const TRANSCRIPTION_MODEL_LISTS = {
+  openai: "https://api.openai.com/v1/models",
+  groq: "https://api.groq.com/openai/v1/models",
+} as const;
 
 /**
- * List available transcription models from Groq.
+ * List a cloud provider's transcription models: the audio models in its model list.
  */
-export async function listGroqTranscriptionModels(apiKey: string): Promise<AvailableModel[]> {
+async function listCloudTranscriptionModels(
+  provider: keyof typeof TRANSCRIPTION_MODEL_LISTS,
+  apiKey: string
+): Promise<AvailableModel[]> {
   const models = await fetchModelsRaw({
-    url: "https://api.groq.com/openai/v1/models",
+    url: TRANSCRIPTION_MODEL_LISTS[provider],
     headers: { Authorization: `Bearer ${apiKey}` },
-    provider: "groq",
+    provider,
   });
 
   return models
@@ -545,22 +538,14 @@ export async function listTranscriptionModels(
 
   switch (provider) {
     case "openai":
-      if (!apiKey) {
-        aiLogger.debug("Cannot list OpenAI transcription models without API key");
-
-        return [];
-      }
-
-      return listOpenAITranscriptionModels(apiKey);
-
     case "groq":
       if (!apiKey) {
-        aiLogger.debug("Cannot list Groq transcription models without API key");
+        aiLogger.debug({ provider }, "Cannot list transcription models without API key");
 
         return [];
       }
 
-      return listGroqTranscriptionModels(apiKey);
+      return listCloudTranscriptionModels(provider, apiKey);
 
     case "azure":
       // Azure uses deployment names - return common whisper models as suggestions
