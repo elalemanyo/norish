@@ -373,8 +373,12 @@ export async function renderPage(
       renderers.navigationTimeoutMs,
       targetUrl,
       tokens,
-      isSettled,
-      setTokensInObscura
+      {
+        prepare: setTokensInObscura,
+        // Read once, the moment it loads, unless the caller can tell it is not the page yet.
+        read: (page) =>
+          isSettled ? settledContent(() => page.content(), isSettled) : page.content(),
+      }
     );
 
     if (isReadable(rendered)) return answered("obscura", targetUrl, rendered);
@@ -388,9 +392,14 @@ export async function renderPage(
       renderers.navigationTimeoutMs,
       targetUrl,
       tokens,
-      isSettled,
-      (context, page, onSite) =>
-        prepareChromiumPage(context, page, onSite, renderers.allowPrivateAddresses)
+      {
+        prepare: (context, page, onSite) =>
+          prepareChromiumPage(context, page, onSite, renderers.allowPrivateAddresses),
+        // Read once loaded and, unless the caller can tell, once past a bot check: Allerhande's
+        // reloads into the page seconds after load.
+        read: (page) =>
+          settledContent(() => loadedContent(page), isSettled ?? ((html) => !isBotCheck(html))),
+      }
     );
 
     if (isReadable(rendered)) return answered("chromium", targetUrl, rendered);
@@ -466,16 +475,19 @@ async function renderInSolver(
 }
 
 /**
- * What a renderer does to the page before its main navigation, handed the Site Auth Tokens on the
- * target's https site (none for an http target). A navigation of its own keeps within `timeLeft()`.
+ * How a renderer prepares its page before the main navigation, handed the tokens `tokensFor` the
+ * target, and how it reads the page after. A navigation of its own keeps within `timeLeft()`.
  */
-type PreparePage = (
-  context: BrowserContext,
-  page: Page,
-  tokens: SiteAuthTokenDecryptedDto[],
-  targetUrl: string,
-  timeLeft: () => number
-) => Promise<void>;
+interface PageSteps {
+  prepare: (
+    context: BrowserContext,
+    page: Page,
+    tokens: SiteAuthTokenDecryptedDto[],
+    targetUrl: string,
+    timeLeft: () => number
+  ) => Promise<void>;
+  read: (page: Page) => Promise<string>;
+}
 
 /** Render a page in a CDP Page Renderer, in a context of this fetch's own. */
 async function renderInBrowser(
@@ -484,8 +496,7 @@ async function renderInBrowser(
   navigationTimeoutMs: number,
   targetUrl: string,
   tokens: SiteAuthTokenDecryptedDto[] | undefined,
-  isSettled: ((html: string) => boolean) | undefined,
-  preparePage: PreparePage
+  { prepare, read }: PageSteps
 ): Promise<RenderedPage> {
   // One deadline for the connection and every navigation; 0 would turn Playwright's timeout off.
   const deadline = Date.now() + navigationTimeoutMs;
@@ -514,7 +525,7 @@ async function renderInBrowser(
     const context = await opening;
     const page = await context.newPage();
 
-    await preparePage(context, page, onSite, targetUrl, timeLeft);
+    await prepare(context, page, onSite, targetUrl, timeLeft);
 
     page.on("response", (response) => {
       if (response.request().isNavigationRequest() && response.frame() === page.mainFrame()) {
@@ -531,13 +542,7 @@ async function renderInBrowser(
 
     status ??= response?.status() ?? null;
 
-    // The Chromium browser is read once its document has loaded and, unless the caller can tell,
-    // once past a bot check: Allerhande's reloads into the page seconds after load.
-    if (renderer === "chromium") {
-      return settledContent(() => loadedContent(page), isSettled ?? ((html) => !isBotCheck(html)));
-    }
-
-    return isSettled ? settledContent(() => page.content(), isSettled) : page.content();
+    return read(page);
   };
 
   try {
