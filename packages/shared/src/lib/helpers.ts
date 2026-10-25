@@ -424,9 +424,12 @@ export function isVideoUrl(str: string): boolean {
   return isUrl(str) && isOnDomain(str, ...VIDEO_PLATFORM_HOSTS);
 }
 
-/** Whether `hostname` is `domain` or a subdomain of it, matched at a dot boundary. */
+/**
+ * Whether `hostname` is `domain` or a subdomain of it, matched at a dot boundary. A domain without
+ * a dot is a bare word or a top-level domain (`shop`), and no host is on it.
+ */
 export function isHostOnDomain(hostname: string, domain: string): boolean {
-  return hostname === domain || hostname.endsWith(`.${domain}`);
+  return domain.includes(".") && (hostname === domain || hostname.endsWith(`.${domain}`));
 }
 
 /** Whether the URL's host is one of `domains` or a subdomain of one (`instagram.com.example.net` is neither). */

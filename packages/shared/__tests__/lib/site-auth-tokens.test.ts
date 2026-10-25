@@ -147,6 +147,15 @@ describe("getMatchingTokens", () => {
         expect(getMatchingTokens(tokens, url), url).toEqual([]);
       }
     });
+
+    it("matches no host under a top-level domain of that name, nor a single-label host", () => {
+      expect(getMatchingTokens([makeToken({ domain: "shop" })], "https://attacker.shop/")).toEqual(
+        []
+      );
+      expect(
+        getMatchingTokens([makeToken({ domain: "instagram" })], "https://instagram/p/123")
+      ).toEqual([]);
+    });
   });
 
   describe("bare domain input (no protocol)", () => {

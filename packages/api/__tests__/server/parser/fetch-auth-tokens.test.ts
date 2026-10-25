@@ -368,6 +368,22 @@ describe("plainFetch – Site Auth Tokens across redirects", () => {
     expect(requests()[0]?.headers).toEqual({ "user-agent": "Norish" });
   });
 
+  it("sends nothing for a bare-word token to a host under a top-level domain of that name", async () => {
+    const requests = serve(new Response("<html>page</html>"), new Response("<html>page</html>"));
+    const bareWord = (domain: string) => [
+      makeToken({ name: "Authorization", value: "Bearer s", type: "header", domain }),
+      makeToken({ name: "sessionid", value: "s", type: "cookie", domain }),
+    ];
+
+    await plainFetch("https://attacker.shop/", "Norish", { tokens: bareWord("shop") });
+    await plainFetch("https://instagram/p/1", "Norish", { tokens: bareWord("instagram") });
+
+    expect(requests().map(({ headers }) => headers)).toEqual([
+      { "user-agent": "Norish" },
+      { "user-agent": "Norish" },
+    ]);
+  });
+
   it("does not take a host that merely ends in the token's domain for its site", async () => {
     const requests = serve(redirectTo("https://evilexample.com/"), new Response(""));
 
