@@ -1056,7 +1056,7 @@
       "chromiumDescription": "Будь-який Chromium з CDP-адресою.",
       "chromiumEndpoint": "Адреса Chromium",
       "solver": "FlareSolverr або Byparr",
-      "solverDescription": "Використовується, коли браузери не впоралися. Токенам автентифікації сайтів потрібна Obscura.",
+      "solverDescription": "Використовується, коли браузери не впоралися. Ніколи не отримує токени автентифікації сайтів.",
       "solverEndpoint": "Адреса розв'язувача",
       "allowPrivateAddresses": "Дозволити приватні адреси",
       "allowPrivateAddressesDescription": "Дозволяє імпорту звертатися до вашої локальної мережі. Obscura відхиляє їх у будь-якому разі.",

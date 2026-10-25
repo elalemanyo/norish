@@ -1056,7 +1056,7 @@
       "chromiumDescription": "CDP 엔드포인트가 있는 모든 Chromium입니다.",
       "chromiumEndpoint": "Chromium 엔드포인트",
       "solver": "FlareSolverr 또는 Byparr",
-      "solverDescription": "브라우저가 실패하면 시도합니다. 사이트 인증 토큰에는 Obscura가 필요합니다.",
+      "solverDescription": "브라우저가 실패하면 시도합니다. 사이트 인증 토큰은 절대 받지 않습니다.",
       "solverEndpoint": "솔버 엔드포인트",
       "allowPrivateAddresses": "사설 주소 허용",
       "allowPrivateAddressesDescription": "가져오기가 로컬 네트워크에 접근할 수 있게 합니다. Obscura는 어떤 경우에도 거부합니다.",

@@ -1056,7 +1056,7 @@
       "chromiumDescription": "Elke Chromium met een CDP-endpoint.",
       "chromiumEndpoint": "Chromium-endpoint",
       "solver": "FlareSolverr of Byparr",
-      "solverDescription": "Wordt geprobeerd als de browsers falen. Site-authenticatietokens hebben Obscura nodig.",
+      "solverDescription": "Wordt geprobeerd als de browsers falen. Krijgt nooit site-authenticatietokens.",
       "solverEndpoint": "Solver-endpoint",
       "allowPrivateAddresses": "Privéadressen toestaan",
       "allowPrivateAddressesDescription": "Laat imports je lokale netwerk bereiken. Obscura weigert deze hoe dan ook.",

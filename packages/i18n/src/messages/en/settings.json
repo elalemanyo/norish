@@ -1056,7 +1056,7 @@
       "chromiumDescription": "Any Chromium with a CDP endpoint.",
       "chromiumEndpoint": "Chromium endpoint",
       "solver": "FlareSolverr or Byparr",
-      "solverDescription": "Tried when the browsers fail. Site authentication tokens need Obscura.",
+      "solverDescription": "Tried when the browsers fail. It never receives site authentication tokens.",
       "solverEndpoint": "Solver endpoint",
       "allowPrivateAddresses": "Allow private addresses",
       "allowPrivateAddressesDescription": "Let imports reach your local network. Obscura refuses these either way.",

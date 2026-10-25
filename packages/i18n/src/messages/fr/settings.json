@@ -1056,7 +1056,7 @@
       "chromiumDescription": "N'importe quel Chromium avec un point de terminaison CDP.",
       "chromiumEndpoint": "Point de terminaison Chromium",
       "solver": "FlareSolverr ou Byparr",
-      "solverDescription": "Essayé quand les navigateurs échouent. Les jetons d'authentification de site nécessitent Obscura.",
+      "solverDescription": "Essayé quand les navigateurs échouent. Il ne reçoit jamais de jetons d'authentification de site.",
       "solverEndpoint": "Point de terminaison du solveur",
       "allowPrivateAddresses": "Autoriser les adresses privées",
       "allowPrivateAddressesDescription": "Permet aux imports d'atteindre votre réseau local. Obscura les refuse dans tous les cas.",

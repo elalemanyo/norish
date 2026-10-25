@@ -1056,7 +1056,7 @@
       "chromiumDescription": "Qualquer Chromium com um endpoint CDP.",
       "chromiumEndpoint": "Endpoint do Chromium",
       "solver": "FlareSolverr ou Byparr",
-      "solverDescription": "Usado quando os navegadores falham. Tokens de autenticação de sites precisam do Obscura.",
+      "solverDescription": "Usado quando os navegadores falham. Nunca recebe tokens de autenticação de sites.",
       "solverEndpoint": "Endpoint do solucionador",
       "allowPrivateAddresses": "Permitir endereços privados",
       "allowPrivateAddressesDescription": "Permite que importações alcancem sua rede local. O Obscura as recusa de qualquer forma.",

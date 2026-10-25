@@ -1056,7 +1056,7 @@
       "chromiumDescription": "Jedes Chromium mit einem CDP-Endpunkt.",
       "chromiumEndpoint": "Chromium-Endpunkt",
       "solver": "FlareSolverr oder Byparr",
-      "solverDescription": "Wird versucht, wenn die Browser scheitern. Website-Authentifizierungstokens benötigen Obscura.",
+      "solverDescription": "Wird versucht, wenn die Browser scheitern. Er erhält nie Website-Authentifizierungstokens.",
       "solverEndpoint": "Solver-Endpunkt",
       "allowPrivateAddresses": "Private Adressen zulassen",
       "allowPrivateAddressesDescription": "Erlaubt Importen den Zugriff auf dein lokales Netzwerk. Obscura lehnt diese in jedem Fall ab.",

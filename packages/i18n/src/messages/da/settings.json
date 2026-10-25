@@ -1056,7 +1056,7 @@
       "chromiumDescription": "Enhver Chromium med et CDP-endpoint.",
       "chromiumEndpoint": "Chromium-endpoint",
       "solver": "FlareSolverr eller Byparr",
-      "solverDescription": "Prøves, når browserne fejler. Godkendelsestokens til websteder kræver Obscura.",
+      "solverDescription": "Prøves, når browserne fejler. Den får aldrig godkendelsestokens til websteder.",
       "solverEndpoint": "Solver-endpoint",
       "allowPrivateAddresses": "Tillad private adresser",
       "allowPrivateAddressesDescription": "Lader importer nå dit lokale netværk. Obscura afviser dem under alle omstændigheder.",

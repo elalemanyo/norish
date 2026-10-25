@@ -1056,7 +1056,7 @@
       "chromiumDescription": "Mikä tahansa Chromium, jolla on CDP-päätepiste.",
       "chromiumEndpoint": "Chromiumin päätepiste",
       "solver": "FlareSolverr tai Byparr",
-      "solverDescription": "Kokeillaan, kun selaimet epäonnistuvat. Sivustojen todennustunnukset vaativat Obscuran.",
+      "solverDescription": "Kokeillaan, kun selaimet epäonnistuvat. Se ei koskaan saa sivustojen todennustunnuksia.",
       "solverEndpoint": "Ratkaisijan päätepiste",
       "allowPrivateAddresses": "Salli yksityiset osoitteet",
       "allowPrivateAddressesDescription": "Antaa tuontien tavoittaa paikallisen verkkosi. Obscura hylkää ne joka tapauksessa.",

@@ -1056,7 +1056,7 @@
       "chromiumDescription": "Enhver Chromium med et CDP-endepunkt.",
       "chromiumEndpoint": "Chromium-endepunkt",
       "solver": "FlareSolverr eller Byparr",
-      "solverDescription": "Prøves når nettleserne feiler. Autentiseringstokener for nettsteder krever Obscura.",
+      "solverDescription": "Prøves når nettleserne feiler. Den får aldri autentiseringstokener for nettsteder.",
       "solverEndpoint": "Løser-endepunkt",
       "allowPrivateAddresses": "Tillat private adresser",
       "allowPrivateAddressesDescription": "Lar importer nå ditt lokale nettverk. Obscura avviser dem uansett.",
