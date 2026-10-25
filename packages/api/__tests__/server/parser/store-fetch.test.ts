@@ -138,13 +138,4 @@ describe("fetchStorePage", () => {
     expect(settled?.(A_REAL_PAGE.replace("<body>", "<body>shelf"))).toBe(true);
     expect(settled?.(A_CHALLENGE)).toBe(false);
   });
-
-  it("still reads a plain-fetchable shop when Obscura is out of reach", async () => {
-    vi.stubGlobal("fetch", answerWith(A_REAL_PAGE));
-    renderPage.mockRejectedValue(new Error("Obscura is not reachable"));
-
-    await expect(
-      fetchStorePage("https://www.dirk.nl/zoeken/producten/kaas")
-    ).resolves.toMatchObject({ html: A_REAL_PAGE, rendered: false });
-  });
 });

@@ -3,6 +3,7 @@
  * Obscura's endpoint and token come from the Page Renderers setting, so a save in admin settings
  * reaches the next render without a restart: the cached connection is replaced when either changes.
  */
+import { inspect } from "node:util";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { PageRenderersConfig } from "@norish/config/zod/server-config";
@@ -10,14 +11,14 @@ import type { SiteAuthTokenDecryptedDto } from "@norish/shared/contracts/dto/sit
 import { closeBrowser } from "@norish/api/obscura";
 import { renderPage } from "@norish/api/parser/fetch";
 
-const { connectOverCDP } = vi.hoisted(() => ({ connectOverCDP: vi.fn() }));
+const { connectOverCDP, log } = vi.hoisted(() => ({
+  connectOverCDP: vi.fn(),
+  log: { debug: vi.fn(), warn: vi.fn(), info: vi.fn(), error: vi.fn() },
+}));
 
 vi.mock("playwright-core", () => ({ chromium: { connectOverCDP } }));
 
-vi.mock("@norish/shared-server/logger", () => ({
-  parserLogger: { debug: vi.fn(), warn: vi.fn(), info: vi.fn(), error: vi.fn() },
-  serverLogger: { debug: vi.fn(), warn: vi.fn(), info: vi.fn(), error: vi.fn() },
-}));
+vi.mock("@norish/shared-server/logger", () => ({ parserLogger: log, serverLogger: log }));
 
 let renderers: PageRenderersConfig;
 
@@ -48,6 +49,7 @@ function fakeBrowser(
 
 beforeEach(async () => {
   await closeBrowser();
+  vi.clearAllMocks();
   connectOverCDP.mockReset();
   renderers = {
     obscura: { enabled: true, endpoint: "ws://obscura:9222", cdpToken: "first" },
@@ -144,5 +146,27 @@ describe("renderPage – one deadline per attempt", () => {
     // The navigation timeout, then the settle deadline of 15 s, and no stack of them.
     expect(took).toBeLessThanOrEqual(30_000 + 15_000);
     expect(page).toEqual({ html: "", status: null });
+  });
+});
+
+describe("renderPage – an Obscura it cannot reach", () => {
+  it("reads no HTML and logs the endpoint at error level, without its query string", async () => {
+    renderers.obscura = { enabled: true, endpoint: "http://obscura:9222/?token=secret" };
+    // Playwright names an http endpoint in its error, query string and all.
+    connectOverCDP.mockRejectedValue(
+      new Error(
+        "browserType.connectOverCDP: connect ECONNREFUSED\nCall log:\n  - <ws preparing> retrieving websocket url from http://obscura:9222/?token=secret"
+      )
+    );
+
+    await expect(renderPage("https://example.com/r")).resolves.toEqual({ html: "", status: null });
+    expect(log.error).toHaveBeenCalledWith(
+      expect.objectContaining({ renderer: "obscura", endpoint: "http://obscura:9222/" }),
+      expect.stringMatching(/not reachable at http:\/\/obscura:9222\/\. .*admin settings/)
+    );
+
+    const logged = Object.values(log).map((level) => level.mock.calls);
+
+    expect(inspect(logged, { depth: null })).not.toContain("secret");
   });
 });

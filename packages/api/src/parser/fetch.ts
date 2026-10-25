@@ -386,6 +386,8 @@ async function renderInObscura(
   try {
     const browser = await getBrowser(endpoint, cdpToken, timeLeft());
 
+    if (!browser) return { html: "", status };
+
     const { hostname, protocol } = new URL(targetUrl);
     // As in the plain fetch, no token goes over http, where it would travel in the clear.
     const onSite = protocol === "https:" ? tokensOnSite(hostname, tokens) : [];

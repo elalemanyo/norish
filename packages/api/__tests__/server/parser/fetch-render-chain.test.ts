@@ -151,7 +151,7 @@ describe("renderPage – the order", () => {
   });
 
   it("moves on to the solver when Obscura returns no HTML", async () => {
-    mockGetBrowser.mockRejectedValue(new Error("Obscura is not reachable"));
+    mockGetBrowser.mockResolvedValue(null);
     solverAnswers(solved(SOLVED_PAGE));
 
     await expect(renderPage("https://example.com/r")).resolves.toEqual({

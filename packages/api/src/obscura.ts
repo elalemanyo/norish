@@ -19,12 +19,15 @@ let browserKey = "";
  */
 let connecting: { key: string; promise: Promise<Browser> } | null = null;
 
-/** Connect within `timeoutMs`, the part of a render's deadline that is left. */
+/**
+ * Connect within `timeoutMs`, the part of a render's deadline that is left. An Obscura that cannot
+ * be reached is logged for the administrator and answers null.
+ */
 export async function getBrowser(
   endpoint: string,
   token: string | undefined,
   timeoutMs: number
-): Promise<Browser> {
+): Promise<Browser | null> {
   const key = `${endpoint}\n${token ?? ""}`;
 
   if (browser && browserKey !== key) void closeBrowser();
@@ -33,13 +36,32 @@ export async function getBrowser(
   // keeps concurrent imports isolated. A connection Obscura dropped — because
   // it restarted, say — is replaced here rather than by restarting Norish.
   if (browser?.isConnected()) return browser;
-  if (connecting?.key === key) {
-    const joined = connecting.promise;
 
-    // Joining an attempt opened for another render, so its deadline is not this one's.
-    return withTimeout(() => joined, timeoutMs, "Connecting to Obscura");
+  const attempt =
+    connecting?.key === key ? connecting.promise : connect(endpoint, token, key, timeoutMs);
+
+  try {
+    // A caller joining an attempt opened for another render still gives up at its own deadline.
+    return await withTimeout(() => attempt, timeoutMs, "Connecting to Obscura");
+  } catch (error) {
+    // A hosted browser may take its token in the query string, so no query string is logged.
+    const hidden = (text: string) => text.replace(/[?#]\S*/g, "");
+
+    log.error(
+      { renderer: "obscura", endpoint: hidden(endpoint), reason: hidden(String(error)) },
+      `Obscura is not reachable at ${hidden(endpoint)}. Start the obscura service or check its endpoint and CDP token in admin settings.`
+    );
+
+    return null;
   }
+}
 
+function connect(
+  endpoint: string,
+  token: string | undefined,
+  key: string,
+  timeoutMs: number
+): Promise<Browser> {
   const headers: Record<string, string> = token ? { Authorization: `Bearer ${token}` } : {};
   const promise = chromium
     .connectOverCDP(endpoint, { headers, timeout: timeoutMs })
@@ -50,12 +72,6 @@ export async function getBrowser(
       browserKey = key;
 
       return connected;
-    })
-    .catch((error: unknown) => {
-      log.error({ err: error, endpoint }, "Failed to connect to Obscura");
-      throw new Error(
-        `Obscura is not reachable at ${endpoint}. Start the obscura service or check its endpoint and CDP token in admin settings.`
-      );
     })
     .finally(() => {
       // Cleared either way: a failed attempt must not be cached, so the next

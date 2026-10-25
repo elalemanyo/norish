@@ -129,19 +129,15 @@ export class InstagramProcessor extends BaseVideoProcessor {
     // If yt-dlp returned no usable caption, render the post and read its caption
     if (!holdsRecipe) {
       log.info({ url }, "Description holds no recipe, rendering the post");
-      try {
-        const html = await fetchRenderedPage(url, tokens);
+      const html = await fetchRenderedPage(url, tokens);
 
-        if (html) {
-          description = extractCaptionFromHtml(html);
-          log.info(
-            { url, descriptionLength: description.length },
-            "Extracted caption from the rendered page"
-          );
-          holdsRecipe = captionMayHoldRecipe(description, await judgeRecipe(description), 50);
-        }
-      } catch (err) {
-        log.warn({ url, err }, "Failed to render the post");
+      if (html) {
+        description = extractCaptionFromHtml(html);
+        log.info(
+          { url, descriptionLength: description.length },
+          "Extracted caption from the rendered page"
+        );
+        holdsRecipe = captionMayHoldRecipe(description, await judgeRecipe(description), 50);
       }
     }
 

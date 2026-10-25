@@ -7,7 +7,10 @@
  */
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-const { mockConnectOverCDP } = vi.hoisted(() => ({ mockConnectOverCDP: vi.fn() }));
+const { mockConnectOverCDP, log } = vi.hoisted(() => ({
+  mockConnectOverCDP: vi.fn(),
+  log: { debug: vi.fn(), warn: vi.fn(), info: vi.fn(), error: vi.fn() },
+}));
 
 vi.mock("playwright-core", () => ({
   chromium: { connectOverCDP: mockConnectOverCDP },
@@ -16,9 +19,7 @@ vi.mock("playwright-core", () => ({
 const ENDPOINT = "ws://obscura.test:9222";
 const TIMEOUT = 30_000;
 
-vi.mock("@norish/shared-server/logger", () => ({
-  serverLogger: { debug: vi.fn(), warn: vi.fn(), info: vi.fn(), error: vi.fn() },
-}));
+vi.mock("@norish/shared-server/logger", () => ({ serverLogger: log }));
 
 /** A fresh module instance, so the cached connection never leaks across tests. */
 async function loadModule() {
@@ -34,7 +35,10 @@ function connectedBrowser() {
   };
 }
 
-afterEach(() => vi.useRealTimers());
+afterEach(() => {
+  vi.useRealTimers();
+  vi.clearAllMocks();
+});
 
 describe("getBrowser – the Obscura connection", () => {
   it("connects to the configured Obscura endpoint", async () => {
@@ -158,13 +162,18 @@ describe("getBrowser – the Obscura connection", () => {
     expect(open).toHaveLength(1);
   });
 
-  it("reports an unreachable endpoint as an Obscura failure", async () => {
+  it("reports an unreachable endpoint to the administrator, and answers no browser", async () => {
     mockConnectOverCDP.mockRejectedValue(new Error("ECONNREFUSED"));
 
     const { getBrowser } = await loadModule();
 
-    await expect(getBrowser(ENDPOINT, undefined, TIMEOUT)).rejects.toThrow(/Obscura/);
-    await expect(getBrowser(ENDPOINT, undefined, TIMEOUT)).rejects.toThrow(/admin settings/);
+    await expect(getBrowser(ENDPOINT, undefined, TIMEOUT)).resolves.toBeNull();
+    expect(log.error).toHaveBeenCalledExactlyOnceWith(
+      expect.objectContaining({ endpoint: ENDPOINT, reason: "Error: ECONNREFUSED" }),
+      expect.stringMatching(
+        /^Obscura is not reachable at ws:\/\/obscura.test:9222\..*admin settings/
+      )
+    );
   });
 
   it("retries the connection after a failure instead of caching it", async () => {
@@ -174,7 +183,7 @@ describe("getBrowser – the Obscura connection", () => {
 
     const { getBrowser } = await loadModule();
 
-    await expect(getBrowser(ENDPOINT, undefined, TIMEOUT)).rejects.toThrow();
+    await expect(getBrowser(ENDPOINT, undefined, TIMEOUT)).resolves.toBeNull();
     await expect(getBrowser(ENDPOINT, undefined, TIMEOUT)).resolves.toBe(browser);
   });
 });

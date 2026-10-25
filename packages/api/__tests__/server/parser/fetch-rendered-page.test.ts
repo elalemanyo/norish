@@ -229,7 +229,7 @@ describe("fetchRenderedPage – rendered-page contract", () => {
   });
 
   it("reports no HTML when Obscura is unreachable", async () => {
-    mockGetBrowser.mockRejectedValue(new Error("Obscura is not available."));
+    mockGetBrowser.mockResolvedValue(null);
 
     await expect(fetchRenderedPage("https://example.com/recipe")).resolves.toBe("");
     expect(mockNewContext).not.toHaveBeenCalled();
