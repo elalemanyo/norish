@@ -4,11 +4,11 @@
 
 **Blocked by:** None (can start immediately).
 
-**Status:** ready-for-agent
+**Status:** done
 
-- [ ] Saving a token whose domain has no dot is refused with a validation message, in every locale.
-- [ ] The matching function has no bare-word branch: an existing bare-word token matches no host.
-- [ ] `instagram.com` matches `instagram.com` and `www.instagram.com`, and not `instagram.evil.com` or `notinstagram.com`.
-- [ ] The plain fetch and Obscura carry nothing for a stored bare-word token. The test fails before the fix.
-- [ ] The Site Auth Tokens UI's domain hint asks for a full domain.
-- [ ] The 0.26.0 Upgrade notes tell users to save bare-word tokens again with their full domain, and the release notes have a fixes line.
+- [x] Saving a token whose domain has no dot is refused with a validation message, in every locale.
+- [x] The matching function has no bare-word branch: an existing bare-word token matches no host.
+- [x] `instagram.com` matches `instagram.com` and `www.instagram.com`, and not `instagram.evil.com` or `notinstagram.com`.
+- [x] The plain fetch and Obscura carry nothing for a stored bare-word token. The test fails before the fix.
+- [x] The Site Auth Tokens UI's domain hint asks for a full domain.
+- [x] The 0.26.0 Upgrade notes tell users to save bare-word tokens again with their full domain, and the release notes have a fixes line.

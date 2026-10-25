@@ -181,14 +181,19 @@ describe("fetchRenderedPage – auth token injection", () => {
     expect(getExtraHTTPHeaders()).toBeUndefined();
   });
 
-  it("keeps a cookie whose domain is a bare word on the target host alone", async () => {
+  it("sends nothing for a token saved with a bare word for its domain", async () => {
     const tokens = [
       makeToken({ name: "sessionid", value: "s", type: "cookie", domain: "instagram" }),
+      makeToken({ name: "Authorization", value: "Bearer s", type: "header", domain: "instagram" }),
     ];
 
     await fetchRenderedPage("https://www.instagram.com/reel/abc", tokens);
 
-    expect(setFromPage().cookies).toEqual(["sessionid=s; path=/; secure"]);
+    expect(setFromPage()).toEqual({
+      cookies: undefined,
+      visited: ["https://www.instagram.com/reel/abc"],
+    });
+    expect(mockCdpSend).not.toHaveBeenCalled();
   });
 
   it("handles mixed header and cookie tokens", async () => {
@@ -246,18 +251,16 @@ describe("headerScope", () => {
     expect(scope("www.example.com", "example.com")).toBe("example.com");
   });
 
-  it("widens a bare word to the host's labels from that word on", () => {
-    expect(scope("www.instagram.com", "instagram")).toBe("instagram.com");
-  });
-
   it("keeps to the narrowest domain when tokens name several", () => {
     expect(scope("www.instagram.com", "instagram.com", "www.instagram.com")).toBe(
       "www.instagram.com"
     );
   });
 
-  it("falls back to the host itself for a domain it is not on", () => {
-    expect(scope("example.com", "other.test")).toBe("example.com");
+  it("leaves out a domain the host is not on, a bare word included", () => {
+    expect(scope("www.instagram.com", "instagram", "other.test", "instagram.com")).toBe(
+      "instagram.com"
+    );
   });
 });
 
@@ -340,6 +343,24 @@ describe("plainFetch – Site Auth Tokens across redirects", () => {
       { "user-agent": "Norish" },
       { "user-agent": "Norish" },
     ]);
+  });
+
+  it("sends nothing for a token saved with a bare word for its domain", async () => {
+    const requests = serve(new Response("<html>page</html>"));
+
+    await plainFetch("https://www.instagram.com/p/1", "Norish", {
+      tokens: [
+        makeToken({
+          name: "Authorization",
+          value: "Bearer s",
+          type: "header",
+          domain: "instagram",
+        }),
+        makeToken({ name: "sessionid", value: "s", type: "cookie", domain: "instagram" }),
+      ],
+    });
+
+    expect(requests()[0]?.headers).toEqual({ "user-agent": "Norish" });
   });
 
   it("does not take a host that merely ends in the token's domain for its site", async () => {

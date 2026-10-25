@@ -9,6 +9,7 @@ import { PlusIcon, ShieldCheckIcon, TrashIcon } from "@heroicons/react/24/outlin
 import {
   Button,
   Chip,
+  FieldError,
   Input,
   Label,
   ListBox,
@@ -104,7 +105,9 @@ export default function SiteAuthTokensCard() {
     setShowDeleteModal(false);
     setTokenToDelete(null);
   };
-  const isFormValid = domain.trim() && name.trim() && value.trim();
+  // A token's domain is a full domain, which also covers its subdomains.
+  const isDomainBare = domain.trim() !== "" && !domain.includes(".");
+  const isFormValid = domain.trim() && !isDomainBare && name.trim() && value.trim();
 
   // Sorted so a site's accounts read as the sets they are, rather than in the
   // order they happened to be added.
@@ -121,9 +124,15 @@ export default function SiteAuthTokensCard() {
         {/* Create form */}
         <div className="flex flex-col gap-3">
           <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_9rem] xl:items-end">
-            <TextField className="min-w-0" value={domain} onChange={setDomain}>
+            <TextField
+              className="min-w-0"
+              isInvalid={isDomainBare}
+              value={domain}
+              onChange={setDomain}
+            >
               <Label>{t("domain")}</Label>
               <Input variant="secondary" placeholder={t("domainPlaceholder")} />
+              <FieldError>{t("domainNotFull")}</FieldError>
             </TextField>
             <TextField className="min-w-0" value={account} onChange={setAccount}>
               <span className="flex h-5 items-center gap-1">

@@ -138,22 +138,19 @@ async function sendHeadersToTheirSite(
   log.warn({ url: targetUrl }, "Obscura cannot keep header tokens to their site, so none are sent");
 }
 
-/** The narrowest token domain, as one the host is on: a bare "instagram" becomes "instagram.com". */
+/** The tokens for the host's own site: those whose domain is the host or one it is under. */
+function tokensOnSite(
+  hostname: string,
+  tokens: SiteAuthTokenDecryptedDto[] = []
+): SiteAuthTokenDecryptedDto[] {
+  return tokens.filter(({ domain }) => isHostOnDomain(hostname, domain.toLowerCase()));
+}
+
+/** The narrowest token domain the host is on. */
 export function headerScope(hostname: string, tokens: SiteAuthTokenDecryptedDto[]): string {
-  const labels = hostname.split(".");
-  const domains = tokens.map(({ domain }) => {
-    const lowered = domain.toLowerCase();
-
-    if (lowered.includes(".")) return isHostOnDomain(hostname, lowered) ? lowered : hostname;
-    const at = labels.indexOf(lowered);
-
-    return at < 0 ? hostname : labels.slice(at).join(".");
-  });
-
-  return domains.reduce(
-    (narrowest, domain) => (domain.length > narrowest.length ? domain : narrowest),
-    ""
-  );
+  return tokensOnSite(hostname, tokens)
+    .map(({ domain }) => domain.toLowerCase())
+    .reduce((narrowest, domain) => (domain.length > narrowest.length ? domain : narrowest), "");
 }
 
 /** A page fetched without a browser. */
@@ -177,11 +174,6 @@ export async function plainFetch(
   userAgent: string,
   options: { headers?: Record<string, string>; tokens?: SiteAuthTokenDecryptedDto[] } = {}
 ): Promise<PlainPage> {
-  const firstHost = URL.parse(targetUrl)?.hostname ?? "";
-  const scoped = (options.tokens ?? []).map((token) => ({
-    token,
-    scope: headerScope(firstHost, [token]),
-  }));
   const signal = AbortSignal.timeout(PLAIN_FETCH_TIMEOUT_MS);
   const { allowPrivateAddresses } = await getPageRenderersConfig();
   let url = targetUrl;
@@ -203,11 +195,7 @@ export async function plainFetch(
       }
 
       const onSite =
-        parsed.protocol === "https:"
-          ? scoped
-              .filter(({ scope }) => isHostOnDomain(parsed.hostname, scope))
-              .map(({ token }) => token)
-          : [];
+        parsed.protocol === "https:" ? tokensOnSite(parsed.hostname, options.tokens) : [];
       const cookie = onSite
         .filter((token) => token.type === "cookie")
         .map(({ name, value }) => `${name}=${value}`)
@@ -388,8 +376,10 @@ async function renderInObscura(
   try {
     const browser = await getBrowser(endpoint, cdpToken);
 
-    const headerTokens = tokens?.filter((t) => t.type === "header") ?? [];
-    const cookieTokens = tokens?.filter((t) => t.type === "cookie") ?? [];
+    const { hostname, protocol } = new URL(targetUrl);
+    const onSite = tokensOnSite(hostname, tokens);
+    const headerTokens = onSite.filter((t) => t.type === "header");
+    const cookieTokens = onSite.filter((t) => t.type === "cookie");
 
     // A fresh context per fetch, so one importer's tokens never reach another's page.
     context = await browser.newContext();
@@ -400,9 +390,8 @@ async function renderInObscura(
       await sendHeadersToTheirSite(context, page, headerTokens, targetUrl);
 
     // Obscura never sends a cookie set over CDP but does send one a page sets, so the tokens are set
-    // from the target's origin, for the token's domain when the target is on it, and stay within it.
+    // from the target's origin, for the token's domain, and stay within it.
     if (cookieTokens.length > 0) {
-      const { hostname, protocol } = new URL(targetUrl);
       // Secure on an https page, so the browser never sends them over http.
       const secure = protocol === "https:" ? "; secure" : "";
 
@@ -414,12 +403,10 @@ async function renderInObscura(
         (lines) => {
           for (const line of lines) document.cookie = line;
         },
-        cookieTokens.map(({ name, value, domain }) => {
-          const lowered = domain.toLowerCase();
-          const scope = isHostOnDomain(hostname, lowered) ? `; domain=${lowered}` : "";
-
-          return `${name}=${value}; path=/${scope}${secure}`;
-        })
+        cookieTokens.map(
+          ({ name, value, domain }) =>
+            `${name}=${value}; path=/; domain=${domain.toLowerCase()}${secure}`
+        )
       );
     }
 

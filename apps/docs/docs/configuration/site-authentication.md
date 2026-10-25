@@ -16,19 +16,19 @@ from [`MASTER_KEY`](./server-runtime.md).
 
 ## Adding a token
 
-| Field                  | What goes in it                                        |
-| ---------------------- | ------------------------------------------------------ |
-| **Domain**             | The site the token is for, for example `instagram.com` |
-| **Account (optional)** | Which of your logins it belongs to, see below          |
-| **Name**               | The cookie name, or the header name                    |
-| **Value**              | The cookie value, or the header value                  |
-| **Type**               | **Cookie** or **Header**                               |
+| Field                  | What goes in it                                     |
+| ---------------------- | --------------------------------------------------- |
+| **Domain**             | The site's full domain, for example `instagram.com` |
+| **Account (optional)** | Which of your logins it belongs to, see below       |
+| **Name**               | The cookie name, or the header name                 |
+| **Value**              | The cookie value, or the header value               |
+| **Type**               | **Cookie** or **Header**                            |
 
 **Domain** covers subdomains, so `instagram.com` also matches
-`www.instagram.com`. A bare `instagram` works too. A token is only sent to its
-own domain, with one exception: a video import sends a header token with every
-request yt-dlp makes for that video, including to the servers the site keeps
-its videos on.
+`www.instagram.com`. A bare word like `instagram` is not a domain, and Norish
+refuses it. A token is only sent to its own domain, with one exception: a video
+import sends a header token with every request yt-dlp makes for that video,
+including to the servers the site keeps its videos on.
 
 ### Finding a cookie
 
