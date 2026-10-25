@@ -9,12 +9,12 @@ The solver still never gets tokens. Spec: `.scratch/chromium-browser-renderer/sp
 
 **Blocked by:** 02, 06.
 
-**Status:** ready-for-agent
+**Status:** done
 
-- [ ] At the rendered-page entry point, the faked Chromium session continues requests to the token's https site with the header, and other hosts' requests are never paused.
-- [ ] Cookie tokens are set through `addCookies` with their domain and `secure`, with no robots.txt pre-navigation.
-- [ ] An http target gets no tokens, as ticket 03 already holds for Obscura.
-- [ ] When the chain reaches the solver, it still gets no tokens, and the withheld-tokens log fires.
-- [ ] The real-browser E2E: a fixture is served on two distinct hostnames. An import with a header token for the first shows the header arriving there, and an off-site redirect to the second without it.
-- [ ] ADR-0019's token rule reads "the solver never gets tokens", replacing "only Obscura carries tokens", title included.
-- [ ] The Page Renderers card's token description no longer says Site Auth Tokens need Obscura.
+- [x] At the rendered-page entry point, the faked Chromium session continues requests to the token's https site with the header, and other hosts' requests are never paused.
+- [x] Cookie tokens are set through `addCookies` with their domain and `secure`, with no robots.txt pre-navigation.
+- [x] An http target gets no tokens, as ticket 03 already holds for Obscura.
+- [x] When the chain reaches the solver, it still gets no tokens, and the withheld-tokens log fires.
+- [x] The real-browser E2E: a fixture is served on two distinct hostnames. An import with a header token for the first shows the header arriving there, and an off-site redirect to the second without it.
+- [x] ADR-0019's token rule reads "the solver never gets tokens", replacing "only Obscura carries tokens", title included.
+- [x] The Page Renderers card's token description no longer says Site Auth Tokens need Obscura.

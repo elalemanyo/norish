@@ -31,9 +31,10 @@ Set them up under **Settings => Admin => Page renderers**.
   `http://flaresolverr:8191/v1`. Each page it reads starts a new browser, which
   takes a few seconds.
 
-Site authentication tokens go to Obscura only. The Chromium browser and the
-solver get the page without them, so a page that needs you signed in needs
-Obscura. See [Site authentication](./site-authentication.md).
+Site authentication tokens go to Obscura and the Chromium browser, which keep
+them to the token's site. The solver gets the page without them, so a page that
+needs you signed in needs one of the browsers. See
+[Site authentication](./site-authentication.md).
 
 With all three off, Norish only fetches pages plainly. If no page renderer can
 read a page, the import fails.
