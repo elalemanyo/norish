@@ -53,6 +53,7 @@ beforeEach(async () => {
   connectOverCDP.mockReset();
   renderers = {
     obscura: { enabled: true, endpoint: "ws://obscura:9222", cdpToken: "first" },
+    chromium: { enabled: false, endpoint: "" },
     solver: { enabled: false },
     allowPrivateAddresses: false,
     navigationTimeoutMs: 45_000,

@@ -2,7 +2,8 @@
 /**
  * Allow private addresses (ADR-0019): off by default, a page fetch never reaches a loopback,
  * private or link-local address, before the plain fetch, at every redirect hop, and before the
- * solver. Obscura enforces its own deny, so it is not guarded here. DNS is faked at the edge.
+ * Chromium browser and the solver. Obscura enforces its own deny, so it is not guarded here. DNS
+ * is faked at the edge.
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -61,6 +62,7 @@ beforeEach(() => {
   vi.clearAllMocks();
   renderers = {
     obscura: { enabled: false, endpoint: "ws://obscura:9222" },
+    chromium: { enabled: false, endpoint: "" },
     solver: { enabled: false },
     allowPrivateAddresses: false,
     navigationTimeoutMs: 30_000,
@@ -176,6 +178,47 @@ describe("renderPage – the solver is guarded, Obscura is not", () => {
     await renderPage("http://router.lan/");
 
     expect(mockGetBrowser).toHaveBeenCalled();
+  });
+});
+
+describe("renderPage – the Chromium browser is guarded like the solver", () => {
+  const solved = () => Response.json({ status: "ok", solution: { status: 200, response: PAGE } });
+
+  beforeEach(() => {
+    renderers.chromium = { enabled: true, endpoint: "ws://127.0.0.1:9222" };
+    renderers.solver = { enabled: true, endpoint: "http://flaresolverr:8191/v1" };
+    mockGetBrowser.mockResolvedValue(null);
+  });
+
+  it("skips both for a private target, asking DNS about it once", async () => {
+    const requested = serve(solved);
+
+    await expect(renderPage("http://router.lan/")).resolves.toEqual({ html: "", status: null });
+    expect(mockGetBrowser).not.toHaveBeenCalled();
+    expect(requested()).toEqual([]);
+    expect(lookup.mock.calls.filter(([host]) => host === "router.lan")).toHaveLength(1);
+  });
+
+  it("asks DNS about a public target once, for both", async () => {
+    serve(solved);
+
+    await expect(renderPage("https://example.com/r")).resolves.toMatchObject({ html: PAGE });
+    expect(mockGetBrowser).toHaveBeenCalledOnce();
+    expect(lookup.mock.calls.filter(([host]) => host === "example.com")).toHaveLength(1);
+  });
+
+  it("dials the Chromium browser for a private target once private addresses are allowed", async () => {
+    renderers.allowPrivateAddresses = true;
+    serve(solved);
+
+    await renderPage("http://router.lan/");
+
+    expect(mockGetBrowser).toHaveBeenCalledWith(
+      "chromium",
+      "ws://127.0.0.1:9222",
+      undefined,
+      expect.any(Number)
+    );
   });
 });
 

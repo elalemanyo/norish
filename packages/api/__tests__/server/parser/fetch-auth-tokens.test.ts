@@ -58,6 +58,7 @@ vi.mock("node:dns/promises", () => ({
 vi.mock("@norish/shared-server/config/server-config-loader", () => ({
   getPageRenderersConfig: async () => ({
     obscura: { enabled: true, endpoint: "ws://obscura:9222" },
+    chromium: { enabled: false, endpoint: "" },
     solver: { enabled: false },
     allowPrivateAddresses: false,
     navigationTimeoutMs: 45_000,

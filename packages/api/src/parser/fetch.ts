@@ -1,5 +1,5 @@
 import { lookup } from "node:dns/promises";
-import { BlockList } from "node:net";
+import { BlockList, isIP } from "node:net";
 import type { BrowserContext, Page } from "playwright-core";
 import { z } from "zod";
 
@@ -49,12 +49,15 @@ function sleep(ms: number): Promise<void> {
  * with the real page seconds later, so a caller that can tell the two apart is
  * given until the deadline to be handed the second one. Reading a page
  * mid-navigation throws, which is a page still becoming itself and counts as
- * unsettled.
+ * unsettled, as does a read that answers null.
  */
-async function settledContent(page: Page, isSettled: (html: string) => boolean): Promise<string> {
+async function settledContent(
+  content: () => Promise<string | null>,
+  isSettled: (html: string) => boolean
+): Promise<string> {
   const read = async (): Promise<string | null> => {
     try {
-      return await page.content();
+      return await content();
     } catch {
       return null;
     }
@@ -253,7 +256,38 @@ export async function plainFetch(
 }
 
 // `page.evaluate` runs in the page, where `document` exists; this package compiles without DOM types.
-declare const document: { cookie: string };
+declare const document: {
+  cookie: string;
+  readyState: string;
+  documentElement: { outerHTML: string };
+};
+
+/** The page's HTML once its document has finished loading, else null; one evaluation, never half. */
+function loadedContent(page: Page): Promise<string | null> {
+  return page.evaluate(() =>
+    document.readyState === "complete" ? document.documentElement.outerHTML : null
+  );
+}
+
+/**
+ * The endpoint with its host as an address: Chromium's DevTools server refuses a Host header that
+ * is not an IP or localhost. https and wss endpoints sit behind proxies without that check.
+ */
+async function byAddress(endpoint: string): Promise<string> {
+  const url = URL.parse(endpoint);
+
+  if (!url || !/^(?:http|ws):$/.test(url.protocol) || isIP(url.hostname.replace(/^\[|\]$/g, ""))) {
+    return endpoint;
+  }
+
+  // A name that does not resolve is dialled as given, so the failure names it.
+  const [resolved] = await lookup(url.hostname, { all: true }).catch(() => []);
+
+  if (!resolved) return endpoint;
+  url.hostname = resolved.family === 6 ? `[${resolved.address}]` : resolved.address;
+
+  return url.href;
+}
 
 /**
  * Render a page with the Page Renderers that are switched on and return its HTML.
@@ -268,7 +302,8 @@ declare const document: { cookie: string };
  * `isSettled` is the caller's own reading of whether the rendered HTML is the
  * page it asked for. Only a caller knows: a shop's bot check and a shop's
  * empty results page are the same two kilobytes to everyone else. Without it
- * the page is read once, the moment it loads, exactly as before.
+ * Obscura's page is read once, the moment it loads, and the Chromium browser's
+ * once it is past a bot check.
  */
 export async function fetchRenderedPage(
   targetUrl: string,
@@ -295,6 +330,10 @@ export async function renderPage(
   const renderers = await getPageRenderersConfig();
   const isReadable = (page: RenderedPage) =>
     page.html !== "" && !isBotCheck(page.html, page.status);
+  // Asked once, by the first renderer that honours Allow private addresses; Obscura has its own deny.
+  let refused: Promise<boolean> | undefined;
+  const isRefused = () =>
+    (refused ??= isRefusedHost(new URL(targetUrl).hostname, renderers.allowPrivateAddresses));
   let status: number | null = null;
 
   if (renderers.obscura.enabled) {
@@ -312,6 +351,25 @@ export async function renderPage(
     status = rendered.status;
   }
 
+  if (renderers.chromium.enabled) {
+    if (await isRefused()) {
+      log.warn({ url: targetUrl }, "Refused to send a private address to the Chromium browser");
+    } else {
+      const rendered = await renderInBrowser(
+        "chromium",
+        { endpoint: await byAddress(renderers.chromium.endpoint) },
+        renderers.navigationTimeoutMs,
+        targetUrl,
+        tokens,
+        isSettled,
+        (context, page) => guardDocuments(context, page, renderers.allowPrivateAddresses)
+      );
+
+      if (isReadable(rendered)) return answered("chromium", targetUrl, rendered);
+      status = rendered.status ?? status;
+    }
+  }
+
   if (renderers.solver.enabled && renderers.solver.endpoint) {
     // A solver cannot keep tokens to their site, so it never gets them.
     if (tokens?.length) {
@@ -321,7 +379,7 @@ export async function renderPage(
       );
     }
 
-    if (await isRefusedHost(new URL(targetUrl).hostname, renderers.allowPrivateAddresses)) {
+    if (await isRefused()) {
       log.warn({ url: targetUrl }, "Refused to send a private address to the solver");
     } else {
       const solved = await renderInSolver(
@@ -338,7 +396,11 @@ export async function renderPage(
   return { html: "", status };
 }
 
-function answered(renderer: "obscura" | "solver", url: string, page: RenderedPage): RenderedPage {
+function answered(
+  renderer: BrowserRenderer | "solver",
+  url: string,
+  page: RenderedPage
+): RenderedPage {
   log.info({ url, renderer }, "A Page Renderer read the page");
 
   return page;
@@ -379,10 +441,10 @@ async function renderInSolver(
 }
 
 /**
- * How a browser is handed the Site Auth Tokens on the target's https site, before its main
- * navigation. A navigation of its own keeps within `timeLeft()`.
+ * What a renderer does to the page before its main navigation, handed the Site Auth Tokens on the
+ * target's https site (none for an http target). A navigation of its own keeps within `timeLeft()`.
  */
-type SetTokens = (
+type PreparePage = (
   context: BrowserContext,
   page: Page,
   tokens: SiteAuthTokenDecryptedDto[],
@@ -398,7 +460,7 @@ async function renderInBrowser(
   targetUrl: string,
   tokens: SiteAuthTokenDecryptedDto[] | undefined,
   isSettled: ((html: string) => boolean) | undefined,
-  setTokens: SetTokens
+  preparePage: PreparePage
 ): Promise<RenderedPage> {
   // One deadline for the connection and every navigation; 0 would turn Playwright's timeout off.
   const deadline = Date.now() + navigationTimeoutMs;
@@ -427,7 +489,7 @@ async function renderInBrowser(
 
     const page = await context.newPage();
 
-    if (onSite.length > 0) await setTokens(context, page, onSite, targetUrl, timeLeft);
+    await preparePage(context, page, onSite, targetUrl, timeLeft);
 
     page.on("response", (response) => {
       if (response.request().isNavigationRequest() && response.frame() === page.mainFrame()) {
@@ -444,7 +506,21 @@ async function renderInBrowser(
 
     status ??= response?.status() ?? null;
 
-    const html = isSettled ? await settledContent(page, isSettled) : await page.content();
+    // The Chromium browser is read once its document has loaded and, unless the caller can tell,
+    // once past a bot check: Allerhande's reloads into the page seconds after load.
+    if (renderer === "chromium") {
+      return {
+        html: await settledContent(
+          () => loadedContent(page),
+          isSettled ?? ((html) => !isBotCheck(html))
+        ),
+        status,
+      };
+    }
+
+    const html = isSettled
+      ? await settledContent(() => page.content(), isSettled)
+      : await page.content();
 
     return { html, status };
   } catch (error) {
@@ -490,4 +566,43 @@ async function setTokensInObscura(
       )
     );
   }
+}
+
+/**
+ * The Chromium browser's step. With private addresses refused, its document requests are paused
+ * before they are sent, and each redirect hop is checked like the target; subresources are not.
+ */
+async function guardDocuments(
+  context: BrowserContext,
+  page: Page,
+  allowPrivateAddresses: boolean
+): Promise<void> {
+  if (allowPrivateAddresses) return;
+
+  const cdp = await context.newCDPSession(page);
+
+  cdp.on("Fetch.requestPaused", ({ requestId, request, resourceType }) => {
+    const answer = async () => {
+      if (
+        resourceType === "Document" &&
+        (await isRefusedHost(new URL(request.url).hostname, allowPrivateAddresses))
+      ) {
+        log.warn({ url: request.url }, "Refused a private address in the Chromium browser");
+        await cdp.send("Fetch.failRequest", { requestId, errorReason: "BlockedByClient" });
+
+        return;
+      }
+
+      await cdp.send("Fetch.continueRequest", { requestId });
+    };
+
+    // Every paused request is answered, and one that cannot be checked goes nowhere.
+    answer().catch(async (error: unknown) => {
+      log.debug({ err: error, url: request.url }, "The Chromium browser failed a request");
+      await cdp.send("Fetch.failRequest", { requestId, errorReason: "Failed" }).catch(() => {});
+    });
+  });
+  await cdp.send("Fetch.enable", {
+    patterns: [{ resourceType: "Document", requestStage: "Request" }],
+  });
 }

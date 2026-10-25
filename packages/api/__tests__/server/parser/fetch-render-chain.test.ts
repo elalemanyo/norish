@@ -1,11 +1,13 @@
 // @vitest-environment node
 /**
- * The Page Renderer chain behind `renderPage` (ADR-0019): Obscura first, then a FlareSolverr-
- * compatible solver, moving on only on no HTML or a bot check. Site Auth Tokens go to Obscura
- * alone. Obscura's connection and the solver's HTTP endpoint are faked at the process edge.
+ * The Page Renderer chain behind `renderPage` (ADR-0019): Obscura first, then the Chromium browser,
+ * then a FlareSolverr-compatible solver, moving on only on no HTML or a bot check. Site Auth Tokens
+ * never reach the solver. The browsers' connections, DNS and the solver's HTTP endpoint are faked
+ * at the process edge.
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+import type { BrowserRenderer } from "@norish/api/parser/browser-connections";
 import type { PageRenderersConfig } from "@norish/config/zod/server-config";
 import type { SiteAuthTokenDecryptedDto } from "@norish/shared/contracts/dto/site-auth-tokens";
 import { renderPage } from "@norish/api/parser/fetch";
@@ -19,10 +21,16 @@ const { mockGetBrowser, mockContent, mockCdpSend, log } = vi.hoisted(() => ({
 
 vi.mock("@norish/api/parser/browser-connections", () => ({ getBrowser: mockGetBrowser }));
 vi.mock("@norish/shared-server/logger", () => ({ parserLogger: log }));
+// Every host is public.
+vi.mock("node:dns/promises", () => ({
+  lookup: async () => [{ address: "93.184.215.14", family: 4 }],
+}));
 
 let renderers: PageRenderersConfig;
 /** The status Obscura's page answers with. */
 let documentStatus: number;
+/** What the Chromium browser's page shows once loaded, or null for a browser it cannot reach. */
+let chromiumPage: { html: string; status: number } | null;
 
 vi.mock("@norish/shared-server/config/server-config-loader", () => ({
   getPageRenderersConfig: async () => renderers,
@@ -31,6 +39,7 @@ vi.mock("@norish/shared-server/config/server-config-loader", () => ({
 const padding = "x".repeat(30_000);
 const REAL_PAGE = `<html><head><title>Lasagne</title></head><body>${padding}</body></html>`;
 const SOLVED_PAGE = `<html><head><title>Lasagne, solved</title></head><body>${padding}</body></html>`;
+const CHROMIUM_PAGE = `<html><head><title>Lasagne, in Chromium</title></head><body>${padding}</body></html>`;
 const CHALLENGE = `<html><head><title>Just a moment...</title></head><body>${padding}</body></html>`;
 /** Akamai's block page, which Obscura gets with a 200. */
 const AKAMAI_BLOCK = `<HTML><HEAD>
@@ -83,10 +92,35 @@ function answeredBy(): unknown[] {
     .map(([fields]) => (fields as { renderer: string }).renderer);
 }
 
+/** A browser whose every page is `page`, its document loaded. */
+function chromiumShowing(page: { html: string; status: number }) {
+  return {
+    newContext: async () => ({
+      close: async () => undefined,
+      newCDPSession: async () => ({ on: vi.fn(), send: vi.fn() }),
+      newPage: async () => ({
+        goto: async () => ({ status: () => page.status }),
+        // Run in the page against its loaded document, as the browser runs it.
+        evaluate: async (read: () => unknown) => {
+          vi.stubGlobal("document", {
+            readyState: "complete",
+            documentElement: { outerHTML: page.html },
+          });
+
+          return read();
+        },
+        on: vi.fn(),
+        mainFrame: vi.fn(),
+      }),
+    }),
+  };
+}
+
 beforeEach(() => {
   vi.clearAllMocks();
   renderers = {
     obscura: { enabled: true, endpoint: "ws://obscura:9222" },
+    chromium: { enabled: false, endpoint: "http://chromium:9222" },
     solver: { enabled: true, endpoint: SOLVER },
     allowPrivateAddresses: false,
     navigationTimeoutMs: 30_000,
@@ -96,7 +130,8 @@ beforeEach(() => {
   mockCdpSend.mockImplementation(async (_method: string, params: { scopeDomain?: string }) => ({
     scopeDomain: params.scopeDomain,
   }));
-  mockGetBrowser.mockResolvedValue({
+  chromiumPage = { html: CHROMIUM_PAGE, status: 200 };
+  const obscura = {
     newContext: async () => ({
       newCDPSession: async () => ({ send: mockCdpSend }),
       close: async () => undefined,
@@ -108,7 +143,11 @@ beforeEach(() => {
         mainFrame: vi.fn(),
       }),
     }),
-  });
+  };
+
+  mockGetBrowser.mockImplementation(async (renderer: BrowserRenderer) =>
+    renderer === "obscura" ? obscura : chromiumPage && chromiumShowing(chromiumPage)
+  );
 });
 
 afterEach(() => vi.unstubAllGlobals());
@@ -219,6 +258,121 @@ describe("renderPage – each renderer alone", () => {
     await expect(renderPage("https://example.com/r")).resolves.toEqual({ html: "", status: null });
     expect(mockGetBrowser).not.toHaveBeenCalled();
     expect(solver).not.toHaveBeenCalled();
+  });
+});
+
+describe("renderPage – the Chromium browser between Obscura and the solver", () => {
+  beforeEach(() => {
+    renderers.chromium.enabled = true;
+  });
+
+  afterEach(() => vi.useRealTimers());
+
+  /** The render, with the clock run past the Chromium browser's wait for a bot check to clear. */
+  async function pastTheSettleWait<T>(render: () => Promise<T>): Promise<T> {
+    vi.useFakeTimers();
+    const rendering = render();
+
+    await vi.runAllTimersAsync();
+
+    return rendering;
+  }
+
+  it("reads the page Obscura is shown Akamai's block page for, and stops there", async () => {
+    mockContent.mockResolvedValue(AKAMAI_BLOCK);
+    const { solver } = solverAnswers(solved(SOLVED_PAGE));
+
+    await expect(renderPage("https://example.com/r")).resolves.toEqual({
+      html: CHROMIUM_PAGE,
+      status: 200,
+    });
+    expect(solver).not.toHaveBeenCalled();
+    expect(answeredBy()).toEqual(["chromium"]);
+  });
+
+  it("is not asked when Obscura reads the page", async () => {
+    solverAnswers(solved(SOLVED_PAGE));
+
+    await renderPage("https://example.com/r");
+
+    expect(mockGetBrowser.mock.calls.map(([renderer]) => renderer)).toEqual(["obscura"]);
+  });
+
+  it.each([
+    ["is refused", { html: CHROMIUM_PAGE, status: 403 }],
+    ["is shown a bot check", { html: CHALLENGE, status: 403 }],
+    ["cannot be reached", null],
+  ])("moves on to the solver when it %s", async (_case, page) => {
+    mockContent.mockResolvedValue(CHALLENGE);
+    chromiumPage = page;
+    solverAnswers(solved(SOLVED_PAGE));
+
+    await expect(pastTheSettleWait(() => renderPage("https://example.com/r"))).resolves.toEqual({
+      html: SOLVED_PAGE,
+      status: null,
+    });
+    expect(answeredBy()).toEqual(["solver"]);
+  });
+
+  it("reads nothing when every renderer fails, keeping the last status a site answered with", async () => {
+    documentStatus = 429;
+    mockContent.mockResolvedValue(CHALLENGE);
+    chromiumPage = { html: CHALLENGE, status: 403 };
+    solverAnswers(solved(CHALLENGE));
+
+    await expect(pastTheSettleWait(() => renderPage("https://example.com/r"))).resolves.toEqual({
+      html: "",
+      status: 403,
+    });
+    expect(answeredBy()).toEqual([]);
+  });
+
+  it("is asked alone when Obscura and the solver are off", async () => {
+    renderers.obscura.enabled = false;
+    renderers.solver.enabled = false;
+    const { solver } = solverAnswers(solved(SOLVED_PAGE));
+
+    await expect(renderPage("https://example.com/r")).resolves.toEqual({
+      html: CHROMIUM_PAGE,
+      status: 200,
+    });
+    expect(mockGetBrowser.mock.calls.map(([renderer]) => renderer)).toEqual(["chromium"]);
+    expect(solver).not.toHaveBeenCalled();
+  });
+
+  it("follows Obscura with the solver off", async () => {
+    renderers.solver.enabled = false;
+    mockContent.mockResolvedValue(CHALLENGE);
+
+    await expect(renderPage("https://example.com/r")).resolves.toMatchObject({
+      html: CHROMIUM_PAGE,
+    });
+    expect(mockGetBrowser.mock.calls.map(([renderer]) => renderer)).toEqual([
+      "obscura",
+      "chromium",
+    ]);
+  });
+
+  it("hands on to the solver with Obscura off", async () => {
+    renderers.obscura.enabled = false;
+    chromiumPage = null;
+    solverAnswers(solved(SOLVED_PAGE));
+
+    await expect(renderPage("https://example.com/r")).resolves.toMatchObject({
+      html: SOLVED_PAGE,
+    });
+    expect(mockGetBrowser.mock.calls.map(([renderer]) => renderer)).toEqual(["chromium"]);
+  });
+
+  it("is never asked while it is off", async () => {
+    renderers.chromium.enabled = false;
+    mockContent.mockResolvedValue(CHALLENGE);
+    solverAnswers(solved(SOLVED_PAGE));
+
+    await expect(renderPage("https://example.com/r")).resolves.toMatchObject({
+      html: SOLVED_PAGE,
+    });
+    expect(mockGetBrowser.mock.calls.map(([renderer]) => renderer)).toEqual(["obscura"]);
   });
 });
 

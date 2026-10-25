@@ -86,6 +86,7 @@ function makeToken(
 beforeEach(() => {
   renderers = {
     obscura: { enabled: true, endpoint: "ws://obscura:9222", cdpToken: "cdp-token" },
+    chromium: { enabled: false, endpoint: "" },
     solver: { enabled: false },
     allowPrivateAddresses: false,
     navigationTimeoutMs: 30_000,
