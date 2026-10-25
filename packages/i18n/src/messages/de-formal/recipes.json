@@ -319,6 +319,8 @@
     "imported": "Rezept importiert",
     "failed": "Rezept-Operation fehlgeschlagen",
     "failedDescription": "Beim Verarbeiten Ihres Rezepts ist ein Fehler aufgetreten. Sehen Sie in der Browser-Konsole nach technischen Details.",
+    "incomplete": "Dieses Rezept ist möglicherweise unvollständig. Vergleichen Sie es mit der Quelle.",
+    "notARecipe": "Diese Seite scheint kein Rezept zu sein.",
     "batchImported": "Rezepte importiert",
     "batchImportedDescription": "{count} Rezepte aus Archiv importiert",
     "view": "Anzeigen",

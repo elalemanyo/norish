@@ -1096,8 +1096,7 @@
         "validateEnrichmentsDescription": "Kontroller hver berikelseskjørings egne påstander før de lagres"
       },
       "testConnection": "Test tilkobling",
-      "connectionSuccess": "Tilkobling vellykket",
-      "aiDisabledHint": "AI er deaktivert på denne serveren. Slå det på under AI-konfigurasjon for å teste og bruke beslutningsmodellen."
+      "connectionSuccess": "Tilkobling vellykket"
     },
     "promptsConfig": {
       "recipeExtraction": "Prompt for oppskriftuttrekking",

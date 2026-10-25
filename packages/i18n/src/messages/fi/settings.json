@@ -1096,8 +1096,7 @@
         "validateEnrichmentsDescription": "Tarkista jokaisen rikastusajon omat väitteet ennen kuin ne tallennetaan"
       },
       "testConnection": "Testaa yhteys",
-      "connectionSuccess": "Yhteys onnistui",
-      "aiDisabledHint": "Tekoäly on poistettu käytöstä tällä palvelimella. Ota se käyttöön tekoälyasetuksissa, jotta voit testata ja käyttää päätösmallia."
+      "connectionSuccess": "Yhteys onnistui"
     },
     "promptsConfig": {
       "recipeExtraction": "Reseptin poiminnan kehote",

@@ -1096,8 +1096,7 @@
         "validateEnrichmentsDescription": "Check every enrichment run's own claims before they are written"
       },
       "testConnection": "Test connection",
-      "connectionSuccess": "Connection successful",
-      "aiDisabledHint": "AI is disabled on this server. Enable it in the AI Configuration to test and use the Decision Model."
+      "connectionSuccess": "Connection successful"
     },
     "promptsConfig": {
       "recipeExtraction": "Recipe extraction prompt",

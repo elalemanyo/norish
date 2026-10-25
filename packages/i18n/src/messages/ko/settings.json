@@ -1096,8 +1096,7 @@
         "validateEnrichmentsDescription": "각 보강 실행의 결과를 저장하기 전에 검사"
       },
       "testConnection": "연결 테스트",
-      "connectionSuccess": "연결 성공",
-      "aiDisabledHint": "이 서버에서는 AI가 비활성화되어 있습니다. 결정 모델을 테스트하고 사용하려면 AI 설정에서 활성화하세요."
+      "connectionSuccess": "연결 성공"
     },
     "promptsConfig": {
       "recipeExtraction": "레시피 추출 프롬프트",

@@ -414,11 +414,22 @@ describe("the Decision Model block (ADR-0035)", () => {
       expect(await isDecisionUseEnabled("autoCategorization")).toBe(false);
     });
 
-    it("is false for every use while AI is globally off", async () => {
-      // "AI off" means no request leaves the server, Decisions included.
+    it("does not follow the global AI switch: the Decision block is its own", async () => {
       stored({
         [ServerConfigKeys.AI_CONFIG]: { ...aiOn, enabled: false },
         [ServerConfigKeys.DECISION_CONFIG]: { provider: "typesafe", apiKey: "k" },
+      });
+
+      const { isDecisionUseEnabled } =
+        await import("@norish/shared-server/config/server-config-loader");
+
+      expect(await isDecisionUseEnabled("allergyDetection")).toBe(true);
+    });
+
+    it("is false for every use once the block's provider is disabled", async () => {
+      stored({
+        [ServerConfigKeys.AI_CONFIG]: aiOn,
+        [ServerConfigKeys.DECISION_CONFIG]: { provider: "disabled", apiKey: "k" },
       });
 
       const { isDecisionUseEnabled } =

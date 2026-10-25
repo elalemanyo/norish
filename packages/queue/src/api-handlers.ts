@@ -13,6 +13,8 @@ import type { ImageImportFile } from "./contracts/job-types";
 export interface QueueParseRecipeResult {
   recipe: FullRecipeInsertDTO;
   usedAI: boolean;
+  /** Import triage scored the kept structured parse as incomplete */
+  incomplete?: boolean;
   /** Why the Python parser came up empty when AI extraction stood in for it */
   parserDiagnostics?: Record<string, unknown>;
 }

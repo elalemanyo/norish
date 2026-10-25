@@ -132,7 +132,13 @@ async function processImportJob(job: Job<RecipeImportJobData>): Promise<string> 
     throw new Error("Failed to parse recipe from URL");
   }
 
-  await completeStep(job, { usedAI: parseResult.usedAI, ...parseResult.parserDiagnostics });
+  const incomplete = parseResult.incomplete ? { incomplete: true } : {};
+
+  await completeStep(job, {
+    usedAI: parseResult.usedAI,
+    ...incomplete,
+    ...parseResult.parserDiagnostics,
+  });
 
   await reportStep(job, "saving");
   // The Dish Colour is taken from the image the import just stored.
@@ -164,6 +170,7 @@ async function processImportJob(job: Job<RecipeImportJobData>): Promise<string> 
         recipe: dashboardDto,
         pendingRecipeId: recipeId,
         toast: "imported",
+        ...incomplete,
       },
       { viewPolicy: viewPolicy, ...ctx }
     );

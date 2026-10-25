@@ -249,7 +249,7 @@ A generation parameter Norish asks a model for — temperature, or an image's qu
 _Avoid_: Model Capability (claims foreknowledge Norish does not have), Generation Setting (a setting is honoured, a preference may be declined)
 
 **Decision Model**:
-The optional second AI provider that answers closed questions and generates nothing: TypeSafe's Jev today. Given a state and named questions it returns, for every question, a pick and a probability for every option — much faster and cheaper than a language model for the same decision, and honest about how sure it is. Configured on its own with its own key, beside the Image Generation block it structurally resembles; it follows the global AI switch and is never required by any feature, which keeps its language-model or heuristic path and takes it whenever the Decision Model is unconfigured, switched off for that use, or fails (ADR-0035).
+The optional second AI provider that answers closed questions and generates nothing: TypeSafe's Jev today. Given a state and named questions it returns, for every question, a pick and a probability for every option — much faster and cheaper than a language model for the same decision, and honest about how sure it is. Configured on its own with its own key, beside the Image Generation block it structurally resembles; it is its own switch, apart from the global AI one, and is never required by any feature, which keeps its language-model or heuristic path and takes it whenever the Decision Model is unconfigured, switched off for that use, or fails (ADR-0035).
 _Avoid_: Decision provider (names the settings block, not the thing), Classifier (it also scores and ranks), Jev (a product name; the glossary names the role)
 
 **Decision**:

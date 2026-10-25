@@ -15,7 +15,8 @@ const context = vi.hoisted(() => ({ decisionConfig: undefined as unknown }));
 vi.mock("@/app/(app)/settings/admin/context", () => ({
   useAdminSettingsContext: () => ({
     decisionConfig: context.decisionConfig,
-    aiConfig: { enabled: true },
+    // AI off: the Decision block is its own switch, so Test and Save still work.
+    aiConfig: { enabled: false },
     updateDecisionConfig,
     testDecisionEndpoint,
     fetchConfigSecret: vi.fn(),

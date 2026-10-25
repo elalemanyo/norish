@@ -533,14 +533,46 @@ describe("parseRecipeFromUrl import flow", () => {
 
       const { parseRecipeFromUrl } = await import("@norish/api/parser");
 
-      await expect(parseRecipeFromUrl("https://example.com/page", "recipe-1")).rejects.toThrow(
-        "Page does not appear to contain a recipe."
-      );
+      await expect(
+        parseRecipeFromUrl("https://example.com/page", "recipe-1")
+      ).rejects.toMatchObject({
+        message: "This page doesn't look like a recipe.",
+        // The job monitor still sees the parser's own reply.
+        detail: { aiFallback: "skipped: the page does not look like a recipe" },
+      });
       expect(mockIsRecipe).toHaveBeenCalledTimes(1);
       // The question is asked of the sanitized text, not the raw markup.
       expect(mockIsRecipe).toHaveBeenCalledWith("ingredient instructions");
       expect(mockGetContentIndicators).not.toHaveBeenCalled();
       expect(mockExtractRecipeWithAI).not.toHaveBeenCalled();
+    });
+
+    it("names a page the Decision Model is sure is not a recipe with AI off too", async () => {
+      mockCallRecipeScrapersParser.mockResolvedValue(notARecipe);
+      mockIsAIEnabled.mockResolvedValue(false);
+      mockIsRecipe.mockResolvedValue(false);
+
+      const { parseRecipeFromUrl } = await import("@norish/api/parser");
+
+      await expect(
+        parseRecipeFromUrl("https://example.com/page", "recipe-1")
+      ).rejects.toMatchObject({
+        message: "This page doesn't look like a recipe.",
+        detail: { aiFallback: "disabled" },
+      });
+      expect(mockIsRecipe).toHaveBeenCalledTimes(1);
+    });
+
+    it("asks whether the page is a recipe once, before extracting it", async () => {
+      mockCallRecipeScrapersParser.mockResolvedValue(notARecipe);
+      mockIsRecipe.mockResolvedValue(true);
+
+      const { parseRecipeFromUrl } = await import("@norish/api/parser");
+
+      await parseRecipeFromUrl("https://example.com/page", "recipe-1");
+
+      expect(mockIsRecipe).toHaveBeenCalledTimes(1);
+      expect(mockExtractRecipeWithAI).toHaveBeenCalled();
     });
 
     it("proceeds to extraction on a page the Decision Model does not refuse, whatever the keywords say", async () => {
@@ -588,24 +620,40 @@ describe("parseRecipeFromUrl import flow", () => {
       expect(mockExtractRecipeWithAI).not.toHaveBeenCalled();
     });
 
-    it("keeps the incomplete parse when AI extraction has nothing better", async () => {
+    it("keeps the incomplete parse, flagged, when AI extraction has nothing better", async () => {
       mockIsParseComplete.mockResolvedValue(false);
       mockExtractRecipeWithAI.mockRejectedValue(new Error("provider down"));
 
       const { parseRecipeFromUrl } = await import("@norish/api/parser");
       const result = await parseRecipeFromUrl("https://example.com/recipe", "recipe-1");
 
-      expect(result).toEqual({ recipe: structuredRecipe, usedAI: false });
+      expect(result).toEqual({ recipe: structuredRecipe, usedAI: false, incomplete: true });
     });
 
-    it("does not score the parse when AI is disabled, since nothing could act on it", async () => {
+    it("flags a parse scored as incomplete when AI is off, with nothing to re-extract it", async () => {
       mockIsAIEnabled.mockResolvedValue(false);
+      mockIsParseComplete.mockResolvedValue(false);
 
       const { parseRecipeFromUrl } = await import("@norish/api/parser");
       const result = await parseRecipeFromUrl("https://example.com/recipe", "recipe-1");
 
-      expect(result).toEqual({ recipe: structuredRecipe, usedAI: false });
-      expect(mockIsParseComplete).not.toHaveBeenCalled();
+      expect(mockIsParseComplete).toHaveBeenCalledWith(structuredRecipe);
+      expect(result).toEqual({ recipe: structuredRecipe, usedAI: false, incomplete: true });
+      expect(mockExtractRecipeWithAI).not.toHaveBeenCalled();
+    });
+
+    it("does not flag a parse when AI is off and triage scores it complete or has no opinion", async () => {
+      mockIsAIEnabled.mockResolvedValue(false);
+
+      const { parseRecipeFromUrl } = await import("@norish/api/parser");
+
+      for (const opinion of [true, null]) {
+        mockIsParseComplete.mockResolvedValue(opinion);
+
+        await expect(parseRecipeFromUrl("https://example.com/recipe", "recipe-1")).resolves.toEqual(
+          { recipe: structuredRecipe, usedAI: false }
+        );
+      }
     });
 
     it("still forces extraction under alwaysUseAI, with no parse to score", async () => {

@@ -1096,8 +1096,7 @@
         "validateEnrichmentsDescription": "Sprawdzić własne ustalenia każdego wzbogacenia przed ich zapisem"
       },
       "testConnection": "Testuj połączenie",
-      "connectionSuccess": "Połączenie udane",
-      "aiDisabledHint": "AI jest wyłączone na tym serwerze. Włącz je w konfiguracji AI, aby testować i używać modelu decyzyjnego."
+      "connectionSuccess": "Połączenie udane"
     },
     "promptsConfig": {
       "recipeExtraction": "Prompt ekstrakcji przepisu",

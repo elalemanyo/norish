@@ -319,6 +319,8 @@
     "imported": "Resepti tuotu",
     "failed": "Reseptitoiminto epäonnistui",
     "failedDescription": "Reseptin käsittelyssä meni jokin pieleen. Tekniset tiedot löytyvät selaimen konsolista.",
+    "incomplete": "Tämä resepti voi olla puutteellinen. Vertaa sitä lähteeseen.",
+    "notARecipe": "Tämä sivu ei näytä reseptiltä.",
     "batchImported": "Reseptit tuotu",
     "batchImportedDescription": "{count} reseptiä tuotu arkistosta",
     "view": "Näytä",

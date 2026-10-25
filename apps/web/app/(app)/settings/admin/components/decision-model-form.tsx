@@ -34,13 +34,8 @@ function sameUses(a: readonly DecisionUse[], b: readonly DecisionUse[]): boolean
 export default function DecisionModelForm({ onDirtyChange }: DecisionModelFormProps) {
   const t = useTranslations("settings.admin.decisionConfig");
   const tActions = useTranslations("common.actions");
-  const {
-    decisionConfig,
-    aiConfig,
-    updateDecisionConfig,
-    testDecisionEndpoint,
-    fetchConfigSecret,
-  } = useAdminSettingsContext();
+  const { decisionConfig, updateDecisionConfig, testDecisionEndpoint, fetchConfigSecret } =
+    useAdminSettingsContext();
   const [provider, setProvider] = useState<DecisionProvider>(
     decisionConfig?.provider ?? "disabled"
   );
@@ -70,7 +65,6 @@ export default function DecisionModelForm({ onDirtyChange }: DecisionModelFormPr
   }
 
   const enabled = provider !== "disabled";
-  const aiEnabled = aiConfig?.enabled ?? false;
   // This block never borrows the AI configuration's key — the provider never
   // matches — so a stored key is only ever its own.
   const hasStoredApiKey = !!decisionConfig?.apiKey && decisionConfig.provider === provider;
@@ -230,8 +224,6 @@ export default function DecisionModelForm({ onDirtyChange }: DecisionModelFormPr
         </Select>
       </SettingRow>
 
-      {enabled && !aiEnabled && <p className="text-muted text-xs">{t("aiDisabledHint")}</p>}
-
       {testResult && (
         <div
           className={`flex items-center gap-2 rounded-lg p-2 ${testResult.success ? "bg-success/10 text-success" : "bg-danger/10 text-danger"}`}
@@ -251,12 +243,7 @@ export default function DecisionModelForm({ onDirtyChange }: DecisionModelFormPr
       )}
 
       <div className="flex flex-wrap items-center justify-end gap-2 pt-2">
-        <Button
-          isDisabled={!enabled || !aiEnabled}
-          onPress={handleTest}
-          variant="tertiary"
-          isPending={testing}
-        >
+        <Button isDisabled={!enabled} onPress={handleTest} variant="tertiary" isPending={testing}>
           {<BeakerIcon className="h-5 w-5" />}
           {t("testConnection")}
         </Button>

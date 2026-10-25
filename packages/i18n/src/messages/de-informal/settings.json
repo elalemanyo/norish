@@ -1096,8 +1096,7 @@
         "validateEnrichmentsDescription": "Die eigenen Aussagen jedes Anreicherungslaufs prüfen, bevor sie gespeichert werden"
       },
       "testConnection": "Verbindung testen",
-      "connectionSuccess": "Verbindung erfolgreich",
-      "aiDisabledHint": "KI ist auf diesem Server deaktiviert. Aktiviere sie in der KI-Konfiguration, um das Entscheidungsmodell zu testen und zu nutzen."
+      "connectionSuccess": "Verbindung erfolgreich"
     },
     "promptsConfig": {
       "recipeExtraction": "Rezept-Extraktions-Prompt",

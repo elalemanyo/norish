@@ -1096,8 +1096,7 @@
         "validateEnrichmentsDescription": "Verificare le affermazioni di ogni arricchimento prima che vengano salvate"
       },
       "testConnection": "Testa connessione",
-      "connectionSuccess": "Connessione riuscita",
-      "aiDisabledHint": "L'AI è disattivata su questo server. Attivala nella configurazione AI per testare e usare il modello decisionale."
+      "connectionSuccess": "Connessione riuscita"
     },
     "promptsConfig": {
       "recipeExtraction": "Prompt estrazione ricette",

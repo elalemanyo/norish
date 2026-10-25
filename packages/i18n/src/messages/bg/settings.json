@@ -1096,8 +1096,7 @@
         "validateEnrichmentsDescription": "Да провери собствените твърдения на всяко обогатяване, преди да бъдат записани"
       },
       "testConnection": "Тествай връзката",
-      "connectionSuccess": "Връзката е успешна",
-      "aiDisabledHint": "AI е изключен на този сървър. Включете го в AI конфигурацията, за да тествате и използвате модела за решения."
+      "connectionSuccess": "Връзката е успешна"
     },
     "promptsConfig": {
       "recipeExtraction": "Промпт за извличане на рецепта",

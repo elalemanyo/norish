@@ -1096,8 +1096,7 @@
         "validateEnrichmentsDescription": "Kontrollér hver berigelseskørsels egne påstande, før de gemmes"
       },
       "testConnection": "Test forbindelse",
-      "connectionSuccess": "Forbindelse lykkedes",
-      "aiDisabledHint": "AI er deaktiveret på denne server. Slå det til under AI-konfiguration for at teste og bruge beslutningsmodellen."
+      "connectionSuccess": "Forbindelse lykkedes"
     },
     "promptsConfig": {
       "recipeExtraction": "Prompt til opskriftudtrækning",

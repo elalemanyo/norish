@@ -16,6 +16,7 @@ import {
 } from "@norish/shared-server/config/server-config-loader";
 import { parserLogger as log } from "@norish/shared-server/logger";
 import { FullRecipeInsertDTO } from "@norish/shared/contracts/dto/recipe";
+import { NOT_A_RECIPE_REASON } from "@norish/shared/contracts/realtime/recipes";
 import { ErrorWithDetail } from "@norish/shared/lib/error-extensions";
 import { hasRecipeName, isVideoUrl } from "@norish/shared/lib/helpers";
 
@@ -23,6 +24,8 @@ export interface ParseRecipeResult {
   recipe: FullRecipeInsertDTO;
   /** Whether AI was used for extraction (affects auto-tagging) */
   usedAI: boolean;
+  /** Import triage scored the kept structured parse as incomplete */
+  incomplete?: boolean;
   /**
    * Why the Python parser came up empty when AI extraction stood in for it,
    * so a parser that quietly broke still shows on the job's parsing step.
@@ -284,10 +287,13 @@ export async function parseRecipeFromUrl(
 
   if (structured.recipe) {
     // Import triage, question 3: a parse the Decision Model scores as
-    // incomplete goes through AI extraction as `alwaysUseAI` would, and the
-    // parse is kept when extraction has nothing better. No Decision Model,
-    // or no opinion, and success means what it always has: a name.
-    if (aiEnabled && (await isParseComplete(structured.recipe)) === false) {
+    // incomplete goes through AI extraction as `alwaysUseAI` would. When
+    // extraction has nothing better, or AI is off, the parse is kept and
+    // flagged. No Decision Model, or no opinion, and success means what it
+    // always has: a name.
+    const incomplete = (await isParseComplete(structured.recipe)) === false;
+
+    if (incomplete && aiEnabled) {
       log.info({ url }, "Structured parse judged incomplete, attempting AI extraction");
 
       const recipe = await extractWithAIPreference(html, recipeId, url, false);
@@ -295,7 +301,7 @@ export async function parseRecipeFromUrl(
       if (recipe) return { recipe, usedAI: true };
     }
 
-    return { recipe: structured.recipe, usedAI: false };
+    return { recipe: structured.recipe, usedAI: false, ...(incomplete ? { incomplete } : {}) };
   }
 
   // A site that turned the request away served a page with nothing to read,
@@ -312,6 +318,9 @@ export async function parseRecipeFromUrl(
     );
   }
 
+  // Import triage, question 1, asked once: a clear "no" names why the import
+  // failed, and anything else proceeds to the AI fallback's own gate.
+  const pageIsRecipe = await isRecipe(extractSanitizedBody(html));
   // Why AI extraction did or did not stand in, so the job monitor answers
   // "did it even try?" beside the parser's reply.
   let aiFallback: AIFallback = "disabled";
@@ -319,7 +328,7 @@ export async function parseRecipeFromUrl(
   if (aiEnabled) {
     aiFallback = "skipped: the page does not look like a recipe";
 
-    if (await isPageWorthExtracting(html)) {
+    if (pageIsRecipe ?? (await isPageLikelyRecipe(html))) {
       log.info(
         {
           url,
@@ -347,7 +356,7 @@ export async function parseRecipeFromUrl(
   if (structured.failure) {
     log.error({ url, failureCode: structured.failure.code }, "Structured parsing failed");
     throw new ErrorWithDetail(
-      structured.failure.message,
+      pageIsRecipe === false ? NOT_A_RECIPE_REASON : structured.failure.message,
       diagnose(structured.failure, html, aiFallback)
     );
   }
@@ -365,16 +374,10 @@ function diagnose(
 }
 
 /**
- * Import triage, question 1: whether a page the structured parser found
- * nothing on is worth an AI extraction. The Decision Model's answer where
- * there is one — a clear "no" refuses the import with the message the parser
- * already uses, anything else proceeds — and the content-indicator rule
- * otherwise. The keyword list keeps its meaning and its admin editor.
+ * The content-indicator rule: whether a page the structured parser found
+ * nothing on is worth an AI extraction when the Decision Model has no
+ * opinion. The keyword list keeps its meaning and its admin editor.
  */
-async function isPageWorthExtracting(html: string): Promise<boolean> {
-  return (await isRecipe(extractSanitizedBody(html))) ?? (await isPageLikelyRecipe(html));
-}
-
 export async function isPageLikelyRecipe(html: string): Promise<boolean> {
   const lowered = html.toLowerCase();
   const indicators = await getContentIndicators();

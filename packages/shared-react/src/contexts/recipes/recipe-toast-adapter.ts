@@ -1,3 +1,5 @@
+import { NOT_A_RECIPE_REASON } from "@norish/shared/contracts/realtime/recipes";
+
 import type {
   RatingsSubscriptionCallbacks,
   RecipesSubscriptionCallbacks,
@@ -39,8 +41,11 @@ export function createRecipeSubscriptionToasts(
           : null;
 
       adapter.show({
-        severity: "success",
+        severity: payload.incomplete ? "warning" : "success",
         title: adapter.translate("recipes.toasts.imported"),
+        description: payload.incomplete
+          ? adapter.translate("recipes.toasts.incomplete")
+          : undefined,
         actionLabel: recipeId ? adapter.translate("recipes.toasts.view") : undefined,
         onActionPress:
           recipeId && options?.onOpenRecipe
@@ -54,8 +59,11 @@ export function createRecipeSubscriptionToasts(
       adapter.show({
         severity: "danger",
         title: adapter.translate("recipes.toasts.failed"),
+        // Server reasons stay in the job monitor; the one a person can act on is translated.
         description:
-          readToastMessage(payload) ?? adapter.translate("recipes.toasts.failedDescription"),
+          payload.reason === NOT_A_RECIPE_REASON
+            ? adapter.translate("recipes.toasts.notARecipe")
+            : (readToastMessage(payload) ?? adapter.translate("recipes.toasts.failedDescription")),
       });
     },
   };

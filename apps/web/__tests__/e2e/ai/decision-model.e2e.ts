@@ -10,14 +10,21 @@
  * page without the AI provider being asked, and an unsure Decision hands the
  * kind back to the AI provider whose answer the Decision Model then checks.
  */
+import { createServer } from "node:http";
 import type { Page } from "@playwright/test";
+import type { AddressInfo } from "node:net";
 import { request } from "@playwright/test";
 
 import type { TypeSafeAnswer } from "../harness/ai-provider";
 import type { AIE2EStack } from "./fixture";
+import { submitMutation } from "../harness/trpc";
 import { expect, test } from "./fixture";
 import { submitPasteImport } from "./import-support";
-import { readStoredCategories, setAutomaticEnrichment } from "./recipe-enrichment-support";
+import {
+  readStoredCategories,
+  setAutomaticEnrichment,
+  updateAIConfig,
+} from "./recipe-enrichment-support";
 
 test.describe.configure({ mode: "serial" });
 
@@ -300,6 +307,63 @@ test("a disabled Decision block leaves every kind to the AI provider", async () 
 
   expect(stack.ai.control.decisionRequestCount).toBe(0);
   expect(chatRequestCount()).toBe(2);
+});
+
+/** A recipe site with one page whose JSON-LD names a dish, one ingredient and one step. */
+async function serveThinRecipe(name: string): Promise<{ url: string; close: () => Promise<void> }> {
+  const recipe = {
+    "@context": "https://schema.org",
+    "@type": "Recipe",
+    name,
+    recipeIngredient: ["2 eggs"],
+    recipeInstructions: [{ "@type": "HowToStep", text: "Cook the eggs." }],
+  };
+  const html = `<!doctype html><html><head><title>${name}</title><script type="application/ld+json">${JSON.stringify(recipe)}</script></head><body><h1>${name}</h1></body></html>`;
+  const server = createServer((_request, response) => {
+    response.writeHead(200, { "content-type": "text/html; charset=utf-8" });
+    response.end(html);
+  });
+
+  await new Promise<void>((resolve) => server.listen(0, "127.0.0.1", resolve));
+
+  return {
+    url: `http://127.0.0.1:${(server.address() as AddressInfo).port}/thin-recipe`,
+    close: () => new Promise((resolve) => server.close(() => resolve())),
+  };
+}
+
+test("with only the Decision Model, a thin recipe imports with a warning that it may be incomplete", async () => {
+  await decisionModelAtHarness();
+  await setAutomaticEnrichment(stack, {});
+  await updateAIConfig(stack, { enabled: false });
+  stack.ai.control.reset();
+  // No AI provider: any chat request is a bug in the import, not extra work.
+  stack.ai.control.setDefault(null);
+  stack.ai.control.decideWith({
+    completeness: { type: "score", score: 0.3, probabilities: { 0: 0.7, 1: 0.3, 2: 0 } },
+  });
+
+  const site = await serveThinRecipe("Thin Decision Eggs");
+
+  try {
+    await page.goto("/");
+    await page.getByTestId("add-library-button").click();
+    await page.getByRole("menuitem", { name: "URL" }).click();
+    await page.getByLabel("Recipe URL").fill(site.url);
+    await submitMutation(page, "recipes.importFromUrl", () =>
+      page.getByRole("button", { name: "Import", exact: true }).click()
+    );
+
+    await expect(
+      page.getByText("This recipe may be incomplete. Check it against the source.")
+    ).toBeVisible({ timeout: 60_000 });
+    await expect(page.getByRole("heading", { name: "Thin Decision Eggs", level: 3 })).toBeVisible();
+    expect(stack.ai.control.decisionRequestCount).toBeGreaterThanOrEqual(1);
+    expect(chatRequestCount()).toBe(0);
+  } finally {
+    await site.close();
+    await updateAIConfig(stack, { enabled: true });
+  }
 });
 
 test("an administrator cancels a running AI job, and the job monitor shows it Cancelled", async () => {

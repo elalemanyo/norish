@@ -1096,8 +1096,7 @@
         "validateEnrichmentsDescription": "Controleer de eigen claims van elke verrijkingsrun voordat ze worden opgeslagen"
       },
       "testConnection": "Test verbinding",
-      "connectionSuccess": "Verbinding succesvol",
-      "aiDisabledHint": "AI is uitgeschakeld op deze server. Schakel het in bij AI-configuratie om het Beslismodel te testen en te gebruiken."
+      "connectionSuccess": "Verbinding succesvol"
     },
     "promptsConfig": {
       "recipeExtraction": "Receptextractie Prompt",

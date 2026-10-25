@@ -1096,8 +1096,7 @@
         "validateEnrichmentsDescription": "Проверять собственные утверждения каждого обогащения перед записью"
       },
       "testConnection": "Проверить подключение",
-      "connectionSuccess": "Подключение успешно",
-      "aiDisabledHint": "AI отключён на этом сервере. Включите его в конфигурации AI, чтобы проверять и использовать модель решений."
+      "connectionSuccess": "Подключение успешно"
     },
     "promptsConfig": {
       "recipeExtraction": "Промпт извлечения рецепта",

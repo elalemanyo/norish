@@ -87,6 +87,9 @@ import {
 } from "./providers";
 import { SYSTEM_MESSAGES as SYSTEM_MESSAGE_TEXTS } from "./system-messages";
 
+/** The AI block's default timeout, for requests that run without one stored. */
+const DEFAULT_AI_TIMEOUT_MS = 300_000;
+
 // ============================================================================
 // System messages — code-owned, keyed by the prompt they accompany
 // ============================================================================
@@ -477,7 +480,7 @@ export async function transcribe(audioPath: string): Promise<string> {
   // API key is optional for local providers (Ollama, faster-whisper-server).
   const apiKey = videoConfig.transcriptionApiKey || aiConfig?.apiKey || "";
   // Transcription follows the existing AI timeout; there is no second knob.
-  const timeoutMs = aiConfig?.timeoutMs ?? 300_000;
+  const timeoutMs = aiConfig?.timeoutMs ?? DEFAULT_AI_TIMEOUT_MS;
 
   if (!apiKey && isCloudTranscriptionProvider(provider)) {
     throw new AIConfigurationError(
@@ -988,12 +991,12 @@ async function requestDecision<Q extends DecisionQuestions>({
  * with their full distributions.
  *
  * Reads the Decision block rather than the server's AI provider (ADR-0035),
- * follows the global AI switch, and runs under the one AI timeout on the
- * shared transport (ADR-0015). Thresholds belong to the feature: nothing here
- * decides whether an answer is sure enough.
+ * so it answers with the global AI switch off, and runs under the one AI
+ * timeout on the shared transport (ADR-0015). Thresholds belong to the
+ * feature: nothing here decides whether an answer is sure enough.
  *
- * Throws an {@link AIError} on failure: disabled AI and a missing block never
- * retry, an answer that does not match the questions always does, and
+ * Throws an {@link AIError} on failure: a missing block never retries, an
+ * answer that does not match the questions always does, and
  * provider failures follow the SDK's own retryability. A feature that has a
  * fallback catches all of them alike and takes it.
  */
@@ -1006,11 +1009,6 @@ export async function decide<const Q extends DecisionQuestions>(
     getAIConfig(true),
     getDecisionConfig(true),
   ]);
-
-  if (!aiConfig?.enabled) {
-    aiLogger.info({ feature }, "AI features are disabled, refusing AI request");
-    throw new AIDisabledError();
-  }
 
   if (!isDecisionConfigValid(decisionConfig)) {
     throw new AIConfigurationError(
@@ -1029,7 +1027,7 @@ export async function decide<const Q extends DecisionQuestions>(
       state,
       questions,
       settings,
-      timeoutMs: aiConfig.timeoutMs,
+      timeoutMs: aiConfig?.timeoutMs ?? DEFAULT_AI_TIMEOUT_MS,
       deadlineMs: timeoutMs,
     });
 
@@ -1067,17 +1065,13 @@ const TEST_BUTTON_TIMEOUT_MS = 15_000;
 /**
  * The admin form's Test button: one trivial Boolean question against the
  * settings as typed, not as stored, so a typo is caught before a queue
- * worker discovers it. Answers success or the provider's own reason, and
- * follows the global AI switch like every other request.
+ * worker discovers it. Answers success or the provider's own reason, with the
+ * global AI switch on or off, as `decide` does.
  */
 export async function testDecisionModel(
   config: Pick<DecisionConfig, "provider" | "apiKey" | "model" | "endpoint">
 ): Promise<{ success: boolean; error?: string }> {
   const aiConfig = await getAIConfig(true);
-
-  if (!aiConfig?.enabled) {
-    return { success: false, error: new AIDisabledError().message };
-  }
 
   if (config.provider === "disabled") {
     return { success: false, error: "Select a Decision Model provider first." };
@@ -1095,7 +1089,7 @@ export async function testDecisionModel(
       state: "test",
       questions: { isTest: { type: "boolean", instructions: "Is this a test?" } },
       settings,
-      timeoutMs: Math.min(aiConfig.timeoutMs, TEST_BUTTON_TIMEOUT_MS),
+      timeoutMs: Math.min(aiConfig?.timeoutMs ?? DEFAULT_AI_TIMEOUT_MS, TEST_BUTTON_TIMEOUT_MS),
     });
 
     return { success: true };

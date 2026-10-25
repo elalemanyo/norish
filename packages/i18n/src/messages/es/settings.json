@@ -1096,8 +1096,7 @@
         "validateEnrichmentsDescription": "Comprobar las afirmaciones de cada enriquecimiento antes de guardarlas"
       },
       "testConnection": "Probar conexión",
-      "connectionSuccess": "Conexión correcta",
-      "aiDisabledHint": "La IA está desactivada en este servidor. Actívala en la configuración de IA para probar y usar el modelo de decisión."
+      "connectionSuccess": "Conexión correcta"
     },
     "promptsConfig": {
       "recipeExtraction": "Prompt de extracción de recetas",

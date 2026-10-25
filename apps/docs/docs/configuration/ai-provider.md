@@ -182,8 +182,12 @@ What each use does:
   [Prices](../groceries/prices.md#which-product).
 - **Validate enrichments** checks everything an enrichment adds before it is
   saved.
-- **Import triage** checks whether a page holds a recipe. It is always on when
-  a Decision Model is set up.
+- **Import triage** checks whether a page holds a recipe, and warns when an
+  imported recipe may be incomplete. It is always on when a Decision Model is
+  set up, even with AI off.
+
+The Decision Model works without an AI provider. Set its provider to
+_Disabled_ to turn it off.
 
 When the Decision Model isn't sure, or fails, Norish asks the AI provider
 instead. The [job queues](./admin-settings.md#job-queues) show which models a

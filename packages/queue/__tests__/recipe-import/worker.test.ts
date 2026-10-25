@@ -282,6 +282,47 @@ describe("processImportJob", () => {
     });
   });
 
+  it("carries a possibly incomplete parse to the job monitor and the importer's toast", async () => {
+    parseRecipeFromUrl.mockResolvedValue({
+      recipe: PARSED_RECIPE,
+      usedAI: false,
+      incomplete: true,
+    });
+
+    const { processRecipeImportJob } = await import("../../src/recipe-import/worker");
+    const job = {
+      id: "job-1",
+      attemptsMade: 0,
+      opts: {},
+      progress: 0,
+      updateProgress: vi.fn(async (progress: unknown) => {
+        job.progress = progress;
+      }),
+      log: vi.fn(async () => 0),
+      data: {
+        url: "https://example.com/thin",
+        recipeId: "recipe-77",
+        userId: "user-1",
+        householdKey: "household-1",
+        householdUserIds: null,
+      },
+    };
+
+    await processRecipeImportJob(job as unknown as Job<RecipeImportJobData>);
+
+    const timeline = readStepProgress(job.progress)?.attempts[0]?.timeline ?? [];
+
+    expect(timeline.find((event) => event.id === "parsing")?.detail).toEqual({
+      usedAI: false,
+      incomplete: true,
+    });
+    expect(publishRecipe).toHaveBeenCalledWith(
+      "imported",
+      expect.objectContaining({ pendingRecipeId: "recipe-77", incomplete: true }),
+      expect.anything()
+    );
+  });
+
   describe("site authentication tokens", () => {
     const token = (overrides: Record<string, unknown>) => ({
       id: "token",

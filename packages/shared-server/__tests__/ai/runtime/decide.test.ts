@@ -37,7 +37,7 @@ vi.mock("@norish/shared-server/logger", () => ({
 }));
 
 const { decide, testDecisionModel } = await import("@norish/shared-server/ai/runtime/runtime");
-const { AIConfigurationError, AIDisabledError, AIProviderError, AIResponseError, isTimedOut } =
+const { AIConfigurationError, AIProviderError, AIResponseError, isTimedOut } =
   await import("@norish/shared-server/ai/runtime/errors");
 const { createModelUseLedger, runWithModelUseLedger } =
   await import("@norish/shared-server/ai/runtime/model-use-ledger");
@@ -203,11 +203,14 @@ describe("decide", () => {
     expect(captured[0]!.body.model).toBe("jev-2026-09-01");
   });
 
-  it("refuses non-retryably when AI is disabled, without a request", async () => {
-    mockGetAIConfig.mockResolvedValue(aiConfig({ enabled: false }));
+  it.each([
+    ["AI is switched off", () => aiConfig({ enabled: false })],
+    ["no AI block is stored", () => null],
+  ])("answers when %s: the Decision block is its own switch", async (_case, stored) => {
+    mockGetAIConfig.mockResolvedValue(stored());
 
-    await expect(ask()).rejects.toBeInstanceOf(AIDisabledError);
-    expect(captured).toHaveLength(0);
+    await expect(ask()).resolves.toMatchObject({ model: "jev-2026-09-01" });
+    expect(captured).toHaveLength(1);
   });
 
   it.each([
@@ -399,8 +402,12 @@ describe("testDecisionModel", () => {
     expect(result.error).toMatch(/rejected the API key/);
   });
 
-  it("explains that AI is off rather than sending a request", async () => {
+  it("tests the Decision Model with AI switched off", async () => {
     mockGetAIConfig.mockResolvedValue(aiConfig({ enabled: false }));
+    reply = () => ({
+      status: 200,
+      body: { model: "jev-2026-09-01", answers: { isTest: { type: "noul", noul: 0.99 } } },
+    });
 
     const result = await testDecisionModel({
       provider: "typesafe",
@@ -408,8 +415,7 @@ describe("testDecisionModel", () => {
       endpoint: baseUrl,
     });
 
-    expect(result.success).toBe(false);
-    expect(result.error).toMatch(/disabled/i);
-    expect(captured).toHaveLength(0);
+    expect(result).toEqual({ success: true });
+    expect(captured).toHaveLength(1);
   });
 });

@@ -258,8 +258,8 @@ export async function getDecisionConfig(includeSecrets = false): Promise<Decisio
 
 /**
  * Whether a Decision could be served at all: a provider is selected and its
- * key is stored. Says nothing about the global AI switch, which the runtime
- * checks on every request.
+ * key is stored. The Decision block is its own switch, apart from the global
+ * AI one.
  */
 export async function isDecisionModelConfigured(): Promise<boolean> {
   return isDecisionConfigValid(await getDecisionConfig(true));
@@ -267,17 +267,13 @@ export async function isDecisionModelConfigured(): Promise<boolean> {
 
 /**
  * The one question a feature asks before composing a Decision: is there a
- * Decision Model, is AI on at all, and did the administrator leave this use
- * selected. False on every count when no Decision Model is configured, so a
- * feature's fallback is the path it takes on a server that never heard of
- * one. A block with no stored selection means every use.
+ * Decision Model, and did the administrator leave this use selected. False
+ * when no Decision Model is configured, so a feature's fallback is the path
+ * it takes on a server that never heard of one. A block with no stored
+ * selection means every use. The global AI switch does not enter into it.
  */
 export async function isDecisionUseEnabled(use: DecisionUse): Promise<boolean> {
-  const [aiConfig, decisionConfig] = await Promise.all([getAIConfig(), getDecisionConfig(true)]);
-
-  if (!aiConfig?.enabled) return false;
-
-  return isDecisionUseSelected(decisionConfig, use);
+  return isDecisionUseSelected(await getDecisionConfig(true), use);
 }
 
 /**
