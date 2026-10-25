@@ -1,7 +1,8 @@
 /**
  * A recipe site behind a bot check, served over https for every `*.localhost` name, which Chromium
  * resolves to loopback by itself. Its first answer is a challenge that sets a cookie and reloads,
- * as Akamai's does, so only a browser that runs the script reads the recipe.
+ * as Akamai's does, so only a browser that runs the script reads the recipe. `/to/<name>`
+ * redirects to the recipe under another name.
  */
 import { execFileSync } from "node:child_process";
 import { mkdtempSync, readFileSync, rmSync } from "node:fs";
@@ -82,6 +83,17 @@ export async function serveRecipeSite(name: string): Promise<RecipeSite> {
     const passed = /(?:^|;\s*)passed=1/.test(request.headers.cookie ?? "");
 
     requests.push({ host, path: request.url ?? "/", headers: request.headers });
+
+    const movedTo = /^\/to\/([a-z-]+)$/.exec(request.url ?? "")?.[1];
+
+    if (movedTo) {
+      const { port } = server.address() as AddressInfo;
+
+      response.writeHead(302, { location: `https://${movedTo}.localhost:${port}/recipe` }).end();
+
+      return;
+    }
+
     response.writeHead(request.url === "/recipe" ? 200 : 404, {
       "content-type": "text/html; charset=utf-8",
     });

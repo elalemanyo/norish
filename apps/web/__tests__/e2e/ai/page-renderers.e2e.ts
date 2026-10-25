@@ -2,7 +2,8 @@
  * Page Renderers (ADR-0019). The card: what an administrator saves is what the next visit shows,
  * the stored CDP token never reaches the browser in full, and it is kept only for its own endpoint.
  * The Chromium browser: the runner's own Chromium, started with a DevTools port, reads a recipe
- * behind a bot check that the plain fetch cannot. The harness runs no Obscura or solver.
+ * behind a bot check that the plain fetch cannot, and keeps a header token to its own site across a
+ * redirect. The harness runs no Obscura or solver.
  */
 import type { Browser, Page } from "@playwright/test";
 import { chromium } from "@playwright/test";
@@ -181,5 +182,41 @@ test.describe("the Chromium browser", () => {
         .map(({ headers }) => headers.cookie ?? "")
         .filter(Boolean)
     ).toContain("passed=1");
+  });
+
+  test("a header token reaches its own site, and a redirect to another site goes without it", async ({
+    aiStack,
+  }) => {
+    const name = "Header Token Pancakes";
+    const tokenSite = await serveRecipeSite(name);
+    const saved = await callTrpc<{ id: string; version: number }>(
+      aiStack.baseURL,
+      aiStack.ownerCookies,
+      "siteAuthTokens.create",
+      { domain: "recipes.localhost", name: "X-Norish-E2E", value: "e2e-session", type: "header" }
+    );
+    /** The token header on each request the browser sent to this page of the site. */
+    const tokenSentTo = (host: string, path: string) =>
+      tokenSite.requests
+        .filter((sent) => sent.host === host && sent.path === path)
+        .filter(({ headers }) => headers["user-agent"]?.includes("Chrome"))
+        .map(({ headers }) => headers["x-norish-e2e"] ?? "none");
+
+    try {
+      await callTrpc(aiStack.baseURL, aiStack.ownerCookies, "recipes.importFromUrl", {
+        url: `${tokenSite.origin("recipes")}/to/elsewhere`,
+      });
+      await expect.poll(() => recipeIdsNamed(name), { timeout: 60_000 }).toHaveLength(1);
+
+      expect(tokenSentTo("recipes.localhost", "/to/elsewhere")).toEqual(["e2e-session"]);
+      // The challenge and then the recipe, both without the token.
+      expect(tokenSentTo("elsewhere.localhost", "/recipe")).toEqual(["none", "none"]);
+    } finally {
+      await callTrpc(aiStack.baseURL, aiStack.ownerCookies, "siteAuthTokens.remove", {
+        id: saved.id,
+        version: saved.version,
+      });
+      await tokenSite.close();
+    }
   });
 });
