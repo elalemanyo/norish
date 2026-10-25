@@ -1,8 +1,6 @@
 /**
- * A recipe site behind a bot check, served over https for every `*.localhost` name, which Chromium
- * resolves to loopback by itself. Its first answer is a challenge that sets a cookie and reloads,
- * as Akamai's does, so only a browser that runs the script reads the recipe. `/to/<name>`
- * redirects to the recipe under another name.
+ * An https recipe site on every `*.localhost` name, which Chromium resolves to loopback. Its first
+ * answer sets a cookie and reloads, as Akamai's does; `/to/<name>` redirects to it on `<name>`.
  */
 import { execFileSync } from "node:child_process";
 import { mkdtempSync, readFileSync, rmSync } from "node:fs";

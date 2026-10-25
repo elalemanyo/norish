@@ -1,9 +1,6 @@
 /**
- * Page Renderers (ADR-0019). The card: what an administrator saves is what the next visit shows,
- * the stored CDP token never reaches the browser in full, and it is kept only for its own endpoint.
- * The Chromium browser: the runner's own Chromium, started with a DevTools port, reads a recipe
- * behind a bot check that the plain fetch cannot, and keeps a header token to its own site across a
- * redirect. The harness runs no Obscura or solver.
+ * Page Renderers (ADR-0019): the card's saves, its CDP token never shown and kept to its endpoint,
+ * and the runner's own Chromium reading past a bot check, a header token kept to its site.
  */
 import type { Browser, Page } from "@playwright/test";
 import { chromium } from "@playwright/test";

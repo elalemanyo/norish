@@ -1,9 +1,7 @@
 name: Publish Chromium image
 
-# The Chromium browser image is published on its own cadence, like the Obscura
-# image: it changes only when `docker/chromium/pin.env` moves. The push to
-# `rc/**` publishes the new tag, and the push to `main` moves `latest` to it.
-# amd64 only, because upstream builds Linux for x86_64 only.
+# Published when `docker/chromium/pin.env` moves, like the Obscura image: an `rc/**` push publishes
+# the new tag and a `main` push moves `latest` to it. amd64 only, as upstream builds x86_64 only.
 on:
   workflow_dispatch:
     inputs:
@@ -14,9 +12,8 @@ on:
           instead of overwriting what operators are already running.
         type: boolean
         default: false
-  # Publishes the pinned tag when it is not on the registry yet. A push that
-  # changes the build without bumping the pin finds its tag there and does
-  # nothing.
+  # Publishes the pinned tag when the registry does not have it; a push that changes the build
+  # without bumping the pin finds its tag there and does nothing.
   push:
     branches:
       - main
@@ -43,9 +40,8 @@ jobs:
     name: Read pin
     runs-on: ubuntu-latest
     timeout-minutes: 5
-    # No image or tag outputs: the image name contains the Docker Hub username,
-    # which is a secret, so Actions drops it from job outputs. Every job reads
-    # pin.env itself.
+    # No image or tag outputs: the image name holds the Docker Hub username, a secret, which
+    # Actions drops from job outputs. Every job reads pin.env itself.
     outputs:
       publish: ${{ steps.plan.outputs.publish }}
       promote: ${{ steps.plan.outputs.promote }}
@@ -93,9 +89,8 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
 
-      # Non-push builds log in too: the Debian base image comes from a
-      # rate-limited registry that runners share an IP on. Guarded on the
-      # secret so fork PRs pull anonymously instead of failing a login.
+      # Non-push builds log in too, as runners share an IP on the rate-limited Debian registry.
+      # Guarded on the secret so fork PRs pull anonymously instead of failing a login.
       - name: Login to container registry
         if: ${{ needs.pin.outputs.publish == 'true' || env.HAS_REGISTRY_CREDS == 'true' }}
         uses: ./tooling/github/registry-login
@@ -103,10 +98,8 @@ jobs:
           dockerhub-username: ${{ secrets.DOCKERHUB_USERNAME }}
           dockerhub-password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
-      # One immutable tag: the Compose example pins it, so an ordinary
-      # `docker compose pull` cannot change the browser under a running Norish
-      # release. `latest` is the promote job's. A PR build only proves the
-      # Dockerfile still resolves and the archive still matches its digest.
+      # One immutable tag, pinned by the Compose example, so a pull never swaps the browser under a
+      # release; `latest` is the promote job's. A PR build proves the archive matches its digest.
       - name: Build image
         uses: docker/build-push-action@v7
         with:

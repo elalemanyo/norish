@@ -1,17 +1,7 @@
 # syntax=docker/dockerfile:1.26
 
-# Norish's image of fingerprint-chromium
-# (https://github.com/adryfish/fingerprint-chromium), a BSD-3 build of
-# ungoogled-chromium with fingerprint spoofing. It reads pages that plain
-# headless Chromium and Obscura get bot-checked on, such as Allerhande's.
-#
-# Upstream publishes release archives but no image, and builds Linux for x86_64
-# only, so this image is linux/amd64 only. There is no compile here: fetch the
-# pinned archive, check its digest, and unpack it onto Debian slim with the
-# libraries the browser links against.
-#
-# The defaults below mirror docker/chromium/pin.env, which is what the publish
-# workflow reads.
+# fingerprint-chromium, which reads pages Obscura is bot-checked on. Upstream ships x86_64 Linux
+# archives only, so the pinned one is unpacked onto Debian slim, amd64 only; ARGs mirror pin.env.
 
 ARG CHROMIUM_REPO=https://github.com/adryfish/fingerprint-chromium
 ARG CHROMIUM_VERSION=150.0.7871.186
@@ -43,9 +33,8 @@ RUN set -eux; \
     tar xJf chromium.tar.xz -C chromium --strip-components=1; \
     rm chromium.tar.xz chromium/chromedriver chromium/chrome-wrapper
 
-# BSD-3 asks that binary copies carry the notice: fingerprint-chromium's (from
-# the release tag) and Chromium's own (from the matching Chromium tag). The
-# third-party notices are built into the binary at chrome://credits.
+# BSD-3 asks binary copies to carry the notice: fingerprint-chromium's and Chromium's, from the
+# matching tags. The third-party notices are built into the binary at chrome://credits.
 RUN set -eux; \
     mkdir licenses; \
     curl -fsSL -o licenses/LICENSE \
@@ -95,13 +84,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY --from=fetch /out/chromium /opt/chromium
 COPY --from=fetch /out/licenses /licenses/fingerprint-chromium
 
-# Chromium serves DevTools on loopback only, so socat forwards 9222 to it.
-# Each start gets a fresh profile and a new fingerprint seed. The container
-# lives as long as both processes do; if either exits, it exits.
-#
-# --no-sandbox: Chromium's sandbox needs user namespaces, which Docker's default
-# seccomp profile refuses ("No usable sandbox!"). The container is the boundary
-# instead, as it is for Obscura, which has no sandbox at all.
+# socat forwards 9222 to DevTools, which Chromium binds to loopback; each start has a fresh profile.
+# --no-sandbox: Docker's default seccomp refuses Chromium's sandbox; the container is the boundary.
 COPY --chmod=755 <<'EOF' /usr/local/bin/start-chromium
 #!/bin/bash
 set -euo pipefail

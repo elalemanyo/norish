@@ -28,9 +28,8 @@ const BLOCK_TITLE =
 const REFUSAL_STATUSES = new Set([401, 403, 429]);
 
 /**
- * Whether returned HTML is a bot check rather than the page: Cloudflare's challenge markup, a
- * small stub with no title of its own or a block page's title, or a page a renderer was refused
- * with. The one reading every caller and the renderer chain share.
+ * Whether HTML is a bot check rather than the page: Cloudflare's challenge, a small stub with no
+ * title or a block page's title, or a refusal status. The one reading every caller shares.
  */
 export function isBotCheck(html: string, status?: number | null): boolean {
   return (
@@ -599,10 +598,8 @@ async function setTokensInObscura(
 }
 
 /**
- * The Chromium browser's step. Cookies are set for their domain, and one `Fetch.enable` pauses the
- * requests on a header token's https site and, while private addresses are refused, every document
- * request. Each paused request is checked and given its own site's headers, so a redirect off the
- * site carries none; Playwright's `route` would carry them along.
+ * A `Fetch.enable` pauses requests on a header token's site, and documents while private addresses
+ * are refused, to check each hop and add its own site's headers; `route` headers follow redirects.
  */
 async function prepareChromiumPage(
   context: BrowserContext,
