@@ -5,19 +5,17 @@ import { serverLogger as log } from "@norish/shared-server/logger";
 import { withTimeout } from "@norish/shared/lib/with-timeout";
 
 /**
- * The connection to Obscura, the first Page Renderer. Playwright Core dials its CDP endpoint as
- * given, with no debugger-metadata probe and no hostname rewriting.
+ * A connection to Obscura, the first Page Renderer, opened for one endpoint and token. Playwright
+ * Core dials its CDP endpoint as given, with no debugger-metadata probe and no hostname rewriting.
  */
-let browser: Browser | null = null;
-/** The endpoint and token `browser` was opened with; a change to either replaces it. */
-let browserKey = "";
+interface Connection {
+  key: string;
+  /** Shared while it opens, so two imports arriving while Obscura is cold open one connection. */
+  opening: Promise<Browser>;
+  browser?: Browser;
+}
 
-/**
- * The connection attempt in flight, if there is one. Cached as a promise rather
- * than awaited per caller, so two imports arriving while Obscura is cold share
- * one connection instead of opening two and orphaning the first.
- */
-let connecting: { key: string; promise: Promise<Browser> } | null = null;
+let connection: Connection | null = null;
 
 /**
  * Connect within `timeoutMs`, the part of a render's deadline that is left. An Obscura that cannot
@@ -30,19 +28,18 @@ export async function getBrowser(
 ): Promise<Browser | null> {
   const key = `${endpoint}\n${token ?? ""}`;
 
-  if (browser && browserKey !== key) void closeBrowser();
+  // One connection serves every import; contexts, not connections, are what keeps concurrent
+  // imports isolated. A connection Obscura dropped, because it restarted say, is replaced here.
+  if (connection?.key !== key || connection.browser?.isConnected() === false) {
+    if (connection) void close(connection);
+    connection = connect(endpoint, token, key, timeoutMs);
+  }
 
-  // One connection serves every import; contexts, not connections, are what
-  // keeps concurrent imports isolated. A connection Obscura dropped — because
-  // it restarted, say — is replaced here rather than by restarting Norish.
-  if (browser?.isConnected()) return browser;
-
-  const attempt =
-    connecting?.key === key ? connecting.promise : connect(endpoint, token, key, timeoutMs);
+  const { opening } = connection;
 
   try {
     // A caller joining an attempt opened for another render still gives up at its own deadline.
-    return await withTimeout(() => attempt, timeoutMs, "Connecting to Obscura");
+    return await withTimeout(() => opening, timeoutMs, "Connecting to Obscura");
   } catch (error) {
     // A hosted browser may take its token in the query string, so no query string is logged.
     const hidden = (text: string) => text.replace(/[?#]\S*/g, "");
@@ -61,41 +58,41 @@ function connect(
   token: string | undefined,
   key: string,
   timeoutMs: number
-): Promise<Browser> {
+): Connection {
   const headers: Record<string, string> = token ? { Authorization: `Bearer ${token}` } : {};
-  const promise = chromium
-    .connectOverCDP(endpoint, { headers, timeout: timeoutMs })
-    .then((connected) => {
-      // A connection that opened for an older setting meanwhile is replaced, not left open.
-      if (browser && browser !== connected) void closeBrowser();
-      browser = connected;
-      browserKey = key;
+  const opened: Connection = {
+    key,
+    opening: chromium.connectOverCDP(endpoint, { headers, timeout: timeoutMs }),
+  };
 
-      return connected;
-    })
-    .finally(() => {
-      // Cleared either way: a failed attempt must not be cached, so the next
-      // import retries once Obscura is back.
-      if (connecting?.promise === promise) connecting = null;
-    });
+  opened.opening.then(
+    (browser) => {
+      opened.browser = browser;
+    },
+    () => {
+      // A failed attempt is not cached, so the next import retries once Obscura is back.
+      if (connection === opened) connection = null;
+    }
+  );
 
-  connecting = { key, promise };
+  return opened;
+}
 
-  return promise;
+/** Close a connection, once it has opened when it is still opening, so none is left behind. */
+async function close(closing: Connection): Promise<void> {
+  const browser = await closing.opening.catch(() => null);
+
+  await browser?.close().catch((error: unknown) => {
+    log.error({ err: error }, "Error closing the Obscura connection");
+  });
 }
 
 export async function closeBrowser() {
-  const closing = browser;
+  const closing = connection;
 
-  browser = null;
+  connection = null;
 
-  if (closing) {
-    try {
-      await closing.close();
-    } catch (error) {
-      log.error({ err: error }, "Error closing the Obscura connection");
-    }
-  }
+  if (closing) await close(closing);
 }
 
 // Graceful shutdown - register handlers only once

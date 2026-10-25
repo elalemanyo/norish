@@ -135,7 +135,7 @@ describe("getBrowser – the Obscura connection", () => {
     expect(mockConnectOverCDP).toHaveBeenCalledTimes(2);
   });
 
-  it("leaves no connection open behind when the setting changes while one is opening", async () => {
+  it("closes a connection that opens after a newer setting's, and keeps the newer", async () => {
     const older = connectedBrowser();
     const newer = connectedBrowser();
     const connects: ((value: unknown) => void)[] = [];
@@ -151,15 +151,15 @@ describe("getBrowser – the Obscura connection", () => {
     const first = getBrowser(ENDPOINT, undefined, TIMEOUT);
     const second = getBrowser("ws://elsewhere.test:9222", undefined, TIMEOUT);
 
-    // The newer connection opens first; the older one lands after it.
     connects[1]?.(newer);
     await second;
     connects[0]?.(older);
     await first;
 
-    const open = [older, newer].filter((browser) => browser.close.mock.calls.length === 0);
-
-    expect(open).toHaveLength(1);
+    await vi.waitFor(() => expect(older.close).toHaveBeenCalledOnce());
+    expect(newer.close).not.toHaveBeenCalled();
+    await expect(getBrowser("ws://elsewhere.test:9222", undefined, TIMEOUT)).resolves.toBe(newer);
+    expect(mockConnectOverCDP).toHaveBeenCalledTimes(2);
   });
 
   it("reports an unreachable endpoint to the administrator, and answers no browser", async () => {
