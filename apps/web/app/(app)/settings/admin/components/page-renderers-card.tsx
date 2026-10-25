@@ -18,9 +18,11 @@ import type { PageRenderersConfig } from "@norish/config/zod/server-config";
 import { UnsavedChangesChip } from "./unsaved-changes-chip";
 
 const DEFAULT_TIMEOUT_MS = 45_000;
-// Both answer on the private compose network, without TLS.
+// These answer on the private compose network, without TLS.
 // eslint-disable-next-line sonarjs/no-clear-text-protocols -- placeholder for the shipped service
 const OBSCURA_PLACEHOLDER = "ws://obscura:9222";
+// eslint-disable-next-line sonarjs/no-clear-text-protocols -- placeholder for the commented-out service
+const CHROMIUM_PLACEHOLDER = "http://chromium:9222";
 // eslint-disable-next-line sonarjs/no-clear-text-protocols -- placeholder for the commented-out service
 const SOLVER_PLACEHOLDER = "http://flaresolverr:8191/v1";
 
@@ -31,6 +33,8 @@ function formFrom(config: PageRenderersConfig | null | undefined) {
     obscuraEndpoint: config?.obscura.endpoint ?? "",
     cdpToken: "",
     cdpTokenCleared: false,
+    chromiumEnabled: config?.chromium.enabled ?? false,
+    chromiumEndpoint: config?.chromium.endpoint ?? "",
     solverEnabled: config?.solver.enabled ?? false,
     solverEndpoint: config?.solver.endpoint ?? "",
     allowPrivateAddresses: config?.allowPrivateAddresses ?? false,
@@ -38,7 +42,7 @@ function formFrom(config: PageRenderersConfig | null | undefined) {
   };
 }
 
-/** Obscura and a FlareSolverr-compatible solver, tried in that order (ADR-0019). */
+/** Obscura, a Chromium browser and a FlareSolverr-compatible solver, tried in that order (ADR-0019). */
 export default function PageRenderersCard() {
   const t = useTranslations("settings.admin.pageRenderers");
   const tActions = useTranslations("common.actions");
@@ -92,6 +96,7 @@ export default function PageRenderersCard() {
         // Omitted keeps the stored token on the server; an empty one clears it.
         cdpToken: form.cdpToken || (form.cdpTokenCleared ? "" : undefined),
       },
+      chromium: { enabled: form.chromiumEnabled, endpoint: form.chromiumEndpoint.trim() },
       solver: {
         enabled: form.solverEnabled,
         endpoint: form.solverEndpoint.trim() || undefined,
@@ -145,6 +150,23 @@ export default function PageRenderersCard() {
             )}
           </div>
         </>
+      )}
+
+      <Separator />
+
+      <SwitchRow description={t("chromiumDescription")} title={t("chromium")}>
+        <SettingsSwitch
+          aria-label={t("chromium")}
+          isDisabled={stored.isLoading}
+          isSelected={form.chromiumEnabled}
+          onValueChange={set("chromiumEnabled")}
+        />
+      </SwitchRow>
+      {form.chromiumEnabled && (
+        <TextField value={form.chromiumEndpoint} onChange={set("chromiumEndpoint")}>
+          <Label>{t("chromiumEndpoint")}</Label>
+          <Input placeholder={CHROMIUM_PLACEHOLDER} variant="secondary" />
+        </TextField>
       )}
 
       <Separator />
