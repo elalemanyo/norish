@@ -6,15 +6,13 @@
  * ADR-0019: a plain fetch renders nothing, so Obscura remains the only
  * rendered-page engine, and when a Store page needs rendering it renders it.
  */
-import { fetchRenderedPage, plainFetch } from "./fetch";
+import { fetchRenderedPage, isBotCheck, plainFetch } from "./fetch";
 
 /** A browser-shaped identity: a shop that answers people should answer this. */
 const USER_AGENT =
   "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36";
 const ACCEPT =
   "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8";
-/** Below this, a page with no title of its own is a bot challenge rather than a shop. */
-const CHALLENGE_MAX_BYTES = 20_000;
 
 export interface StorePageVisit {
   html: string;
@@ -26,10 +24,6 @@ export interface StorePageVisit {
   url: string;
   /** Whether Obscura rendered the page, or a plain fetch was enough. */
   rendered: boolean;
-}
-
-function looksLikeAChallenge(html: string): boolean {
-  return html.length < CHALLENGE_MAX_BYTES && !/<title>\s*[^<\s][^<]*<\/title>/i.test(html);
 }
 
 /**
@@ -46,8 +40,7 @@ export async function fetchStorePage(
   const at = plain.url;
   const escalate =
     plain.status === 403 ||
-    (plain.html !== "" &&
-      (looksLikeAChallenge(plain.html) || (isEmptyHanded?.(plain.html, at) ?? false)));
+    (plain.html !== "" && (isBotCheck(plain.html) || (isEmptyHanded?.(plain.html, at) ?? false)));
 
   if (!escalate) return { html: plain.html, url: at, rendered: false };
 
@@ -63,7 +56,7 @@ export async function fetchStorePage(
   const rendered = await fetchRenderedPage(
     url,
     undefined,
-    (html) => !looksLikeAChallenge(html) && !(isEmptyHanded?.(html, at) ?? false)
+    (html) => !isBotCheck(html) && !(isEmptyHanded?.(html, at) ?? false)
   );
 
   if (!rendered) return { html: plain.html, url: at, rendered: false };

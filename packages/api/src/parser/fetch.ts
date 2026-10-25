@@ -11,6 +11,20 @@ const SETTLE_TIMEOUT_MS = 15_000;
 const SETTLE_POLL_MS = 500;
 const PLAIN_FETCH_TIMEOUT_MS = 15_000;
 const MAX_REDIRECTS = 10;
+/** Below this, a page with no title of its own is a bot check rather than a page. */
+const STUB_MAX_BYTES = 20_000;
+const CLOUDFLARE_CHALLENGE = /<title>\s*Just a moment(?:\.\.\.|…)|cf-challenge|_cf_chl_opt/i;
+
+/**
+ * Whether returned HTML is a bot check standing in front of the page: Cloudflare's challenge, or a
+ * small stub with no title of its own. The one reading every caller and the renderer chain share.
+ */
+export function isBotCheck(html: string): boolean {
+  return (
+    CLOUDFLARE_CHALLENGE.test(html) ||
+    (html.length < STUB_MAX_BYTES && !/<title>\s*[^<\s][^<]*<\/title>/i.test(html))
+  );
+}
 
 function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
