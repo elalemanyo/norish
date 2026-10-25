@@ -108,6 +108,33 @@ describe("getBrowser – the Obscura connection", () => {
     expect(mockConnectOverCDP).toHaveBeenCalledTimes(2);
   });
 
+  it("leaves no connection open behind when the setting changes while one is opening", async () => {
+    const older = connectedBrowser();
+    const newer = connectedBrowser();
+    const connects: ((value: unknown) => void)[] = [];
+
+    mockConnectOverCDP.mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          connects.push(resolve);
+        })
+    );
+
+    const { getBrowser } = await loadModule();
+    const first = getBrowser(ENDPOINT);
+    const second = getBrowser("ws://elsewhere.test:9222");
+
+    // The newer connection opens first; the older one lands after it.
+    connects[1]?.(newer);
+    await second;
+    connects[0]?.(older);
+    await first;
+
+    const open = [older, newer].filter((browser) => browser.close.mock.calls.length === 0);
+
+    expect(open).toHaveLength(1);
+  });
+
   it("reports an unreachable endpoint as an Obscura failure", async () => {
     mockConnectOverCDP.mockRejectedValue(new Error("ECONNREFUSED"));
 

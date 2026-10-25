@@ -35,6 +35,8 @@ export async function getBrowser(endpoint: string, token?: string): Promise<Brow
   const promise = chromium
     .connectOverCDP(endpoint, { headers })
     .then((connected) => {
+      // A connection that opened for an older setting meanwhile is replaced, not left open.
+      if (browser && browser !== connected) void closeBrowser();
       browser = connected;
       browserKey = key;
 
