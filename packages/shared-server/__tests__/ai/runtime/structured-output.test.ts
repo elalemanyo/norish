@@ -17,10 +17,27 @@
  */
 import { createServer } from "node:http";
 import type { AddressInfo } from "node:net";
-import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { z } from "zod";
 
 import type { AIConfig } from "@norish/config/zod/server-config";
+
+/** When set, the shared transport's fetch is this stub instead of the network. */
+const transport = vi.hoisted(() => ({ stub: null as typeof fetch | null }));
+
+vi.mock("@norish/shared-server/ai/runtime/transport", async (importOriginal) => {
+  const actual =
+    await importOriginal<typeof import("@norish/shared-server/ai/runtime/transport")>();
+
+  return {
+    ...actual,
+    createFetchWithTimeout: (timeoutMs: number): typeof fetch => {
+      const network = actual.createFetchWithTimeout(timeoutMs);
+
+      return (url, init) => (transport.stub ?? network)(url, init);
+    },
+  };
+});
 
 const mockGetAIConfig = vi.fn();
 const mockGetPrompts = vi.fn();
@@ -152,12 +169,41 @@ beforeEach(() => {
   mockGetPrompts.mockResolvedValue({});
 });
 
+afterEach(() => {
+  transport.stub = null;
+});
+
 describe("an endpoint that serves structured output", () => {
   it("is asked for a strict JSON schema, and answered in one request", async () => {
     await expect(generate()).resolves.toEqual({ tags: ["Italian"] });
 
     expect(captured).toHaveLength(1);
     expect(responseFormats()[0]).toMatchObject({ type: "json_schema" });
+  });
+});
+
+describe("Mistral, whose schema is only a hint unless asked to be strict", () => {
+  it("is asked for a strict JSON schema (#646)", async () => {
+    const sent: Record<string, unknown>[] = [];
+
+    transport.stub = vi.fn(async (_url: string | URL | Request, init?: RequestInit) => {
+      sent.push(JSON.parse(String(init?.body)));
+
+      return new Response(JSON.stringify(tagged().body), {
+        status: 200,
+        headers: { "content-type": "application/json" },
+      });
+    });
+    mockGetAIConfig.mockResolvedValue(
+      aiConfig({ provider: "mistral", apiKey: "mistral-key", endpoint: undefined })
+    );
+
+    await expect(generate()).resolves.toEqual({ tags: ["Italian"] });
+
+    expect(sent[0]!.response_format).toMatchObject({
+      type: "json_schema",
+      json_schema: { strict: true },
+    });
   });
 });
 

@@ -234,6 +234,8 @@ async function requestObject<T>({
     temperature: config.temperature,
     maxOutputTokens: config.maxTokens,
     abortSignal: requestSignal(deadlineMs),
+    // Mistral alone defaults to a non-strict schema, which it treats as a hint (#646).
+    providerOptions: { mistral: { strictJsonSchema: true } },
     ...(useVision
       ? {
           messages: [

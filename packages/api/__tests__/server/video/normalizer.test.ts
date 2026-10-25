@@ -106,6 +106,7 @@ describe("extractRecipeFromVideo", () => {
   it("refuses an empty shell before scoring or normalising anything", async () => {
     mocked.generateStructured.mockResolvedValue({
       ...EXTRACTED,
+      recipeIngredient: { metric: [], us: [] },
       recipeInstructions: { metric: [], us: [] },
     });
 
@@ -114,5 +115,16 @@ describe("extractRecipeFromVideo", () => {
     ).rejects.toThrow(/missing required fields/);
     expect(mocked.shadowScore).not.toHaveBeenCalled();
     expect(mocked.normalizeExtractionOutput).not.toHaveBeenCalled();
+  });
+
+  it("keeps a recipe that states no steps (#646)", async () => {
+    const stepless = { ...EXTRACTED, recipeInstructions: { metric: [], us: [] } };
+
+    mocked.generateStructured.mockResolvedValue(stepless);
+
+    await expect(
+      extractRecipeFromVideo(TRANSCRIPT, METADATA, "recipe-1", "https://example.com/v")
+    ).resolves.toMatchObject({ id: "recipe-1" });
+    expect(mocked.normalizeExtractionOutput).toHaveBeenCalledWith(stepless, expect.anything());
   });
 });

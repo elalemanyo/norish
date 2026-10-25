@@ -65,8 +65,16 @@ export const recipeExtractionSchema = z
       .strict(),
     recipeInstructions: z
       .object({
-        metric: z.array(z.string()).describe("Cooking steps with metric measurements"),
-        us: z.array(z.string()).describe("Cooking steps with US measurements"),
+        metric: z
+          .array(z.string())
+          .describe(
+            "Cooking steps with metric measurements. Empty when the source states none; never invent steps."
+          ),
+        us: z
+          .array(z.string())
+          .describe(
+            "Cooking steps with US measurements. Empty when the source states none; never invent steps."
+          ),
       })
       .strict(),
     keywords: z
