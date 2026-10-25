@@ -4,11 +4,11 @@
 
 **Blocked by:** None (can start immediately).
 
-**Status:** ready-for-agent
+**Status:** done
 
-- [ ] Saving an empty token clears the stored one.
-- [ ] Saving a changed endpoint with the masked token drops the stored token.
-- [ ] Saving the same endpoint with the masked token keeps the stored token.
-- [ ] Saving a changed endpoint with a new token stores the new one.
-- [ ] The admin router tests cover all four cases, and the first two fail before the fix.
-- [ ] The card lets an administrator empty the token field and save.
+- [x] Saving an empty token clears the stored one.
+- [x] Saving a changed endpoint with the masked token drops the stored token.
+- [x] Saving the same endpoint with the masked token keeps the stored token.
+- [x] Saving a changed endpoint with a new token stores the new one.
+- [x] The admin router tests cover all four cases, and the first two fail before the fix.
+- [x] The card lets an administrator empty the token field and save.

@@ -1,11 +1,12 @@
 // @vitest-environment node
 /**
  * The Page Renderers setting through the admin router: the CDP token is never read back in full,
- * a save that sends the mask keeps the stored token, and only a server admin gets either.
+ * a save keeps it only for the same endpoint, an empty one clears it, and only a server admin gets either.
  */
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { PageRenderersConfig } from "@norish/config/zod/server-config";
+import type { SetConfigOptions } from "@norish/db/repositories/server-config";
 import { ServerConfigKeys } from "@norish/config/zod/server-config";
 import { pageRenderersProcedures } from "@norish/trpc/routers/admin/page-renderers";
 
@@ -60,17 +61,54 @@ describe("getPageRenderers", () => {
   });
 });
 
-describe("updatePageRenderers", () => {
-  it("saves the setting encrypted, handing the mask on for the stored token to be kept", async () => {
-    const saved = { ...STORED, obscura: { ...STORED.obscura, cdpToken: "••••••••" } };
+/** Saves STORED with these Obscura fields; answers with the value handed on and the secrets dropped. */
+async function save(obscura: Partial<PageRenderersConfig["obscura"]>) {
+  const saved = { ...STORED, obscura: { ...STORED.obscura, ...obscura } };
 
-    await expect(createCaller().updatePageRenderers(saved)).resolves.toEqual({ success: true });
-    expect(setConfig).toHaveBeenCalledWith(
-      ServerConfigKeys.PAGE_RENDERERS,
-      saved,
-      createMockAdminUser().id,
-      true
-    );
+  await expect(createCaller().updatePageRenderers(saved)).resolves.toEqual({ success: true });
+  const [key, value, userId, isSensitive, options] = (setConfig.mock.calls[0] ?? []) as [
+    unknown,
+    PageRenderersConfig,
+    unknown,
+    unknown,
+    SetConfigOptions | undefined,
+  ];
+
+  expect([key, value, userId, isSensitive]).toEqual([
+    ServerConfigKeys.PAGE_RENDERERS,
+    saved,
+    createMockAdminUser().id,
+    true,
+  ]);
+
+  return { value, dropped: options?.dropSecrets ?? [] };
+}
+
+describe("updatePageRenderers", () => {
+  it("clears the stored token when the save sends an empty one", async () => {
+    expect((await save({ cdpToken: "" })).dropped).toContain("cdpToken");
+  });
+
+  it.each(["••••••••", undefined])(
+    "drops the stored token when the endpoint changes without a new one (%s)",
+    async (cdpToken) => {
+      const { dropped } = await save({ endpoint: "wss://elsewhere:9222", cdpToken });
+
+      expect(dropped).toContain("cdpToken");
+    }
+  );
+
+  it.each(["••••••••", undefined])(
+    "keeps the stored token for the same endpoint (%s)",
+    async (cdpToken) => {
+      expect((await save({ cdpToken })).dropped).not.toContain("cdpToken");
+    }
+  );
+
+  it("stores a new token entered with a changed endpoint", async () => {
+    const { value } = await save({ endpoint: "wss://elsewhere:9222", cdpToken: "new-token" });
+
+    expect(value.obscura.cdpToken).toBe("new-token");
   });
 
   it("refuses a solver switched on without an endpoint", async () => {

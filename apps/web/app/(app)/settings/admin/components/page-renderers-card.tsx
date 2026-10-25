@@ -8,8 +8,8 @@ import { useTRPC } from "@/app/providers/trpc-provider";
 import { ActionButton, ActionButtonGroup } from "@/components/shared/action-button";
 import SecretInput from "@/components/shared/secret-input";
 import { showSafeErrorToast } from "@/lib/ui/safe-error-toast";
-import { GlobeAltIcon } from "@heroicons/react/24/outline";
-import { Description, Input, Label, Separator, TextField, toast } from "@heroui/react";
+import { GlobeAltIcon, TrashIcon } from "@heroicons/react/24/outline";
+import { Button, Description, Input, Label, Separator, TextField, toast } from "@heroui/react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 
@@ -30,6 +30,7 @@ function formFrom(config: PageRenderersConfig | null | undefined) {
     obscuraEnabled: config?.obscura.enabled ?? false,
     obscuraEndpoint: config?.obscura.endpoint ?? "",
     cdpToken: "",
+    cdpTokenCleared: false,
     solverEnabled: config?.solver.enabled ?? false,
     solverEndpoint: config?.solver.endpoint ?? "",
     allowPrivateAddresses: config?.allowPrivateAddresses ?? false,
@@ -77,15 +78,19 @@ export default function PageRenderersCard() {
   const isDirty = (Object.keys(form) as (keyof typeof form)[]).some(
     (key) => form[key] !== initial[key]
   );
-  const hasStoredToken = !!stored.data?.obscura.cdpToken;
+  // The server drops the token for another endpoint, so only the stored one keeps it.
+  const keepsStoredToken =
+    !!stored.data?.obscura.cdpToken &&
+    !form.cdpTokenCleared &&
+    form.obscuraEndpoint.trim() === stored.data.obscura.endpoint;
 
   const handleSave = () =>
     save.mutate({
       obscura: {
         enabled: form.obscuraEnabled,
         endpoint: form.obscuraEndpoint.trim(),
-        // Empty keeps the stored token on the server.
-        cdpToken: form.cdpToken || undefined,
+        // Omitted keeps the stored token on the server; an empty one clears it.
+        cdpToken: form.cdpToken || (form.cdpTokenCleared ? "" : undefined),
       },
       solver: {
         enabled: form.solverEnabled,
@@ -118,14 +123,27 @@ export default function PageRenderersCard() {
             <Label>{t("obscuraEndpoint")}</Label>
             <Input placeholder={OBSCURA_PLACEHOLDER} variant="secondary" />
           </TextField>
-          <SecretInput
-            description={t("cdpTokenDescription")}
-            isConfigured={hasStoredToken}
-            label={t("cdpToken")}
-            placeholder=""
-            value={form.cdpToken}
-            onValueChange={set("cdpToken")}
-          />
+          <div className="flex flex-col items-start gap-2">
+            <SecretInput
+              className="w-full"
+              description={t("cdpTokenDescription")}
+              isConfigured={keepsStoredToken}
+              label={t("cdpToken")}
+              placeholder=""
+              value={form.cdpToken}
+              onValueChange={set("cdpToken")}
+            />
+            {keepsStoredToken && (
+              <Button
+                size="sm"
+                variant="tertiary"
+                onPress={() => setForm((f) => ({ ...f, cdpToken: "", cdpTokenCleared: true }))}
+              >
+                <TrashIcon className="size-4" />
+                {tActions("clear")}
+              </Button>
+            )}
+          </div>
         </>
       )}
 

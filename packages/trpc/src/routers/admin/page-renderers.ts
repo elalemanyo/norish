@@ -11,7 +11,10 @@ const getPageRenderers = adminProcedure.query(async () =>
   getConfig<PageRenderersConfig>(ServerConfigKeys.PAGE_RENDERERS)
 );
 
-/** Save the Page Renderers setting; a masked or empty CDP token keeps the stored one. */
+/**
+ * Save the Page Renderers setting. A masked or omitted CDP token keeps the stored one for the same
+ * endpoint; an empty token clears it, and a new endpoint without a token of its own drops it.
+ */
 const updatePageRenderers = adminProcedure
   .input(PageRenderersConfigSchema)
   .mutation(async ({ input, ctx }) => {
@@ -20,7 +23,13 @@ const updatePageRenderers = adminProcedure
       "Updating Page Renderers"
     );
 
-    await setConfig(ServerConfigKeys.PAGE_RENDERERS, input, ctx.user.id, true);
+    const stored = await getConfig<PageRenderersConfig>(ServerConfigKeys.PAGE_RENDERERS);
+    // The token is a credential for one host, so it never follows the endpoint to another.
+    const endpointChanged = !!stored && stored.obscura.endpoint !== input.obscura.endpoint;
+
+    await setConfig(ServerConfigKeys.PAGE_RENDERERS, input, ctx.user.id, true, {
+      dropSecrets: input.obscura.cdpToken === "" || endpointChanged ? ["cdpToken"] : [],
+    });
 
     return { success: true };
   });
