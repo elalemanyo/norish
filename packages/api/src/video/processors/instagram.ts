@@ -128,7 +128,7 @@ export class InstagramProcessor extends BaseVideoProcessor {
 
     // If yt-dlp returned no usable caption, render the post and read its caption
     if (!holdsRecipe) {
-      log.info({ url }, "Description holds no recipe, rendering the post in Obscura");
+      log.info({ url }, "Description holds no recipe, rendering the post");
       try {
         const html = await fetchRenderedPage(url, tokens);
 
@@ -141,7 +141,7 @@ export class InstagramProcessor extends BaseVideoProcessor {
           holdsRecipe = captionMayHoldRecipe(description, await judgeRecipe(description), 50);
         }
       } catch (err) {
-        log.warn({ url, err }, "Failed to render the post in Obscura");
+        log.warn({ url, err }, "Failed to render the post");
       }
     }
 

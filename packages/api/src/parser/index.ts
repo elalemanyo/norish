@@ -241,7 +241,7 @@ async function tryHandleVideoUrl(
 
 /**
  * A plain fetch first: a page whose HTML already holds a JSON-LD recipe needs no browser.
- * Anything else is rendered in Obscura.
+ * Anything else goes to the Page Renderers.
  */
 async function fetchRecipePage(
   url: string,

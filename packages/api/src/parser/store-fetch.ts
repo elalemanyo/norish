@@ -1,10 +1,8 @@
 /**
  * A Store Visit: one page of a shop's website, fetched. A plain HTTP fetch
  * comes first because a supermarket's markup is written for search engines
- * and needs no browser to read; Obscura renders only when the plain fetch is
- * turned away or comes back empty-handed (ADR-0028). This does not reopen
- * ADR-0019: a plain fetch renders nothing, so Obscura remains the only
- * rendered-page engine, and when a Store page needs rendering it renders it.
+ * and needs no browser to read; the Page Renderers render only when the plain
+ * fetch is turned away or comes back empty-handed (ADR-0028, ADR-0019).
  */
 import { fetchRenderedPage, isBotCheck, plainFetch } from "./fetch";
 
@@ -22,7 +20,7 @@ export interface StorePageVisit {
    * the address it came from or its relative links resolve to the wrong host.
    */
   url: string;
-  /** Whether Obscura rendered the page, or a plain fetch was enough. */
+  /** Whether a Page Renderer rendered the page, or a plain fetch was enough. */
   rendered: boolean;
 }
 
@@ -44,8 +42,8 @@ export async function fetchStorePage(
 
   if (!escalate) return { html: plain.html, url: at, rendered: false };
 
-  // Obscura is optional for this feature: when it is not reachable it answers
-  // with no HTML, which is a shop Norish cannot read rather than a failure.
+  // Page Renderers are optional for this feature: with none on or none able to
+  // read it, the answer is no HTML, which is a shop Norish cannot read rather than a failure.
   //
   // A shop that turned the plain fetch away turns the browser away too, and
   // answers it with a bot check that replaces itself with the real page a few

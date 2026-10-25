@@ -17,6 +17,7 @@ saying so.
 - OIDC claim mapping for admin roles and household auto-join
 - Content detection: units, [ingredient words](#ingredient-words), content
   indicators and recurrence
+- [Page renderers](./parser.md#page-renderers), the browsers imports read pages with
 - AI and video processing, see [AI provider](./ai-provider.md)
 - The [job queues](#job-queues)
 - The scheduler and a server restart
