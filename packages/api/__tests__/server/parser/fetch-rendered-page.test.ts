@@ -92,7 +92,7 @@ beforeEach(() => {
   };
   mockGetBrowser.mockClear();
   mockGoto.mockResolvedValue(undefined);
-  mockContent.mockResolvedValue("<html>rendered</html>");
+  mockContent.mockResolvedValue("<html><head><title>Rendered</title></head></html>");
   mockClose.mockResolvedValue(undefined);
   responseListeners = [];
   mockNewPage.mockResolvedValue({
@@ -128,7 +128,7 @@ describe("fetchRenderedPage – rendered-page contract", () => {
 
   it("returns the HTML Obscura rendered", async () => {
     await expect(fetchRenderedPage("https://example.com/recipe")).resolves.toBe(
-      "<html>rendered</html>"
+      "<html><head><title>Rendered</title></head></html>"
     );
   });
 
@@ -181,7 +181,7 @@ describe("fetchRenderedPage – rendered-page contract", () => {
       fetchRenderedPage("https://example.com/recipe", [
         makeToken({ name: "Authorization", value: "Bearer abc123", type: "header" }),
       ])
-    ).resolves.toBe("<html>rendered</html>");
+    ).resolves.toBe("<html><head><title>Rendered</title></head></html>");
 
     expect(contextOptions()).toEqual({});
   });
@@ -195,25 +195,25 @@ describe("fetchRenderedPage – rendered-page contract", () => {
   it("waits for a page that answered with a bot check to become itself", async () => {
     mockContent
       .mockResolvedValueOnce("<html>a bot check</html>")
-      .mockResolvedValue("<html>the shop</html>");
+      .mockResolvedValue("<html><head><title>the shop</title></head></html>");
 
     await expect(
       fetchRenderedPage("https://example.com/zoeken", undefined, (html) =>
         html.includes("the shop")
       )
-    ).resolves.toBe("<html>the shop</html>");
+    ).resolves.toBe("<html><head><title>the shop</title></head></html>");
   });
 
   it("counts a page it cannot read mid-navigation as one still becoming itself", async () => {
     mockContent
       .mockRejectedValueOnce(new Error("the page is navigating and changing the content"))
-      .mockResolvedValue("<html>the shop</html>");
+      .mockResolvedValue("<html><head><title>the shop</title></head></html>");
 
     await expect(
       fetchRenderedPage("https://example.com/zoeken", undefined, (html) =>
         html.includes("the shop")
       )
-    ).resolves.toBe("<html>the shop</html>");
+    ).resolves.toBe("<html><head><title>the shop</title></head></html>");
   });
 
   it("closes the context when navigation fails, and reports no HTML", async () => {
@@ -234,7 +234,7 @@ describe("fetchRenderedPage – rendered-page contract", () => {
     mockClose.mockRejectedValue(new Error("context already gone"));
 
     await expect(fetchRenderedPage("https://example.com/recipe")).resolves.toBe(
-      "<html>rendered</html>"
+      "<html><head><title>Rendered</title></head></html>"
     );
   });
 });
@@ -244,7 +244,7 @@ describe("renderPage – the status a site answered with", () => {
     mockGoto.mockResolvedValue(fakeResponse(403));
 
     await expect(renderPage("https://example.com/recipe")).resolves.toEqual({
-      html: "<html>rendered</html>",
+      html: "<html><head><title>Rendered</title></head></html>",
       status: 403,
     });
   });

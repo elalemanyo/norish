@@ -80,10 +80,13 @@ PRIVATE_ADDRESSES.addSubnet("fe80::", 10, "ipv6");
 /* eslint-enable sonarjs/no-hardcoded-ip */
 
 /**
- * Whether a host is, or resolves to, a private address. A name that does not resolve is left to
- * the fetch to fail. Redirects inside the solver's browser and DNS rebinding are not covered.
+ * Whether a host is refused: it is, or resolves to, a private address the administrator does not
+ * allow. Redirects inside the solver's browser and DNS rebinding are not covered.
  */
-async function isPrivateHost(hostname: string): Promise<boolean> {
+async function isRefusedHost(hostname: string, allowPrivateAddresses: boolean): Promise<boolean> {
+  if (allowPrivateAddresses) return false;
+
+  // A name that does not resolve is left to the fetch to fail.
   const addresses = await lookup(hostname.replace(/^\[|\]$/g, ""), { all: true }).catch(() => []);
 
   return addresses.some(({ address, family }) =>
@@ -186,7 +189,7 @@ export async function plainFetch(
         return { html: "", status: null, url };
       }
 
-      if (!allowPrivateAddresses && (await isPrivateHost(parsed.hostname))) {
+      if (await isRefusedHost(parsed.hostname, allowPrivateAddresses)) {
         log.warn({ url }, "Refused to fetch a private address");
 
         return { html: "", status: null, url, refused: true };
@@ -287,13 +290,14 @@ export async function renderPage(
   }
 
   const renderers = await getPageRenderersConfig();
-  const read = (page: RenderedPage) => page.html !== "" && !isBotCheck(page.html);
-  let rendered: RenderedPage = { html: "", status: null };
+  const isReadable = (page: RenderedPage) => page.html !== "" && !isBotCheck(page.html);
+  let status: number | null = null;
 
   if (renderers.obscura.enabled) {
-    rendered = await renderInObscura(targetUrl, renderers, tokens, isSettled);
+    const rendered = await renderInObscura(targetUrl, renderers, tokens, isSettled);
 
-    if (read(rendered)) return answered("obscura", targetUrl, rendered);
+    if (isReadable(rendered)) return answered("obscura", targetUrl, rendered);
+    status = rendered.status;
   }
 
   if (renderers.solver.enabled && renderers.solver.endpoint) {
@@ -305,19 +309,21 @@ export async function renderPage(
       );
     }
 
-    if (!renderers.allowPrivateAddresses && (await isPrivateHost(new URL(targetUrl).hostname))) {
+    if (await isRefusedHost(new URL(targetUrl).hostname, renderers.allowPrivateAddresses)) {
       log.warn({ url: targetUrl }, "Refused to send a private address to the solver");
+    } else {
+      const solved = await renderInSolver(
+        targetUrl,
+        renderers.solver.endpoint,
+        renderers.navigationTimeoutMs
+      );
 
-      return rendered;
+      if (isReadable(solved)) return answered("solver", targetUrl, solved);
     }
-
-    const solved = await renderInSolver(targetUrl, renderers.solver.endpoint, renderers);
-
-    if (read(solved)) return answered("solver", targetUrl, solved);
-    if (!rendered.html) rendered = solved;
   }
 
-  return rendered;
+  // Every renderer that is on failed, so the page is unreadable (ADR-0019).
+  return { html: "", status };
 }
 
 function answered(renderer: "obscura" | "solver", url: string, page: RenderedPage): RenderedPage {
@@ -338,10 +344,8 @@ const SolverReplySchema = z.object({
 async function renderInSolver(
   targetUrl: string,
   endpoint: string,
-  renderers: PageRenderersConfig
+  maxTimeout: number
 ): Promise<RenderedPage> {
-  const maxTimeout = renderers.navigationTimeoutMs;
-
   try {
     const response = await fetch(endpoint, {
       method: "POST",

@@ -134,12 +134,12 @@ describe("renderPage – the order", () => {
     });
   });
 
-  it("keeps Obscura's answer, status and all, when the solver does no better", async () => {
+  it("reads nothing when the solver does no better, so the import fails as unreadable", async () => {
     mockContent.mockResolvedValue(CHALLENGE);
     solverAnswers(solved(CHALLENGE));
 
     await expect(renderPage("https://example.com/r")).resolves.toEqual({
-      html: CHALLENGE,
+      html: "",
       status: 403,
     });
     expect(answeredBy()).toEqual([]);
@@ -169,7 +169,7 @@ describe("renderPage – each renderer alone", () => {
     mockContent.mockResolvedValue(CHALLENGE);
     const { solver } = solverAnswers(solved(SOLVED_PAGE));
 
-    await expect(renderPage("https://example.com/r")).resolves.toMatchObject({ html: CHALLENGE });
+    await expect(renderPage("https://example.com/r")).resolves.toMatchObject({ html: "" });
     expect(solver).not.toHaveBeenCalled();
   });
 

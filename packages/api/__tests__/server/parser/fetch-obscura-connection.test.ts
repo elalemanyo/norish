@@ -54,7 +54,7 @@ beforeEach(async () => {
 
 describe("renderPage – the Obscura connection follows the setting", () => {
   it("keeps one connection while the endpoint and token stay the same", async () => {
-    connectOverCDP.mockResolvedValue(fakeBrowser("<html>one</html>"));
+    connectOverCDP.mockResolvedValue(fakeBrowser("<html><head><title>one</title></head></html>"));
 
     await renderPage("https://example.com/a");
     await renderPage("https://example.com/b");
@@ -66,9 +66,9 @@ describe("renderPage – the Obscura connection follows the setting", () => {
   });
 
   it("replaces the connection on the next render once the endpoint or token changes", async () => {
-    const first = fakeBrowser("<html>first</html>");
-    const second = fakeBrowser("<html>second</html>");
-    const third = fakeBrowser("<html>third</html>");
+    const first = fakeBrowser("<html><head><title>first</title></head></html>");
+    const second = fakeBrowser("<html><head><title>second</title></head></html>");
+    const third = fakeBrowser("<html><head><title>third</title></head></html>");
 
     connectOverCDP
       .mockResolvedValueOnce(first)
@@ -79,12 +79,12 @@ describe("renderPage – the Obscura connection follows the setting", () => {
     renderers.obscura.endpoint = "ws://browser.lan:9333";
 
     await expect(renderPage("https://example.com/a")).resolves.toMatchObject({
-      html: "<html>second</html>",
+      html: "<html><head><title>second</title></head></html>",
     });
     renderers.obscura.cdpToken = "rotated";
 
     await expect(renderPage("https://example.com/a")).resolves.toMatchObject({
-      html: "<html>third</html>",
+      html: "<html><head><title>third</title></head></html>",
     });
     expect(first.close).toHaveBeenCalled();
     expect(second.close).toHaveBeenCalled();
