@@ -1,8 +1,13 @@
 // @vitest-environment node
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { SiteAuthTokenDecryptedDto } from "@norish/shared/contracts/dto/site-auth-tokens";
-import { fetchRenderedPage, headerScope } from "@norish/api/parser/fetch";
+import {
+  fetchRenderedPage,
+  headerScope,
+  isCloudflareChallenge,
+  plainFetch,
+} from "@norish/api/parser/fetch";
 
 // ---------------------------------------------------------------------------
 // Obscura is reached through Playwright; the browser object stays mocked so
@@ -236,5 +241,131 @@ describe("headerScope", () => {
 
   it("falls back to the host itself for a domain it is not on", () => {
     expect(scope("example.com", "other.test")).toBe("example.com");
+  });
+});
+
+describe("plainFetch – Site Auth Tokens across redirects", () => {
+  const tokens = [
+    makeToken({ name: "Authorization", value: "Bearer abc123", type: "header" }),
+    makeToken({ name: "session", value: "sess-abc", type: "cookie" }),
+    makeToken({ name: "prefs", value: "dark", type: "cookie" }),
+  ];
+
+  /** Answers each request with the next reply, recording what each one carried. */
+  function serve(...replies: Response[]) {
+    const fetchMock = vi.fn(async (_url: string, _init: RequestInit) =>
+      Promise.resolve(replies.shift() ?? new Response("", { status: 500 }))
+    );
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    return () =>
+      fetchMock.mock.calls.map(([url, init]) => ({
+        url,
+        headers: init.headers,
+        redirect: init.redirect,
+      }));
+  }
+
+  const redirectTo = (location: string) =>
+    new Response(null, { status: 302, headers: { location } });
+
+  afterEach(() => vi.unstubAllGlobals());
+
+  it("sends header and cookie tokens to a host on their domain", async () => {
+    const requests = serve(redirectTo("/r/1?x=1"), new Response("<html>page</html>"));
+    const sent = {
+      headers: {
+        "user-agent": "Norish",
+        Authorization: "Bearer abc123",
+        cookie: "session=sess-abc; prefs=dark",
+      },
+      redirect: "manual",
+    };
+
+    await expect(plainFetch("https://www.example.com/r/1", "Norish", { tokens })).resolves.toEqual({
+      html: "<html>page</html>",
+      status: 200,
+      url: "https://www.example.com/r/1?x=1",
+    });
+
+    expect(requests()).toEqual([
+      { url: "https://www.example.com/r/1", ...sent },
+      { url: "https://www.example.com/r/1?x=1", ...sent },
+    ]);
+  });
+
+  it("sends no token to the host a redirect points away to", async () => {
+    const requests = serve(
+      redirectTo("https://tracker.example.net/landing"),
+      new Response("<html>elsewhere</html>")
+    );
+
+    await expect(
+      plainFetch("https://example.com/r/1", "Norish", { tokens })
+    ).resolves.toMatchObject({ url: "https://tracker.example.net/landing" });
+
+    expect(requests()[1]).toEqual({
+      url: "https://tracker.example.net/landing",
+      headers: { "user-agent": "Norish" },
+      redirect: "manual",
+    });
+  });
+
+  it("does not take a host that merely ends in the token's domain for its site", async () => {
+    const requests = serve(redirectTo("https://evilexample.com/"), new Response(""));
+
+    await plainFetch("https://example.com/r/1", "Norish", { tokens });
+
+    expect(requests()[1]?.headers).toEqual({ "user-agent": "Norish" });
+  });
+
+  it("refuses links and redirects that are not web pages", async () => {
+    const requests = serve(redirectTo("file:///etc/passwd"));
+
+    await expect(plainFetch("gopher://127.0.0.1:6379/_x", "Norish")).resolves.toMatchObject({
+      html: "",
+      status: null,
+    });
+    await expect(plainFetch("https://example.com/r/1", "Norish")).resolves.toMatchObject({
+      html: "",
+      status: null,
+    });
+    expect(requests().map(({ url }) => url)).toEqual(["https://example.com/r/1"]);
+  });
+
+  it("gives up on a redirect loop", async () => {
+    const requests = serve(...Array.from({ length: 20 }, () => redirectTo("/again")));
+
+    await expect(plainFetch("https://example.com/r/1", "Norish")).resolves.toMatchObject({
+      html: "",
+      status: null,
+    });
+    expect(requests()).toHaveLength(11);
+  });
+
+  it("hands back no HTML for an error page, with its status", async () => {
+    serve(new Response("<html>denied</html>", { status: 403 }));
+
+    await expect(plainFetch("https://example.com/r/1", "Norish")).resolves.toEqual({
+      html: "",
+      status: 403,
+      url: "https://example.com/r/1",
+    });
+  });
+});
+
+describe("isCloudflareChallenge", () => {
+  it("knows the interstitial by its title or its challenge options", () => {
+    expect(isCloudflareChallenge("<title>Just a moment...</title>")).toBe(true);
+    expect(isCloudflareChallenge("<script>window._cf_chl_opt = {}</script>")).toBe(true);
+  });
+
+  it("does not mistake a real page carrying Cloudflare's bot script for one", () => {
+    expect(
+      isCloudflareChallenge(
+        '<title>Best Lentil Soup</title><script src="/cdn-cgi/challenge-platform/scripts/jsd/main.js"></script>'
+      )
+    ).toBe(false);
   });
 });

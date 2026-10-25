@@ -9,6 +9,8 @@ import { isHostOnDomain } from "@norish/shared/lib/helpers";
 /** How long a page that answered with something else is given to become itself. */
 const SETTLE_TIMEOUT_MS = 15_000;
 const SETTLE_POLL_MS = 500;
+const PLAIN_FETCH_TIMEOUT_MS = 15_000;
+const MAX_REDIRECTS = 10;
 
 function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -22,7 +24,11 @@ function sleep(ms: number): Promise<void> {
  * mid-navigation throws, which is a page still becoming itself and counts as
  * unsettled.
  */
-async function settledContent(page: Page, isSettled: (html: string) => boolean): Promise<string> {
+async function settledContent(
+  page: Page,
+  isSettled: (html: string) => boolean,
+  settleTimeoutMs: number
+): Promise<string> {
   const read = async (): Promise<string | null> => {
     try {
       return await page.content();
@@ -30,7 +36,7 @@ async function settledContent(page: Page, isSettled: (html: string) => boolean):
       return null;
     }
   };
-  const deadline = Date.now() + SETTLE_TIMEOUT_MS;
+  const deadline = Date.now() + settleTimeoutMs;
   let html = await read();
 
   while ((html === null || !isSettled(html)) && Date.now() < deadline) {
@@ -96,6 +102,101 @@ export function headerScope(hostname: string, tokens: SiteAuthTokenDecryptedDto[
   );
 }
 
+/** Cloudflare's "Just a moment..." interstitial, which replaces itself once its script passes. */
+export function isCloudflareChallenge(html: string): boolean {
+  // Not `challenge-platform`: Cloudflare injects that script into the real page too.
+  return /<title>\s*Just a moment\.\.\.\s*<\/title>/i.test(html) || /cf[-_]chl/.test(html);
+}
+
+/** A page fetched without a browser. */
+export interface PlainPage {
+  /** Empty unless the site answered with a 2xx */
+  html: string;
+  /** Null when no answer arrived */
+  status: number | null;
+  /** The address the page answered from, after redirects */
+  url: string;
+}
+
+/**
+ * Fetch a page over plain HTTP. Redirects are followed by hand so each Site Auth Token
+ * reaches only hosts on its own domain (its `headerScope` on the first host), never the
+ * target of a redirect to another site. Only web links are fetched.
+ */
+export async function plainFetch(
+  targetUrl: string,
+  userAgent: string,
+  options: { headers?: Record<string, string>; tokens?: SiteAuthTokenDecryptedDto[] } = {}
+): Promise<PlainPage> {
+  const firstHost = URL.parse(targetUrl)?.hostname ?? "";
+  const scoped = (options.tokens ?? []).map((token) => ({
+    token,
+    scope: headerScope(firstHost, [token]),
+  }));
+  const signal = AbortSignal.timeout(PLAIN_FETCH_TIMEOUT_MS);
+  let url = targetUrl;
+
+  try {
+    for (let hop = 0; hop <= MAX_REDIRECTS; hop++) {
+      const parsed = URL.parse(url);
+
+      if (!parsed || !/^https?:$/.test(parsed.protocol)) {
+        log.warn({ url }, "Refused to fetch a link that is not a web page");
+
+        return { html: "", status: null, url };
+      }
+
+      const onSite = scoped
+        .filter(({ scope }) => isHostOnDomain(parsed.hostname, scope))
+        .map(({ token }) => token);
+      const cookie = onSite
+        .filter((token) => token.type === "cookie")
+        .map(({ name, value }) => `${name}=${value}`)
+        .join("; ");
+      const response = await fetch(url, {
+        headers: {
+          "user-agent": userAgent,
+          ...options.headers,
+          ...Object.fromEntries(
+            onSite
+              .filter((token) => token.type === "header")
+              .map(({ name, value }) => [name, value])
+          ),
+          ...(cookie ? { cookie } : {}),
+        },
+        redirect: "manual",
+        signal,
+      });
+      const location =
+        response.status >= 300 && response.status < 400 ? response.headers.get("location") : null;
+
+      if (location) {
+        await response.body?.cancel();
+        url = new URL(location, url).href;
+        continue;
+      }
+
+      const answeredFrom = response.url || url;
+
+      if (!response.ok) {
+        log.debug({ url, status: response.status }, "A plain fetch was answered with an error");
+
+        return { html: "", status: response.status, url: answeredFrom };
+      }
+
+      return { html: await response.text(), status: response.status, url: answeredFrom };
+    }
+
+    log.debug({ url: targetUrl }, "A plain fetch was redirected too many times");
+
+    return { html: "", status: null, url };
+  } catch (error) {
+    log.debug({ err: error, url: targetUrl }, "A plain fetch failed");
+
+    return { html: "", status: null, url };
+  }
+}
+
 // `page.evaluate` runs in the page, where `document` exists; this package compiles without DOM types.
 declare const document: { cookie: string };
 
@@ -126,7 +227,8 @@ export async function fetchRenderedPage(
 export async function renderPage(
   targetUrl: string,
   tokens?: SiteAuthTokenDecryptedDto[],
-  isSettled?: (html: string) => boolean
+  isSettled?: (html: string) => boolean,
+  settleTimeoutMs = SETTLE_TIMEOUT_MS
 ): Promise<RenderedPage> {
   // Only a web page reaches the browser, so a link stored before imports refused other schemes
   // (file:, gopher:) is never rendered.
@@ -186,14 +288,16 @@ export async function renderPage(
       waitUntil: "load",
       // The whole navigation budget. One deadline rather than a stack of them:
       // page settling is Obscura's job, and waiting past the navigation for a
-      // page to become itself has its own deadline, SETTLE_TIMEOUT_MS, because only a
+      // page to become itself has its own deadline, `settleTimeoutMs`, because only a
       // caller can tell that it has not.
       timeout: SERVER_CONFIG.OBSCURA_NAVIGATION_TIMEOUT_MS,
     });
 
     status ??= response?.status() ?? null;
 
-    const html = isSettled ? await settledContent(page, isSettled) : await page.content();
+    const html = isSettled
+      ? await settledContent(page, isSettled, settleTimeoutMs)
+      : await page.content();
 
     return { html, status };
   } catch (error) {

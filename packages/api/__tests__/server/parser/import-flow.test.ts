@@ -6,6 +6,7 @@ const mockExtractRecipeWithAI = vi.fn();
 const mockIsVideoUrl = vi.fn(() => false);
 const mockFetchRenderedPage = vi.fn();
 const mockRenderStatus = vi.fn((): number | null => 200);
+const mockPlainFetch = vi.fn();
 const mockCallRecipeScrapersParser = vi.fn();
 const mockAdaptRecipeScrapersResponse = vi.fn();
 const mockProcessVideoRecipe = vi.fn();
@@ -37,6 +38,8 @@ vi.mock("@norish/shared/lib/helpers", async (importOriginal) => ({
 }));
 
 vi.mock("@norish/api/parser/fetch", () => ({
+  plainFetch: mockPlainFetch,
+  isCloudflareChallenge: (html: string) => html.includes("Just a moment..."),
   renderPage: async (...args: unknown[]) => ({
     html: await mockFetchRenderedPage(...args),
     status: mockRenderStatus(),
@@ -124,6 +127,8 @@ describe("parseRecipeFromUrl import flow", () => {
 
     mockIsVideoUrl.mockReturnValue(false);
     mockRenderStatus.mockReturnValue(200);
+    // The plain fetch finds no recipe, so every page is rendered as before.
+    mockPlainFetch.mockResolvedValue({ html: "", status: null, url: "" });
     // No Decision Model: triage has no opinion and every rule is today's.
     mockIsRecipe.mockResolvedValue(null);
     mockIsParseComplete.mockResolvedValue(null);
@@ -197,6 +202,82 @@ describe("parseRecipeFromUrl import flow", () => {
       "Video recipe parsing is not enabled."
     );
     expect(mockProcessVideoRecipe).not.toHaveBeenCalled();
+  });
+
+  describe("plain fetch before the browser", () => {
+    const withJsonLd = `<html><head><script type="application/ld+json">${JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "Recipe",
+      name: "Plain Recipe",
+    })}</script></head><body></body></html>`;
+    const tokens = [
+      {
+        id: "00000000-0000-0000-0000-000000000000",
+        userId: "user-1",
+        domain: "example.com",
+        name: "session",
+        value: "s",
+        type: "cookie" as const,
+        createdAt: new Date("2025-01-01"),
+        updatedAt: new Date("2025-01-01"),
+      },
+    ];
+
+    it("parses a plain page that holds a JSON-LD recipe without rendering it", async () => {
+      mockPlainFetch.mockResolvedValue({
+        html: withJsonLd,
+        status: 200,
+        url: "https://example.com/recipe",
+      });
+
+      const { parseRecipeFromUrl } = await import("@norish/api/parser");
+      const result = await parseRecipeFromUrl(
+        "https://example.com/recipe",
+        "recipe-1",
+        false,
+        tokens
+      );
+
+      expect(result).toEqual({ recipe: structuredRecipe, usedAI: false });
+      expect(mockPlainFetch).toHaveBeenCalledWith("https://example.com/recipe", "Norish", {
+        tokens,
+      });
+      expect(mockCallRecipeScrapersParser).toHaveBeenCalledWith({
+        url: "https://example.com/recipe",
+        html: withJsonLd,
+      });
+      expect(mockFetchRenderedPage).not.toHaveBeenCalled();
+    });
+
+    it.each([
+      ["has no JSON-LD recipe", { html: "<html><body>a recipe</body></html>", status: 200 }],
+      ["was not a 200", { html: withJsonLd, status: 403 }],
+      ["got no answer", { html: "", status: null }],
+    ])("renders the page when the plain fetch %s", async (_case, plain) => {
+      mockPlainFetch.mockResolvedValue({ ...plain, url: "https://example.com/recipe" });
+
+      const { parseRecipeFromUrl } = await import("@norish/api/parser");
+
+      await parseRecipeFromUrl("https://example.com/recipe", "recipe-1", false, tokens);
+
+      expect(mockFetchRenderedPage).toHaveBeenCalledWith(
+        "https://example.com/recipe",
+        tokens,
+        expect.any(Function),
+        30_000
+      );
+    });
+
+    it("waits for the rendered page to get past a Cloudflare challenge", async () => {
+      const { parseRecipeFromUrl } = await import("@norish/api/parser");
+
+      await parseRecipeFromUrl("https://example.com/recipe", "recipe-1");
+
+      const isSettled = mockFetchRenderedPage.mock.calls[0]?.[2] as (html: string) => boolean;
+
+      expect(isSettled("<title>Just a moment...</title>")).toBe(false);
+      expect(isSettled("<title>Lentil soup</title>")).toBe(true);
+    });
   });
 
   it("uses AI directly when forceAI is true", async () => {

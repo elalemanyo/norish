@@ -5,7 +5,10 @@ import { fetchStorePage } from "@norish/api/parser/store-fetch";
 
 const renderPage = vi.hoisted(() => vi.fn<(url: string) => Promise<string>>());
 
-vi.mock("@norish/api/parser/fetch", () => ({ fetchRenderedPage: renderPage }));
+vi.mock("@norish/api/parser/fetch", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@norish/api/parser/fetch")>()),
+  fetchRenderedPage: renderPage,
+}));
 
 const A_REAL_PAGE = `<html><head><title>Zoekresultaten</title></head><body>${"x".repeat(30_000)}</body></html>`;
 const A_CHALLENGE = "<html><body>checking your browser</body></html>";

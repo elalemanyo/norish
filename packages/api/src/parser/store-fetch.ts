@@ -6,16 +6,13 @@
  * ADR-0019: a plain fetch renders nothing, so Obscura remains the only
  * rendered-page engine, and when a Store page needs rendering it renders it.
  */
-import { parserLogger as log } from "@norish/shared-server/logger";
-
-import { fetchRenderedPage } from "./fetch";
+import { fetchRenderedPage, plainFetch } from "./fetch";
 
 /** A browser-shaped identity: a shop that answers people should answer this. */
 const USER_AGENT =
   "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36";
 const ACCEPT =
   "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8";
-const FETCH_TIMEOUT_MS = 15_000;
 /** Below this, a page with no title of its own is a bot challenge rather than a shop. */
 const CHALLENGE_MAX_BYTES = 20_000;
 
@@ -35,32 +32,6 @@ function looksLikeAChallenge(html: string): boolean {
   return html.length < CHALLENGE_MAX_BYTES && !/<title>\s*[^<\s][^<]*<\/title>/i.test(html);
 }
 
-async function plainFetch(
-  url: string
-): Promise<{ html: string; blocked: boolean; answeredFrom: string }> {
-  try {
-    const response = await fetch(url, {
-      headers: { "user-agent": USER_AGENT, accept: ACCEPT },
-      redirect: "follow",
-      signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
-    });
-    const answeredFrom = response.url || url;
-
-    if (response.status === 403) return { html: "", blocked: true, answeredFrom };
-    if (!response.ok) {
-      log.debug({ url, status: response.status }, "The shop answered a store visit with an error");
-
-      return { html: "", blocked: false, answeredFrom };
-    }
-
-    return { html: await response.text(), blocked: false, answeredFrom };
-  } catch (error) {
-    log.debug({ err: error, url }, "A store visit could not be fetched");
-
-    return { html: "", blocked: false, answeredFrom: url };
-  }
-}
-
 /**
  * Fetch one page of a shop. `isEmptyHanded` is the caller's own reading of
  * the page, against the address it came from — a results page with no
@@ -71,10 +42,10 @@ export async function fetchStorePage(
   url: string,
   isEmptyHanded?: (html: string, url: string) => boolean
 ): Promise<StorePageVisit> {
-  const plain = await plainFetch(url);
-  const at = plain.answeredFrom;
+  const plain = await plainFetch(url, USER_AGENT, { headers: { accept: ACCEPT } });
+  const at = plain.url;
   const escalate =
-    plain.blocked ||
+    plain.status === 403 ||
     (plain.html !== "" &&
       (looksLikeAChallenge(plain.html) || (isEmptyHanded?.(plain.html, at) ?? false)));
 

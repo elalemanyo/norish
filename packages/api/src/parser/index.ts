@@ -1,7 +1,7 @@
 import type { PageSummary } from "@norish/api/parser/page-summary";
 import type { SiteAuthTokenDecryptedDto } from "@norish/shared/contracts/dto/site-auth-tokens";
 import { extractSanitizedBody } from "@norish/api/parser/extraction-sanitizer";
-import { renderPage } from "@norish/api/parser/fetch";
+import { isCloudflareChallenge, plainFetch, renderPage } from "@norish/api/parser/fetch";
 import { isParseComplete, isRecipe } from "@norish/api/parser/import-triage";
 import { extractRecipeNodesFromJsonLd } from "@norish/api/parser/jsonld";
 import { summarisePage } from "@norish/api/parser/page-summary";
@@ -60,6 +60,14 @@ interface StructuredParseOutcome {
   recipe: FullRecipeInsertDTO | null;
   failure: StructuredParserFailure | null;
 }
+
+/**
+ * An honest identity for the plain fetch: Cloudflare challenges a client that claims a
+ * browser its TLS handshake doesn't match, and lets a self-named one through.
+ */
+const PLAIN_FETCH_USER_AGENT = "Norish";
+/** How long a rendered recipe page is given to get past a Cloudflare challenge. */
+const CHALLENGE_SETTLE_TIMEOUT_MS = 30_000;
 
 /** Statuses that mean the site turned the request away rather than failed to serve it. */
 const REFUSAL_STATUSES = new Set([401, 403, 429]);
@@ -223,6 +231,30 @@ async function tryHandleVideoUrl(
   return { recipe, usedAI: true };
 }
 
+/**
+ * A plain fetch first: a page whose HTML already holds a JSON-LD recipe needs no browser.
+ * Anything else is rendered in Obscura, which is given time to get past a Cloudflare challenge.
+ */
+async function fetchRecipePage(
+  url: string,
+  tokens?: SiteAuthTokenDecryptedDto[]
+): Promise<{ html: string; status: number | null }> {
+  const plain = await plainFetch(url, PLAIN_FETCH_USER_AGENT, { tokens });
+
+  if (plain.status === 200 && extractRecipeNodesFromJsonLd(plain.html).length > 0) {
+    log.info({ url }, "Plain fetch found a recipe, skipping the browser");
+
+    return { html: plain.html, status: plain.status };
+  }
+
+  return renderPage(
+    url,
+    tokens,
+    (html) => !isCloudflareChallenge(html),
+    CHALLENGE_SETTLE_TIMEOUT_MS
+  );
+}
+
 export async function parseRecipeFromUrl(
   url: string,
   recipeId: string,
@@ -233,7 +265,7 @@ export async function parseRecipeFromUrl(
 
   if (videoResult) return videoResult;
 
-  const { html, status } = await renderPage(url, tokens);
+  const { html, status } = await fetchRecipePage(url, tokens);
 
   if (!html) throw new Error("Cannot fetch recipe page.");
 

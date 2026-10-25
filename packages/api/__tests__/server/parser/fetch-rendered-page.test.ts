@@ -187,6 +187,13 @@ describe("fetchRenderedPage – rendered-page contract", () => {
     ).resolves.toBe("<html>the shop</html>");
   });
 
+  it("stops waiting at the caller's own deadline and hands back the page as it is", async () => {
+    await expect(
+      renderPage("https://example.com/recipe", undefined, () => false, 0)
+    ).resolves.toMatchObject({ html: "<html>rendered</html>" });
+    expect(mockContent).toHaveBeenCalledOnce();
+  });
+
   it("closes the context when navigation fails, and reports no HTML", async () => {
     mockGoto.mockRejectedValue(new Error("net::ERR_ABORTED"));
 
