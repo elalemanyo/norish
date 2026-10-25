@@ -261,6 +261,22 @@ describe("parseRecipeFromUrl import flow", () => {
 
       expect(mockFetchRenderedPage).toHaveBeenCalledWith("https://example.com/recipe", tokens);
     });
+
+    it("names a private address the server refused, and renders nothing", async () => {
+      mockPlainFetch.mockResolvedValue({
+        html: "",
+        status: null,
+        url: "http://192.168.1.1/",
+        refused: true,
+      });
+
+      const { parseRecipeFromUrl } = await import("@norish/api/parser");
+
+      await expect(parseRecipeFromUrl("http://192.168.1.1/", "recipe-1")).rejects.toThrow(
+        "Imports from private network addresses are not allowed on this server."
+      );
+      expect(mockFetchRenderedPage).not.toHaveBeenCalled();
+    });
   });
 
   it("uses AI directly when forceAI is true", async () => {

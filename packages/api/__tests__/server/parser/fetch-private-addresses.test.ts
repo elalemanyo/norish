@@ -1,0 +1,166 @@
+// @vitest-environment node
+/**
+ * Allow private addresses (ADR-0019): off by default, a page fetch never reaches a loopback,
+ * private or link-local address, before the plain fetch, at every redirect hop, and before the
+ * solver. Obscura enforces its own deny, so it is not guarded here. DNS is faked at the edge.
+ */
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
+import type { PageRenderersConfig } from "@norish/config/zod/server-config";
+import { plainFetch, renderPage } from "@norish/api/parser/fetch";
+
+const { lookup, mockGetBrowser } = vi.hoisted(() => ({
+  lookup: vi.fn(),
+  mockGetBrowser: vi.fn(),
+}));
+
+vi.mock("node:dns/promises", () => ({ lookup }));
+vi.mock("@norish/api/obscura", () => ({ getBrowser: mockGetBrowser }));
+vi.mock("@norish/shared-server/logger", () => ({
+  parserLogger: { debug: vi.fn(), warn: vi.fn(), info: vi.fn(), error: vi.fn() },
+}));
+
+let renderers: PageRenderersConfig;
+
+vi.mock("@norish/shared-server/config/server-config-loader", () => ({
+  getPageRenderersConfig: async () => renderers,
+}));
+
+/** What each name resolves to; anything unnamed is a public address. */
+const DNS: Record<string, string[]> = {
+  "router.lan": ["192.168.1.1"],
+  "dual.example": ["93.184.215.14", "fd00::5"],
+};
+
+const PAGE = `<html><head><title>Lasagne</title></head><body>${"x".repeat(30_000)}</body></html>`;
+
+/** Every request answered by `reply`; returns the URLs that were requested. */
+function serve(reply: (url: string) => Response) {
+  const fetchMock = vi.fn(async (url: string) => reply(url));
+
+  vi.stubGlobal("fetch", fetchMock);
+
+  return () => fetchMock.mock.calls.map(([url]) => url);
+}
+
+beforeEach(() => {
+  vi.clearAllMocks();
+  renderers = {
+    obscura: { enabled: false, endpoint: "ws://obscura:9222" },
+    solver: { enabled: false },
+    allowPrivateAddresses: false,
+    navigationTimeoutMs: 30_000,
+  };
+  lookup.mockImplementation(async (host: string) => {
+    const addresses = DNS[host] ?? (/^[\d.]+$|:/.test(host) ? [host] : ["93.184.215.14"]);
+
+    return addresses.map((address) => ({ address, family: address.includes(":") ? 6 : 4 }));
+  });
+});
+
+afterEach(() => vi.unstubAllGlobals());
+
+describe("plainFetch – private addresses refused by default", () => {
+  it.each([
+    "http://127.0.0.1/",
+    "http://10.0.0.8/recipe",
+    "http://172.20.1.1/",
+    "http://192.168.1.1/",
+    "http://169.254.169.254/latest/meta-data/",
+    "http://0.0.0.0:3000/",
+    "http://[::1]/",
+    "http://[fd12:3456::1]/",
+    "http://[fe80::1]/",
+    "http://[::ffff:127.0.0.1]/",
+    "http://2130706433/",
+  ])("refuses %s without fetching it", async (url) => {
+    const requested = serve(() => new Response(PAGE));
+
+    await expect(plainFetch(url, "Norish")).resolves.toMatchObject({
+      html: "",
+      status: null,
+      refused: true,
+    });
+    expect(requested()).toEqual([]);
+  });
+
+  it("refuses a hostname that resolves to a private address", async () => {
+    const requested = serve(() => new Response(PAGE));
+
+    await expect(plainFetch("http://router.lan/", "Norish")).resolves.toMatchObject({
+      refused: true,
+    });
+    await expect(plainFetch("https://dual.example/", "Norish")).resolves.toMatchObject({
+      refused: true,
+    });
+    expect(requested()).toEqual([]);
+  });
+
+  it("refuses a redirect hop that turns private", async () => {
+    const requested = serve((url) =>
+      url.startsWith("https://example.com")
+        ? new Response(null, { status: 302, headers: { location: "http://192.168.1.1/admin" } })
+        : new Response(PAGE)
+    );
+
+    await expect(plainFetch("https://example.com/r", "Norish")).resolves.toMatchObject({
+      html: "",
+      refused: true,
+    });
+    expect(requested()).toEqual(["https://example.com/r"]);
+  });
+
+  it("leaves public targets alone", async () => {
+    serve(() => new Response(PAGE));
+
+    await expect(plainFetch("https://example.com/r", "Norish")).resolves.toEqual({
+      html: PAGE,
+      status: 200,
+      url: "https://example.com/r",
+    });
+  });
+
+  it("reaches private addresses once the administrator allows them", async () => {
+    renderers.allowPrivateAddresses = true;
+    serve(() => new Response(PAGE));
+
+    await expect(plainFetch("http://192.168.1.1/", "Norish")).resolves.toMatchObject({
+      html: PAGE,
+    });
+    await expect(plainFetch("http://router.lan/", "Norish")).resolves.toMatchObject({
+      html: PAGE,
+    });
+  });
+});
+
+describe("renderPage – the solver is guarded, Obscura is not", () => {
+  const solved = () => Response.json({ status: "ok", solution: { status: 200, response: PAGE } });
+
+  beforeEach(() => {
+    renderers.solver = { enabled: true, endpoint: "http://flaresolverr:8191/v1" };
+  });
+
+  it("skips the solver for a private target", async () => {
+    const requested = serve(solved);
+
+    await expect(renderPage("http://router.lan/")).resolves.toEqual({ html: "", status: null });
+    expect(requested()).toEqual([]);
+  });
+
+  it("asks the solver for a private target once private addresses are allowed", async () => {
+    renderers.allowPrivateAddresses = true;
+    serve(solved);
+
+    await expect(renderPage("http://router.lan/")).resolves.toMatchObject({ html: PAGE });
+  });
+
+  it("still hands a private target to Obscura, which refuses it itself", async () => {
+    renderers.obscura.enabled = true;
+    mockGetBrowser.mockRejectedValue(new Error("refused"));
+    serve(solved);
+
+    await renderPage("http://router.lan/");
+
+    expect(mockGetBrowser).toHaveBeenCalled();
+  });
+});

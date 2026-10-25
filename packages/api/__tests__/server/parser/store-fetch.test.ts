@@ -5,6 +5,14 @@ import { fetchStorePage } from "@norish/api/parser/store-fetch";
 
 const renderPage = vi.hoisted(() => vi.fn<(url: string) => Promise<string>>());
 
+// Every shop resolves to a public address, so no lookup leaves the process.
+vi.mock("node:dns/promises", () => ({
+  lookup: async () => [{ address: "93.184.215.14", family: 4 }],
+}));
+vi.mock("@norish/shared-server/config/server-config-loader", () => ({
+  getPageRenderersConfig: async () => ({ allowPrivateAddresses: false }),
+}));
+
 vi.mock("@norish/api/parser/fetch", async (importOriginal) => ({
   ...(await importOriginal<typeof import("@norish/api/parser/fetch")>()),
   fetchRenderedPage: renderPage,

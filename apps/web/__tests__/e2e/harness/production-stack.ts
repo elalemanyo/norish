@@ -488,6 +488,8 @@ export class ProductionStack {
       // Nothing outbound: a spec that needs an ingredient catalogue seeds its
       // own, rather than the server fetching Open Food Facts at boot.
       INGREDIENT_CATALOGUE_URL: "",
+      // The fake shop and recipe pages answer on loopback.
+      ALLOW_PRIVATE_ADDRESSES: "true",
       ...this.options.environment,
     };
   }

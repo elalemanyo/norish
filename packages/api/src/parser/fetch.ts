@@ -1,3 +1,5 @@
+import { lookup } from "node:dns/promises";
+import { BlockList } from "node:net";
 import type { BrowserContext, Page } from "playwright-core";
 import { z } from "zod";
 
@@ -59,6 +61,34 @@ async function settledContent(page: Page, isSettled: (html: string) => boolean):
   }
 
   return html ?? "";
+}
+
+/** Loopback, RFC1918, link-local, unique-local and unspecified; IPv4-mapped IPv6 matches too. */
+const PRIVATE_ADDRESSES = new BlockList();
+
+/* eslint-disable sonarjs/no-hardcoded-ip -- the private ranges are what is refused */
+PRIVATE_ADDRESSES.addSubnet("0.0.0.0", 8, "ipv4");
+PRIVATE_ADDRESSES.addSubnet("127.0.0.0", 8, "ipv4");
+PRIVATE_ADDRESSES.addSubnet("10.0.0.0", 8, "ipv4");
+PRIVATE_ADDRESSES.addSubnet("172.16.0.0", 12, "ipv4");
+PRIVATE_ADDRESSES.addSubnet("192.168.0.0", 16, "ipv4");
+PRIVATE_ADDRESSES.addSubnet("169.254.0.0", 16, "ipv4");
+PRIVATE_ADDRESSES.addAddress("::", "ipv6");
+PRIVATE_ADDRESSES.addAddress("::1", "ipv6");
+PRIVATE_ADDRESSES.addSubnet("fc00::", 7, "ipv6");
+PRIVATE_ADDRESSES.addSubnet("fe80::", 10, "ipv6");
+/* eslint-enable sonarjs/no-hardcoded-ip */
+
+/**
+ * Whether a host is, or resolves to, a private address. A name that does not resolve is left to
+ * the fetch to fail. Redirects inside the solver's browser and DNS rebinding are not covered.
+ */
+async function isPrivateHost(hostname: string): Promise<boolean> {
+  const addresses = await lookup(hostname.replace(/^\[|\]$/g, ""), { all: true }).catch(() => []);
+
+  return addresses.some(({ address, family }) =>
+    PRIVATE_ADDRESSES.check(address, family === 6 ? "ipv6" : "ipv4")
+  );
 }
 
 /** A rendered page and the HTTP status its document last arrived with. */
@@ -124,6 +154,8 @@ export interface PlainPage {
   status: number | null;
   /** The address the page answered from, after redirects */
   url: string;
+  /** Set when the target was a private address and the administrator does not allow those */
+  refused?: true;
 }
 
 /**
@@ -141,6 +173,7 @@ export async function plainFetch(
     scope: headerScope(firstHost, [token]),
   }));
   const signal = AbortSignal.timeout(PLAIN_FETCH_TIMEOUT_MS);
+  const { allowPrivateAddresses } = await getPageRenderersConfig();
   let url = targetUrl;
 
   try {
@@ -151,6 +184,12 @@ export async function plainFetch(
         log.warn({ url }, "Refused to fetch a link that is not a web page");
 
         return { html: "", status: null, url };
+      }
+
+      if (!allowPrivateAddresses && (await isPrivateHost(parsed.hostname))) {
+        log.warn({ url }, "Refused to fetch a private address");
+
+        return { html: "", status: null, url, refused: true };
       }
 
       const onSite =
@@ -264,6 +303,12 @@ export async function renderPage(
         { url: targetUrl, tokens: tokens.length },
         "Site Auth Tokens withheld from the solver"
       );
+    }
+
+    if (!renderers.allowPrivateAddresses && (await isPrivateHost(new URL(targetUrl).hostname))) {
+      log.warn({ url: targetUrl }, "Refused to send a private address to the solver");
+
+      return rendered;
     }
 
     const solved = await renderInSolver(targetUrl, renderers.solver.endpoint, renderers);

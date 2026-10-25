@@ -249,6 +249,10 @@ async function fetchRecipePage(
 ): Promise<{ html: string; status: number | null }> {
   const plain = await plainFetch(url, PLAIN_FETCH_USER_AGENT, { tokens });
 
+  if (plain.refused) {
+    throw new Error("Imports from private network addresses are not allowed on this server.");
+  }
+
   if (plain.status === 200 && extractRecipeNodesFromJsonLd(plain.html).length > 0) {
     log.info({ url }, "Plain fetch found a recipe, skipping the browser");
 

@@ -50,6 +50,11 @@ vi.mock("@norish/api/obscura", () => ({
   getBrowser: mockGetBrowser,
 }));
 
+// Every host resolves to a public address, so no lookup leaves the process.
+vi.mock("node:dns/promises", () => ({
+  lookup: async () => [{ address: "93.184.215.14", family: 4 }],
+}));
+
 vi.mock("@norish/shared-server/config/server-config-loader", () => ({
   getPageRenderersConfig: async () => ({
     obscura: { enabled: true, endpoint: "ws://obscura:9222" },
