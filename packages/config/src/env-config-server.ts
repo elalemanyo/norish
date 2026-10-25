@@ -85,6 +85,12 @@ const isBuild =
   process.env.NEXT_PHASE === "phase-production-build" ||
   process.env.NEXT_PHASE === "phase-export";
 
+/** A switch set as "true" or "1"; anything else is off. */
+const envFlag = z
+  .string()
+  .transform((val) => val === "true" || val === "1")
+  .pipe(z.boolean());
+
 const commaSeparatedList = z
   .string()
   .optional()
@@ -132,24 +138,12 @@ const ServerConfigFields = z.object({
     ? z.url().default("postgresql://build:build@localhost:5432/build")
     : z.url(),
 
-  ENABLE_REGISTRATION: z
-    .string()
-    .transform((val) => val === "true" || val === "1")
-    .pipe(z.boolean())
-    .default(false),
+  ENABLE_REGISTRATION: envFlag.default(false),
 
-  AI_ENABLED: z
-    .string()
-    .transform((val) => val === "true" || val === "1")
-    .pipe(z.boolean())
-    .default(false),
+  AI_ENABLED: envFlag.default(false),
 
   // Unset: on when no OAuth provider is configured in the environment.
-  PASSWORD_AUTH_ENABLED: z
-    .string()
-    .transform((val) => val === "true" || val === "1")
-    .pipe(z.boolean())
-    .optional(),
+  PASSWORD_AUTH_ENABLED: envFlag.optional(),
 
   OIDC_NAME: z.string().default("Nora ID"),
   OIDC_ISSUER: z.string().optional(),
@@ -157,11 +151,7 @@ const ServerConfigFields = z.object({
   OIDC_CLIENT_SECRET: z.string().optional(),
   OIDC_WELLKNOWN: z.string().optional(),
   // OIDC Claim Mapping
-  OIDC_CLAIM_MAPPING_ENABLED: z
-    .string()
-    .transform((val) => val === "true" || val === "1")
-    .pipe(z.boolean())
-    .default(false),
+  OIDC_CLAIM_MAPPING_ENABLED: envFlag.default(false),
   OIDC_SCOPES: commaSeparatedList,
   OIDC_GROUPS_CLAIM: z.string().default("groups"),
   OIDC_ADMIN_GROUP: z.string().default("norish_admin"),
@@ -187,11 +177,7 @@ const ServerConfigFields = z.object({
   AI_TIMEOUT_MS: z.coerce.number().default(DEFAULT_AI_TIMEOUT_MS),
 
   // Video Processing Configuration
-  VIDEO_PARSING_ENABLED: z
-    .string()
-    .transform((val) => val === "true" || val === "1")
-    .pipe(z.boolean())
-    .default(false),
+  VIDEO_PARSING_ENABLED: envFlag.default(false),
   VIDEO_MAX_LENGTH_SECONDS: z.coerce.number().default(120),
   YT_DLP_PROXY: z.string().optional(),
   YT_DLP_VERSION: z.string().default(DEFAULT_YT_DLP_VERSION),
@@ -220,26 +206,17 @@ const ServerConfigFields = z.object({
   CONTENT_INDICATORS: z.string().optional(),
   CONTENT_INGREDIENTS: z.string().optional(),
 
-  // The Page Renderers setting is seeded from these at first boot, and admin
-  // settings own it after that. Obscura's endpoint is whatever Playwright's CDP
-  // connection accepts; an empty one seeds Obscura switched off.
+  // These seed the Page Renderers setting at first boot; admin settings own it after that.
+  // An empty Obscura endpoint seeds Obscura switched off.
   // eslint-disable-next-line sonarjs/no-clear-text-protocols -- the shipped obscura service answers on the private compose network, without TLS
   OBSCURA_ENDPOINT: z.string().default("ws://obscura:9222"),
   // Sent as a bearer token. Obscura refuses to listen beyond loopback without
   // one, so the shipped `obscura` service sets the same value.
   OBSCURA_CDP_TOKEN: z.string().optional(),
   // A FlareSolverr-compatible solver's /v1 endpoint, tried after Obscura.
-  PAGE_SOLVER_ENABLED: z
-    .string()
-    .transform((val) => val === "true" || val === "1")
-    .pipe(z.boolean())
-    .default(false),
+  PAGE_SOLVER_ENABLED: envFlag.default(false),
   PAGE_SOLVER_ENDPOINT: z.string().optional(),
-  ALLOW_PRIVATE_ADDRESSES: z
-    .string()
-    .transform((val) => val === "true" || val === "1")
-    .pipe(z.boolean())
-    .default(false),
+  ALLOW_PRIVATE_ADDRESSES: envFlag.default(false),
   // How long a Page Renderer is given to load a page.
   PAGE_RENDERER_TIMEOUT_MS: z.coerce.number().int().positive().default(45000),
 

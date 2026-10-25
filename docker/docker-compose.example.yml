@@ -12,7 +12,9 @@ services:
       AUTH_URL: http://norish.example.com # The URL where Norish is reachable
       DATABASE_URL: postgres://postgres:norish@db:5432/norish
       MASTER_KEY: <32-byte-base64-key> # Generate with: openssl rand -base64 32
-      OBSCURA_ENDPOINT: ws://obscura:9222 # Obscura CDP endpoint. Seeds Settings => Admin => Page renderers at first start
+
+      # Page renderers: seed Settings => Admin => Page renderers at first start
+      OBSCURA_ENDPOINT: ws://obscura:9222 # Obscura CDP endpoint. Empty: Obscura off
       OBSCURA_CDP_TOKEN: <random-token> # Generate with: openssl rand -hex 32. Same value on the obscura service
       # A FlareSolverr-compatible solver, tried when Obscura fails. Uncomment one with its service below
       # PAGE_SOLVER_ENABLED: true

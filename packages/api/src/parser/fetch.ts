@@ -22,7 +22,7 @@ const STUB_MAX_BYTES = 20_000;
 const CLOUDFLARE_CHALLENGE = /<title>\s*Just a moment(?:\.\.\.|…)|cf-challenge|_cf_chl_opt/i;
 
 /**
- * Whether returned HTML is a bot check standing in front of the page: Cloudflare's challenge, or a
+ * Whether returned HTML is a bot check rather than the page: Cloudflare's challenge markup, or a
  * small stub with no title of its own. The one reading every caller and the renderer chain share.
  */
 export function isBotCheck(html: string): boolean {

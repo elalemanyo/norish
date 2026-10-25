@@ -4,10 +4,8 @@ import { chromium } from "playwright-core";
 import { serverLogger as log } from "@norish/shared-server/logger";
 
 /**
- * The connection to Obscura, the headless browser that is the first Page
- * Renderer. Obscura serves the Chrome DevTools Protocol, so Playwright Core
- * talks to it directly: the configured endpoint is dialled as given, with no
- * debugger-metadata probe and no hostname rewriting in between.
+ * The connection to Obscura, the first Page Renderer. Playwright Core dials its CDP endpoint as
+ * given, with no debugger-metadata probe and no hostname rewriting.
  */
 let browser: Browser | null = null;
 /** The endpoint and token `browser` was opened with; a change to either replaces it. */

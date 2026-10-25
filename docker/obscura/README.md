@@ -4,7 +4,8 @@ Norish renders JavaScript-heavy recipe pages before parsing them. That rendering
 happens in [Obscura](https://github.com/h4ckf0r0day/obscura), a Rust headless
 browser that speaks the Chrome DevTools Protocol, running as its own container
 beside the application. The Norish server connects to it over
-`OBSCURA_ENDPOINT`; it is the only rendered-page engine, with no Chrome fallback.
+the endpoint set under **Settings => Admin => Page renderers**, and tries it
+first; a FlareSolverr-compatible solver can be the second (ADR-0019).
 
 This directory repackages a release into the image the shipped Compose examples
 use. The release comes from Norish's fork,

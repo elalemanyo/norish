@@ -215,11 +215,16 @@ export function buildPageRenderersConfigFromEnv(): PageRenderersConfig {
 
 /** The Page Renderers setting with the CDP token decrypted; the environment's until it is seeded. */
 export async function getPageRenderersConfig(): Promise<PageRenderersConfig> {
-  const stored = PageRenderersConfigSchema.safeParse(
-    await getConfig<PageRenderersConfig>(ServerConfigKeys.PAGE_RENDERERS, true)
-  );
+  const stored = await getConfig<PageRenderersConfig>(ServerConfigKeys.PAGE_RENDERERS, true);
 
-  return stored.success ? stored.data : buildPageRenderersConfigFromEnv();
+  if (stored === null) return buildPageRenderersConfigFromEnv();
+
+  const parsed = PageRenderersConfigSchema.safeParse(stored);
+
+  if (parsed.success) return parsed.data;
+  serverLogger.warn({ issues: parsed.error.issues }, "Stored Page Renderers setting is invalid");
+
+  return buildPageRenderersConfigFromEnv();
 }
 
 /**
