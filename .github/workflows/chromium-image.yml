@@ -1,0 +1,174 @@
+name: Publish Chromium image
+
+# The Chromium browser image is published on its own cadence, like the Obscura
+# image: it changes only when `docker/chromium/pin.env` moves. The push to
+# `rc/**` publishes the new tag, and the push to `main` moves `latest` to it.
+# amd64 only, because upstream builds Linux for x86_64 only.
+on:
+  workflow_dispatch:
+    inputs:
+      allow-overwrite:
+        description: >-
+          Republish even if the tag already exists. Off by default because the
+          tag is meant to be immutable. Bump the build counter in pin.env
+          instead of overwriting what operators are already running.
+        type: boolean
+        default: false
+  # Publishes the pinned tag when it is not on the registry yet. A push that
+  # changes the build without bumping the pin finds its tag there and does
+  # nothing.
+  push:
+    branches:
+      - main
+      - "rc/**"
+    paths:
+      - "docker/chromium/**"
+      - ".github/workflows/chromium-image.yml"
+  # Build-only validation: a PR that edits the image build assembles it before
+  # merge, and nothing is pushed.
+  pull_request:
+    paths:
+      - "docker/chromium/**"
+      - ".github/workflows/chromium-image.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: chromium-image-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  pin:
+    name: Read pin
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    # No image or tag outputs: the image name contains the Docker Hub username,
+    # which is a secret, so Actions drops it from job outputs. Every job reads
+    # pin.env itself.
+    outputs:
+      publish: ${{ steps.plan.outputs.publish }}
+      promote: ${{ steps.plan.outputs.promote }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Read pin.env
+        run: grep -E '^[A-Z_]+=' docker/chromium/pin.env >> "$GITHUB_ENV"
+
+      # Authenticated so an anonymous pull-rate limit cannot be mistaken for
+      # "tag does not exist" by the check below.
+      - name: Login to container registry
+        if: ${{ github.event_name != 'pull_request' }}
+        uses: ./tooling/github/registry-login
+        with:
+          dockerhub-username: ${{ secrets.DOCKERHUB_USERNAME }}
+          dockerhub-password: ${{ secrets.DOCKERHUB_PASSWORD }}
+
+      # publish: build and push the pinned tag. A manual run refuses a tag that
+      # exists unless told to overwrite it; a push skips it.
+      # promote: move `latest` to the pinned tag, only from main.
+      - name: Decide what to publish
+        id: plan
+        env:
+          EVENT: ${{ github.event_name }}
+          REF: ${{ github.ref }}
+          ALLOW_OVERWRITE: ${{ inputs.allow-overwrite }}
+        run: |
+          set -euo pipefail
+          publish=false
+          promote=false
+          if [ "$EVENT" != "pull_request" ]; then
+            ref="${CHROMIUM_IMAGE}:${CHROMIUM_IMAGE_TAG}"
+            if ! docker buildx imagetools inspect --raw "$ref" >/dev/null 2>&1; then
+              echo "$ref is unpublished, publishing."
+              publish=true
+            elif [ "$EVENT" = "workflow_dispatch" ] && [ "$ALLOW_OVERWRITE" = "true" ]; then
+              echo "$ref is already published, overwriting as asked."
+              publish=true
+            elif [ "$EVENT" = "workflow_dispatch" ]; then
+              echo "$ref is already published. Bump CHROMIUM_IMAGE_TAG in docker/chromium/pin.env," >&2
+              echo "or re-run with allow-overwrite if you really mean to replace it." >&2
+              exit 1
+            else
+              echo "$ref is already published, nothing to build."
+            fi
+            if [ "$REF" = "refs/heads/main" ]; then promote=true; fi
+          fi
+          echo "publish=$publish" >> "$GITHUB_OUTPUT"
+          echo "promote=$promote" >> "$GITHUB_OUTPUT"
+
+  build:
+    name: linux/amd64
+    needs: pin
+    if: ${{ github.event_name == 'pull_request' || needs.pin.outputs.publish == 'true' }}
+    runs-on: ubuntu-latest
+    # Fetch and repackage, there is no compile here.
+    timeout-minutes: 20
+    env:
+      HAS_REGISTRY_CREDS: ${{ secrets.DOCKERHUB_USERNAME != '' }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Read pin.env
+        run: grep -E '^[A-Z_]+=' docker/chromium/pin.env >> "$GITHUB_ENV"
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      # Non-push builds log in too: the Debian base image comes from a
+      # rate-limited registry that runners share an IP on. Guarded on the
+      # secret so fork PRs pull anonymously instead of failing a login.
+      - name: Login to container registry
+        if: ${{ needs.pin.outputs.publish == 'true' || env.HAS_REGISTRY_CREDS == 'true' }}
+        uses: ./tooling/github/registry-login
+        with:
+          dockerhub-username: ${{ secrets.DOCKERHUB_USERNAME }}
+          dockerhub-password: ${{ secrets.DOCKERHUB_PASSWORD }}
+
+      # One immutable tag: the Compose example pins it, so an ordinary
+      # `docker compose pull` cannot change the browser under a running Norish
+      # release. `latest` is the promote job's. A PR build only proves the
+      # Dockerfile still resolves and the archive still matches its digest.
+      - name: Build image
+        uses: docker/build-push-action@v7
+        with:
+          # The build downloads Chromium itself, so the context is just this folder.
+          context: ./docker/chromium
+          file: ./docker/chromium/Dockerfile
+          platforms: linux/amd64
+          build-args: |
+            CHROMIUM_REPO=${{ env.CHROMIUM_REPO }}
+            CHROMIUM_VERSION=${{ env.CHROMIUM_VERSION }}
+            CHROMIUM_ARCHIVE=${{ env.CHROMIUM_ARCHIVE }}
+            CHROMIUM_SHA256=${{ env.CHROMIUM_SHA256 }}
+          tags: ${{ env.CHROMIUM_IMAGE }}:${{ env.CHROMIUM_IMAGE_TAG }}
+          push: ${{ needs.pin.outputs.publish == 'true' }}
+
+  # `latest` is the rolling release: the pinned tag main ships. It runs after a
+  # publish, or alone when main merged a tag an rc push already published.
+  promote:
+    name: Move latest
+    needs: [pin, build]
+    if: ${{ !failure() && !cancelled() && needs.pin.outputs.promote == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Read pin.env
+        run: grep -E '^[A-Z_]+=' docker/chromium/pin.env >> "$GITHUB_ENV"
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Login to container registry
+        uses: ./tooling/github/registry-login
+        with:
+          dockerhub-username: ${{ secrets.DOCKERHUB_USERNAME }}
+          dockerhub-password: ${{ secrets.DOCKERHUB_PASSWORD }}
+
+      - name: Point latest at the pinned tag
+        run: docker buildx imagetools create --tag "${CHROMIUM_IMAGE}:latest" "${CHROMIUM_IMAGE}:${CHROMIUM_IMAGE_TAG}"
