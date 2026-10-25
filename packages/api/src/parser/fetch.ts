@@ -1,4 +1,5 @@
 import type { BrowserContext, Page } from "playwright-core";
+import { z } from "zod";
 
 import type { PageRenderersConfig } from "@norish/config/zod/server-config";
 import type { SiteAuthTokenDecryptedDto } from "@norish/shared/contracts/dto/site-auth-tokens";
@@ -11,6 +12,8 @@ import { isHostOnDomain } from "@norish/shared/lib/helpers";
 const SETTLE_TIMEOUT_MS = 15_000;
 const SETTLE_POLL_MS = 500;
 const PLAIN_FETCH_TIMEOUT_MS = 15_000;
+/** A solver launches a browser before it navigates, so it is given this on top of the timeout. */
+const SOLVER_LAUNCH_MS = 15_000;
 const MAX_REDIRECTS = 10;
 /** Below this, a page with no title of its own is a bot check rather than a page. */
 const STUB_MAX_BYTES = 20_000;
@@ -245,10 +248,73 @@ export async function renderPage(
   }
 
   const renderers = await getPageRenderersConfig();
+  const read = (page: RenderedPage) => page.html !== "" && !isBotCheck(page.html);
+  let rendered: RenderedPage = { html: "", status: null };
 
-  if (!renderers.obscura.enabled) return { html: "", status: null };
+  if (renderers.obscura.enabled) {
+    rendered = await renderInObscura(targetUrl, renderers, tokens, isSettled);
 
-  return renderInObscura(targetUrl, renderers, tokens, isSettled);
+    if (read(rendered)) return answered("obscura", targetUrl, rendered);
+  }
+
+  if (renderers.solver.enabled && renderers.solver.endpoint) {
+    // A solver cannot keep tokens to their site, so it never gets them.
+    if (tokens?.length) {
+      log.info(
+        { url: targetUrl, tokens: tokens.length },
+        "Site Auth Tokens withheld from the solver"
+      );
+    }
+
+    const solved = await renderInSolver(targetUrl, renderers.solver.endpoint, renderers);
+
+    if (read(solved)) return answered("solver", targetUrl, solved);
+    if (!rendered.html) rendered = solved;
+  }
+
+  return rendered;
+}
+
+function answered(renderer: "obscura" | "solver", url: string, page: RenderedPage): RenderedPage {
+  log.info({ url, renderer }, "A Page Renderer read the page");
+
+  return page;
+}
+
+const SolverReplySchema = z.object({
+  status: z.literal("ok"),
+  solution: z.object({ response: z.string() }),
+});
+
+/**
+ * Ask a FlareSolverr-compatible solver for the page. FlareSolverr and Byparr both hard-code the
+ * page's status to 200, so a solved page reports none, and its answer is read once.
+ */
+async function renderInSolver(
+  targetUrl: string,
+  endpoint: string,
+  renderers: PageRenderersConfig
+): Promise<RenderedPage> {
+  const maxTimeout = renderers.navigationTimeoutMs;
+
+  try {
+    const response = await fetch(endpoint, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ cmd: "request.get", url: targetUrl, maxTimeout }),
+      signal: AbortSignal.timeout(maxTimeout + SOLVER_LAUNCH_MS),
+    });
+    const reply = SolverReplySchema.safeParse(
+      response.ok ? await response.json().catch(() => null) : null
+    );
+
+    if (reply.success) return { html: reply.data.solution.response, status: null };
+    log.warn({ url: targetUrl, status: response.status }, "The solver could not render the page");
+  } catch (error) {
+    log.warn({ err: error, url: targetUrl }, "The solver could not render the page");
+  }
+
+  return { html: "", status: null };
 }
 
 async function renderInObscura(

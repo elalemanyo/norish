@@ -14,6 +14,10 @@ services:
       MASTER_KEY: <32-byte-base64-key> # Generate with: openssl rand -base64 32
       OBSCURA_ENDPOINT: ws://obscura:9222 # Obscura CDP endpoint. Seeds Settings => Admin => Page renderers at first start
       OBSCURA_CDP_TOKEN: <random-token> # Generate with: openssl rand -hex 32. Same value on the obscura service
+      # A FlareSolverr-compatible solver, tried when Obscura fails. Uncomment one with its service below
+      # PAGE_SOLVER_ENABLED: true
+      # PAGE_SOLVER_ENDPOINT: http://flaresolverr:8191/v1
+      # PAGE_SOLVER_ENDPOINT: http://byparr:8191/v1
 
       # Optional
       UPLOADS_DIR: /app/uploads # Runtime volume path
@@ -90,6 +94,17 @@ services:
     restart: unless-stopped
     environment:
       OBSCURA_CDP_TOKEN: <random-token> # Same value as on the norish service
+
+  # A solver for pages that challenge Obscura. Run one of the two, with no
+  # host port: its /v1 endpoint takes no password.
+  # flaresolverr:
+  #   image: ghcr.io/flaresolverr/flaresolverr:v3.5.2
+  #   container_name: norish-flaresolverr
+  #   restart: unless-stopped
+  # byparr:
+  #   image: ghcr.io/thephaseless/byparr:3.0.4
+  #   container_name: norish-byparr
+  #   restart: unless-stopped
 
   # Valkey for real-time events
   valkey:
