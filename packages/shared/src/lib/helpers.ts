@@ -323,6 +323,11 @@ export function hasRecipeName(
   return Boolean(recipe?.name?.trim());
 }
 
+/** An extracted recipe may validly have no steps (#646). */
+export function hasSteps(recipe: FullRecipeInsertDTO): boolean {
+  return (recipe.steps?.length ?? 0) > 0;
+}
+
 export const debounce = <F extends (...args: any[]) => any>(func: F, waitFor: number = 300) => {
   let timeout: ReturnType<typeof setTimeout> | null = null;
 

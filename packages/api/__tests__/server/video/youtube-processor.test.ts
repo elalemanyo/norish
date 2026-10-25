@@ -81,3 +81,24 @@ describe("a caption extraction that fails", () => {
     expect(boundary.transcribe).toHaveBeenCalledWith("/tmp/a.mp3");
   });
 });
+
+describe("a caption recipe without steps", () => {
+  const stepless = () => ({ name: "Caption pasta", steps: [] }) as FullRecipeInsertDTO;
+
+  it("transcribes the video for its method", async () => {
+    boundary.extractRecipeFromVideo.mockResolvedValueOnce(stepless()).mockResolvedValueOnce({
+      name: "Pasta",
+      steps: [{ step: "Boil the pasta.", systemUsed: "metric", order: 0 }],
+    } as FullRecipeInsertDTO);
+
+    await expect(process()).resolves.toMatchObject({ name: "Pasta" });
+    expect(boundary.transcribe).toHaveBeenCalledWith("/tmp/a.mp3");
+  });
+
+  it("keeps the caption recipe when transcription fails", async () => {
+    boundary.extractRecipeFromVideo.mockResolvedValueOnce(stepless());
+    boundary.transcribe.mockRejectedValue(new Error("Transcription provider unreachable"));
+
+    await expect(process()).resolves.toMatchObject({ name: "Caption pasta" });
+  });
+});

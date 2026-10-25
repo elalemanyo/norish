@@ -10,6 +10,7 @@ import { extractRecipeFromVideo } from "@norish/api/video/normalizer";
 import { transcribe } from "@norish/shared-server/ai/runtime/runtime";
 import { videoLogger as log } from "@norish/shared-server/logger";
 import { downloadImage } from "@norish/shared-server/media/storage";
+import { hasSteps } from "@norish/shared/lib/helpers";
 
 import type { VideoMetadata, VideoProcessorContext } from "../types";
 import { BaseVideoProcessor } from "../base-processor";
@@ -207,6 +208,7 @@ export class InstagramProcessor extends BaseVideoProcessor {
       // caption is weighed, so it is asked once.
       const descriptionText = metadata.description?.trim() || "";
       const verdict = await judgeRecipe(descriptionText);
+      let captionRecipe: FullRecipeInsertDTO | null = null;
 
       if (captionClearlyHoldsRecipe(descriptionText, verdict, 201)) {
         log.info(
@@ -219,12 +221,17 @@ export class InstagramProcessor extends BaseVideoProcessor {
         try {
           const recipe = await extractRecipeFromVideo(descriptionText, metadata, recipeId, url);
 
-          log.info({ url }, "Successfully extracted recipe from description");
-          const savedVideo = videoPath
-            ? await this.saveVideo(videoPath, recipeId, metadata.duration)
-            : null;
+          if (hasSteps(recipe)) {
+            log.info({ url }, "Successfully extracted recipe from description");
+            const savedVideo = videoPath
+              ? await this.saveVideo(videoPath, recipeId, metadata.duration)
+              : null;
 
-          return this.addVideoToRecipe(recipe, savedVideo);
+            return this.addVideoToRecipe(recipe, savedVideo);
+          }
+
+          captionRecipe = recipe;
+          log.info({ url }, "Description held no steps, transcribing for the method");
         } catch (descriptionExtractionError) {
           if (!captionFailureAllowsTranscription(descriptionExtractionError)) {
             throw descriptionExtractionError;
@@ -238,40 +245,37 @@ export class InstagramProcessor extends BaseVideoProcessor {
       }
 
       // Fall back to audio transcription
-      try {
-        audioPath = await this.downloadAudio(url, tokens);
-      } catch (audioError) {
-        // If audio download fails, try description-based extraction as last resort
-        log.warn(
-          { url, err: audioError },
-          "Audio download failed, attempting description extraction"
-        );
+      const recipe = await this.withTranscriptSteps(captionRecipe, async () => {
+        try {
+          audioPath = await this.downloadAudio(url, tokens);
+        } catch (audioError) {
+          // If audio download fails, try description-based extraction as last resort
+          log.warn(
+            { url, err: audioError },
+            "Audio download failed, attempting description extraction"
+          );
 
-        if (captionMayHoldRecipe(descriptionText, verdict, 50)) {
-          try {
-            const recipe = await extractRecipeWithAI(descriptionText, recipeId, url);
-            const savedVideo = videoPath
-              ? await this.saveVideo(videoPath, recipeId, metadata.duration)
-              : null;
-
-            return this.addVideoToRecipe(recipe, savedVideo);
-          } catch (descriptionError) {
-            log.warn({ url, err: descriptionError }, "Description extraction failed too");
+          if (!captionRecipe && captionMayHoldRecipe(descriptionText, verdict, 50)) {
+            try {
+              return await extractRecipeWithAI(descriptionText, recipeId, url);
+            } catch (descriptionError) {
+              log.warn({ url, err: descriptionError }, "Description extraction failed too");
+            }
           }
+
+          throw audioError;
         }
 
-        throw audioError;
-      }
+        log.info({ url }, "Starting audio transcription");
+        const transcript = await transcribe(audioPath);
 
-      log.info({ url }, "Starting audio transcription");
-      const transcript = await transcribe(audioPath);
+        log.info({ url, transcriptLength: transcript.length }, "Audio transcribed");
 
-      log.info({ url, transcriptLength: transcript.length }, "Audio transcribed");
+        // Combine transcript with description
+        const combinedText = [transcript, descriptionText].filter(Boolean).join("\n\n---\n\n");
 
-      // Combine transcript with description
-      const combinedText = [transcript, descriptionText].filter(Boolean).join("\n\n---\n\n");
-
-      const recipe = await extractRecipeFromVideo(combinedText, metadata, recipeId, url);
+        return extractRecipeFromVideo(combinedText, metadata, recipeId, url);
+      });
 
       const savedVideo = videoPath
         ? await this.saveVideo(videoPath, recipeId, metadata.duration)
