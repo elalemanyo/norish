@@ -1,7 +1,8 @@
 // @vitest-environment node
 /**
  * The Page Renderers setting is seeded once from env (ADR-0019): an upgrader's Obscura vars carry
- * over, a fresh install gets Obscura on, and after that the row is the administrator's.
+ * over, a fresh install gets Obscura on, a Chromium endpoint switches the Chromium browser on, and
+ * after that the row is the administrator's.
  */
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -70,9 +71,10 @@ beforeEach(() => {
 });
 
 describe("seeding the Page Renderers setting", () => {
-  it("ships Obscura on, the solver off and private addresses refused", async () => {
+  it("ships Obscura on, the Chromium browser and the solver off and private addresses refused", async () => {
     await expect(boot()).resolves.toEqual({
       obscura: { enabled: true, endpoint: "ws://obscura:9222" },
+      chromium: { enabled: false, endpoint: "" },
       solver: { enabled: false },
       allowPrivateAddresses: false,
       navigationTimeoutMs: 45000,
@@ -99,9 +101,19 @@ describe("seeding the Page Renderers setting", () => {
 
     await expect(boot()).resolves.toEqual({
       obscura: { enabled: false, endpoint: "" },
+      chromium: { enabled: false, endpoint: "" },
       solver: { enabled: true, endpoint: "http://flaresolverr:8191/v1" },
       allowPrivateAddresses: true,
       navigationTimeoutMs: 60000,
+    });
+  });
+
+  it("switches the Chromium browser on at its endpoint, query string and all", async () => {
+    mockServerConfig.CHROMIUM_BROWSER_ENDPOINT = "wss://browser.example/cdp?token=abc";
+
+    await expect(boot()).resolves.toMatchObject({
+      obscura: { enabled: true, endpoint: "ws://obscura:9222" },
+      chromium: { enabled: true, endpoint: "wss://browser.example/cdp?token=abc" },
     });
   });
 
@@ -110,6 +122,7 @@ describe("seeding the Page Renderers setting", () => {
     const seeded = mockStore.get(ServerConfigKeys.PAGE_RENDERERS);
 
     mockServerConfig.OBSCURA_ENDPOINT = "ws://elsewhere:9222";
+    mockServerConfig.CHROMIUM_BROWSER_ENDPOINT = "http://chromium:9222";
     mockServerConfig.PAGE_SOLVER_ENABLED = true;
     mockServerConfig.PAGE_SOLVER_ENDPOINT = "http://byparr:8191/v1";
 

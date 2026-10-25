@@ -19,7 +19,12 @@ const updatePageRenderers = adminProcedure
   .input(PageRenderersConfigSchema)
   .mutation(async ({ input, ctx }) => {
     log.info(
-      { userId: ctx.user.id, obscura: input.obscura.enabled, solver: input.solver.enabled },
+      {
+        userId: ctx.user.id,
+        obscura: input.obscura.enabled,
+        chromium: input.chromium.enabled,
+        solver: input.solver.enabled,
+      },
       "Updating Page Renderers"
     );
 

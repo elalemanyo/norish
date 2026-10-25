@@ -213,6 +213,8 @@ const ServerConfigFields = z.object({
   // Sent as a bearer token. Obscura refuses to listen beyond loopback without
   // one, so the shipped `obscura` service sets the same value.
   OBSCURA_CDP_TOKEN: z.string().optional(),
+  // Any Chromium's CDP endpoint, tried after Obscura. Set, it seeds the Chromium browser switched on.
+  CHROMIUM_BROWSER_ENDPOINT: z.string().optional(),
   // A FlareSolverr-compatible solver's /v1 endpoint, tried after Obscura.
   PAGE_SOLVER_ENABLED: envFlag.default(false),
   PAGE_SOLVER_ENDPOINT: z.string().optional(),

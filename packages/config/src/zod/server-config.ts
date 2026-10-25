@@ -563,6 +563,17 @@ export const PageRenderersConfigSchema = z.object({
       message: "Endpoint is required",
       path: ["endpoint"],
     }),
+  /** Any Chromium with a CDP endpoint; a hosted browser's token may ride in its query string. */
+  chromium: z
+    .object({
+      enabled: z.boolean(),
+      endpoint: z.string().trim(),
+    })
+    .refine((chromium) => !chromium.enabled || chromium.endpoint !== "", {
+      message: "Endpoint is required",
+      path: ["endpoint"],
+    })
+    .default({ enabled: false, endpoint: "" }),
   solver: z
     .object({
       enabled: z.boolean(),

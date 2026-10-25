@@ -24,6 +24,7 @@ vi.mock("@norish/shared-server/logger", () => ({
 
 const STORED: PageRenderersConfig = {
   obscura: { enabled: true, endpoint: "ws://obscura:9222", cdpToken: "the-real-token" },
+  chromium: { enabled: true, endpoint: "http://chromium:9222" },
   solver: { enabled: false },
   allowPrivateAddresses: false,
   navigationTimeoutMs: 45000,
@@ -111,10 +112,27 @@ describe("updatePageRenderers", () => {
     expect(value.obscura.cdpToken).toBe("new-token");
   });
 
-  it("refuses a solver switched on without an endpoint", async () => {
-    await expect(
-      createCaller().updatePageRenderers({ ...STORED, solver: { enabled: true } })
-    ).rejects.toThrow(/Endpoint is required/);
+  it("saves the Chromium browser as sent, a query string in its endpoint included", async () => {
+    const chromium = { enabled: true, endpoint: "wss://browser.example/cdp?token=abc" };
+
+    await createCaller().updatePageRenderers({ ...STORED, chromium });
+
+    expect(setConfig).toHaveBeenCalledWith(
+      ServerConfigKeys.PAGE_RENDERERS,
+      { ...STORED, chromium },
+      createMockAdminUser().id,
+      true,
+      expect.anything()
+    );
+  });
+
+  it.each([
+    ["Chromium browser", { chromium: { enabled: true, endpoint: " " } }],
+    ["solver", { solver: { enabled: true } }],
+  ])("refuses a %s switched on without an endpoint", async (_renderer, change) => {
+    await expect(createCaller().updatePageRenderers({ ...STORED, ...change })).rejects.toThrow(
+      /Endpoint is required/
+    );
     expect(setConfig).not.toHaveBeenCalled();
   });
 

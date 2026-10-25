@@ -193,10 +193,11 @@ export async function getVideoConfig(includeSecrets = false): Promise<VideoConfi
 
 /**
  * The Page Renderers setting as the environment describes it, which seeds the row at first boot.
- * Obscura is on unless `OBSCURA_ENDPOINT` is set empty.
+ * Obscura is on unless `OBSCURA_ENDPOINT` is set empty; the Chromium browser once its endpoint is set.
  */
 export function buildPageRenderersConfigFromEnv(): PageRenderersConfig {
   const solverEndpoint = SERVER_CONFIG.PAGE_SOLVER_ENDPOINT || undefined;
+  const chromiumEndpoint = SERVER_CONFIG.CHROMIUM_BROWSER_ENDPOINT?.trim() ?? "";
 
   return {
     obscura: {
@@ -204,6 +205,7 @@ export function buildPageRenderersConfigFromEnv(): PageRenderersConfig {
       endpoint: SERVER_CONFIG.OBSCURA_ENDPOINT,
       cdpToken: SERVER_CONFIG.OBSCURA_CDP_TOKEN || undefined,
     },
+    chromium: { enabled: chromiumEndpoint !== "", endpoint: chromiumEndpoint },
     solver: {
       enabled: SERVER_CONFIG.PAGE_SOLVER_ENABLED && solverEndpoint !== undefined,
       endpoint: solverEndpoint,

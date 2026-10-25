@@ -157,6 +157,7 @@ describe("server config normalization", () => {
   it("masks a secret nested in a config and keeps it through a masked save", async () => {
     const renderers: PageRenderersConfig = {
       obscura: { enabled: true, endpoint: "ws://obscura:9222", cdpToken: "cdp-secret" },
+      chromium: { enabled: false, endpoint: "" },
       solver: { enabled: false },
       allowPrivateAddresses: false,
       navigationTimeoutMs: 45000,
@@ -178,5 +179,32 @@ describe("server config normalization", () => {
     await expect(
       getConfig<PageRenderersConfig>(ServerConfigKeys.PAGE_RENDERERS, true)
     ).resolves.toEqual(renderers);
+  });
+
+  it("backfills a 0.26 beta Page Renderers row with the Chromium browser switched off", async () => {
+    // As a 0.26 beta stored it: no Chromium browser yet, the CDP token masked beside its ciphertext.
+    const beta = {
+      obscura: { enabled: true, endpoint: "ws://obscura:9222", cdpToken: "cdp-secret" },
+      solver: { enabled: true, endpoint: "http://flaresolverr:8191/v1" },
+      allowPrivateAddresses: false,
+      navigationTimeoutMs: 45000,
+    };
+
+    await getTestDb()
+      .insert(serverConfig)
+      .values({
+        key: ServerConfigKeys.PAGE_RENDERERS,
+        value: { ...beta, obscura: { ...beta.obscura, cdpToken: "••••••••" } },
+        valueEnc: encrypt(JSON.stringify(beta)),
+        isSensitive: true,
+        updatedBy: null,
+        updatedAt: new Date(),
+        createdAt: new Date(),
+      });
+
+    await expect(normalizeAndBackfillConfig(ServerConfigKeys.PAGE_RENDERERS)).resolves.toBe(true);
+    await expect(
+      getConfig<PageRenderersConfig>(ServerConfigKeys.PAGE_RENDERERS, true)
+    ).resolves.toEqual({ ...beta, chromium: { enabled: false, endpoint: "" } });
   });
 });
