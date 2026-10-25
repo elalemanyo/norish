@@ -92,7 +92,7 @@ function getExtraHTTPHeaders(): Record<string, string> | undefined {
   return arg?.extraHTTPHeaders;
 }
 
-/** The cookies set from the page, as `{ name, value }`, and the URLs visited in order. */
+/** The cookies the page sets, as `document.cookie` lines, and the URLs visited in order. */
 function setFromPage(): { cookies: unknown; visited: string[] } {
   return {
     cookies: mockEvaluate.mock.calls[0]?.[1],
@@ -164,7 +164,7 @@ describe("fetchRenderedPage – auth token injection", () => {
     // Obscura drops cookies set over CDP, so none go through addCookies.
     expect(mockAddCookies).not.toHaveBeenCalled();
     expect(setFromPage()).toEqual({
-      cookies: [{ name: "session_id", value: "sess-abc", domain: "example.com" }],
+      cookies: ["session_id=sess-abc; path=/; domain=example.com; secure"],
       visited: ["https://recipes.example.com/robots.txt", "https://recipes.example.com/page"],
     });
 
@@ -179,7 +179,7 @@ describe("fetchRenderedPage – auth token injection", () => {
 
     await fetchRenderedPage("https://www.instagram.com/reel/abc", tokens);
 
-    expect(setFromPage().cookies).toEqual([{ name: "sessionid", value: "s", domain: null }]);
+    expect(setFromPage().cookies).toEqual(["sessionid=s; path=/; secure"]);
   });
 
   it("handles mixed header and cookie tokens", async () => {
@@ -195,8 +195,8 @@ describe("fetchRenderedPage – auth token injection", () => {
     expect(getExtraHTTPHeaders()).toBeUndefined();
 
     expect(setFromPage().cookies).toEqual([
-      { name: "session", value: "sess-123", domain: "example.com" },
-      { name: "prefs", value: "dark-mode", domain: "example.com" },
+      "session=sess-123; path=/; domain=example.com; secure",
+      "prefs=dark-mode; path=/; domain=example.com; secure",
     ]);
   });
 
@@ -211,10 +211,18 @@ describe("fetchRenderedPage – auth token injection", () => {
 
     expect(mockEvaluate).toHaveBeenCalledOnce();
     expect(setFromPage().cookies).toEqual([
-      { name: "token_a", value: "val-a", domain: "example.com" },
-      { name: "token_b", value: "val-b", domain: "example.com" },
-      { name: "token_c", value: "val-c", domain: "example.com" },
+      "token_a=val-a; path=/; domain=example.com; secure",
+      "token_b=val-b; path=/; domain=example.com; secure",
+      "token_c=val-c; path=/; domain=example.com; secure",
     ]);
+  });
+
+  it("sets an http page's cookie tokens without secure", async () => {
+    const tokens = [makeToken({ name: "session", value: "s", type: "cookie" })];
+
+    await fetchRenderedPage("http://example.com/page", tokens);
+
+    expect(setFromPage().cookies).toEqual(["session=s; path=/; domain=example.com"]);
   });
 });
 
@@ -310,6 +318,19 @@ describe("plainFetch – Site Auth Tokens across redirects", () => {
       headers: { "user-agent": "Norish" },
       redirect: "manual",
     });
+  });
+
+  it("sends no token over plain http, even after a downgrade on its own site", async () => {
+    const requests = serve(redirectTo("http://example.com/r/1"), new Response(""));
+
+    await plainFetch("https://example.com/r/1", "Norish", { tokens });
+    await plainFetch("http://example.com/r/2", "Norish", { tokens });
+
+    expect(requests().map(({ headers }) => headers)).toEqual([
+      expect.objectContaining({ cookie: "session=sess-abc; prefs=dark" }),
+      { "user-agent": "Norish" },
+      { "user-agent": "Norish" },
+    ]);
   });
 
   it("does not take a host that merely ends in the token's domain for its site", async () => {

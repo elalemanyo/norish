@@ -146,9 +146,12 @@ export async function plainFetch(
         return { html: "", status: null, url };
       }
 
-      const onSite = scoped
-        .filter(({ scope }) => isHostOnDomain(parsed.hostname, scope))
-        .map(({ token }) => token);
+      const onSite =
+        parsed.protocol === "https:"
+          ? scoped
+              .filter(({ scope }) => isHostOnDomain(parsed.hostname, scope))
+              .map(({ token }) => token)
+          : [];
       const cookie = onSite
         .filter((token) => token.type === "cookie")
         .map(({ name, value }) => `${name}=${value}`)
@@ -258,23 +261,24 @@ export async function renderPage(
     // Obscura never sends a cookie set over CDP but does send one a page sets, so the tokens are set
     // from the target's origin, for the token's domain when the target is on it, and stay within it.
     if (cookieTokens.length > 0) {
-      const hostname = new URL(targetUrl).hostname;
+      const { hostname, protocol } = new URL(targetUrl);
+      // Secure on an https page, so the browser never sends them over http.
+      const secure = protocol === "https:" ? "; secure" : "";
 
       await page.goto(new URL("/robots.txt", targetUrl).href, {
         waitUntil: "domcontentloaded",
         timeout: SERVER_CONFIG.OBSCURA_NAVIGATION_TIMEOUT_MS,
       });
       await page.evaluate(
-        (cookies) => {
-          for (const { name, value, domain } of cookies) {
-            document.cookie = `${name}=${value}; path=/${domain ? `; domain=${domain}` : ""}`;
-          }
+        (lines) => {
+          for (const line of lines) document.cookie = line;
         },
-        cookieTokens.map(({ name, value, domain }) => ({
-          name,
-          value,
-          domain: isHostOnDomain(hostname, domain.toLowerCase()) ? domain.toLowerCase() : null,
-        }))
+        cookieTokens.map(({ name, value, domain }) => {
+          const lowered = domain.toLowerCase();
+          const scope = isHostOnDomain(hostname, lowered) ? `; domain=${lowered}` : "";
+
+          return `${name}=${value}; path=/${scope}${secure}`;
+        })
       );
     }
 
