@@ -9,10 +9,10 @@ Spec: `.scratch/chromium-browser-renderer/spec.md` (Tokens: http targets; Privat
 
 **Blocked by:** None (can start immediately).
 
-**Status:** ready-for-agent
+**Status:** done
 
-- [ ] An http import through Obscura sets no cookie tokens and no header tokens. The tests fail before the fix.
-- [ ] The existing test that locks in a non-`secure` cookie for an http target is replaced, not kept.
-- [ ] An https import through Obscura carries its tokens as before.
-- [ ] A literal address in each new range, and a hostname resolving to one, is refused at the plain fetch and before the solver, with Allow private addresses off.
-- [ ] With Allow private addresses on, those addresses are allowed.
+- [x] An http import through Obscura sets no cookie tokens and no header tokens. The tests fail before the fix.
+- [x] The existing test that locks in a non-`secure` cookie for an http target is replaced, not kept.
+- [x] An https import through Obscura carries its tokens as before.
+- [x] A literal address in each new range, and a hostname resolving to one, is refused at the plain fetch and before the solver, with Allow private addresses off.
+- [x] With Allow private addresses on, those addresses are allowed.

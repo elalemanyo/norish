@@ -30,7 +30,21 @@ vi.mock("@norish/shared-server/config/server-config-loader", () => ({
 const DNS: Record<string, string[]> = {
   "router.lan": ["192.168.1.1"],
   "dual.example": ["93.184.215.14", "fd00::5"],
+  "nas.tailnet.ts.net": ["100.101.102.103"],
+  "bench.example": ["198.19.0.7"],
+  "printer.local": ["224.0.0.251"],
+  "reserved.example": ["240.0.0.9"],
+  "nat64.example": ["64:ff9b::a00:8"],
 };
+
+/** CGNAT and Tailscale, benchmarking, multicast, reserved and NAT64: one literal and one name each. */
+const OTHER_RANGES = [
+  ["http://100.100.100.100/", "http://nas.tailnet.ts.net/"],
+  ["http://198.18.0.1/", "http://bench.example/"],
+  ["http://224.0.0.1/", "http://printer.local/"],
+  ["http://255.255.255.255/", "http://reserved.example/"],
+  ["http://[64:ff9b::7f00:1]/", "http://nat64.example/"],
+].flat();
 
 const PAGE = `<html><head><title>Lasagne</title></head><body>${"x".repeat(30_000)}</body></html>`;
 
@@ -162,5 +176,30 @@ describe("renderPage – the solver is guarded, Obscura is not", () => {
     await renderPage("http://router.lan/");
 
     expect(mockGetBrowser).toHaveBeenCalled();
+  });
+});
+
+describe("the other ranges that are not the public internet", () => {
+  const solved = () => Response.json({ status: "ok", solution: { status: 200, response: PAGE } });
+
+  beforeEach(() => {
+    renderers.solver = { enabled: true, endpoint: "http://flaresolverr:8191/v1" };
+  });
+
+  it.each(OTHER_RANGES)("refuses %s at the plain fetch and before the solver", async (url) => {
+    const requested = serve(solved);
+
+    await expect(plainFetch(url, "Norish")).resolves.toMatchObject({ html: "", refused: true });
+    await expect(renderPage(url)).resolves.toEqual({ html: "", status: null });
+    expect(requested()).toEqual([]);
+  });
+
+  it.each(OTHER_RANGES)("reaches %s once private addresses are allowed", async (url) => {
+    renderers.allowPrivateAddresses = true;
+    const requested = serve((to) => (to === url ? new Response(PAGE) : solved()));
+
+    await expect(plainFetch(url, "Norish")).resolves.toMatchObject({ html: PAGE });
+    await expect(renderPage(url)).resolves.toMatchObject({ html: PAGE });
+    expect(requested()).toEqual([url, "http://flaresolverr:8191/v1"]);
   });
 });

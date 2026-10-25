@@ -36,8 +36,8 @@ With both off, Norish only fetches pages plainly. If no page renderer can read
 a page, the import fails.
 
 **Allow private addresses** is off by default, so imports and shop pages can't
-reach loopback, private-network or link-local addresses, like your router or
-other containers. Turn it on to import from a recipe site on your own network.
+reach loopback, private-network, Tailscale or link-local addresses, like your
+router or other containers. Turn it on to import from a recipe site on your own network.
 Obscura refuses these addresses either way, so such a page is read by the plain
 fetch or the solver.
 
