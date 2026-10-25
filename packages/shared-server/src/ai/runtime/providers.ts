@@ -45,18 +45,17 @@ import { createFetchWithTimeout } from "./transport";
  * Providers reached through a base URL an operator typed, rather than a service
  * whose capabilities the SDK knows. What such an endpoint can actually serve is
  * decided by whatever sits behind it — an aggregator resolves a model to one of
- * several upstream providers — so it is the only place where asking for a
- * strict JSON schema may be refused by something that answers everything else
- * (#538).
+ * several upstream providers — so asking for a strict JSON schema may be
+ * refused by something that answers everything else (#538).
  */
 const OPENAI_COMPATIBLE_PROVIDERS: ReadonlySet<AIProvider> = new Set([
   "generic-openai",
   "lm-studio",
 ]);
 
-/** Whether a plain-JSON retry is available for this provider (#538). */
+/** Whether a plain-JSON retry is available: typed-URL endpoints, and Mistral's strict mode (#646). */
 export function canDegradeToJsonMode(provider: AIProvider): boolean {
-  return OPENAI_COMPATIBLE_PROVIDERS.has(provider);
+  return OPENAI_COMPATIBLE_PROVIDERS.has(provider) || provider === "mistral";
 }
 
 export interface ModelBuildOptions {

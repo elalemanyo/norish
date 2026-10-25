@@ -206,6 +206,35 @@ describe("Mistral, whose schema is only a hint unless asked to be strict", () =>
       json_schema: { strict: true },
     });
   });
+
+  it("is retried once in plain JSON mode when it refuses the strict schema", async () => {
+    const sent: Record<string, unknown>[] = [];
+    const answers = [
+      { status: 400, body: { message: "Invalid JSON schema for strict mode" } },
+      tagged(),
+    ];
+
+    transport.stub = vi.fn(async (_url: string | URL | Request, init?: RequestInit) => {
+      sent.push(JSON.parse(String(init?.body)));
+      const { status, body } = answers.shift()!;
+
+      return new Response(JSON.stringify(body), {
+        status,
+        headers: { "content-type": "application/json" },
+      });
+    });
+    mockGetAIConfig.mockResolvedValue(
+      aiConfig({ provider: "mistral", apiKey: "mistral-key", endpoint: undefined })
+    );
+
+    await expect(generate()).resolves.toEqual({ tags: ["Italian"] });
+
+    expect(sent.map((body) => body.response_format)).toEqual([
+      expect.objectContaining({ type: "json_schema" }),
+      { type: "json_object" },
+    ]);
+    expect(JSON.stringify(sent[1]!.messages)).toContain("tags");
+  });
 });
 
 describe("an endpoint that cannot serve structured output", () => {

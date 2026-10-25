@@ -238,7 +238,9 @@ async function requestObject<T>({
     maxOutputTokens: config.maxTokens,
     abortSignal: requestSignal(deadlineMs),
     // Mistral alone defaults to a non-strict schema, which it treats as a hint (#646).
-    providerOptions: { mistral: { strictJsonSchema: true } },
+    providerOptions: {
+      mistral: jsonMode ? { structuredOutputs: false } : { strictJsonSchema: true },
+    },
     ...(useVision
       ? {
           messages: [
@@ -319,7 +321,8 @@ function reportFailure(promptName: StructuredPromptName, error: unknown): never 
  * account's settings. So a refused request shape is retried once in plain JSON
  * mode with the schema in the prompt, which most models handle, and only a
  * second refusal is reported — naming the missing capability rather than the
- * aggregator's guess, and not worth another queue attempt (#538).
+ * aggregator's guess, and not worth another queue attempt (#538). Mistral gets
+ * the same retry when it refuses a schema in strict mode (#646).
  */
 export async function generateStructured<T>(options: GenerateOptions<T>): Promise<T> {
   const { prompt: promptName, schema, sections = [], fill, images = [], timeoutMs } = options;
