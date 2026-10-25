@@ -136,6 +136,19 @@ describe("plainFetch – private addresses refused by default", () => {
     });
   });
 
+  it("leaves a name that does not resolve to the fetch to fail, not refused as private", async () => {
+    const requested = serve(() => new Response(PAGE));
+
+    lookup.mockRejectedValue(
+      Object.assign(new Error("getaddrinfo ENOTFOUND gone.example"), { code: "ENOTFOUND" })
+    );
+
+    await expect(plainFetch("https://gone.example/r", "Norish")).resolves.not.toHaveProperty(
+      "refused"
+    );
+    expect(requested()).toEqual(["https://gone.example/r"]);
+  });
+
   it("reaches private addresses once the administrator allows them", async () => {
     renderers.allowPrivateAddresses = true;
     serve(() => new Response(PAGE));

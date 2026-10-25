@@ -382,17 +382,23 @@ describe("renderPage – private addresses inside the Chromium browser", () => {
     expect(commands).toEqual([]);
   });
 
-  it("fails a document request it cannot check", async () => {
-    const { sentOut } = chromiumServing(redirectedToRouter);
+  it("fails a document request whose host does not resolve, so Chromium never resolves it", async () => {
+    const { sentOut, commands } = chromiumServing(redirectedToRouter);
 
-    lookup.mockImplementation((host: string) => {
-      if (host === "router.lan") throw new Error("resolver crashed");
+    lookup.mockImplementation(async (host: string) => {
+      if (host === "router.lan") {
+        throw Object.assign(new Error("getaddrinfo ENOTFOUND router.lan"), { code: "ENOTFOUND" });
+      }
 
-      return Promise.resolve([{ address: "93.184.215.14", family: 4 }]);
+      return [{ address: "93.184.215.14", family: 4 }];
     });
 
     await expect(renderPage("https://example.com/r")).resolves.toMatchObject({ html: "" });
     expect(sentOut()).toEqual(["https://example.com/r"]);
+    expect(commands).toContainEqual([
+      "Fetch.failRequest",
+      expect.objectContaining({ requestId: "2" }),
+    ]);
   });
 });
 

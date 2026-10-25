@@ -1,5 +1,6 @@
 import { lookup } from "node:dns/promises";
 import { BlockList, isIP } from "node:net";
+import type { LookupAddress } from "node:dns";
 import type { BrowserContext, Page } from "playwright-core";
 import { z } from "zod";
 
@@ -105,11 +106,16 @@ async function isRefusedHost(hostname: string, allowPrivateAddresses: boolean): 
   if (allowPrivateAddresses) return false;
 
   // A name that does not resolve is left to the fetch to fail.
-  const addresses = await lookup(hostname.replace(/^\[|\]$/g, ""), { all: true }).catch(() => []);
+  return (await addressesOf(hostname).catch(() => [])).some(isPrivate);
+}
 
-  return addresses.some(({ address, family }) =>
-    PRIVATE_ADDRESSES.check(address, family === 6 ? "ipv6" : "ipv4")
-  );
+/** Every address a host resolves to; an address, bracketed or not, resolves to itself. */
+function addressesOf(hostname: string): Promise<LookupAddress[]> {
+  return lookup(hostname.replace(/^\[|\]$/g, ""), { all: true });
+}
+
+function isPrivate({ address, family }: LookupAddress): boolean {
+  return PRIVATE_ADDRESSES.check(address, family === 6 ? "ipv6" : "ipv4");
 }
 
 /** A rendered page and the HTTP status its document last arrived with. */
@@ -287,7 +293,7 @@ async function byAddress(endpoint: string): Promise<string> {
 
   // A name that does not resolve is dialled as given, so the failure names it. IPv4 first, where
   // the shipped image's socat listens, then the lowest, so rotating records keep one connection.
-  const [resolved] = (await lookup(url.hostname, { all: true }).catch(() => [])).sort(
+  const [resolved] = (await addressesOf(url.hostname).catch(() => [])).sort(
     (a, b) => a.family - b.family || a.address.localeCompare(b.address)
   );
 
@@ -626,7 +632,12 @@ async function prepareChromiumPage(
     const answer = async () => {
       const { hostname, protocol } = new URL(request.url);
 
-      if (resourceType === "Document" && (await isRefusedHost(hostname, allowPrivateAddresses))) {
+      // A host that does not resolve rejects here and is failed, so Chromium never resolves it.
+      if (
+        resourceType === "Document" &&
+        !allowPrivateAddresses &&
+        (await addressesOf(hostname)).some(isPrivate)
+      ) {
         log.warn({ url: request.url }, "Refused a private address in the Chromium browser");
         await cdp.send("Fetch.failRequest", { requestId, errorReason: "BlockedByClient" });
 
