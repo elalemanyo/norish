@@ -1,8 +1,9 @@
 import type { BrowserContext, Page } from "playwright-core";
 
+import type { PageRenderersConfig } from "@norish/config/zod/server-config";
 import type { SiteAuthTokenDecryptedDto } from "@norish/shared/contracts/dto/site-auth-tokens";
 import { getBrowser } from "@norish/api/obscura";
-import { SERVER_CONFIG } from "@norish/config/env-config-server";
+import { getPageRenderersConfig } from "@norish/shared-server/config/server-config-loader";
 import { parserLogger as log } from "@norish/shared-server/logger";
 import { isHostOnDomain } from "@norish/shared/lib/helpers";
 
@@ -59,7 +60,7 @@ async function settledContent(page: Page, isSettled: (html: string) => boolean):
 
 /** A rendered page and the HTTP status its document last arrived with. */
 export interface RenderedPage {
-  /** Empty when Obscura produced no usable HTML */
+  /** Empty when no Page Renderer produced usable HTML */
   html: string;
   /**
    * The status of the main document's last navigation: a bot check that
@@ -207,14 +208,14 @@ export async function plainFetch(
 declare const document: { cookie: string };
 
 /**
- * Render a page in Obscura and return its HTML.
+ * Render a page with the Page Renderers that are switched on and return its HTML.
  *
  * Obscura owns the browser identity, JavaScript execution, page settling,
  * stealth and tracker blocking. Norish adds exactly one thing: the requesting
  * user's Site Auth Tokens, in a context that belongs to this fetch alone.
  *
- * There is no second engine behind this. An empty string means Obscura
- * produced no usable HTML, and the import path reports that as a fetch failure.
+ * An empty string means no Page Renderer produced usable HTML, and the import
+ * path reports that as a fetch failure.
  *
  * `isSettled` is the caller's own reading of whether the rendered HTML is the
  * page it asked for. Only a caller knows: a shop's bot check and a shop's
@@ -235,7 +236,7 @@ export async function renderPage(
   tokens?: SiteAuthTokenDecryptedDto[],
   isSettled?: (html: string) => boolean
 ): Promise<RenderedPage> {
-  // Only a web page reaches the browser, so a link stored before imports refused other schemes
+  // Only a web page reaches a renderer, so a link stored before imports refused other schemes
   // (file:, gopher:) is never rendered.
   if (!/^https?:$/.test(URL.parse(targetUrl)?.protocol ?? "")) {
     log.warn({ url: targetUrl }, "Refused to render a link that is not a web page");
@@ -243,11 +244,26 @@ export async function renderPage(
     return { html: "", status: null };
   }
 
+  const renderers = await getPageRenderersConfig();
+
+  if (!renderers.obscura.enabled) return { html: "", status: null };
+
+  return renderInObscura(targetUrl, renderers, tokens, isSettled);
+}
+
+async function renderInObscura(
+  targetUrl: string,
+  renderers: PageRenderersConfig,
+  tokens?: SiteAuthTokenDecryptedDto[],
+  isSettled?: (html: string) => boolean
+): Promise<RenderedPage> {
+  const { endpoint, cdpToken } = renderers.obscura;
+  const timeout = renderers.navigationTimeoutMs;
   let context: BrowserContext | undefined;
   let status: number | null = null;
 
   try {
-    const browser = await getBrowser();
+    const browser = await getBrowser(endpoint, cdpToken);
 
     const headerTokens = tokens?.filter((t) => t.type === "header") ?? [];
     const cookieTokens = tokens?.filter((t) => t.type === "cookie") ?? [];
@@ -269,7 +285,7 @@ export async function renderPage(
 
       await page.goto(new URL("/robots.txt", targetUrl).href, {
         waitUntil: "domcontentloaded",
-        timeout: SERVER_CONFIG.OBSCURA_NAVIGATION_TIMEOUT_MS,
+        timeout,
       });
       await page.evaluate(
         (lines) => {
@@ -296,7 +312,7 @@ export async function renderPage(
       // page settling is Obscura's job, and waiting past the navigation for a
       // page to become itself has its own deadline, SETTLE_TIMEOUT_MS, because only a
       // caller can tell that it has not.
-      timeout: SERVER_CONFIG.OBSCURA_NAVIGATION_TIMEOUT_MS,
+      timeout,
     });
 
     status ??= response?.status() ?? null;

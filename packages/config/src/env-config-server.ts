@@ -220,19 +220,28 @@ const ServerConfigFields = z.object({
   CONTENT_INDICATORS: z.string().optional(),
   CONTENT_INGREDIENTS: z.string().optional(),
 
-  // The Obscura CDP server that renders pages for URL imports. Not necessarily
-  // a raw browser WebSocket URL — it is whatever Playwright's CDP connection
-  // accepts, which the shipped `obscura` service answers on its default port.
-  OBSCURA_ENDPOINT: z
-    .string()
-    .min(1, "OBSCURA_ENDPOINT is required for web scraping")
-    // eslint-disable-next-line sonarjs/no-clear-text-protocols -- the shipped obscura service answers on the private compose network, without TLS
-    .default("ws://obscura:9222"),
+  // The Page Renderers setting is seeded from these at first boot, and admin
+  // settings own it after that. Obscura's endpoint is whatever Playwright's CDP
+  // connection accepts; an empty one seeds Obscura switched off.
+  // eslint-disable-next-line sonarjs/no-clear-text-protocols -- the shipped obscura service answers on the private compose network, without TLS
+  OBSCURA_ENDPOINT: z.string().default("ws://obscura:9222"),
   // Sent as a bearer token. Obscura refuses to listen beyond loopback without
   // one, so the shipped `obscura` service sets the same value.
   OBSCURA_CDP_TOKEN: z.string().optional(),
-  // How long a URL import waits for the page's `load` event in Obscura.
-  OBSCURA_NAVIGATION_TIMEOUT_MS: z.coerce.number().int().positive().default(45000),
+  // A FlareSolverr-compatible solver's /v1 endpoint, tried after Obscura.
+  PAGE_SOLVER_ENABLED: z
+    .string()
+    .transform((val) => val === "true" || val === "1")
+    .pipe(z.boolean())
+    .default(false),
+  PAGE_SOLVER_ENDPOINT: z.string().optional(),
+  ALLOW_PRIVATE_ADDRESSES: z
+    .string()
+    .transform((val) => val === "true" || val === "1")
+    .pipe(z.boolean())
+    .default(false),
+  // How long a Page Renderer is given to load a page.
+  PAGE_RENDERER_TIMEOUT_MS: z.coerce.number().int().positive().default(45000),
 
   PARSER_API_TIMEOUT_MS: z.coerce.number().int().positive().default(15000),
 

@@ -31,6 +31,7 @@ import {
 } from "@norish/db/zodSchemas/server-config";
 import {
   buildLocaleConfigFromEnv,
+  buildPageRenderersConfigFromEnv,
   DEFAULT_LOCALE_CONFIG,
 } from "@norish/shared-server/config/server-config-loader";
 import { serverLogger } from "@norish/shared-server/logger";
@@ -136,6 +137,13 @@ const REQUIRED_CONFIGS: ConfigDefinition[] = [
     }),
     sensitive: true, // sensitive due to transcription API key
     description: `Video config (${SERVER_CONFIG.VIDEO_PARSING_ENABLED ? "enabled" : "disabled"})`,
+  },
+  {
+    key: ServerConfigKeys.PAGE_RENDERERS,
+    // Seeded once, so an upgrader's Obscura env carries over; admin settings own it after that.
+    getDefaultValue: buildPageRenderersConfigFromEnv,
+    sensitive: true, // sensitive due to the CDP token
+    description: "Page Renderers",
   },
   {
     key: ServerConfigKeys.RECIPE_PERMISSION_POLICY,

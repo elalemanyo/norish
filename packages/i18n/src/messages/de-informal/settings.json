@@ -1043,6 +1043,24 @@
       "transcriptionApiKeyOptionalDescription": "Die meisten lokalen Whisper-Server brauchen keinen API-Schlüssel",
       "transcriptionApiKeyOptionalPlaceholder": "Leer lassen für lokale Server"
     },
+    "pageRenderers": {
+      "title": "Seiten-Renderer",
+      "description": "Browser, die Seiten lesen, die ein einfacher Abruf nicht lesen kann. Zuerst Obscura, dann der Solver.",
+      "obscura": "Obscura",
+      "obscuraDescription": "Der Headless-Browser, der mit Norish ausgeliefert wird.",
+      "obscuraEndpoint": "Obscura-Endpunkt",
+      "cdpToken": "CDP-Token",
+      "cdpTokenDescription": "Derselbe Token wie beim obscura-Dienst.",
+      "solver": "FlareSolverr oder Byparr",
+      "solverDescription": "Wird versucht, wenn Obscura scheitert. Website-Authentifizierungstokens benötigen Obscura.",
+      "solverEndpoint": "Solver-Endpunkt",
+      "allowPrivateAddresses": "Private Adressen zulassen",
+      "allowPrivateAddressesDescription": "Erlaubt Importen den Zugriff auf dein lokales Netzwerk. Obscura lehnt diese in jedem Fall ab.",
+      "navigationTimeout": "Navigations-Timeout (ms)",
+      "navigationTimeoutDescription": "Wie lange ein Renderer zum Laden einer Seite bekommt.",
+      "saved": "Seiten-Renderer gespeichert",
+      "error": "Seiten-Renderer konnten nicht gespeichert werden"
+    },
     "imageGenerationConfig": {
       "description": "Bilder brauchen einen eigenen Anbieter, da die meisten KI-Anbieter nicht zeichnen können.",
       "provider": "Bild-Anbieter",

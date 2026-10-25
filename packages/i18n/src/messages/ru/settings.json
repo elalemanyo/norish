@@ -1043,6 +1043,24 @@
       "transcriptionApiKeyOptionalDescription": "Большинство локальных Whisper-серверов не требуют API-ключ",
       "transcriptionApiKeyOptionalPlaceholder": "Оставьте пустым для локальных серверов"
     },
+    "pageRenderers": {
+      "title": "Рендереры страниц",
+      "description": "Браузеры, которые читают страницы, недоступные обычному запросу. Сначала Obscura, затем решатель.",
+      "obscura": "Obscura",
+      "obscuraDescription": "Headless-браузер, поставляемый с Norish.",
+      "obscuraEndpoint": "Адрес Obscura",
+      "cdpToken": "Токен CDP",
+      "cdpTokenDescription": "Тот же токен, что и в сервисе obscura.",
+      "solver": "FlareSolverr или Byparr",
+      "solverDescription": "Используется, если Obscura не справилась. Токенам аутентификации сайтов нужна Obscura.",
+      "solverEndpoint": "Адрес решателя",
+      "allowPrivateAddresses": "Разрешить частные адреса",
+      "allowPrivateAddressesDescription": "Позволяет импорту обращаться к вашей локальной сети. Obscura отклоняет их в любом случае.",
+      "navigationTimeout": "Тайм-аут навигации (мс)",
+      "navigationTimeoutDescription": "Сколько времени даётся рендереру на загрузку страницы.",
+      "saved": "Рендереры страниц сохранены",
+      "error": "Не удалось сохранить рендереры страниц"
+    },
     "imageGenerationConfig": {
       "description": "Для изображений нужен отдельный провайдер, так как большинство ИИ-провайдеров не умеют рисовать.",
       "provider": "Провайдер изображений",

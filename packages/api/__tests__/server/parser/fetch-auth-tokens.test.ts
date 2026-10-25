@@ -50,6 +50,15 @@ vi.mock("@norish/api/obscura", () => ({
   getBrowser: mockGetBrowser,
 }));
 
+vi.mock("@norish/shared-server/config/server-config-loader", () => ({
+  getPageRenderersConfig: async () => ({
+    obscura: { enabled: true, endpoint: "ws://obscura:9222" },
+    solver: { enabled: false },
+    allowPrivateAddresses: false,
+    navigationTimeoutMs: 45_000,
+  }),
+}));
+
 vi.mock("@norish/shared-server/logger", () => ({
   parserLogger: {
     debug: vi.fn(),

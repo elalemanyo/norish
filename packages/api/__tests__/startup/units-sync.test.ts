@@ -131,6 +131,10 @@ beforeEach(() => {
     VIDEO_MAX_LENGTH_SECONDS: 120,
     TRANSCRIPTION_PROVIDER: "disabled",
     TRANSCRIPTION_MODEL: "whisper-1",
+    OBSCURA_ENDPOINT: "ws://obscura:9222",
+    PAGE_SOLVER_ENABLED: false,
+    ALLOW_PRIVATE_ADDRESSES: false,
+    PAGE_RENDERER_TIMEOUT_MS: 45000,
   };
 
   // Rows every boot walks past, stored as a healthy deployment has them, so

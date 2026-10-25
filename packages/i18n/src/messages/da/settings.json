@@ -1043,6 +1043,24 @@
       "transcriptionApiKeyOptionalDescription": "De fleste lokale Whisper-servere kræver ikke en API-nøgle",
       "transcriptionApiKeyOptionalPlaceholder": "Lad stå tomt for lokale servere"
     },
+    "pageRenderers": {
+      "title": "Siderenderere",
+      "description": "Browsere, der læser sider, som en almindelig hentning ikke kan læse. Først Obscura, derefter solveren.",
+      "obscura": "Obscura",
+      "obscuraDescription": "Den headless browser, der følger med Norish.",
+      "obscuraEndpoint": "Obscura-endpoint",
+      "cdpToken": "CDP-token",
+      "cdpTokenDescription": "Det samme token som på obscura-tjenesten.",
+      "solver": "FlareSolverr eller Byparr",
+      "solverDescription": "Prøves, når Obscura fejler. Godkendelsestokens til websteder kræver Obscura.",
+      "solverEndpoint": "Solver-endpoint",
+      "allowPrivateAddresses": "Tillad private adresser",
+      "allowPrivateAddressesDescription": "Lader importer nå dit lokale netværk. Obscura afviser dem under alle omstændigheder.",
+      "navigationTimeout": "Navigationstimeout (ms)",
+      "navigationTimeoutDescription": "Hvor lang tid en renderer får til at indlæse en side.",
+      "saved": "Siderenderere gemt",
+      "error": "Kunne ikke gemme siderenderere"
+    },
     "imageGenerationConfig": {
       "description": "Billeder kræver deres egen udbyder, da de fleste AI-udbydere ikke kan tegne.",
       "provider": "Billedudbyder",

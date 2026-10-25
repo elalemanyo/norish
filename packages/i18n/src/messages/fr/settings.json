@@ -1043,6 +1043,24 @@
       "transcriptionApiKeyOptionalDescription": "La plupart des serveurs Whisper locaux ne nécessitent pas de clé API",
       "transcriptionApiKeyOptionalPlaceholder": "Laisser vide pour les serveurs locaux"
     },
+    "pageRenderers": {
+      "title": "Moteurs de rendu de pages",
+      "description": "Navigateurs qui lisent les pages qu'une simple requête ne peut pas lire. Obscura d'abord, puis le solveur.",
+      "obscura": "Obscura",
+      "obscuraDescription": "Le navigateur headless fourni avec Norish.",
+      "obscuraEndpoint": "Point de terminaison Obscura",
+      "cdpToken": "Jeton CDP",
+      "cdpTokenDescription": "Le même jeton que sur le service obscura.",
+      "solver": "FlareSolverr ou Byparr",
+      "solverDescription": "Essayé quand Obscura échoue. Les jetons d'authentification de site nécessitent Obscura.",
+      "solverEndpoint": "Point de terminaison du solveur",
+      "allowPrivateAddresses": "Autoriser les adresses privées",
+      "allowPrivateAddressesDescription": "Permet aux imports d'atteindre votre réseau local. Obscura les refuse dans tous les cas.",
+      "navigationTimeout": "Délai de navigation (ms)",
+      "navigationTimeoutDescription": "Le temps accordé à un moteur de rendu pour charger une page.",
+      "saved": "Moteurs de rendu de pages enregistrés",
+      "error": "Échec de l'enregistrement des moteurs de rendu de pages"
+    },
     "imageGenerationConfig": {
       "description": "Les images ont besoin de leur propre fournisseur, car la plupart des fournisseurs d'IA ne savent pas dessiner.",
       "provider": "Fournisseur d'images",

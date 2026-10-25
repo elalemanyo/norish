@@ -26,6 +26,7 @@ export const ServerConfigKeys = {
   LOCALE_CONFIG: "locale_config",
   TIMER_KEYWORDS: "timer_keywords",
   INGREDIENT_WORDS: "ingredient_words",
+  PAGE_RENDERERS: "page_renderers",
 } as const;
 
 export type ServerConfigKey = (typeof ServerConfigKeys)[keyof typeof ServerConfigKeys];
@@ -547,6 +548,37 @@ export const VideoConfigSchema = z.object({
 export type VideoConfig = z.infer<typeof VideoConfigSchema>;
 
 // ============================================================================
+// Page Renderers (ADR-0019)
+// ============================================================================
+
+/** The browser services tried, in this order, for a page a plain fetch cannot read. */
+export const PageRenderersConfigSchema = z.object({
+  obscura: z
+    .object({
+      enabled: z.boolean(),
+      endpoint: z.string().trim(),
+      cdpToken: z.string().optional(),
+    })
+    .refine((obscura) => !obscura.enabled || obscura.endpoint !== "", {
+      message: "Endpoint is required",
+      path: ["endpoint"],
+    }),
+  solver: z
+    .object({
+      enabled: z.boolean(),
+      endpoint: z.url("Endpoint must be a valid URL").optional(),
+    })
+    .refine((solver) => !solver.enabled || solver.endpoint !== undefined, {
+      message: "Endpoint is required",
+      path: ["endpoint"],
+    }),
+  allowPrivateAddresses: z.boolean(),
+  navigationTimeoutMs: z.number().int().positive(),
+});
+
+export type PageRenderersConfig = z.infer<typeof PageRenderersConfigSchema>;
+
+// ============================================================================
 // Image Generation Configuration Schema
 // ============================================================================
 
@@ -965,6 +997,8 @@ export function getSchemaForConfigKey(key: ServerConfigKey): z.ZodType {
       return TimerKeywordsSchema;
     case ServerConfigKeys.INGREDIENT_WORDS:
       return IngredientWordsConfigSchema;
+    case ServerConfigKeys.PAGE_RENDERERS:
+      return PageRenderersConfigSchema;
     default:
       return z.any();
   }
@@ -1003,6 +1037,7 @@ export const SENSITIVE_CONFIG_KEYS: ServerConfigKey[] = [
   ServerConfigKeys.VIDEO_CONFIG,
   ServerConfigKeys.IMAGE_GENERATION_CONFIG,
   ServerConfigKeys.DECISION_CONFIG,
+  ServerConfigKeys.PAGE_RENDERERS,
 ];
 
 /**

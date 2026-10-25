@@ -1,7 +1,7 @@
 // @vitest-environment node
 /**
  * The Obscura connection seam. What Norish owns here is small on purpose:
- * which endpoint it dials, that one healthy connection is reused, that a
+ * that it dials the endpoint it is handed, that one healthy connection is reused, that a
  * connection Obscura dropped is replaced on the next call, and that a failure
  * reads as an Obscura problem. Everything past `connectOverCDP` is Obscura's.
  */
@@ -13,14 +13,7 @@ vi.mock("playwright-core", () => ({
   chromium: { connectOverCDP: mockConnectOverCDP },
 }));
 
-const { SERVER_CONFIG } = vi.hoisted(() => ({
-  SERVER_CONFIG: {
-    OBSCURA_ENDPOINT: "ws://obscura.test:9222",
-    OBSCURA_CDP_TOKEN: undefined as string | undefined,
-  },
-}));
-
-vi.mock("@norish/config/env-config-server", () => ({ SERVER_CONFIG }));
+const ENDPOINT = "ws://obscura.test:9222";
 
 vi.mock("@norish/shared-server/logger", () => ({
   serverLogger: { debug: vi.fn(), warn: vi.fn(), info: vi.fn(), error: vi.fn() },
@@ -41,10 +34,6 @@ function connectedBrowser() {
 }
 
 describe("getBrowser – the Obscura connection", () => {
-  beforeEach(() => {
-    SERVER_CONFIG.OBSCURA_CDP_TOKEN = undefined;
-  });
-
   it("connects to the configured Obscura endpoint", async () => {
     const browser = connectedBrowser();
 
@@ -52,19 +41,18 @@ describe("getBrowser – the Obscura connection", () => {
 
     const { getBrowser } = await loadModule();
 
-    await expect(getBrowser()).resolves.toBe(browser);
+    await expect(getBrowser(ENDPOINT)).resolves.toBe(browser);
     expect(mockConnectOverCDP).toHaveBeenCalledExactlyOnceWith("ws://obscura.test:9222", {
       headers: {},
     });
   });
 
   it("sends the configured token as a bearer header", async () => {
-    SERVER_CONFIG.OBSCURA_CDP_TOKEN = "a".repeat(64);
     mockConnectOverCDP.mockResolvedValue(connectedBrowser());
 
     const { getBrowser } = await loadModule();
 
-    await getBrowser();
+    await getBrowser(ENDPOINT, "a".repeat(64));
     expect(mockConnectOverCDP).toHaveBeenCalledExactlyOnceWith("ws://obscura.test:9222", {
       headers: { Authorization: `Bearer ${"a".repeat(64)}` },
     });
@@ -74,9 +62,9 @@ describe("getBrowser – the Obscura connection", () => {
     mockConnectOverCDP.mockResolvedValue(connectedBrowser());
 
     const { getBrowser } = await loadModule();
-    const first = await getBrowser();
+    const first = await getBrowser(ENDPOINT);
 
-    await expect(getBrowser()).resolves.toBe(first);
+    await expect(getBrowser(ENDPOINT)).resolves.toBe(first);
     expect(mockConnectOverCDP).toHaveBeenCalledOnce();
   });
 
@@ -95,8 +83,8 @@ describe("getBrowser – the Obscura connection", () => {
     // Both start before either finishes: without shared in-flight state the
     // second connection would orphan the first, and shutdown would only know
     // about one of them.
-    const first = getBrowser();
-    const second = getBrowser();
+    const first = getBrowser(ENDPOINT);
+    const second = getBrowser(ENDPOINT);
 
     connect(browser);
 
@@ -113,10 +101,10 @@ describe("getBrowser – the Obscura connection", () => {
 
     const { getBrowser } = await loadModule();
 
-    await getBrowser();
+    await getBrowser(ENDPOINT);
     dropped.isConnected.mockReturnValue(false);
 
-    await expect(getBrowser()).resolves.toBe(replacement);
+    await expect(getBrowser(ENDPOINT)).resolves.toBe(replacement);
     expect(mockConnectOverCDP).toHaveBeenCalledTimes(2);
   });
 
@@ -125,8 +113,8 @@ describe("getBrowser – the Obscura connection", () => {
 
     const { getBrowser } = await loadModule();
 
-    await expect(getBrowser()).rejects.toThrow(/Obscura/);
-    await expect(getBrowser()).rejects.toThrow(/OBSCURA_ENDPOINT/);
+    await expect(getBrowser(ENDPOINT)).rejects.toThrow(/Obscura/);
+    await expect(getBrowser(ENDPOINT)).rejects.toThrow(/admin settings/);
   });
 
   it("retries the connection after a failure instead of caching it", async () => {
@@ -136,8 +124,8 @@ describe("getBrowser – the Obscura connection", () => {
 
     const { getBrowser } = await loadModule();
 
-    await expect(getBrowser()).rejects.toThrow();
-    await expect(getBrowser()).resolves.toBe(browser);
+    await expect(getBrowser(ENDPOINT)).rejects.toThrow();
+    await expect(getBrowser(ENDPOINT)).resolves.toBe(browser);
   });
 });
 
@@ -149,12 +137,12 @@ describe("closeBrowser – process shutdown", () => {
 
     const { getBrowser, closeBrowser } = await loadModule();
 
-    await getBrowser();
+    await getBrowser(ENDPOINT);
     await closeBrowser();
 
     expect(browser.close).toHaveBeenCalledOnce();
 
-    await getBrowser();
+    await getBrowser(ENDPOINT);
     expect(mockConnectOverCDP).toHaveBeenCalledTimes(2);
   });
 
@@ -166,7 +154,7 @@ describe("closeBrowser – process shutdown", () => {
 
     const { getBrowser, closeBrowser } = await loadModule();
 
-    await getBrowser();
+    await getBrowser(ENDPOINT);
     await expect(closeBrowser()).resolves.toBeUndefined();
   });
 });

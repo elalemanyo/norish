@@ -1043,6 +1043,24 @@
       "transcriptionApiKeyOptionalDescription": "De meeste lokale Whisper-servers vereisen geen API-sleutel",
       "transcriptionApiKeyOptionalPlaceholder": "Laat leeg voor lokale servers"
     },
+    "pageRenderers": {
+      "title": "Paginarenderers",
+      "description": "Browsers die pagina's lezen die een gewone fetch niet kan lezen. Eerst Obscura, dan de solver.",
+      "obscura": "Obscura",
+      "obscuraDescription": "De headless browser die met Norish wordt meegeleverd.",
+      "obscuraEndpoint": "Obscura-endpoint",
+      "cdpToken": "CDP-token",
+      "cdpTokenDescription": "Hetzelfde token als op de obscura-service.",
+      "solver": "FlareSolverr of Byparr",
+      "solverDescription": "Wordt geprobeerd als Obscura faalt. Site-authenticatietokens hebben Obscura nodig.",
+      "solverEndpoint": "Solver-endpoint",
+      "allowPrivateAddresses": "Privéadressen toestaan",
+      "allowPrivateAddressesDescription": "Laat imports je lokale netwerk bereiken. Obscura weigert deze hoe dan ook.",
+      "navigationTimeout": "Navigatietime-out (ms)",
+      "navigationTimeoutDescription": "Hoe lang een renderer krijgt om een pagina te laden.",
+      "saved": "Paginarenderers opgeslagen",
+      "error": "Paginarenderers opslaan mislukt"
+    },
     "imageGenerationConfig": {
       "description": "Afbeeldingen hebben een eigen provider nodig, omdat de meeste AI-providers niet kunnen tekenen.",
       "provider": "Afbeeldingsprovider",

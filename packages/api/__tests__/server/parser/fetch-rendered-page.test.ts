@@ -16,9 +16,9 @@
  */
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import type { PageRenderersConfig } from "@norish/config/zod/server-config";
 import type { SiteAuthTokenDecryptedDto } from "@norish/shared/contracts/dto/site-auth-tokens";
 import { fetchRenderedPage, renderPage } from "@norish/api/parser/fetch";
-import { SERVER_CONFIG } from "@norish/config/env-config-server";
 
 const { mockGetBrowser, mockNewContext, mockNewPage, mockGoto, mockContent, mockClose } =
   vi.hoisted(() => {
@@ -33,6 +33,12 @@ const { mockGetBrowser, mockNewContext, mockNewPage, mockGoto, mockContent, mock
   });
 
 vi.mock("@norish/api/obscura", () => ({ getBrowser: mockGetBrowser }));
+
+let renderers: PageRenderersConfig;
+
+vi.mock("@norish/shared-server/config/server-config-loader", () => ({
+  getPageRenderersConfig: async () => renderers,
+}));
 
 vi.mock("@norish/shared-server/logger", () => ({
   parserLogger: { debug: vi.fn(), warn: vi.fn(), info: vi.fn(), error: vi.fn() },
@@ -78,6 +84,13 @@ function makeToken(
 }
 
 beforeEach(() => {
+  renderers = {
+    obscura: { enabled: true, endpoint: "ws://obscura:9222", cdpToken: "cdp-token" },
+    solver: { enabled: false },
+    allowPrivateAddresses: false,
+    navigationTimeoutMs: 30_000,
+  };
+  mockGetBrowser.mockClear();
   mockGoto.mockResolvedValue(undefined);
   mockContent.mockResolvedValue("<html>rendered</html>");
   mockClose.mockResolvedValue(undefined);
@@ -135,7 +148,23 @@ describe("fetchRenderedPage – rendered-page contract", () => {
     const [url, options] = mockGoto.mock.calls[0] as [string, { timeout?: number }];
 
     expect(url).toBe("https://example.com/recipe");
-    expect(options.timeout).toBe(SERVER_CONFIG.OBSCURA_NAVIGATION_TIMEOUT_MS);
+    expect(options.timeout).toBe(30_000);
+  });
+
+  it("dials the Obscura endpoint and token the administrator saved", async () => {
+    await fetchRenderedPage("https://example.com/recipe");
+
+    expect(mockGetBrowser).toHaveBeenCalledWith("ws://obscura:9222", "cdp-token");
+  });
+
+  it("reports no HTML without dialling Obscura when it is switched off", async () => {
+    renderers.obscura.enabled = false;
+
+    await expect(renderPage("https://example.com/recipe")).resolves.toEqual({
+      html: "",
+      status: null,
+    });
+    expect(mockGetBrowser).not.toHaveBeenCalled();
   });
 
   it("supplies no browser identity of its own", async () => {

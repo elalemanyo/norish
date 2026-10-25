@@ -1043,6 +1043,24 @@
       "transcriptionApiKeyOptionalDescription": "La mayoría de servidores Whisper locales no requieren clave API",
       "transcriptionApiKeyOptionalPlaceholder": "Déjalo vacío para servidores locales"
     },
+    "pageRenderers": {
+      "title": "Renderizadores de páginas",
+      "description": "Navegadores que leen páginas que una petición simple no puede leer. Primero Obscura, luego el solucionador.",
+      "obscura": "Obscura",
+      "obscuraDescription": "El navegador headless incluido con Norish.",
+      "obscuraEndpoint": "Endpoint de Obscura",
+      "cdpToken": "Token CDP",
+      "cdpTokenDescription": "El mismo token que en el servicio obscura.",
+      "solver": "FlareSolverr o Byparr",
+      "solverDescription": "Se prueba cuando Obscura falla. Los tokens de autenticación de sitio necesitan Obscura.",
+      "solverEndpoint": "Endpoint del solucionador",
+      "allowPrivateAddresses": "Permitir direcciones privadas",
+      "allowPrivateAddressesDescription": "Permite que las importaciones lleguen a tu red local. Obscura las rechaza de todos modos.",
+      "navigationTimeout": "Tiempo de espera de navegación (ms)",
+      "navigationTimeoutDescription": "Cuánto tiempo tiene un renderizador para cargar una página.",
+      "saved": "Renderizadores de páginas guardados",
+      "error": "No se pudieron guardar los renderizadores de páginas"
+    },
     "imageGenerationConfig": {
       "description": "Las imágenes necesitan su propio proveedor, porque la mayoría de los proveedores de IA no pueden dibujar.",
       "provider": "Proveedor de imágenes",

@@ -1043,6 +1043,24 @@
       "transcriptionApiKeyOptionalDescription": "Większość lokalnych serwerów Whisper nie wymaga klucza API",
       "transcriptionApiKeyOptionalPlaceholder": "Zostaw puste dla serwerów lokalnych"
     },
+    "pageRenderers": {
+      "title": "Renderery stron",
+      "description": "Przeglądarki, które czytają strony, których zwykłe pobranie nie odczyta. Najpierw Obscura, potem solver.",
+      "obscura": "Obscura",
+      "obscuraDescription": "Przeglądarka headless dostarczana z Norish.",
+      "obscuraEndpoint": "Endpoint Obscura",
+      "cdpToken": "Token CDP",
+      "cdpTokenDescription": "Ten sam token co w usłudze obscura.",
+      "solver": "FlareSolverr lub Byparr",
+      "solverDescription": "Używany, gdy Obscura zawiedzie. Tokeny uwierzytelniania witryn wymagają Obscura.",
+      "solverEndpoint": "Endpoint solvera",
+      "allowPrivateAddresses": "Zezwalaj na adresy prywatne",
+      "allowPrivateAddressesDescription": "Pozwala importom docierać do Twojej sieci lokalnej. Obscura i tak je odrzuca.",
+      "navigationTimeout": "Limit czasu nawigacji (ms)",
+      "navigationTimeoutDescription": "Ile czasu renderer ma na załadowanie strony.",
+      "saved": "Renderery stron zapisane",
+      "error": "Nie udało się zapisać rendererów stron"
+    },
     "imageGenerationConfig": {
       "description": "Obrazy wymagają własnego dostawcy, ponieważ większość dostawców AI nie potrafi rysować.",
       "provider": "Dostawca obrazów",

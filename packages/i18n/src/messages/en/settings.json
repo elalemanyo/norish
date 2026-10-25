@@ -1043,6 +1043,24 @@
       "transcriptionApiKeyOptionalDescription": "Most local Whisper servers don't require an API key",
       "transcriptionApiKeyOptionalPlaceholder": "Leave empty for local servers"
     },
+    "pageRenderers": {
+      "title": "Page renderers",
+      "description": "Browsers that read pages a plain fetch cannot. Obscura is tried first, then the solver.",
+      "obscura": "Obscura",
+      "obscuraDescription": "The headless browser that ships with Norish.",
+      "obscuraEndpoint": "Obscura endpoint",
+      "cdpToken": "CDP token",
+      "cdpTokenDescription": "The same token as on the obscura service.",
+      "solver": "FlareSolverr or Byparr",
+      "solverDescription": "Tried when Obscura fails. Site authentication tokens need Obscura.",
+      "solverEndpoint": "Solver endpoint",
+      "allowPrivateAddresses": "Allow private addresses",
+      "allowPrivateAddressesDescription": "Let imports reach your local network. Obscura refuses these either way.",
+      "navigationTimeout": "Navigation timeout (ms)",
+      "navigationTimeoutDescription": "How long a renderer is given to load a page.",
+      "saved": "Page renderers saved",
+      "error": "Failed to save page renderers"
+    },
     "imageGenerationConfig": {
       "description": "Pictures need their own provider, since most AI providers cannot draw.",
       "provider": "Image provider",

@@ -1043,6 +1043,24 @@
       "transcriptionApiKeyOptionalDescription": "Useimmat paikalliset Whisper-palvelimet eivät vaadi API-avainta",
       "transcriptionApiKeyOptionalPlaceholder": "Jätä tyhjäksi paikallisia palvelimia varten"
     },
+    "pageRenderers": {
+      "title": "Sivujen renderöijät",
+      "description": "Selaimet, jotka lukevat sivuja, joita tavallinen haku ei pysty lukemaan. Ensin Obscura, sitten ratkaisija.",
+      "obscura": "Obscura",
+      "obscuraDescription": "Norishin mukana tuleva headless-selain.",
+      "obscuraEndpoint": "Obscuran päätepiste",
+      "cdpToken": "CDP-tunnus",
+      "cdpTokenDescription": "Sama tunnus kuin obscura-palvelussa.",
+      "solver": "FlareSolverr tai Byparr",
+      "solverDescription": "Kokeillaan, kun Obscura epäonnistuu. Sivustojen todennustunnukset vaativat Obscuran.",
+      "solverEndpoint": "Ratkaisijan päätepiste",
+      "allowPrivateAddresses": "Salli yksityiset osoitteet",
+      "allowPrivateAddressesDescription": "Antaa tuontien tavoittaa paikallisen verkkosi. Obscura hylkää ne joka tapauksessa.",
+      "navigationTimeout": "Navigoinnin aikakatkaisu (ms)",
+      "navigationTimeoutDescription": "Kuinka kauan renderöijällä on aikaa ladata sivu.",
+      "saved": "Sivujen renderöijät tallennettu",
+      "error": "Sivujen renderöijien tallennus epäonnistui"
+    },
     "imageGenerationConfig": {
       "description": "Kuvat tarvitsevat oman palveluntarjoajan, koska useimmat tekoälypalvelut eivät osaa piirtää.",
       "provider": "Kuvapalvelu",

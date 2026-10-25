@@ -22,6 +22,7 @@ import type {
   ImageGenerationConfig,
   IngredientPermissionPolicy,
   IngredientWordsMap,
+  PageRenderersConfig,
   PromptsConfig,
   RecipePermissionPolicy,
   RecurrenceConfig,
@@ -49,6 +50,7 @@ import {
   isDecisionConfigValid,
   isDecisionUseSelected,
   isImageGenerationConfigValid,
+  PageRenderersConfigSchema,
   ServerConfigKeys,
   UnitsConfigSchema,
 } from "@norish/config/zod/server-config";
@@ -187,6 +189,37 @@ export async function getAIConfig(includeSecrets = false): Promise<AIConfig | nu
  */
 export async function getVideoConfig(includeSecrets = false): Promise<VideoConfig | null> {
   return await getConfig<VideoConfig>(ServerConfigKeys.VIDEO_CONFIG, includeSecrets);
+}
+
+/**
+ * The Page Renderers setting as the environment describes it, which seeds the row at first boot.
+ * Obscura is on unless `OBSCURA_ENDPOINT` is set empty.
+ */
+export function buildPageRenderersConfigFromEnv(): PageRenderersConfig {
+  const solverEndpoint = SERVER_CONFIG.PAGE_SOLVER_ENDPOINT || undefined;
+
+  return {
+    obscura: {
+      enabled: SERVER_CONFIG.OBSCURA_ENDPOINT !== "",
+      endpoint: SERVER_CONFIG.OBSCURA_ENDPOINT,
+      cdpToken: SERVER_CONFIG.OBSCURA_CDP_TOKEN || undefined,
+    },
+    solver: {
+      enabled: SERVER_CONFIG.PAGE_SOLVER_ENABLED && solverEndpoint !== undefined,
+      endpoint: solverEndpoint,
+    },
+    allowPrivateAddresses: SERVER_CONFIG.ALLOW_PRIVATE_ADDRESSES,
+    navigationTimeoutMs: SERVER_CONFIG.PAGE_RENDERER_TIMEOUT_MS,
+  };
+}
+
+/** The Page Renderers setting with the CDP token decrypted; the environment's until it is seeded. */
+export async function getPageRenderersConfig(): Promise<PageRenderersConfig> {
+  const stored = PageRenderersConfigSchema.safeParse(
+    await getConfig<PageRenderersConfig>(ServerConfigKeys.PAGE_RENDERERS, true)
+  );
+
+  return stored.success ? stored.data : buildPageRenderersConfigFromEnv();
 }
 
 /**
