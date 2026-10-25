@@ -7,17 +7,17 @@
 **Status:** ready-for-agent
 
 **The image**
-- [ ] A `docker/chromium` directory mirrors `docker/obscura`: a Dockerfile, a `pin.env` recording the release and the image tag together, and a README of a few lines.
-- [ ] The container runs:
+- [x] A `docker/chromium` directory mirrors `docker/obscura`: a Dockerfile, a `pin.env` recording the release and the image tag together, and a README of a few lines.
+- [x] The container runs:
   - new headless mode;
   - a random `--fingerprint` seed per start;
   - a non-root user;
   - its own profile directory;
   - the DevTools port forwarded by socat.
-- [ ] A publish workflow modelled on the Obscura image workflow builds amd64 only and refuses to overwrite an existing tag.
+- [x] A publish workflow modelled on the Obscura image workflow builds amd64 only and refuses to overwrite an existing tag.
 
 **Compose and docs**
-- [ ] The Compose example has a commented-out `chromium` service with `shm_size`, beside the solver alternatives, and the matching commented `CHROMIUM_BROWSER_ENDPOINT` line on the norish service. Obscura stays on by default.
+- [x] The Compose example has a commented-out `chromium` service with `shm_size`, beside the solver alternatives, and the matching commented `CHROMIUM_BROWSER_ENDPOINT` line on the norish service. Obscura stays on by default.
 - [ ] The apps/docs Page Renderer section covers the Chromium browser:
   - the image and its licence;
   - amd64 only;
