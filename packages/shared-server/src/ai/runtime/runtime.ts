@@ -215,9 +215,11 @@ async function requestObject<T>({
   // Vision selection is implicit: the presence of images selects the vision
   // model, so images cannot be silently dropped by a forgotten flag.
   const useVision = images.length > 0;
-  const instructions = jsonMode
-    ? `${SYSTEM_MESSAGES[promptName]}\n\n${await jsonModeInstruction(schema)}`
-    : SYSTEM_MESSAGES[promptName];
+  // @ai-sdk/mistral puts the schema in the prompt itself once structured outputs are off.
+  const instructions =
+    jsonMode && config.provider !== "mistral"
+      ? `${SYSTEM_MESSAGES[promptName]}\n\n${await jsonModeInstruction(schema)}`
+      : SYSTEM_MESSAGES[promptName];
 
   aiLogger.debug(
     {

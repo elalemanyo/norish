@@ -234,6 +234,8 @@ describe("Mistral, whose schema is only a hint unless asked to be strict", () =>
       { type: "json_object" },
     ]);
     expect(JSON.stringify(sent[1]!.messages)).toContain("tags");
+    // @ai-sdk/mistral puts the schema in the prompt itself, so Norish's copy would double it.
+    expect(JSON.stringify(sent[1]!.messages).match(/properties/g)).toHaveLength(1);
   });
 });
 
