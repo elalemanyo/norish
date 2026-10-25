@@ -17,6 +17,7 @@ import {
   AIProviderError,
   AIResponseError,
 } from "@norish/shared-server/ai/runtime/errors";
+import { NOT_A_RECIPE_REASON } from "@norish/shared/contracts/realtime/recipes";
 import { ErrorWithDetail } from "@norish/shared/lib/error-extensions";
 
 const createRecipeWithRefs = vi.fn();
@@ -282,6 +283,43 @@ describe("processImportJob", () => {
       const { processRecipeImportJob } = await import("../../src/recipe-import/worker");
 
       await expect(processRecipeImportJob(job())).rejects.toBe(unusable);
+    });
+  });
+
+  it("stops retrying a page the Decision Model clearly says is not a recipe", async () => {
+    const pythonParser = { recipe: { title: "" } };
+    const verdict = new ErrorWithDetail(NOT_A_RECIPE_REASON, { pythonParser });
+
+    parseRecipeFromUrl.mockRejectedValue(verdict);
+
+    const { processRecipeImportJob } = await import("../../src/recipe-import/worker");
+    const job = {
+      id: "job-1",
+      attemptsMade: 0,
+      opts: { attempts: 3 },
+      progress: 0,
+      updateProgress: vi.fn(async (progress: unknown) => {
+        job.progress = progress;
+      }),
+      log: vi.fn(async () => 0),
+      data: {
+        url: "https://example.com/about",
+        recipeId: "recipe-77",
+        userId: "user-1",
+        householdKey: "household-1",
+        householdUserIds: null,
+      },
+    };
+    const failure = await processRecipeImportJob(job as unknown as Job<RecipeImportJobData>).catch(
+      (error: unknown) => error
+    );
+
+    expect(failure).toBeInstanceOf(UnrecoverableError);
+    expect((failure as Error).message).toBe(NOT_A_RECIPE_REASON);
+    expect((failure as Error).cause).toBe(verdict);
+    expect(readStepProgress(job.progress)?.attempts[0]?.timeline.at(-1)).toMatchObject({
+      id: "parsing",
+      detail: { pythonParser },
     });
   });
 
