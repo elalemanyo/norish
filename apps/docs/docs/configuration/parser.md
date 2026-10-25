@@ -22,27 +22,32 @@ Set them up under **Settings => Admin => Page renderers**.
 
 - **Obscura** is the headless browser in the [Quick start](../quick-start.mdx)
   compose, the `obscura` service. It is tried first.
-- **FlareSolverr or Byparr** is tried when Obscura gets no page or a bot check,
-  like a Cloudflare challenge. The example compose file has both as
+- **Chromium browser** is any Chromium with a CDP endpoint. It is tried when
+  Obscura gets no page or a bot check, like the "Access Denied" page Akamai
+  shows on Allerhande. See [Chromium browser](#chromium-browser).
+- **FlareSolverr or Byparr** is tried when the browsers get no page or a bot
+  check, like a Cloudflare challenge. The example compose file has both as
   commented-out services: uncomment one and enter its endpoint, like
   `http://flaresolverr:8191/v1`. Each page it reads starts a new browser, which
   takes a few seconds.
 
-Site authentication tokens go to Obscura only. The solver gets the page
-without them, so a page that needs you signed in needs Obscura. See
-[Site authentication](./site-authentication.md).
+Site authentication tokens go to Obscura only. The Chromium browser and the
+solver get the page without them, so a page that needs you signed in needs
+Obscura. See [Site authentication](./site-authentication.md).
 
-With both off, Norish only fetches pages plainly. If no page renderer can read
-a page, the import fails.
+With all three off, Norish only fetches pages plainly. If no page renderer can
+read a page, the import fails.
 
 **Allow private addresses** is off by default, so imports and shop pages can't
 reach loopback, private-network, Tailscale or link-local addresses, like your
 router or other containers. Turn it on to import from a recipe site on your own network.
 Obscura refuses these addresses either way, so such a page is read by the plain
-fetch or the solver.
+fetch, the Chromium browser or the solver. With the switch off, the Chromium
+browser also refuses a page that redirects to such an address.
 
-Keep both services inside your own network, without a host port: anything that
-can reach Obscura can drive the browser, and the solvers take no password.
+Keep these services inside your own network, without a host port: anything
+that can reach Obscura or the Chromium browser can drive it, and the solvers
+take no password.
 
 Obscura only starts on a network address when its `OBSCURA_CDP_TOKEN` is at
 least 32 characters, and Norish has to send the same token. Generate one with
@@ -54,19 +59,37 @@ rolling release, use `norishapp/obscura:latest` instead.
 A page counts as loaded once its images and scripts have finished too. If slow
 sites fail with a timeout, raise the navigation timeout.
 
+### Chromium browser
+
+The example compose file has a commented-out `chromium` service. Its image,
+`norishapp/chromium`, is Norish's build of
+[fingerprint-chromium](https://github.com/adryfish/fingerprint-chromium), a
+Chromium that gets a new browser fingerprint on every start. Both are BSD-3
+licensed.
+
+- It runs on amd64 only, because upstream builds Linux for x86_64 only.
+- It needs `shm_size: 1gb`, as in the example. Docker's default 64 MB crashes it.
+- Its endpoint is `http://chromium:9222`.
+
+Any other Chromium with a CDP endpoint works too, including a hosted browser.
+If the endpoint carries a token in its query string, like
+`wss://browser.example/cdp?token=...`, Norish leaves the query string out of its
+logs.
+
 ## Settings
 
 These set up the page renderers at the first start. After that they live in
 admin settings, and changing the variables does nothing.
 
-| Variable                   | Description                                                   | Default             |
-| -------------------------- | ------------------------------------------------------------- | ------------------- |
-| `OBSCURA_ENDPOINT`         | Obscura CDP endpoint. Empty turns Obscura off                 | `ws://obscura:9222` |
-| `OBSCURA_CDP_TOKEN`        | Token for Obscura, the same value as on the `obscura` service | (empty)             |
-| `PAGE_SOLVER_ENABLED`      | Try FlareSolverr or Byparr after Obscura                      | `false`             |
-| `PAGE_SOLVER_ENDPOINT`     | The solver's `/v1` endpoint                                   | (empty)             |
-| `ALLOW_PRIVATE_ADDRESSES`  | Let imports reach private addresses                           | `false`             |
-| `PAGE_RENDERER_TIMEOUT_MS` | How long a page renderer is given to load a page, in ms       | `45000`             |
+| Variable                    | Description                                                   | Default             |
+| --------------------------- | ------------------------------------------------------------- | ------------------- |
+| `OBSCURA_ENDPOINT`          | Obscura CDP endpoint. Empty turns Obscura off                 | `ws://obscura:9222` |
+| `OBSCURA_CDP_TOKEN`         | Token for Obscura, the same value as on the `obscura` service | (empty)             |
+| `CHROMIUM_BROWSER_ENDPOINT` | Chromium browser CDP endpoint. Setting it turns it on         | (empty)             |
+| `PAGE_SOLVER_ENABLED`       | Try FlareSolverr or Byparr after the browsers                 | `false`             |
+| `PAGE_SOLVER_ENDPOINT`      | The solver's `/v1` endpoint                                   | (empty)             |
+| `ALLOW_PRIVATE_ADDRESSES`   | Let imports reach private addresses                           | `false`             |
+| `PAGE_RENDERER_TIMEOUT_MS`  | How long a page renderer is given to load a page, in ms       | `45000`             |
 
 | Variable                | Description                        | Default |
 | ----------------------- | ---------------------------------- | ------- |

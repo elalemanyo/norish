@@ -18,7 +18,7 @@
 
 **Compose and docs**
 - [x] The Compose example has a commented-out `chromium` service with `shm_size`, beside the solver alternatives, and the matching commented `CHROMIUM_BROWSER_ENDPOINT` line on the norish service. Obscura stays on by default.
-- [ ] The apps/docs Page Renderer section covers the Chromium browser:
+- [x] The apps/docs Page Renderer section covers the Chromium browser:
   - the image and its licence;
   - amd64 only;
   - the endpoint format;
