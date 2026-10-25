@@ -74,7 +74,7 @@ function delay(milliseconds: number): Promise<void> {
  * The server and the embedded parser get one too, so stacks running side by
  * side, or beside a dev server, never share (or kill) each other's ports.
  */
-function freeHostPort(): Promise<number> {
+export function freeHostPort(): Promise<number> {
   return new Promise((resolve, reject) => {
     const probe = net.createServer();
 
