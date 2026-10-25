@@ -272,6 +272,10 @@ _Avoid_: Recipe validation (suggests the stored recipe is judged; it is not), Cl
 A post whose source gave no evidence either way about a video stream. It is not a post without video: reading that silence as absence is what sent reels down the caption-only path, losing the video and the creator.
 _Avoid_: Unknown post
 
+**Page Renderer**:
+A browser service an administrator connects so Norish can read pages a plain fetch cannot: Obscura, or a FlareSolverr-compatible solver (FlareSolverr, Byparr). URL imports, Store Visits and Instagram captions all fetch plainly first and reach for a Page Renderer only when that page is not enough. With both connected, Obscura is tried first and the solver only when Obscura comes back empty or with a bot check (ADR-0019). Site Auth Tokens travel only through Obscura, because a solver cannot keep them to their site; the solver gets the page without them.
+_Avoid_: Fetcher (the plain fetch always runs and is not a Page Renderer), Scraper (also names the parsing), Browser engine (an implementation word)
+
 **Site Auth Token**:
 One cookie or one request header a user saves so their imports reach a site that only answers a signed-in visitor. It belongs to the person who saved it, never to the server, and its value is encrypted at rest and never returned to a browser. Its domain decides which imports carry it: only a URL whose hostname the domain matches, so one site's session cannot travel to another's.
 _Avoid_: Credential (a Site Auth Token is a fragment of a session, not a login Norish can perform), Site cookie (half the tokens are headers)
