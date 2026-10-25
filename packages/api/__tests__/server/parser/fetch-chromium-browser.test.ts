@@ -351,6 +351,45 @@ describe("renderPage – when the Chromium browser's page counts as read", () =>
   });
 });
 
+describe("renderPage – a bounded Chromium browser attempt", () => {
+  afterEach(() => vi.useRealTimers());
+
+  it("gives up at the navigation timeout and the settle wait on a page that never answers a read, closing its context", async () => {
+    vi.useFakeTimers();
+    renderers.allowPrivateAddresses = true;
+    // A page whose main thread is stuck after load: no evaluation, read or close ever answers.
+    const never = () => new Promise<never>(() => {});
+    const context = {
+      close: vi.fn(never),
+      newPage: vi.fn(async () => ({
+        on: vi.fn(),
+        mainFrame: vi.fn(),
+        goto: vi.fn(async () => ({ status: () => 200 })),
+        evaluate: vi.fn(never),
+        content: vi.fn(never),
+      })),
+    };
+
+    connectOverCDP.mockResolvedValue({
+      isConnected: () => true,
+      close: vi.fn().mockResolvedValue(undefined),
+      newContext: vi.fn(async () => context),
+    });
+
+    let rendered: unknown = "still rendering";
+
+    void renderPage("https://example.com/r").then((page) => {
+      rendered = page;
+    });
+
+    await vi.advanceTimersByTimeAsync(30_000 + 15_000 - 1);
+    expect(rendered).toBe("still rendering");
+    await vi.advanceTimersByTimeAsync(1);
+    expect(rendered).toEqual({ html: "", status: 200 });
+    expect(context.close).toHaveBeenCalled();
+  });
+});
+
 describe("renderPage – private addresses inside the Chromium browser", () => {
   const redirectedToRouter = {
     "https://example.com/r": { redirect: "http://router.lan/admin" },

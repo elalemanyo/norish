@@ -10,6 +10,7 @@ import { getBrowser } from "@norish/api/parser/browser-connections";
 import { getPageRenderersConfig } from "@norish/shared-server/config/server-config-loader";
 import { parserLogger as log } from "@norish/shared-server/logger";
 import { isHostOnDomain } from "@norish/shared/lib/helpers";
+import { withTimeout } from "@norish/shared/lib/with-timeout";
 
 /** How long a page that answered with something else is given to become itself. */
 const SETTLE_TIMEOUT_MS = 15_000;
@@ -480,13 +481,13 @@ async function renderInBrowser(
   // One deadline for the connection and every navigation; 0 would turn Playwright's timeout off.
   const deadline = Date.now() + navigationTimeoutMs;
   const timeLeft = () => Math.max(deadline - Date.now(), 1);
-  let context: BrowserContext | undefined;
+  let opening: Promise<BrowserContext> | undefined;
   let status: number | null = null;
 
-  try {
+  const attempt = async (): Promise<string> => {
     const browser = await getBrowser(renderer, endpoint, cdpToken, timeLeft());
 
-    if (!browser) return { html: "", status };
+    if (!browser) return "";
 
     const { hostname, protocol } = new URL(targetUrl);
     // As in the plain fetch, no token goes over http, where it would travel in the clear.
@@ -500,8 +501,9 @@ async function renderInBrowser(
     }
 
     // A fresh context per fetch, so one importer's tokens never reach another's page.
-    context = await browser.newContext();
+    opening = browser.newContext();
 
+    const context = await opening;
     const page = await context.newPage();
 
     await preparePage(context, page, onSite, targetUrl, timeLeft);
@@ -524,18 +526,19 @@ async function renderInBrowser(
     // The Chromium browser is read once its document has loaded and, unless the caller can tell,
     // once past a bot check: Allerhande's reloads into the page seconds after load.
     if (renderer === "chromium") {
-      return {
-        html: await settledContent(
-          () => loadedContent(page),
-          isSettled ?? ((html) => !isBotCheck(html))
-        ),
-        status,
-      };
+      return settledContent(() => loadedContent(page), isSettled ?? ((html) => !isBotCheck(html)));
     }
 
-    const html = isSettled
-      ? await settledContent(() => page.content(), isSettled)
-      : await page.content();
+    return isSettled ? settledContent(() => page.content(), isSettled) : page.content();
+  };
+
+  try {
+    // A page whose main thread is stuck never answers a read, so the attempt as a whole is bounded.
+    const html = await withTimeout(
+      attempt,
+      navigationTimeoutMs + SETTLE_TIMEOUT_MS,
+      `Rendering in ${renderer}`
+    );
 
     return { html, status };
   } catch (error) {
@@ -543,11 +546,12 @@ async function renderInBrowser(
 
     return { html: "", status };
   } finally {
-    if (context) {
-      await context.close().catch((err) => {
+    // Not awaited, as a dead connection never answers; a context that opens late is closed then.
+    void opening
+      ?.then((context) => context.close())
+      .catch((err: unknown) => {
         log.debug({ err, renderer }, "Failed to close a browser context during cleanup");
       });
-    }
   }
 }
 
