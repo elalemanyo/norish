@@ -362,7 +362,8 @@ export async function renderPage(
         targetUrl,
         tokens,
         isSettled,
-        (context, page) => guardDocuments(context, page, renderers.allowPrivateAddresses)
+        (context, page, onSite) =>
+          prepareChromiumPage(context, page, onSite, renderers.allowPrivateAddresses)
       );
 
       if (isReadable(rendered)) return answered("chromium", targetUrl, rendered);
@@ -569,31 +570,79 @@ async function setTokensInObscura(
 }
 
 /**
- * The Chromium browser's step. With private addresses refused, its document requests are paused
- * before they are sent, and each redirect hop is checked like the target; subresources are not.
+ * The Chromium browser's step. Cookies are set for their domain, and one `Fetch.enable` pauses the
+ * requests on a header token's https site and, while private addresses are refused, every document
+ * request. Each paused request is checked and given its own site's headers, so a redirect off the
+ * site carries none; Playwright's `route` would carry them along.
  */
-async function guardDocuments(
+async function prepareChromiumPage(
   context: BrowserContext,
   page: Page,
+  tokens: SiteAuthTokenDecryptedDto[],
   allowPrivateAddresses: boolean
 ): Promise<void> {
-  if (allowPrivateAddresses) return;
+  const headerTokens = tokens.filter((token) => token.type === "header");
+  const cookieTokens = tokens.filter((token) => token.type === "cookie");
+  const headerDomains = new Set(headerTokens.map(({ domain }) => domain.toLowerCase()));
+  // `*` also matches a port or a lookalike host, so these only narrow what is paused.
+  const patterns = [
+    ...[...headerDomains].flatMap((domain) =>
+      [`https://${domain}*`, `https://*.${domain}*`].map((urlPattern) => ({
+        urlPattern,
+        requestStage: "Request" as const,
+      }))
+    ),
+    ...(allowPrivateAddresses
+      ? []
+      : [{ resourceType: "Document" as const, requestStage: "Request" as const }]),
+  ];
+
+  // Chromium sends a cookie set over CDP, unlike Obscura, and keeps it to its domain.
+  if (cookieTokens.length > 0) {
+    await context.addCookies(
+      cookieTokens.map(({ name, value, domain }) => ({
+        name,
+        value,
+        domain: `.${domain.toLowerCase()}`,
+        path: "/",
+        secure: true,
+      }))
+    );
+  }
+
+  if (patterns.length === 0) return;
 
   const cdp = await context.newCDPSession(page);
 
   cdp.on("Fetch.requestPaused", ({ requestId, request, resourceType }) => {
     const answer = async () => {
-      if (
-        resourceType === "Document" &&
-        (await isRefusedHost(new URL(request.url).hostname, allowPrivateAddresses))
-      ) {
+      const { hostname, protocol } = new URL(request.url);
+
+      if (resourceType === "Document" && (await isRefusedHost(hostname, allowPrivateAddresses))) {
         log.warn({ url: request.url }, "Refused a private address in the Chromium browser");
         await cdp.send("Fetch.failRequest", { requestId, errorReason: "BlockedByClient" });
 
         return;
       }
 
-      await cdp.send("Fetch.continueRequest", { requestId });
+      // As in the plain fetch, a header goes only to an https request on its own site.
+      const onSite = protocol === "https:" ? tokensOnSite(hostname, headerTokens) : [];
+      const replaced = new Set(onSite.map(({ name }) => name.toLowerCase()));
+
+      await cdp.send(
+        "Fetch.continueRequest",
+        onSite.length === 0
+          ? { requestId }
+          : {
+              requestId,
+              headers: [
+                ...Object.entries(request.headers)
+                  .filter(([name]) => !replaced.has(name.toLowerCase()))
+                  .map(([name, value]) => ({ name, value })),
+                ...onSite.map(({ name, value }) => ({ name, value })),
+              ],
+            }
+      );
     };
 
     // Every paused request is answered, and one that cannot be checked goes nowhere.
@@ -602,7 +651,5 @@ async function guardDocuments(
       await cdp.send("Fetch.failRequest", { requestId, errorReason: "Failed" }).catch(() => {});
     });
   });
-  await cdp.send("Fetch.enable", {
-    patterns: [{ resourceType: "Document", requestStage: "Request" }],
-  });
+  await cdp.send("Fetch.enable", { patterns });
 }

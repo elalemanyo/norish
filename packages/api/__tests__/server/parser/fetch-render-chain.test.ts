@@ -428,6 +428,22 @@ describe("renderPage – Site Auth Tokens", () => {
     );
   });
 
+  it("never hands them to the solver after the Chromium browser either", async () => {
+    renderers.obscura.enabled = false;
+    renderers.chromium.enabled = true;
+    chromiumPage = null;
+    const { sent } = solverAnswers(solved(SOLVED_PAGE));
+
+    await expect(renderPage("https://example.com/r", TOKENS)).resolves.toMatchObject({
+      html: SOLVED_PAGE,
+    });
+    expect(JSON.stringify(sent())).not.toMatch(/sess-abc|Bearer abc|cookies|headers/);
+    expect(log.info).toHaveBeenCalledWith(
+      { url: "https://example.com/r", tokens: 2 },
+      "Site Auth Tokens withheld from the solver"
+    );
+  });
+
   it("logs nothing withheld when there were no tokens", async () => {
     renderers.obscura.enabled = false;
     solverAnswers(solved(SOLVED_PAGE));

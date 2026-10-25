@@ -8,6 +8,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { PageRenderersConfig } from "@norish/config/zod/server-config";
+import type { SiteAuthTokenDecryptedDto } from "@norish/shared/contracts/dto/site-auth-tokens";
 import { closeBrowsers } from "@norish/api/parser/browser-connections";
 import { renderPage } from "@norish/api/parser/fetch";
 
@@ -69,11 +70,14 @@ function matches({ urlPattern = "*", resourceType }: Pattern, url: string, type:
 /**
  * A Chromium serving `site`. Each navigation hop goes through the page's `Fetch` patterns: a hop a
  * pattern matches is paused once until it is continued or failed. Returns the requests that left
- * the browser, with the headers each carried, and every command the CDP session was sent.
+ * the browser, with the headers each carried, the ones that were paused, every command the CDP
+ * session was sent, and the cookies set and navigations made, in order.
  */
 function chromiumServing(site: Record<string, Answer>) {
   const sentOut: { url: string; headers: Record<string, string> }[] = [];
+  const pausedUrls: string[] = [];
   const commands: [string, Record<string, unknown>][] = [];
+  const events: unknown[] = [];
   const answers = new Map<string, (command: [string, Record<string, unknown>]) => void>();
   let patterns: Pattern[] = [];
   let paused: ((event: unknown) => void) | undefined;
@@ -90,6 +94,9 @@ function chromiumServing(site: Record<string, Answer>) {
     }
 
     const requestId = String(++nextId);
+
+    pausedUrls.push(url);
+
     const answered = new Promise<[string, Record<string, unknown>]>((resolve) =>
       answers.set(requestId, resolve)
     );
@@ -115,7 +122,9 @@ function chromiumServing(site: Record<string, Answer>) {
     close: vi.fn().mockResolvedValue(undefined),
     newContext: vi.fn(async () => ({
       close: vi.fn().mockResolvedValue(undefined),
-      addCookies: vi.fn(),
+      addCookies: vi.fn(async (cookies: unknown) => {
+        events.push(["addCookies", cookies]);
+      }),
       newCDPSession: vi.fn(async () => ({
         on: (event: string, listener: (event: unknown) => void) => {
           if (event === "Fetch.requestPaused") paused = listener;
@@ -135,6 +144,7 @@ function chromiumServing(site: Record<string, Answer>) {
           on: vi.fn(),
           mainFrame: vi.fn(),
           goto: vi.fn(async (target: string) => {
+            events.push(["goto", target]);
             for (let url = target; ;) {
               await request(url);
 
@@ -170,7 +180,13 @@ function chromiumServing(site: Record<string, Answer>) {
 
   connectOverCDP.mockResolvedValue(browser);
 
-  return { sentOut: () => sentOut.map(({ url }) => url), headersTo: sentOut, commands };
+  return {
+    sentOut: () => sentOut.map(({ url }) => url),
+    headersTo: sentOut,
+    paused: pausedUrls,
+    commands,
+    events,
+  };
 }
 
 beforeEach(async () => {
@@ -345,5 +361,132 @@ describe("renderPage – private addresses inside the Chromium browser", () => {
 
     await expect(renderPage("https://example.com/r")).resolves.toMatchObject({ html: "" });
     expect(sentOut()).toEqual(["https://example.com/r"]);
+  });
+});
+
+/** A Site Auth Token for example.com. */
+function token(name: string, value: string, type: "header" | "cookie"): SiteAuthTokenDecryptedDto {
+  return {
+    id: "00000000-0000-0000-0000-000000000000",
+    userId: "user-1",
+    domain: "example.com",
+    account: null,
+    name,
+    value,
+    type,
+    createdAt: new Date("2025-01-01"),
+    updatedAt: new Date("2025-01-01"),
+  };
+}
+
+describe("renderPage – Site Auth Tokens in the Chromium browser", () => {
+  const BROWSER_HEADERS = { "User-Agent": "HeadlessChrome", Accept: "text/html" };
+  const HEADER = token("Authorization", "Bearer abc", "header");
+  const COOKIE = token("session", "sess-abc", "cookie");
+  const offTheSite = {
+    "https://www.example.com/r": { redirect: "https://tracker.example.net/landing" },
+    "https://tracker.example.net/landing": { documents: [{ html: REAL_PAGE }] },
+  };
+
+  it("adds a header token to its own https site, and a redirect off the site is never paused", async () => {
+    renderers.allowPrivateAddresses = true;
+    const { headersTo, paused, commands } = chromiumServing(offTheSite);
+
+    await expect(renderPage("https://www.example.com/r", [HEADER])).resolves.toMatchObject({
+      html: REAL_PAGE,
+    });
+    expect(headersTo).toEqual([
+      {
+        url: "https://www.example.com/r",
+        headers: { ...BROWSER_HEADERS, Authorization: "Bearer abc" },
+      },
+      { url: "https://tracker.example.net/landing", headers: BROWSER_HEADERS },
+    ]);
+    expect(paused).toEqual(["https://www.example.com/r"]);
+    // Only requests on the token's site are paused for it.
+    expect(commands[0]).toEqual([
+      "Fetch.enable",
+      {
+        patterns: [
+          { urlPattern: "https://example.com*", requestStage: "Request" },
+          { urlPattern: "https://*.example.com*", requestStage: "Request" },
+        ],
+      },
+    ]);
+  });
+
+  it("checks every document hop for a private address in the same pass, and adds the header only on the site", async () => {
+    const { headersTo, paused } = chromiumServing(offTheSite);
+
+    await renderPage("https://www.example.com/r", [HEADER]);
+
+    expect(paused).toEqual(["https://www.example.com/r", "https://tracker.example.net/landing"]);
+    expect(headersTo.map(({ headers }) => headers.Authorization)).toEqual([
+      "Bearer abc",
+      undefined,
+    ]);
+  });
+
+  it("adds no header to an http hop on its own site", async () => {
+    const { headersTo } = chromiumServing({
+      "https://example.com/r": { redirect: "http://example.com/plain" },
+      "http://example.com/plain": { documents: [{ html: REAL_PAGE }] },
+    });
+
+    await renderPage("https://example.com/r", [HEADER]);
+
+    expect(headersTo).toEqual([
+      {
+        url: "https://example.com/r",
+        headers: { ...BROWSER_HEADERS, Authorization: "Bearer abc" },
+      },
+      { url: "http://example.com/plain", headers: BROWSER_HEADERS },
+    ]);
+  });
+
+  it("puts a header token in place of the browser's own header of that name", async () => {
+    const { headersTo } = chromiumServing({
+      "https://example.com/r": { documents: [{ html: REAL_PAGE }] },
+    });
+
+    await renderPage("https://example.com/r", [token("user-agent", "Signed in", "header")]);
+
+    expect(headersTo[0]?.headers).toEqual({ Accept: "text/html", "user-agent": "Signed in" });
+  });
+
+  it("sets a cookie token for its domain before navigating, with no page of the site first", async () => {
+    renderers.allowPrivateAddresses = true;
+    const { events, commands } = chromiumServing({
+      "https://recipes.example.com/r": { documents: [{ html: REAL_PAGE }] },
+    });
+
+    await expect(renderPage("https://recipes.example.com/r", [COOKIE])).resolves.toMatchObject({
+      html: REAL_PAGE,
+    });
+    expect(events).toEqual([
+      [
+        "addCookies",
+        [{ name: "session", value: "sess-abc", domain: ".example.com", path: "/", secure: true }],
+      ],
+      ["goto", "https://recipes.example.com/r"],
+    ]);
+    expect(commands).toEqual([]);
+  });
+
+  it("sends an http page no tokens", async () => {
+    renderers.allowPrivateAddresses = true;
+    const { events, commands, headersTo } = chromiumServing({
+      "http://example.com/r": { documents: [{ html: REAL_PAGE }] },
+    });
+
+    await renderPage("http://example.com/r", [HEADER, COOKIE]);
+
+    expect(events).toEqual([["goto", "http://example.com/r"]]);
+    expect(commands).toEqual([]);
+    expect(headersTo).toEqual([{ url: "http://example.com/r", headers: BROWSER_HEADERS }]);
+    expect(log.info).toHaveBeenCalledWith(
+      { url: "http://example.com/r", tokens: 2 },
+      "Site Auth Tokens withheld from an http page"
+    );
   });
 });
