@@ -103,14 +103,5 @@ export async function closeBrowsers(): Promise<void> {
   await Promise.all(closing.map(close));
 }
 
-// Graceful shutdown - register handlers only once
-let shutdownHandlersRegistered = false;
-
-function registerShutdownHandlers() {
-  if (shutdownHandlersRegistered) return;
-  shutdownHandlersRegistered = true;
-  process.on("SIGINT", closeBrowsers);
-  process.on("SIGTERM", closeBrowsers);
-}
-
-registerShutdownHandlers();
+process.on("SIGINT", closeBrowsers);
+process.on("SIGTERM", closeBrowsers);
