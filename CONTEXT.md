@@ -273,11 +273,11 @@ A post whose source gave no evidence either way about a video stream. It is not 
 _Avoid_: Unknown post
 
 **Page Renderer**:
-A browser service an administrator connects so Norish can read pages a plain fetch cannot: Obscura, or a FlareSolverr-compatible solver (FlareSolverr, Byparr). URL imports, Store Visits and Instagram captions all fetch plainly first and reach for a Page Renderer only when that page is not enough. With both connected, Obscura is tried first and the solver only when Obscura comes back empty or with a bot check (ADR-0019). Site Auth Tokens travel only through Obscura, because a solver cannot keep them to their site; the solver gets the page without them.
+A browser service an administrator connects so Norish can read pages a plain fetch cannot: Obscura, a Chromium browser (any Chromium with a CDP endpoint), or a FlareSolverr-compatible solver (FlareSolverr, Byparr). Each is optional. URL imports, Store Visits and Instagram captions all fetch plainly first and reach for a Page Renderer only when that page is not enough. The connected ones are tried in a fixed order, Obscura, then the Chromium browser, then the solver, each only when the one before comes back empty or with a bot check (ADR-0019). Site Auth Tokens travel through Obscura and the Chromium browser, which keep them to their site, and never to the solver, which cannot; the solver gets the page without them.
 _Avoid_: Fetcher (the plain fetch always runs and is not a Page Renderer), Scraper (also names the parsing), Browser engine (an implementation word)
 
 **Site Auth Token**:
-One cookie or one request header a user saves so their imports reach a site that only answers a signed-in visitor. It belongs to the person who saved it, never to the server, and its value is encrypted at rest and never returned to a browser. Its domain decides which imports carry it: only a URL whose hostname the domain matches, so one site's session cannot travel to another's.
+One cookie or one request header a user saves so their imports reach a site that only answers a signed-in visitor. It belongs to the person who saved it, never to the server, and its value is encrypted at rest and never returned to a browser. Its domain is always a full domain, such as `instagram.com`, never a bare word, and it decides which imports carry the token: only an https URL on that domain or one of its subdomains, so one site's session cannot travel to another's.
 _Avoid_: Credential (a Site Auth Token is a fragment of a session, not a login Norish can perform), Site cookie (half the tokens are headers)
 
 **Site Account**:
