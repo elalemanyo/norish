@@ -39,6 +39,7 @@ export const JUNK_SEED_CONCEPTS: Readonly<
       bg: "съставки",
       fi: "ainekset",
       uk: "інгредієнти",
+      sv: "ingredienser",
     },
   },
   "to taste": {
@@ -61,6 +62,7 @@ export const JUNK_SEED_CONCEPTS: Readonly<
       bg: "на вкус",
       fi: "maun mukaan",
       uk: "за смаком",
+      sv: "efter smak",
     },
   },
   optional: {
@@ -83,6 +85,7 @@ export const JUNK_SEED_CONCEPTS: Readonly<
       bg: "по желание",
       fi: "valinnainen",
       uk: "за бажанням",
+      sv: "valfritt",
     },
   },
   boneless: {
@@ -105,6 +108,7 @@ export const JUNK_SEED_CONCEPTS: Readonly<
       bg: "без кости",
       fi: "luuton",
       uk: "без кісток",
+      sv: "benfri",
     },
   },
   skinless: {
@@ -127,6 +131,7 @@ export const JUNK_SEED_CONCEPTS: Readonly<
       bg: "без кожа",
       fi: "nahaton",
       uk: "без шкіри",
+      sv: "utan skinn",
     },
   },
   // Dutch "gehakt" is minced meat, so chopped is "fijngehakt" there.
@@ -150,6 +155,7 @@ export const JUNK_SEED_CONCEPTS: Readonly<
       bg: "нарязан",
       fi: "hienonnettu",
       uk: "нарізаний",
+      sv: "hackad",
     },
   },
   "roughly chopped": {
@@ -172,6 +178,7 @@ export const JUNK_SEED_CONCEPTS: Readonly<
       bg: "едро нарязан",
       fi: "karkeasti hienonnettu",
       uk: "крупно нарізаний",
+      sv: ["grovhackad", "grovt hackad"],
     },
   },
   melted: {
@@ -194,6 +201,7 @@ export const JUNK_SEED_CONCEPTS: Readonly<
       bg: "разтопен",
       fi: "sulatettu",
       uk: "розтоплений",
+      sv: "smält",
     },
   },
   overnight: {
@@ -216,6 +224,7 @@ export const JUNK_SEED_CONCEPTS: Readonly<
       bg: "за една нощ",
       fi: "yön yli",
       uk: "на ніч",
+      sv: "över natten",
     },
   },
   "baking dish": {
@@ -238,6 +247,7 @@ export const JUNK_SEED_CONCEPTS: Readonly<
       bg: "тава за печене",
       fi: "uunivuoka",
       uk: "форма для запікання",
+      sv: "ugnsform",
     },
   },
   "cake tin": {
@@ -260,6 +270,7 @@ export const JUNK_SEED_CONCEPTS: Readonly<
       bg: "форма за кекс",
       fi: "kakkuvuoka",
       uk: "форма для кексу",
+      sv: "kakform",
     },
   },
   "springform pan": {
@@ -282,6 +293,7 @@ export const JUNK_SEED_CONCEPTS: Readonly<
       bg: "форма с падащо дъно",
       fi: "irtopohjavuoka",
       uk: "рознімна форма",
+      sv: "springform",
     },
   },
   "food processor": {
@@ -304,6 +316,7 @@ export const JUNK_SEED_CONCEPTS: Readonly<
       bg: "кухненски робот",
       fi: "monitoimikone",
       uk: "кухонний комбайн",
+      sv: "matberedare",
     },
   },
   "rolling pin": {
@@ -326,6 +339,7 @@ export const JUNK_SEED_CONCEPTS: Readonly<
       bg: "точилка",
       fi: "kaulin",
       uk: "качалка",
+      sv: "kavel",
     },
   },
 };

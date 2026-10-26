@@ -227,7 +227,7 @@ describe("recurrence/parser yearly", () => {
   });
 });
 
-describe("recurrence/parser German, Polish, Russian, Finnish, Norwegian, Bulgarian and Portuguese", () => {
+describe("recurrence/parser German, Polish, Russian, Finnish, Norwegian, Bulgarian, Portuguese and Swedish", () => {
   const config = defaultRecurrenceConfig as RecurrenceConfig;
 
   it.each([
@@ -254,6 +254,11 @@ describe("recurrence/parser German, Polish, Russian, Finnish, Norwegian, Bulgari
     ["melk todo dia", "pt", { rule: "day", interval: 1 }],
     ["melk toda semana na segunda", "pt", { rule: "week", interval: 1, weekday: 1 }],
     ["melk todos os anos", "pt", { rule: "year", interval: 1 }],
+    ["melk varje dag", "sv", { rule: "day", interval: 1 }],
+    ["melk varje vecka på måndag", "sv", { rule: "week", interval: 1, weekday: 1 }],
+    ["melk var tredje dag", "sv", { rule: "day", interval: 3 }],
+    ["melk varannan vecka", "sv", { rule: "week", interval: 2 }],
+    ["melk årligen", "sv", { rule: "year", interval: 1 }],
     // Spanish is read first and knows "a cada" too, so nothing is left behind.
     ["melk a cada 2 semanas", "es", { rule: "week", interval: 2 }],
   ])("parses %s", (text, locale, pattern) => {

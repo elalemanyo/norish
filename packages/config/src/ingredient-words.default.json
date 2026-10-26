@@ -925,5 +925,47 @@
       ["а", "о"],
       ["я", "е"]
     ]
+  },
+  "sv": {
+    "preparation": [
+      "finhackad",
+      "finhackade",
+      "hackad",
+      "hackade",
+      "skivad",
+      "skivade",
+      "tärnad",
+      "tärnade",
+      "riven",
+      "rivna",
+      "skalad",
+      "skalade",
+      "avrunnen",
+      "avrunna",
+      "sköljd",
+      "sköljda",
+      "pressad",
+      "pressade",
+      "smält",
+      "smälta",
+      "vispad",
+      "vispade",
+      "grovt",
+      "fint"
+    ],
+    "joiners": ["och"],
+    "together": ["och", "&"],
+    "alternatives": ["eller", "och/eller"],
+    "connectors": ["av"],
+    "endsBefore": ["i", "med", "till", "ca", "per"],
+    "notFoods": ["och", "eller", "en", "ett", "till", "med", "mer", "lite"],
+    "approximately": ["ca.", "cirka", "ungefär"],
+    "sizes": ["stor", "stora", "medelstor", "medelstora", "liten", "litet", "små"],
+    "forms": ["strimlor", "tärningar", "skivor", "bitar", "filé", "filéer", "stavar"],
+    "inflections": [
+      ["or", "a"],
+      ["ar", ""],
+      ["er", ""]
+    ]
   }
 }

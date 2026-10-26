@@ -902,6 +902,90 @@
           "rule": "year"
         }
       ]
+    },
+    "sv": {
+      "everyWords": ["varje", "var", "vart"],
+      "otherWords": ["annan", "annat"],
+      "onWords": ["på"],
+      "numberWords": {
+        "en": 1,
+        "ett": 1,
+        "två": 2,
+        "tre": 3,
+        "fyra": 4,
+        "fem": 5,
+        "sex": 6,
+        "sju": 7,
+        "åtta": 8,
+        "nio": 9,
+        "tio": 10,
+        "andra": 2,
+        "tredje": 3,
+        "fjärde": 4,
+        "femte": 5,
+        "sjätte": 6,
+        "sjunde": 7,
+        "åttonde": 8,
+        "nionde": 9,
+        "tionde": 10
+      },
+      "unitWords": {
+        "day": ["dag", "dagar"],
+        "week": ["vecka", "veckor"],
+        "month": ["månad", "månader"],
+        "year": ["år"]
+      },
+      "weekdayWords": {
+        "söndag": 0,
+        "måndag": 1,
+        "tisdag": 2,
+        "onsdag": 3,
+        "torsdag": 4,
+        "fredag": 5,
+        "lördag": 6
+      },
+      "intervalHints": [
+        {
+          "phrases": ["dagligen"],
+          "interval": 1,
+          "rule": "day"
+        },
+        {
+          "phrases": ["varannan dag"],
+          "interval": 2,
+          "rule": "day"
+        },
+        {
+          "phrases": ["veckovis"],
+          "interval": 1,
+          "rule": "week"
+        },
+        {
+          "phrases": ["varannan vecka"],
+          "interval": 2,
+          "rule": "week"
+        },
+        {
+          "phrases": ["månadsvis"],
+          "interval": 1,
+          "rule": "month"
+        },
+        {
+          "phrases": ["varannan månad"],
+          "interval": 2,
+          "rule": "month"
+        },
+        {
+          "phrases": ["årligen"],
+          "interval": 1,
+          "rule": "year"
+        },
+        {
+          "phrases": ["vartannat år"],
+          "interval": 2,
+          "rule": "year"
+        }
+      ]
     }
   }
 }
