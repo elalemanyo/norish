@@ -388,6 +388,49 @@ describe("renderPage – a bounded Chromium browser attempt", () => {
     expect(rendered).toEqual({ html: "", status: 200 });
     expect(context.close).toHaveBeenCalled();
   });
+
+  // A tab crashes on its own; a browser that restarts closes its pages.
+  it.each(["crash", "close"])(
+    "stops waiting on a bot check whose page fires %s, with no settle wait",
+    async (event) => {
+      vi.useFakeTimers();
+      renderers.allowPrivateAddresses = true;
+      const listeners = new Map<string, () => void>();
+      let gone = false;
+
+      connectOverCDP.mockResolvedValue({
+        isConnected: () => true,
+        close: vi.fn().mockResolvedValue(undefined),
+        newContext: vi.fn(async () => ({
+          close: vi.fn().mockResolvedValue(undefined),
+          newPage: vi.fn(async () => ({
+            on: vi.fn((name: string, listener: () => void) => listeners.set(name, listener)),
+            mainFrame: vi.fn(),
+            goto: vi.fn(async () => ({ status: () => 200 })),
+            // The challenge until the page is gone, when every read fails as Playwright's does.
+            evaluate: vi.fn(async () => {
+              if (gone) throw new Error("page.evaluate: Target crashed");
+
+              return CHALLENGE;
+            }),
+          })),
+        })),
+      });
+
+      let rendered: unknown = "still rendering";
+
+      void renderPage("https://example.com/r").then((page) => {
+        rendered = page;
+      });
+
+      await vi.advanceTimersByTimeAsync(1_000);
+      expect(rendered).toBe("still rendering");
+      gone = true;
+      listeners.get(event)?.();
+      await vi.advanceTimersByTimeAsync(500);
+      expect(rendered).toEqual({ html: "", status: 200 });
+    }
+  );
 });
 
 describe("renderPage – private addresses inside the Chromium browser", () => {

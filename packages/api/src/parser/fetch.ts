@@ -50,15 +50,22 @@ function sleep(ms: number): Promise<void> {
  * with the real page seconds later, so a caller that can tell the two apart is
  * given until the deadline to be handed the second one. Reading a page
  * mid-navigation throws, which is a page still becoming itself and counts as
- * unsettled, as does a read that answers null.
+ * unsettled, as does a read that answers null. A crashed or closed page never
+ * becomes itself, so the wait ends there.
  */
 async function settledContent(
-  content: () => Promise<string | null>,
+  page: Page,
+  content: (page: Page) => Promise<string | null>,
   isSettled: (html: string) => boolean
 ): Promise<string> {
+  let gone: string | undefined;
+
+  page.on("crash", () => (gone ??= "crashed"));
+  page.on("close", () => (gone ??= "closed"));
+
   const read = async (): Promise<string | null> => {
     try {
-      return await content();
+      return await content(page);
     } catch {
       return null;
     }
@@ -67,6 +74,7 @@ async function settledContent(
   let html = await read();
 
   while ((html === null || !isSettled(html)) && Date.now() < deadline) {
+    if (gone) throw new Error(`The page ${gone} before it settled`);
     await sleep(SETTLE_POLL_MS);
     html = await read();
   }
@@ -376,7 +384,7 @@ export async function renderPage(
         prepare: setTokensInObscura,
         // Read once, the moment it loads, unless the caller can tell it is not the page yet.
         read: (page) =>
-          isSettled ? settledContent(() => page.content(), isSettled) : page.content(),
+          isSettled ? settledContent(page, (page) => page.content(), isSettled) : page.content(),
       }
     );
 
@@ -397,7 +405,7 @@ export async function renderPage(
         // Read once loaded and, unless the caller can tell, once past a bot check: Allerhande's
         // reloads into the page seconds after load.
         read: (page) =>
-          settledContent(() => loadedContent(page), isSettled ?? ((html) => !isBotCheck(html))),
+          settledContent(page, loadedContent, isSettled ?? ((html) => !isBotCheck(html))),
       }
     );
 
