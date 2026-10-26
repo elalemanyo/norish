@@ -10,7 +10,6 @@ import {
   InformationCircleIcon,
 } from "@heroicons/react/16/solid";
 import { Button, Chip, Pagination, Popover, Table } from "@heroui/react";
-import { formatDistanceToNow } from "date-fns";
 import { useFormatter, useTranslations } from "next-intl";
 
 import { useHydrated } from "@norish/shared-react/hooks";
@@ -62,9 +61,7 @@ export default function CalDavSyncStatusCard() {
       // "3 minutes ago" only once hydrated: the server's clock is not the browser's.
       if (!hydrated) return format.dateTime(new Date(dateString));
 
-      return formatDistanceToNow(new Date(dateString), {
-        addSuffix: true,
-      });
+      return format.relativeTime(new Date(dateString));
     } catch {
       return "—";
     }

@@ -22,8 +22,7 @@ import {
   Separator,
   TextField,
 } from "@heroui/react";
-import { formatDistanceToNow } from "date-fns";
-import { useTranslations } from "next-intl";
+import { useFormatter, useTranslations } from "next-intl";
 
 import type { JobRetentionConfig } from "@norish/config/zod/server-config";
 import type { AdminJobRowDTO } from "@norish/shared/contracts";
@@ -57,6 +56,7 @@ const STATE_FILTER_STATES: Record<Exclude<StateFilter, null>, string[]> = {
 
 export default function JobQueueCard() {
   const t = useTranslations("settings.admin.jobQueue");
+  const format = useFormatter();
   const tActions = useTranslations("common.actions");
   const { configs } = useAdminConfigsQuery();
   const { updateJobRetention, isUpdatingRetention } = useJobQueueMutations();
@@ -291,7 +291,7 @@ export default function JobQueueCard() {
               render: (job: AdminJobRowDTO) =>
                 job.state === "delayed" && job.runAt !== null
                   ? t("table.runsAt", {
-                      time: formatDistanceToNow(new Date(job.runAt), { addSuffix: true }),
+                      time: format.relativeTime(new Date(job.runAt)),
                     })
                   : formatDuration(job.durationMs),
             },
@@ -301,7 +301,7 @@ export default function JobQueueCard() {
               label: t("table.created"),
               className: "text-muted text-xs",
               render: (job: AdminJobRowDTO) =>
-                formatDistanceToNow(new Date(job.createdAt), { addSuffix: true }),
+                format.relativeTime(new Date(job.createdAt)),
             },
           ]}
           emptyState={t("empty")}
