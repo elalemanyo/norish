@@ -174,13 +174,25 @@ for (const reducedMotion of ["reduce", "no-preference"] as const) {
 test("moving from a recipe to its editor slides the page", async ({ page }) => {
   const id = await seedRecipe("Sliding Stew");
 
+  let menuGone!: () => void;
+  const closed = new Promise<void>((resolve) => (menuGone = resolve));
+
   await recordViewTransitions(page.context());
+  // React skips a slide when other work lands before it starts: the page load's fetches, or the
+  // menu's exit 100 ms after the press. So the page settles, and the editor arrives once it closed.
+  await page.context().route(
+    (url) => url.pathname === `/recipes/edit/${id}` && url.searchParams.has("_rsc"),
+    async (route) => {
+      await closed;
+      await route.continue();
+    }
+  );
   await page.goto(`/recipes/${id}`);
-  // React skips a slide when other work lands before it starts, such as the offline warm-up's
-  // fetch that follows a page load, so the page settles first.
   await page.waitForLoadState("networkidle");
   await page.getByRole("button", { name: "Actions" }).first().click();
   await page.getByRole("menuitem", { name: "Edit" }).click();
+  await expect(page.getByRole("menu")).toHaveCount(0);
+  menuGone();
   await expect(page).toHaveURL(new RegExp(`/recipes/edit/${id}$`));
 
   await expect
