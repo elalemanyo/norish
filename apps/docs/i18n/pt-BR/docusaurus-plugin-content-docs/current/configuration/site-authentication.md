@@ -17,17 +17,20 @@ chave derivada de [`MASTER_KEY`](/configuration/server-runtime).
 
 ## Adicionar um token {#adding-a-token}
 
-| Campo                | O que preencher                                  |
-| -------------------- | ------------------------------------------------ |
-| **Domínio**          | O site do token, por exemplo `instagram.com`     |
-| **Conta** (opcional) | A qual dos seus logins ele pertence, veja abaixo |
-| **Nome**             | O nome do cookie ou o nome do cabeçalho          |
-| **Valor**            | O valor do cookie ou o valor do cabeçalho        |
-| **Tipo**             | **Cookie** ou **Cabeçalho**                      |
+| Campo                | O que preencher                                         |
+| -------------------- | ------------------------------------------------------- |
+| **Domínio**          | O domínio completo do site, por exemplo `instagram.com` |
+| **Conta** (opcional) | A qual dos seus logins ele pertence, veja abaixo        |
+| **Nome**             | O nome do cookie ou o nome do cabeçalho                 |
+| **Valor**            | O valor do cookie ou o valor do cabeçalho               |
+| **Tipo**             | **Cookie** ou **Cabeçalho**                             |
 
 **Domínio** inclui os subdomínios, então `instagram.com` também corresponde a
-`www.instagram.com`. Só `instagram` também funciona. Um token só é enviado ao
-seu próprio domínio.
+`www.instagram.com`. Uma palavra solta como `instagram` não é um domínio, e o
+Norish a recusa. Um token só é enviado ao seu próprio domínio, com uma exceção:
+uma importação de vídeo envia um token de cabeçalho em todas as requisições que
+o yt-dlp faz para aquele vídeo, inclusive para os servidores em que o site
+guarda os vídeos.
 
 ### Encontrar um cookie {#finding-a-cookie}
 

@@ -41,3 +41,11 @@ Sem ele, a opção Imagem fica oculta.
 
 Exportações do Mela, Paprika, Mealie, Tandoor e Recipe Keeper são importadas por
 inteiro; veja [Arquivo de receitas](/recipes/recipe-archive#importing-an-archive).
+
+## Pela API {#through-the-api}
+
+Scripts e outras ferramentas importam um link com `POST /api/v1/recipes/import/url`,
+que responde com uma `statusUrl`. `GET /api/v1/recipes/import/status/{recipeId}`
+informa se a importação está aguardando, em andamento, concluída ou se falhou,
+com a receita ou o motivo. Acrescente `?wait=30` para segurar a requisição até a
+importação terminar, por até 60 segundos. Veja a [Referência da API](/reference/api).

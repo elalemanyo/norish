@@ -26,6 +26,7 @@ O Norish vem com estes idiomas:
 |    🇧🇬    | Български          |     `bg`      |
 |    🇫🇮    | Suomi              |     `fi`      |
 |    🇺🇦    | Українська         |     `uk`      |
+|    🇸🇪    | Svenska            |     `sv`      |
 
 Defina o idioma padrão e limite quais as pessoas podem escolher:
 

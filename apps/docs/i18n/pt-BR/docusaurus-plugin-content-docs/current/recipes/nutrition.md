@@ -46,7 +46,10 @@ O Norish usa a primeira destas fontes que tiver números:
    [Open Food Facts](https://world.openfoodfacts.org).
 4. Um alimento de um conjunto de dados com o mesmo nome. Marcado como
    **encontrado pelo nome**.
-5. Um alimento mais genérico: "red onion" usa "onion". Marcado como **De
+5. A estimativa da IA, quando um administrador deixa a IA
+   [preencher a nutrição que falta](/configuration/ai-provider#ingredient-catalogue).
+   Marcado como **Estimado pela IA**.
+6. Um alimento mais genérico: "red onion" usa "onion". Marcado como **De
    onion**. Classificar um ingrediente sob um
    [pai](/groceries/ingredients#catalogue-source) dá a ele os valores do pai.
    Molhos, álcool puro e frutas não repassam seus valores, porque os tipos

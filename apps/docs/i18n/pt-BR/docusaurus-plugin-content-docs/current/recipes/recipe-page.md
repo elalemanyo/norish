@@ -27,6 +27,8 @@ Cada seção é um cartão próprio, na ordem do preparo: **Ingredientes**,
 - **Nutrição** mostra os macronutrientes em um anel, com as calorias no meio.
   Uma receita que não guarda dados nutricionais mostra valores calculados a
   partir dos ingredientes, marcados como tal; veja [Nutrição](/recipes/nutrition).
+- **Avaliação** recebe as suas estrelas. Toque de novo na estrela que você deu
+  para retirar a sua avaliação.
 
 ![O cartão Tempo de cozinha com um segmento Outro tempo, acima do anel de Nutrição](/img/screenshots/recipe-page-cards.png)
 
@@ -74,6 +76,13 @@ sem foto usam o tema sem cor.
 Para desligar, defina **Configurações => Usuário => Cor das páginas de
 receitas** como `Cores do tema`. A opção é guardada separadamente para o celular
 e para o computador.
+
+## Imprimir uma receita ou salvar um PDF {#print-a-recipe-or-save-a-pdf}
+
+Escolha **Imprimir receita** no menu de três pontos da receita para imprimir um
+cartão de receita em A4 ou salvá-lo como PDF para compartilhar. O cartão traz os
+ingredientes, as etapas e a nutrição, com as porções e as medidas que você
+escolheu. Você pode incluir a foto da receita e ajustar o tamanho do texto.
 
 ## Receitas compartilhadas {#shared-recipes}
 

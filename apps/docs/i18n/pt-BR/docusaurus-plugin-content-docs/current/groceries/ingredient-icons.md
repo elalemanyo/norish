@@ -23,6 +23,9 @@ Ingredientes podem ter um ícone. Ele aparece:
    inicial.
 3. O ícone do pai, então "red onion" mostra a cebola.
 
+Um ingrediente sem nenhum desses mostra um ícone provisório na página
+Ingredientes e no painel dele.
+
 ## Definir um ícone {#setting-an-icon}
 
 Abra o ingrediente na página Ingredientes, ou em qualquer lugar onde o painel
@@ -37,13 +40,12 @@ dele abra, e clique no ícone:
 
 ## Desenhar vários de uma vez {#drawing-many-at-once}
 
-**Desenhar ícones**, no topo da página Ingredientes, desenha os ícones que
-faltam para:
-
-- **Só alimentos sem nenhum ícone**, o padrão. Alimentos que mostram o ícone do
-  pai são ignorados.
-- **Todos os alimentos sem ícone próprio**, que também desenha os alimentos que
-  mostram um ícone embutido ou do pai.
+Um administrador pode fazer a IA desenhar os ícones que faltam para
+ingredientes novos, ou para todos os ingredientes de uma vez com **Preencher
+lacunas**. Veja
+[Catálogo de ingredientes](/configuration/ai-provider#ingredient-catalogue).
+Só ganha um ícone o ingrediente que não tem nenhum ícone para mostrar, nem
+mesmo o do pai. Grupos amplos como "vegetable" continuam sem ícone.
 
 ## Ocultar ícones {#hiding-icons}
 

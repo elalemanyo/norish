@@ -17,6 +17,8 @@ A maior parte do Norish funciona sem IA. Com um provedor de IA você também tem
   nutrição, procedência, ingredientes das etapas e imagens
 - conversão entre o sistema métrico e as unidades dos EUA feita pela IA, ao lado
   da conversão nativa
+- um [catálogo de ingredientes](#ingredient-catalogue) organizado, com nutrição,
+  conversões e ícones que faltam preenchidos
 
 ## Ativar a IA {#enable-ai}
 
@@ -69,18 +71,43 @@ que cada um deixa como está aparece em
 | **Vinculação de ingredientes** | Vincula ingredientes às etapas que não têm nenhum                              | Desligado |
 | **Geração de Imagens**         | Desenha uma imagem para receitas novas sem nenhuma imagem                      | Desligado |
 
-### Ingredientes novos {#new-ingredients}
+### Catálogo de ingredientes {#ingredient-catalogue}
 
-**Automático para ingredientes novos** é executado em todo ingrediente que uma
-receita, um item de compra ou um item da despensa adiciona ao catálogo. As duas
-opções vêm desligadas por padrão.
+A IA não muda nada no [catálogo de ingredientes](/groceries/ingredients) até
+você escolher o que ela faz em
+**Configurações => Admin => IA e processamento => Catálogo de ingredientes**.
 
-![Automático para ingredientes novos](/img/screenshots/admin-automatic-ingredients.png)
+![A seção Catálogo de ingredientes](/img/screenshots/admin-ingredient-catalogue.png)
 
-| Opção                 | O que faz                                                                                                               |
-| --------------------- | ----------------------------------------------------------------------------------------------------------------------- |
-| **Limpar o nome**     | [Limpa o nome](/groceries/ingredients#cleaning-names) na mesma hora                                                     |
-| **Desenhar um ícone** | Desenha um ícone quando nem o ingrediente nem o pai dele têm um. Precisa de um [provedor de imagens](#image-generation) |
+**Automático para ingredientes novos** é executado logo depois que uma receita,
+um item de compra ou um item da despensa adiciona um ingrediente. Todas as
+opções vêm desligadas por padrão:
+
+| Opção                             | O que faz                                                                                                       |
+| --------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| **Organizar ingredientes novos**  | Mescla o ingrediente com o alimento que ele é, define um pai e um nome limpo, e o exclui quando não é alimento  |
+| **Preencher nutrição ausente**    | Estima calorias, gorduras, carboidratos e proteínas por 100 g quando nenhum conjunto de dados os tem            |
+| **Preencher conversões ausentes** | Estima quanto pesam uma colherada e uma unidade                                                                 |
+| **Desenhar ícones ausentes**      | Desenha um ícone quando ele não tem nenhum para mostrar. Precisa de um [provedor de imagens](#image-generation) |
+
+**Limpar o catálogo** pergunta à IA sobre os ingredientes que já estão no
+catálogo. Escolha **Alimentos das receitas** para os que as receitas trouxeram e
+sobre os quais ninguém decidiu, ou **Catálogo inteiro** para todos os
+ingredientes, inclusive os embutidos. Uma execução no catálogo inteiro ignora o
+que as pessoas decidiram ou desfizeram, e nunca exclui um ingrediente embutido.
+A caixa de diálogo mostra sobre quantos ingredientes a IA vai perguntar.
+
+![Limpar o catálogo](/img/screenshots/admin-clean-up-catalogue.png)
+
+**Preencher lacunas** preenche **Nutrição**, **Conversões** ou **Ícones** que
+faltam em todos os ingredientes de uma vez. Ele nunca substitui o que um
+ingrediente já tem. Cada caixa mostra quantos ingredientes ela preencheria.
+
+![Preencher lacunas](/img/screenshots/admin-fill-gaps.png)
+
+As duas execuções aparecem nas
+[filas de trabalhos](/configuration/admin-settings#job-queues), onde você pode
+cancelá-las.
 
 ### Estratégia de tags {#tag-strategy}
 
@@ -162,8 +189,12 @@ O que cada uso faz:
   [Preços](/groceries/prices#which-product).
 - **Validar enriquecimentos** confere tudo o que um enriquecimento adiciona
   antes de ser salvo.
-- **Triagem de importação** confere se uma página contém uma receita. Fica
-  sempre ligada quando há um modelo de decisão configurado.
+- **Triagem de importação** confere se uma página contém uma receita e avisa
+  quando uma receita importada pode estar incompleta. Fica sempre ligada quando
+  há um modelo de decisão configurado, mesmo com a IA desligada.
+
+O modelo de decisão funciona sem um provedor de IA. Defina o provedor dele como
+_Desativado_ para desligá-lo.
 
 Quando o modelo de decisão não tem certeza, ou falha, o Norish pergunta ao
 provedor de IA. As [filas de trabalhos](/configuration/admin-settings#job-queues)
@@ -209,12 +240,15 @@ Dailymotion, Douyin, Bilibili e RedNote contam como vídeos.
 
 A transcrição transforma o áudio de um vídeo em texto.
 
-| Variável                 | Descrição                                                  | Padrão      |
-| ------------------------ | ---------------------------------------------------------- | ----------- |
-| `TRANSCRIPTION_PROVIDER` | Provedor de transcrição                                    | `disabled`  |
-| `TRANSCRIPTION_ENDPOINT` | Endpoint de transcrição (provedores locais/personalizados) | (vazio)     |
-| `TRANSCRIPTION_API_KEY`  | Chave de API da transcrição                                | (vazio)     |
-| `TRANSCRIPTION_MODEL`    | Modelo de transcrição                                      | `whisper-1` |
+| Variável                 | Descrição                                                                      | Padrão      |
+| ------------------------ | ------------------------------------------------------------------------------ | ----------- |
+| `TRANSCRIPTION_PROVIDER` | `openai`, `groq`, `mistral`, `azure`, `generic-openai`, `ollama` ou `disabled` | `disabled`  |
+| `TRANSCRIPTION_ENDPOINT` | Endpoint de transcrição (provedores locais/personalizados)                     | (vazio)     |
+| `TRANSCRIPTION_API_KEY`  | Chave de API da transcrição                                                    | (vazio)     |
+| `TRANSCRIPTION_MODEL`    | Modelo de transcrição                                                          | `whisper-1` |
 
 Quando o endpoint ou a chave de API está vazio, a transcrição usa os do provedor
 de IA.
+
+O Mistral transcreve com o Voxtral: defina o provedor como `mistral`, uma chave
+de API da Mistral e um modelo como `voxtral-mini-latest`.

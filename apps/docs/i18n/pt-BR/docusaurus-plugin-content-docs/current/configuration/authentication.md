@@ -18,16 +18,48 @@ cadastro é desativado.
 Ao registrar um aplicativo OAuth ou OIDC, use estas URLs de callback com o seu
 `AUTH_URL` como host:
 
-| Provedor | URL de callback                                                   |
-| -------- | ----------------------------------------------------------------- |
-| OIDC     | `https://example.norish-domain.com/api/auth/oauth2/callback/oidc` |
-| GitHub   | `https://example.norish-domain.com/api/auth/callback/github`      |
-| Google   | `https://example.norish-domain.com/api/auth/callback/google`      |
+| Provedor | URL de callback                                              |
+| -------- | ------------------------------------------------------------ |
+| OIDC     | `https://example.norish-domain.com/api/auth/callback/oidc`   |
+| GitHub   | `https://example.norish-domain.com/api/auth/callback/github` |
+| Google   | `https://example.norish-domain.com/api/auth/callback/google` |
+
+## Vincular contas {#linking-accounts}
+
+O Norish nunca vincula contas sozinho. Entrar com um provedor cujo e-mail já
+pertence a outra conta é recusado com "Este e-mail já está em uso."
+
+Quando o servidor oferece mais de um método de login, você pode conectar outro
+em **Configurações => Usuário => Métodos de login**. Pressione **Conectar** com
+o nome do provedor e entre lá com a conta que você quer conectar; o provedor
+pede o login mesmo que você já esteja logado nele. Você volta para as
+Configurações com o método listado e, a partir daí, qualquer um dos dois faz
+login na mesma conta. O e-mail do provedor não precisa ser igual ao que o
+Norish tem. Conectar o OIDC aplica as claims dele na hora, como faria o seu
+próximo login com OIDC.
+
+**Desconectar** remove um método. O último método que o servidor oferece não
+pode ser desconectado, e uma senha só conta enquanto o login com senha estiver
+ativo. Um método que o servidor não oferece mais continua listado como
+indisponível no momento.
+
+**Alterar senha**, na linha Senha, pede a sua senha atual e uma nova com pelo
+menos 8 caracteres. **Encerrar outras sessões** vem ativado por padrão: os seus
+outros dispositivos precisam entrar de novo, e este continua logado. A linha
+Senha aparece sempre que você tem uma senha, mesmo em um servidor que não
+oferece nenhum outro método.
+
+![A caixa de diálogo Alterar senha](/img/screenshots/settings-change-password.png)
+
+![O cartão Métodos de login nas configurações do usuário](/img/screenshots/settings-sign-in-methods.png)
 
 ## Senha {#password}
 
 O login com e-mail e senha fica ativo quando nenhum outro provedor está
-configurado.
+configurado. Defina `PASSWORD_AUTH_ENABLED` para ativá-lo ou desativá-lo você
+mesmo: o Norish o aplica a cada inicialização, sobrepondo a opção das
+configurações de admin. Se nenhuma outra forma de entrar sobrar na
+inicialização, o Norish reativa o login com senha.
 
 | Variável                | Descrição                        | Padrão     |
 | ----------------------- | -------------------------------- | ---------- |
@@ -36,7 +68,9 @@ configurado.
 ## OIDC {#oidc}
 
 Funciona com qualquer provedor OpenID Connect, como Authentik, Pocket ID ou
-Keycloak.
+Keycloak. O Norish verifica os ID tokens com as chaves de assinatura publicadas
+pelo provedor, então o provedor precisa assiná-los com uma chave RS ou ES;
+HS256 não é suportado.
 
 ```yaml title="docker-compose.yml (environment)"
 OIDC_NAME: NoraId
