@@ -76,7 +76,7 @@
       "generatedModal": {
         "title": "Clé API générée",
         "warning": "Enregistrez cette clé maintenant ! Vous ne pourrez plus la revoir. Nous n’en stockons qu’un hachage et ne pouvons pas la récupérer.",
-        "hint": "Utilisez cette clé dans l’en-tête &lt;code&gt;x-api-key&lt;/code&gt; lors de vos requêtes API.",
+        "hint": "Utilisez cette clé dans l’en-tête <code>x-api-key</code> lors de vos requêtes API.",
         "confirmButton": "Je l’ai sauvegardée"
       },
       "deleteModal": {
@@ -448,7 +448,7 @@
     "spellingsCount": "{count, plural, one {# traduction} other {# traductions}}",
     "dataSources": {
       "title": "Sources de données",
-      "notice": "Le catalogue d'ingrédients est alimenté par la taxonomie des ingrédients d'<off>Open Food Facts</off>, disponible sous la <odbl>Open Database License (ODbL)</odbl>. Le catalogue que Norish en tire est proposé sous la même licence.",
+      "notice": "Le catalogue d’ingrédients est alimenté par la taxonomie des ingrédients d’<off>Open Food Facts</off>, disponible sous la <odbl>Open Database License (ODbL)</odbl>. Le catalogue que Norish en tire est proposé sous la même licence.",
       "nutritionNotice": "Les valeurs nutritionnelles pour 100 g proviennent de <ciqual>CIQUAL 2025</ciqual> et CALNUT (ANSES), de <usda>USDA FoodData Central</usda> et de <cofid>CoFID</cofid>, reliées par les codes qu'Open Food Facts donne à chaque ingrédient. Les corrections d'un foyer sont ses propres valeurs, pas celles des bases.",
       "download": "Télécharger le catalogue d'ingrédients (JSON)"
     },
@@ -722,7 +722,7 @@
       "importantTitle": "Important :",
       "warning1": "Toutes les connexions actives seront interrompues",
       "warning2": "Le serveur sera indisponible quelques secondes",
-      "warning3": "Assurez-vous que votre déploiement inclut &lt;code&gt;restart: always&lt;/code&gt;, sinon il ne redémarrera pas automatiquement",
+      "warning3": "Assurez-vous que votre déploiement inclut <code>restart: always</code>, sinon il ne redémarrera pas automatiquement",
       "confirmButton": "Redémarrer maintenant"
     },
     "authProviders": {

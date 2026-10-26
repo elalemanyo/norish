@@ -166,9 +166,9 @@
   },
   "formatting": {
     "title": "Wskazówki formatowania",
-    "heading": "Zacznij linię od **#** dla nagłówka",
-    "bold": "Otoczyć **podwójnymi gwiazdkami** aby pogrubić",
-    "recipeLink": "Wpisz **/nazwa przepisu** aby linkować przepis",
+    "heading": "Zacznij linię od <strong>#</strong>, aby dodać nagłówek",
+    "bold": "Otocz tekst <strong>**podwójnymi gwiazdkami**</strong>, aby go pogrubić",
+    "recipeLink": "Wpisz <strong>/nazwa przepisu</strong>, aby dodać link do innego przepisu",
     "ingredientMention": "Wpisz <strong>@</strong>, aby powiązać składnik z krokiem — słowo trafi do zdania, a powiązanie pojawi się jako etykieta poniżej",
     "helpAriaLabel": "Pomoc formatowania"
   },
