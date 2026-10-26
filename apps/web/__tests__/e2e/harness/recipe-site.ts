@@ -1,6 +1,6 @@
 /**
  * An https recipe site on every `*.localhost` name, which Chromium resolves to loopback. Its first
- * answer sets a cookie and reloads, as Akamai's does; `/to/<name>` redirects to it on `<name>`.
+ * answer sets a cookie and reloads, as Akamai's does; `/to/elsewhere` redirects to it on `elsewhere`.
  */
 import { execFileSync } from "node:child_process";
 import { mkdtempSync, readFileSync, rmSync } from "node:fs";
@@ -82,12 +82,10 @@ export async function serveRecipeSite(name: string): Promise<RecipeSite> {
 
     requests.push({ host, path: request.url ?? "/", headers: request.headers });
 
-    const movedTo = /^\/to\/([a-z-]+)$/.exec(request.url ?? "")?.[1];
-
-    if (movedTo) {
+    if (request.url === "/to/elsewhere") {
       const { port } = server.address() as AddressInfo;
 
-      response.writeHead(302, { location: `https://${movedTo}.localhost:${port}/recipe` }).end();
+      response.writeHead(302, { location: `https://elsewhere.localhost:${port}/recipe` }).end();
 
       return;
     }

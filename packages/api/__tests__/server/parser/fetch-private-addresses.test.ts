@@ -114,7 +114,7 @@ describe("plainFetch – private addresses refused by default", () => {
 
   it("refuses a redirect hop that turns private", async () => {
     const requested = serve((url) =>
-      url.startsWith("https://example.com")
+      new URL(url).hostname === "example.com"
         ? new Response(null, { status: 302, headers: { location: "http://192.168.1.1/admin" } })
         : new Response(PAGE)
     );
