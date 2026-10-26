@@ -338,17 +338,18 @@ def _map_failure_code(error: Exception) -> FailureCode:
     return "ParserError"
 
 
-# extruct drops every JSON-LD block on a page when one tag is empty. `[^<>]` keeps the match
-# linear: no scan runs past the next tag, and the type is checked outside the pattern.
-EMPTY_SCRIPT = re.compile(r"<script\b([^<>]*)>\s*</script[^<>]*>", re.IGNORECASE)
+# extruct drops every JSON-LD block on a page when one tag is empty. No part of the pattern scans
+# past the next `<` or `>`, which keeps it linear; type and emptiness are checked outside it.
+SCRIPT = re.compile(r"<script\b([^<>]*)>([^<]*)</script[^<>]*>", re.IGNORECASE)
 
 
 def _drop_empty_json_ld(match: re.Match[str]) -> str:
-    return "" if "application/ld+json" in match[1].lower() else match[0]
+    empty = "application/ld+json" in match[1].lower() and not match[2].strip()
+    return "" if empty else match[0]
 
 
 def _run_scraper(html: str, url: str) -> tuple[Any, Literal["supported", "wild"]]:
-    html = EMPTY_SCRIPT.sub(_drop_empty_json_ld, html)
+    html = SCRIPT.sub(_drop_empty_json_ld, html)
     try:
         return scrape_html(html=html, org_url=url, best_image=True), "supported"
     except WebsiteNotImplementedError:
