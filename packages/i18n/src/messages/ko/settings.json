@@ -1152,7 +1152,7 @@
       "ingredientResolutionDescription": "AI가 새 재료 이름을 읽을 때 언어 모델에 보내며, 그 뒤에 이름과 지금 속한 상위 재료가 붙습니다. 하나의 식재료인지, 여러 개인지, 식재료가 아닌지 정합니다.",
       "ingredientResolutionPlaceholder": "재료 이름을 인식하기 위한 프롬프트...",
       "ingredientMatch": "재료 매칭 프롬프트",
-      "ingredientMatchDescription": "AI가 준 이름이 카탈로그에서 여러 식재료를 찾거나 한두 글자만 다른 식재료만 찾을 때 언어 모델에 보내며, 그 뒤에 이름과 그 식재료들이 붙습니다. 그중 어느 것이 그 이름인지, 또는 해당하는 것이 없는지 정합니다.",
+      "ingredientMatchDescription": "AI가 준 이름이 카탈로그에서 여러 식재료를 찾거나 한 글자만 다른 식재료만 찾을 때 언어 모델에 보내며, 그 뒤에 이름과 그 식재료들이 붙습니다. 그중 어느 것이 그 이름인지, 또는 해당하는 것이 없는지 정합니다.",
       "ingredientMatchPlaceholder": "재료 이름을 카탈로그와 매칭하는 프롬프트...",
       "imageGenerationBrief": "이미지 설명 프롬프트",
       "imageGenerationBriefDescription": "이미지를 생성하기 전에 레시피를 짧은 시각적 설명으로 바꾸는 데 사용됩니다. 레시피는 프롬프트 뒤에 추가됩니다.",

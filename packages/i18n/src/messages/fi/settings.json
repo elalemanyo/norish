@@ -1152,7 +1152,7 @@
       "ingredientResolutionDescription": "Lähetetään kielimallille, kun tekoäly lukee uuden ainesosan nimen, ja nimi sekä ainesosa, jonka alle se nyt kuuluu, lisätään perään. Kertoo, onko se yksi ainesosa, useampi vai ei mikään.",
       "ingredientResolutionPlaceholder": "Kehote ainesosien nimien tunnistamiseen...",
       "ingredientMatch": "Ainesosien yhdistämisen kehote",
-      "ingredientMatchDescription": "Lähetetään kielimallille, kun tekoälyn antamat nimet löytävät luettelosta useita ainesosia tai vain ainesosia, jotka eroavat kirjaimen tai kahden verran, ja nimi sekä nuo ainesosat lisätään perään. Kertoo, mikä niistä nimi on, jos mikään.",
+      "ingredientMatchDescription": "Lähetetään kielimallille, kun tekoälyn antamat nimet löytävät luettelosta useita ainesosia tai vain ainesosia, jotka eroavat yhden kirjaimen verran, ja nimi sekä nuo ainesosat lisätään perään. Kertoo, mikä niistä nimi on, jos mikään.",
       "ingredientMatchPlaceholder": "Kehote ainesosien nimien yhdistämiseen luetteloon...",
       "imageGenerationBrief": "Kuvabriefin kehote",
       "imageGenerationBriefDescription": "Käytetään muuntamaan resepti lyhyeksi visuaaliseksi briefiksi ennen kuvan luontia. Resepti liitetään kehotteen perään.",

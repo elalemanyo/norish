@@ -29,7 +29,7 @@ Um nome novo vindo de uma receita, de um item de compra ou da despensa é
 associado a um ingrediente existente, ignorando plurais, quantidades, unidades,
 modo de preparo e símbolos soltos. "finely chopped onions" corresponde a
 "onion", "4 el bosui" corresponde a "bosui", "gyoza vellen ((ontdooid))"
-corresponde a "gyoza vellen", e o erro de digitação "barmezaan" corresponde a
+corresponde a "gyoza vellen", e o erro de digitação "parmezan" corresponde a
 "parmezaan". Um nome que junta alimentos nomeia cada um deles: "zout en peper"
 é sal e pimenta, e "boter of olie" é manteiga ou óleo. Um nome que não
 corresponde a nada vira um ingrediente novo, com o seu nome limpo.
@@ -58,7 +58,7 @@ o adiciona. **Limpar o catálogo** faz o mesmo com os ingredientes que já
 existem. A IA então faz uma destas coisas:
 
 - mescla-o ao alimento que ele é ("uien" com "onion"). Um alimento que só se
-  escreve parecido, com uma ou duas letras de diferença, só é mesclado quando a
+  escreve parecido, com uma letra de diferença, só é mesclado quando a
   IA o escolhe
 - coloca-o sob um pai ("cherry tomatoes" sob "tomato"), uma mistura sob o seu
   grupo ("Cajun seasoning" sob "mixed spices"), ou retira um pai que o nome lhe

@@ -315,9 +315,9 @@ describe("ingredient resolver with AI on", () => {
   });
 
   describe("a slip of the fingers", () => {
-    it("takes the known food a text is a slip of, anywhere in its name, AI on or off", async () => {
+    it("takes the known food a text is one slip of, AI on or off", async () => {
       const parmesan = await resolveOne("parmezaan");
-      const [late, early] = await resolveIngredients(["parmezan", "barmezaan"], { userId });
+      const [late, early] = await resolveIngredients(["parmezan", "parmesaan"], { userId });
 
       expect(late).toMatchObject({ ingredientId: parmesan.ingredientId });
       expect(early).toMatchObject({ ingredientId: parmesan.ingredientId });
@@ -329,13 +329,17 @@ describe("ingredient resolver with AI on", () => {
       expectNoAIRequest();
     });
 
-    it("takes no slip under five letters, nor one two foods are equally near", async () => {
-      const meel = await resolveOne("meel");
-      const [sherry, cherry] = await resolveIngredients(["sherry", "cherry"], { userId });
-      const [melk, xherry] = await resolveIngredients(["melk", "xherry"], { userId });
+    it("takes no slip under five letters, of the first letter, nor one two foods are equally near", async () => {
+      const [meel, parmesan] = await resolveIngredients(["meel", "parmezaan"], { userId });
+      const [chilli, sause] = await resolveIngredients(["chilli sauce", "chili sause"], { userId });
+      const [melk, barmezaan, chili] = await resolveIngredients(
+        ["melk", "barmezaan", "chili sauce"],
+        { userId }
+      );
 
-      expect(melk!.ingredientId).not.toBe(meel.ingredientId);
-      expect([sherry!.ingredientId, cherry!.ingredientId]).not.toContain(xherry!.ingredientId);
+      expect(melk!.ingredientId).not.toBe(meel!.ingredientId);
+      expect(barmezaan!.ingredientId).not.toBe(parmesan!.ingredientId);
+      expect([chilli!.ingredientId, sause!.ingredientId]).not.toContain(chili!.ingredientId);
     });
   });
 });

@@ -27,7 +27,7 @@ ingredients list and refreshes it every night.
 A new name from a recipe, grocery or pantry is matched to an existing
 ingredient, ignoring plurals, amounts, units, preparation and stray marks.
 "finely chopped onions" matches "onion", "4 el bosui" matches "bosui",
-"gyoza vellen ((ontdooid))" matches "gyoza vellen", and the slip "barmezaan"
+"gyoza vellen ((ontdooid))" matches "gyoza vellen", and the slip "parmezan"
 matches "parmezaan". A name that joins foods names each of them: "zout en
 peper" is salt and pepper, and "boter of olie" is butter or oil. A name nothing
 matches becomes a new ingredient, under its clean name.
@@ -55,7 +55,7 @@ moments after a recipe, grocery or pantry item adds it. **Clean up catalogue**
 does the same for the ingredients already there. AI then does one of these:
 
 - merges it into the food it is ("uien" into "onion"). A food only spelled
-  like it, a letter or two apart, is merged only when AI picks it
+  like it, a letter apart, is merged only when AI picks it
 - files it under a parent ("cherry tomatoes" under "tomato"), a blend under
   its group ("Cajun seasoning" under "mixed spices"), or takes away
   one its name gave it that it is no kind of ("peanut butter" under "butter")

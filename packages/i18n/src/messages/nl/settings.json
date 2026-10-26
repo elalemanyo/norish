@@ -1152,7 +1152,7 @@
       "ingredientResolutionDescription": "Wordt naar het taalmodel gestuurd als AI de naam van een nieuw ingrediënt leest, met de naam en het ingrediënt waaronder het nu valt erachter. Zegt of het één ingrediënt is, meerdere of geen ingrediënt.",
       "ingredientResolutionPlaceholder": "Prompt voor het herkennen van ingrediëntnamen...",
       "ingredientMatch": "Prompt voor het koppelen van ingrediënten",
-      "ingredientMatchDescription": "Wordt naar het taalmodel gestuurd als de namen van AI meerdere ingrediënten in de catalogus vinden, of alleen ingrediënten die een letter of twee anders gespeld zijn, met de naam en die ingrediënten erachter. Zegt welke daarvan de naam is, als er een is.",
+      "ingredientMatchDescription": "Wordt naar het taalmodel gestuurd als de namen van AI meerdere ingrediënten in de catalogus vinden, of alleen ingrediënten die een letter anders gespeld zijn, met de naam en die ingrediënten erachter. Zegt welke daarvan de naam is, als er een is.",
       "ingredientMatchPlaceholder": "Prompt voor het koppelen van ingrediëntnamen aan de catalogus...",
       "imageGenerationBrief": "Afbeeldingsomschrijving Prompt",
       "imageGenerationBriefDescription": "Gebruikt om een recept om te zetten in een korte visuele omschrijving voordat de afbeelding wordt gegenereerd. Het recept wordt na de prompt toegevoegd.",

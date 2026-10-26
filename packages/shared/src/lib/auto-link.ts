@@ -51,7 +51,7 @@ export function distinctProducts<T extends DistinguishableProduct>(
 /**
  * The auto-link rule, applied only where a human would not hesitate: a
  * product's normalized name is the grocery's name, to the letter, or is that
- * name typed with a slip or two of the fingers — "sneopjes" for "snoepjes".
+ * name typed with a slip of the fingers — "sneopjes" for "snoepjes".
  * A product whose name merely holds the grocery's is not it: "snoepjes" sits
  * inside "Fortuin salmiak snoepjes" and names half the sweets aisle. Anything
  * less certain leaves the grocery unpriced with an invitation to choose —

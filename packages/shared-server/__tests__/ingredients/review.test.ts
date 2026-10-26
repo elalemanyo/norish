@@ -826,40 +826,40 @@ describe("asking AI about an Ingredient", () => {
       return second?.[0].sections?.find((section) => section.startsWith("Foods in the catalogue"));
     }
 
-    /** "red port", filed under "port", that a Dutch and an Italian spelling also name. */
-    async function redPort() {
-      const port = await kept("port");
-      const red = await kept("red port");
+    /** "kitchen funnel", filed under "kitchen tool", that a Dutch and an English spelling also name. */
+    async function kitchenFunnel() {
+      const tool = await kept("kitchen tool");
+      const funnel = await kept("kitchen funnel");
 
-      await setParent(actor, red.ingredientId, port.ingredientId);
+      await setParent(actor, funnel.ingredientId, tool.ingredientId);
       await getTestDb()
         .insert(ingredientAliases)
         .values(
-          ["rode port", "porto rosso"].map((text) => ({
+          ["trechter", "funnel"].map((text) => ({
             text,
             fold: text,
-            ingredientId: red.ingredientId,
+            ingredientId: funnel.ingredientId,
           }))
         );
 
-      return red;
+      return funnel;
     }
 
     it("asks the language model with AI's reading and the spelling that found each food", async () => {
-      await redPort();
-      const pesto = await flagged("rode pesto");
+      await kitchenFunnel();
+      const fennel = await flagged("venkel");
 
       vi.mocked(isDecisionUseEnabled).mockResolvedValue(false);
       reads({
-        englishName: "red pesto",
-        parents: ["pesto"],
-        category: "sauce",
-        otherNames: ["pesto rosso"],
+        englishName: "fennel",
+        parents: ["vegetable"],
+        category: "vegetable",
+        otherNames: ["fennel bulb"],
         sure: true,
       });
       picks(null, true);
 
-      await expect(askAIAbout(pesto.ingredientId)).resolves.toMatchObject({
+      await expect(askAIAbout(fennel.ingredientId)).resolves.toMatchObject({
         outcome: "distinct",
       });
       const [second] = vi
@@ -867,71 +867,76 @@ describe("asking AI about an Ingredient", () => {
         .mock.calls.filter(([request]) => request.prompt === "ingredient-match");
 
       expect(second?.[0].sections).toEqual([
-        "Name: rode pesto",
-        "English name: red pesto",
-        "Parents: pesto",
-        "Category: sauce",
-        "Foods in the catalogue it may be:\n- red port (parent: port; matched: porto rosso; also: rode port)",
+        "Name: venkel",
+        "English name: fennel",
+        "Parents: vegetable",
+        "Category: vegetable",
+        "Foods in the catalogue it may be:\n- kitchen funnel (parent: kitchen tool; matched: funnel; also: trechter)",
       ]);
       // The answer is a listed food's name or none: anything else breaks the schema.
       const schema = second?.[0].schema;
 
-      expect(schema?.safeParse({ food: "red port", sure: true }).success).toBe(true);
+      expect(schema?.safeParse({ food: "kitchen funnel", sure: true }).success).toBe(true);
       expect(schema?.safeParse({ food: null, sure: true }).success).toBe(true);
-      expect(schema?.safeParse({ food: "red pesto", sure: true }).success).toBe(false);
+      expect(schema?.safeParse({ food: "fennel", sure: true }).success).toBe(false);
     });
 
     it("gives the Decision AI's reading and the spelling that found each food", async () => {
-      await redPort();
-      const pesto = await flagged("rode pesto");
+      await kitchenFunnel();
+      const fennel = await flagged("venkel");
 
       reads({
-        englishName: "red pesto",
-        parents: ["pesto"],
-        otherNames: ["pesto rosso"],
+        englishName: "fennel",
+        parents: ["vegetable"],
+        otherNames: ["fennel bulb"],
         sure: true,
       });
       decides("Is none of these", 0.9);
 
-      await expect(askAIAbout(pesto.ingredientId)).resolves.toMatchObject({
+      await expect(askAIAbout(fennel.ingredientId)).resolves.toMatchObject({
         outcome: "distinct",
       });
       expect(vi.mocked(decide).mock.calls[0]?.[0].state).toEqual({
-        name: "rode pesto",
-        englishName: "red pesto",
-        parents: ["pesto"],
+        name: "venkel",
+        englishName: "fennel",
+        parents: ["vegetable"],
         foods: [
-          { name: "red port", parent: "port", matched: "porto rosso", alsoKnownAs: ["rode port"] },
+          {
+            name: "kitchen funnel",
+            parent: "kitchen tool",
+            matched: "funnel",
+            alsoKnownAs: ["trechter"],
+          },
         ],
       });
     });
 
     it("asks AI about the one food found, and keeps a food that is none of them its own", async () => {
-      const port = await kept("porto rosso");
-      const pesto = await flagged("rode pesto");
+      const funnel = await kept("funnel");
+      const fennel = await flagged("venkel");
 
       vi.mocked(isDecisionUseEnabled).mockResolvedValue(false);
       reads({
-        englishName: "red pesto",
-        parents: ["pesto"],
-        otherNames: ["pesto rosso"],
+        englishName: "fennel",
+        parents: ["vegetable"],
+        otherNames: ["fennel bulb"],
         sure: true,
       });
       picks(null, true);
 
-      await expect(askAIAbout(pesto.ingredientId)).resolves.toMatchObject({
+      await expect(askAIAbout(fennel.ingredientId)).resolves.toMatchObject({
         outcome: "distinct",
-        considered: ["porto rosso"],
+        considered: ["funnel"],
       });
-      expect(listed()).toBe("Foods in the catalogue it may be:\n- porto rosso");
-      await expect(findIngredientByAliasId(pesto.aliasId)).resolves.toMatchObject({
-        id: pesto.ingredientId,
+      expect(listed()).toBe("Foods in the catalogue it may be:\n- funnel");
+      await expect(findIngredientByAliasId(fennel.aliasId)).resolves.toMatchObject({
+        id: fennel.ingredientId,
         flagged: false,
       });
-      expect(port.ingredientId).not.toBe(pesto.ingredientId);
+      expect(funnel.ingredientId).not.toBe(fennel.ingredientId);
     });
 
-    it("lists every food within a slip, the nearest first", async () => {
+    it("lists the food one slip away, never one two slips away", async () => {
       await kept("sambal olie");
       await kept("sambal oelek");
       const sauce = await flagged("sambel");
@@ -943,7 +948,7 @@ describe("asking AI about an Ingredient", () => {
       await expect(askAIAbout(sauce.ingredientId)).resolves.toMatchObject({
         outcome: "distinct",
       });
-      expect(listed()).toBe("Foods in the catalogue it may be:\n- sambal oelek\n- sambal olie");
+      expect(listed()).toBe("Foods in the catalogue it may be:\n- sambal oelek");
     });
 
     it("merges into a slip the Decision picks at 90% or more, sure", async () => {
@@ -1306,7 +1311,7 @@ describe("asking AI about an Ingredient", () => {
       });
     });
 
-    it("files tenderstem broccoli under broccoli: its other name broccolini, a slip of broccoli, is not broccoli", async () => {
+    it("files tenderstem broccoli under broccoli: its other name broccolini is not broccoli", async () => {
       await applyIngredientSeed([seedEntry("en:broccoli", "broccoli")]);
       const broccoli = (await findIngredientFor("broccoli"))!;
       const tenderstem = await flagged("tenderstem broccoli");
@@ -1876,13 +1881,13 @@ describe("asking AI about an Ingredient", () => {
     });
 
     describe("a part AI's names find only a slip for", () => {
-      /** Barley, also spelled "garagar", which "agar agar" is a slip of. */
+      /** Barley, also spelled "agaragar", which "agar agar" is a slip of. */
       async function barley() {
         const food = await kept("barley");
 
         await getTestDb()
           .insert(ingredientAliases)
-          .values({ text: "garagar", fold: "garagar", ingredientId: food.ingredientId });
+          .values({ text: "agaragar", fold: "agaragar", ingredientId: food.ingredientId });
 
         return food;
       }
@@ -1920,7 +1925,7 @@ describe("asking AI about an Ingredient", () => {
           .from(ingredientAliases)
           .where(eq(ingredientAliases.ingredientId, grain.ingredientId));
 
-        expect(barleySpellings.map((row) => row.text).sort()).toEqual(["barley", "garagar"]);
+        expect(barleySpellings.map((row) => row.text).sort()).toEqual(["agaragar", "barley"]);
       });
 
       it("splits the part onto the slip the second question picks", async () => {

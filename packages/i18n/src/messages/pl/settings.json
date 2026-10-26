@@ -1152,7 +1152,7 @@
       "ingredientResolutionDescription": "Wysyłany do modelu językowego, gdy AI czyta nazwę nowego składnika; nazwa i składnik, pod którym jest teraz, są dołączane po nim. Mówi, czy to jeden składnik, kilka, czy żaden.",
       "ingredientResolutionPlaceholder": "Prompt do rozpoznawania nazw składników...",
       "ingredientMatch": "Prompt dopasowywania składników",
-      "ingredientMatchDescription": "Wysyłany do modelu językowego, gdy nazwy podane przez AI znajdują w katalogu kilka składników albo tylko składniki różniące się jedną lub dwiema literami; nazwa i te składniki są dołączane po nim. Mówi, którym z nich jest nazwa, jeśli którymś.",
+      "ingredientMatchDescription": "Wysyłany do modelu językowego, gdy nazwy podane przez AI znajdują w katalogu kilka składników albo tylko składniki różniące się jedną literą; nazwa i te składniki są dołączane po nim. Mówi, którym z nich jest nazwa, jeśli którymś.",
       "ingredientMatchPlaceholder": "Prompt do dopasowywania nazw składników do katalogu...",
       "imageGenerationBrief": "Prompt opisu wizualnego",
       "imageGenerationBriefDescription": "Służy do zamiany przepisu w krótki opis wizualny przed wygenerowaniem obrazu. Przepis jest dołączany po prompcie.",

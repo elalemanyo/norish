@@ -1152,7 +1152,7 @@
       "ingredientResolutionDescription": "Används för att avgöra om ett nytt ingrediensnamn är ett livsmedel som Norish redan känner till",
       "ingredientResolutionPlaceholder": "Prompt för att känna igen ingrediensnamn...",
       "ingredientMatch": "Prompt för matchning av ingredienser",
-      "ingredientMatchDescription": "Skickas till språkmodellen när AI:s namn hittar flera livsmedel i katalogen, eller bara livsmedel som skiljer sig med en eller två bokstäver, med namnet och de livsmedlen tillagda efteråt. Anger vilket av dem namnet är, om något.",
+      "ingredientMatchDescription": "Skickas till språkmodellen när AI:s namn hittar flera livsmedel i katalogen, eller bara livsmedel som skiljer sig med en bokstav, med namnet och de livsmedlen tillagda efteråt. Anger vilket av dem namnet är, om något.",
       "ingredientMatchPlaceholder": "Prompt för att matcha ingrediensnamn mot livsmedel i katalogen...",
       "imageGenerationBrief": "Prompt för bildbeskrivning",
       "imageGenerationBriefDescription": "Används för att göra om ett recept till en kort bildbeskrivning innan bilden skapas. Receptet läggs till efter prompten.",

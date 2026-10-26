@@ -1152,7 +1152,7 @@
       "ingredientResolutionDescription": "Enviado ao modelo de linguagem quando a IA lê o nome de um novo ingrediente, com o nome e o ingrediente em que ele está classificado anexados depois. Diz se é um alimento, vários ou nenhum.",
       "ingredientResolutionPlaceholder": "Prompt para reconhecer nomes de ingredientes...",
       "ingredientMatch": "Prompt de correspondência de ingredientes",
-      "ingredientMatchDescription": "Enviado ao modelo de linguagem quando os nomes dados pela IA encontram vários alimentos no catálogo, ou só alimentos escritos com uma ou duas letras de diferença, com o nome e esses alimentos anexados depois. Diz qual deles é o nome, se for algum.",
+      "ingredientMatchDescription": "Enviado ao modelo de linguagem quando os nomes dados pela IA encontram vários alimentos no catálogo, ou só alimentos escritos com uma letra de diferença, com o nome e esses alimentos anexados depois. Diz qual deles é o nome, se for algum.",
       "ingredientMatchPlaceholder": "Prompt para associar nomes de ingredientes ao catálogo...",
       "imageGenerationBrief": "Prompt de descrição visual",
       "imageGenerationBriefDescription": "Usado para transformar uma receita em uma breve descrição visual antes de gerar a imagem. A receita é anexada após o prompt.",

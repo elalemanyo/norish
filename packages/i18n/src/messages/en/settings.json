@@ -1152,7 +1152,7 @@
       "ingredientResolutionDescription": "Sent to the language model when AI reads a new ingredient's name, with the name and the parent it is filed under appended after it. Says whether it is one food, several, or no food.",
       "ingredientResolutionPlaceholder": "Prompt for recognising ingredient names...",
       "ingredientMatch": "Ingredient match prompt",
-      "ingredientMatchDescription": "Sent to the language model when AI's names find several foods in the catalogue, or only foods spelled a letter or two apart, with the name and those foods appended after it. Says which of them the name is, if any.",
+      "ingredientMatchDescription": "Sent to the language model when AI's names find several foods in the catalogue, or only foods spelled a letter apart, with the name and those foods appended after it. Says which of them the name is, if any.",
       "ingredientMatchPlaceholder": "Prompt for matching ingredient names to catalogue foods...",
       "imageGenerationBrief": "Image brief prompt",
       "imageGenerationBriefDescription": "Used to turn a recipe into a short visual brief before its picture is generated. The recipe is appended after the prompt.",

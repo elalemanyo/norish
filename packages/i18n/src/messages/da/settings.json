@@ -1152,7 +1152,7 @@
       "ingredientResolutionDescription": "Sendes til sprogmodellen, når AI læser en ny ingrediens’ navn, med navnet og den ingrediens, den hører under nu, tilføjet efter. Siger, om det er én ingrediens, flere eller ingen.",
       "ingredientResolutionPlaceholder": "Prompt til at genkende ingrediensnavne...",
       "ingredientMatch": "Prompt til matchning af ingredienser",
-      "ingredientMatchDescription": "Sendes til sprogmodellen, når AI’s navne finder flere ingredienser i kataloget eller kun ingredienser stavet et bogstav eller to anderledes, med navnet og de ingredienser tilføjet efter. Siger, hvilken af dem navnet er, hvis nogen.",
+      "ingredientMatchDescription": "Sendes til sprogmodellen, når AI’s navne finder flere ingredienser i kataloget eller kun ingredienser stavet et bogstav anderledes, med navnet og de ingredienser tilføjet efter. Siger, hvilken af dem navnet er, hvis nogen.",
       "ingredientMatchPlaceholder": "Prompt til at matche ingrediensnavne med kataloget...",
       "imageGenerationBrief": "Billedbeskrivelses-prompt",
       "imageGenerationBriefDescription": "Bruges til at omdanne en opskrift til en kort visuel beskrivelse, før billedet genereres. Opskriften tilføjes efter prompten.",

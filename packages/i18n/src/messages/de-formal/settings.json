@@ -1152,7 +1152,7 @@
       "ingredientResolutionDescription": "Wird an das Sprachmodell gesendet, wenn die KI den Namen einer neuen Zutat liest, mit dem Namen und der Zutat, unter der sie gerade eingeordnet ist, dahinter. Legt fest, ob er eine Zutat, mehrere oder keine Zutat nennt.",
       "ingredientResolutionPlaceholder": "Prompt zum Erkennen von Zutatennamen...",
       "ingredientMatch": "Prompt für Zutatenzuordnung",
-      "ingredientMatchDescription": "Wird an das Sprachmodell gesendet, wenn die Namen der KI mehrere Zutaten im Katalog finden oder nur Zutaten, die sich um ein oder zwei Buchstaben unterscheiden, mit dem Namen und diesen Zutaten dahinter. Legt fest, welche davon der Name ist, falls eine.",
+      "ingredientMatchDescription": "Wird an das Sprachmodell gesendet, wenn die Namen der KI mehrere Zutaten im Katalog finden oder nur Zutaten, die sich um einen Buchstaben unterscheiden, mit dem Namen und diesen Zutaten dahinter. Legt fest, welche davon der Name ist, falls eine.",
       "ingredientMatchPlaceholder": "Prompt zum Zuordnen von Zutatennamen zum Katalog...",
       "imageGenerationBrief": "Bildbeschreibungs-Prompt",
       "imageGenerationBriefDescription": "Wird verwendet, um ein Rezept vor der Bildgenerierung in eine kurze visuelle Beschreibung zu verwandeln. Das Rezept wird an den Prompt angehängt.",
