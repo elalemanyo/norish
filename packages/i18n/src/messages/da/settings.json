@@ -99,7 +99,7 @@
       "description": "Headere eller cookies, der sendes ved import fra websteder, der kræver login, f.eks. Instagram eller Facebook.",
       "accountsDescription": "Navngiv en konto, når du har mere end ét login til et websted. Hver import bruger så en af webstedets konti, valgt tilfældigt, så ét login ikke bærer alle importer. Et token uden kontonavn sendes med hver import for dets domæne.",
       "domain": "Domæne",
-      "domainPlaceholder": "Fuldt domæne, f.eks. instagram.com",
+      "domainPlaceholder": "f.eks. instagram.com",
       "domainNotFull": "Indtast hele domænet, f.eks. instagram.com.",
       "account": "Konto",
       "accountPlaceholder": "f.eks. mit_handle (valgfrit)",

@@ -99,7 +99,7 @@
       "description": "En-têtes ou cookies à envoyer lors d'imports depuis des sites qui demandent une connexion, comme Instagram ou Facebook.",
       "accountsDescription": "Nommez un compte lorsque vous avez plusieurs identifiants pour un site. Chaque import utilise alors un des comptes de ce site, choisi au hasard, afin qu'aucun identifiant ne porte tous les imports. Un jeton laissé sans nom de compte est envoyé à chaque import pour son domaine.",
       "domain": "Domaine",
-      "domainPlaceholder": "Domaine complet, ex. instagram.com",
+      "domainPlaceholder": "ex. instagram.com",
       "domainNotFull": "Saisissez le domaine complet, par ex. instagram.com.",
       "account": "Compte",
       "accountPlaceholder": "ex. mon_pseudo (facultatif)",

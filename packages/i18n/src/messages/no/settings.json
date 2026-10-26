@@ -99,7 +99,7 @@
       "description": "Headere eller informasjonskapsler som sendes ved import fra nettsteder som krever innlogging, f.eks. Instagram eller Facebook.",
       "accountsDescription": "Gi kontoen et navn når du har mer enn én pålogging for et nettsted. Hver import bruker da en av nettstedets kontoer, valgt tilfeldig, slik at ikke én pålogging bærer alle importene. Et token uten kontonavn sendes med hver import for domenet sitt.",
       "domain": "Domene",
-      "domainPlaceholder": "Fullt domene, f.eks. instagram.com",
+      "domainPlaceholder": "f.eks. instagram.com",
       "domainNotFull": "Skriv inn hele domenet, f.eks. instagram.com.",
       "account": "Konto",
       "accountPlaceholder": "f.eks. mitt_handle (valgfritt)",

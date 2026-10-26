@@ -99,7 +99,7 @@
       "description": "Cabeceras o cookies que se envían al importar desde sitios que requieren iniciar sesión, como Instagram o Facebook.",
       "accountsDescription": "Da nombre a una cuenta cuando tengas más de un inicio de sesión para un sitio. Cada importación usa entonces una de las cuentas de ese sitio, elegida al azar, para que ningún inicio de sesión cargue con todas. Un token sin nombre de cuenta se envía en cada importación de su dominio.",
       "domain": "Dominio",
-      "domainPlaceholder": "Dominio completo, p. ej., instagram.com",
+      "domainPlaceholder": "p. ej., instagram.com",
       "domainNotFull": "Introduce el dominio completo, p. ej., instagram.com.",
       "account": "Cuenta",
       "accountPlaceholder": "p. ej. mi_usuario (opcional)",

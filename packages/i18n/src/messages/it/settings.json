@@ -99,7 +99,7 @@
       "description": "Header o cookie da inviare quando importi da siti che richiedono l'accesso, come Instagram o Facebook.",
       "accountsDescription": "Assegna un nome all'account quando hai più accessi per un sito. Ogni importazione usa allora uno degli account di quel sito, scelto a caso, così nessun accesso porta tutte le importazioni. Un token lasciato senza nome account viene inviato a ogni importazione per il suo dominio.",
       "domain": "Dominio",
-      "domainPlaceholder": "Dominio completo, es. instagram.com",
+      "domainPlaceholder": "es. instagram.com",
       "domainNotFull": "Inserisci il dominio completo, ad es. instagram.com.",
       "account": "Account",
       "accountPlaceholder": "es. mio_handle (facoltativo)",

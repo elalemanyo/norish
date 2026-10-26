@@ -99,7 +99,7 @@
       "description": "Nagłówki lub cookies wysyłane przy imporcie ze stron wymagających logowania, takich jak Instagram czy Facebook.",
       "accountsDescription": "Nazwij konto, gdy masz więcej niż jedno logowanie do witryny. Każdy import użyje wtedy jednego z kont tej witryny, wybranego losowo, aby żadne logowanie nie obsługiwało wszystkich importów. Token bez nazwy konta jest wysyłany przy każdym imporcie z jego domeny.",
       "domain": "Domena",
-      "domainPlaceholder": "Pełna domena, np. instagram.com",
+      "domainPlaceholder": "np. instagram.com",
       "domainNotFull": "Wpisz pełną domenę, np. instagram.com.",
       "account": "Konto",
       "accountPlaceholder": "np. moj_handle (opcjonalnie)",
