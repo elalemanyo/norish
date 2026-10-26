@@ -6,7 +6,7 @@ import { SettingsCard } from "@/app/(app)/settings/components/settings-card";
 import RecipeShareStatusChip from "@/components/recipes/recipe-share-status-chip";
 import { sharedRecipeShareHooks } from "@/hooks/recipes/shared-recipe-hooks";
 import { LinkIcon, PauseIcon, PlayIcon, TrashIcon } from "@heroicons/react/24/outline";
-import { Button, Modal, Table } from "@heroui/react";
+import { Button, Modal, Skeleton, Table } from "@heroui/react";
 import { useFormatter, useTranslations } from "next-intl";
 
 import type {
@@ -45,7 +45,6 @@ export default function ShareLinksTableCard({
   showOwner = false,
 }: Props) {
   const t = useTranslations(namespace);
-  const tCommon = useTranslations("common");
   const tActions = useTranslations("common.actions");
   const format = useFormatter();
   const formatDate = (date: Date | null) =>
@@ -169,10 +168,11 @@ export default function ShareLinksTableCard({
         icon={LinkIcon}
         title={t("title")}
       >
-        {shares.length === 0 ? (
-          <p className="text-muted text-base">
-            {isLoading ? tCommon("status.loading") : t("empty")}
-          </p>
+        {isLoading ? (
+          // The tab skeleton's row for this card.
+          <Skeleton className="h-12 w-full rounded-lg" />
+        ) : shares.length === 0 ? (
+          <p className="text-muted text-base">{t("empty")}</p>
         ) : (
           <Table>
             <Table.ScrollContainer>

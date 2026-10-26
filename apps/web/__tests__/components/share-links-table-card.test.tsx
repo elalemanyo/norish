@@ -10,7 +10,6 @@ vi.mock("next-intl", () => ({
     const translations: Record<string, string> = {
       "common.actions.cancel": "Cancel",
       "common.actions.confirm": "Confirm",
-      "common.status.loading": "Loading",
       "settings.user.shareLinks.title": "Share links",
       "settings.user.shareLinks.description": "Manage links",
       "settings.user.shareLinks.empty": "No links",
