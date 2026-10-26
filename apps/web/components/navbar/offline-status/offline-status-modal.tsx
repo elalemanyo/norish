@@ -15,7 +15,7 @@ import {
   TrashIcon,
 } from "@heroicons/react/16/solid";
 import { Button, Modal } from "@heroui/react";
-import { useFormatter, useTranslations } from "next-intl";
+import { useFormatter, useNow, useTranslations } from "next-intl";
 
 import type { OfflineStatus } from "./use-offline-status";
 import { useOfflineStatus } from "./use-offline-status";
@@ -147,6 +147,8 @@ function ConnectionSection({ status }: { status: OfflineStatus }) {
 function CacheSection({ status }: { status: OfflineStatus }) {
   const t = useTranslations("common.offlineStatus.cache");
   const format = useFormatter();
+  // relativeTime needs a clock; this one moves on each minute.
+  const now = useNow({ updateInterval: 60_000 });
   const { counts } = status;
   const [confirming, setConfirming] = useState(false);
 
@@ -179,7 +181,7 @@ function CacheSection({ status }: { status: OfflineStatus }) {
       {status.isOffline ? (
         <p className="text-muted text-xs">
           {status.lastWarmedAt
-            ? t("dataAge", { when: format.relativeTime(new Date(status.lastWarmedAt)) })
+            ? t("dataAge", { when: format.relativeTime(new Date(status.lastWarmedAt), now) })
             : t("dataAgeUnknown")}
         </p>
       ) : null}

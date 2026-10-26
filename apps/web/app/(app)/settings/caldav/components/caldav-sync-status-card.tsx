@@ -10,7 +10,7 @@ import {
   InformationCircleIcon,
 } from "@heroicons/react/16/solid";
 import { Button, Chip, Pagination, Popover, Table } from "@heroui/react";
-import { useFormatter, useTranslations } from "next-intl";
+import { useFormatter, useNow, useTranslations } from "next-intl";
 
 import { useHydrated } from "@norish/shared-react/hooks";
 
@@ -31,6 +31,8 @@ export default function CalDavSyncStatusCard() {
     isTriggeringSync: syncing,
   } = useCalDavSettingsContext();
   const format = useFormatter();
+  // relativeTime needs a clock; this one moves on each minute.
+  const now = useNow({ updateInterval: 60_000 });
   const hydrated = useHydrated();
   const handleFilterClick = (status: "pending" | "synced" | "failed" | "removed") => {
     if (syncStatusFilter === status) {
@@ -61,7 +63,7 @@ export default function CalDavSyncStatusCard() {
       // "3 minutes ago" only once hydrated: the server's clock is not the browser's.
       if (!hydrated) return format.dateTime(new Date(dateString));
 
-      return format.relativeTime(new Date(dateString));
+      return format.relativeTime(new Date(dateString), now);
     } catch {
       return "—";
     }

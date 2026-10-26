@@ -22,7 +22,7 @@ import {
   Separator,
   TextField,
 } from "@heroui/react";
-import { useFormatter, useTranslations } from "next-intl";
+import { useFormatter, useNow, useTranslations } from "next-intl";
 
 import type { JobRetentionConfig } from "@norish/config/zod/server-config";
 import type { AdminJobRowDTO } from "@norish/shared/contracts";
@@ -57,6 +57,8 @@ const STATE_FILTER_STATES: Record<Exclude<StateFilter, null>, string[]> = {
 export default function JobQueueCard() {
   const t = useTranslations("settings.admin.jobQueue");
   const format = useFormatter();
+  // relativeTime needs a clock; this one moves on each minute.
+  const now = useNow({ updateInterval: 60_000 });
   const tActions = useTranslations("common.actions");
   const { configs } = useAdminConfigsQuery();
   const { updateJobRetention, isUpdatingRetention } = useJobQueueMutations();
@@ -291,7 +293,7 @@ export default function JobQueueCard() {
               render: (job: AdminJobRowDTO) =>
                 job.state === "delayed" && job.runAt !== null
                   ? t("table.runsAt", {
-                      time: format.relativeTime(new Date(job.runAt)),
+                      time: format.relativeTime(new Date(job.runAt), now),
                     })
                   : formatDuration(job.durationMs),
             },
@@ -300,7 +302,7 @@ export default function JobQueueCard() {
               hideOnNarrow: true,
               label: t("table.created"),
               className: "text-muted text-xs",
-              render: (job: AdminJobRowDTO) => format.relativeTime(new Date(job.createdAt)),
+              render: (job: AdminJobRowDTO) => format.relativeTime(new Date(job.createdAt), now),
             },
           ]}
           emptyState={t("empty")}
