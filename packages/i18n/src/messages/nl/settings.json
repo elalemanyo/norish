@@ -279,7 +279,7 @@
       }
     },
     "joinCode": {
-      "title": "Join Code",
+      "title": "Join code",
       "shareDescription": "Deel deze code met anderen om ze uit te nodigen voor je huishouden.",
       "expiresIn": "Verloopt over:",
       "regenerateButton": "Opnieuw genereren",
@@ -310,7 +310,7 @@
       "description": "Verbind je calendar om geplande maaltijden te synchroniseren.",
       "gettingStarted": "Aan de slag met CalDAV",
       "providerDescription": "Je hebt een CalDAV-compatibele kalenderdienst nodig. Populaire providers zijn onder andere:",
-      "serverUrlLabel": "Server URL",
+      "serverUrlLabel": "Server-URL",
       "serverUrlDescription": "Basis-URL van je CalDAV-server (bijv. https://dav.example.com)",
       "serverUrlPlaceholder": "https://dav.example.com",
       "usernameLabel": "Gebruikersnaam",
@@ -334,7 +334,7 @@
     "config": {
       "title": "CalDAV Configuratie",
       "editTitle": "Bewerk CalDAV Configuratie",
-      "serverUrl": "Server URL",
+      "serverUrl": "Server-URL",
       "enabled": "Ingeschakeld",
       "disabled": "Uitgeschakeld",
       "editButton": "Bewerk",
@@ -380,7 +380,7 @@
       "emptyFiltered": "Geen {status} items gevonden",
       "emptyDefault": "Geen synchronisatiegegevens gevonden",
       "errorDetails": "Foutdetails",
-      "pagination": "Page {current} of {total}"
+      "pagination": "Pagina {current} van {total}"
     }
   },
   "ingredients": {
@@ -740,7 +740,7 @@
         "fields": {
           "name": "Providernaam",
           "namePlaceholder": "bijv. Authentik, Keycloak",
-          "issuer": "Issuer URL",
+          "issuer": "Issuer-URL",
           "issuerPlaceholder": "https://your-idp.com",
           "clientId": "Client ID",
           "clientSecret": "Client Secret",
@@ -949,7 +949,7 @@
         "lmStudio": "LM Studio (Lokaal)",
         "genericOpenai": "Generieke OpenAI-compatibel"
       },
-      "endpointUrl": "Endpoint URL",
+      "endpointUrl": "Endpoint-URL",
       "azureEndpoint": "Azure Resource URL (Optioneel)",
       "azureEndpointDescription": "Optionele Azure OpenAI endpoint. Laat leeg voor standaard OpenAI endpoint.",
       "model": "Model",
@@ -959,7 +959,7 @@
       "apiKeyPlaceholder": "Voer API-sleutel in",
       "temperature": "Temperatuur: {value}",
       "temperatureHint": "Lager = gefocuster, Hoger = creatiever",
-      "maxTokens": "Max Tokens",
+      "maxTokens": "Max. tokens",
       "requestTimeout": "Time-out van aanvraag (ms)",
       "alwaysUseAI": "Altijd AI gebruiken voor import",
       "alwaysUseAIDescription": "Sla gestructureerde parsers over en extraheer recepten alleen met AI",
@@ -1018,7 +1018,7 @@
       "ytDlpVersionMissing": "Geen yt-dlp-binary gevonden",
       "ytDlpVersionUnknown": "Kon niet worden gecontroleerd",
       "ytDlpVersionLoading": "Bezig met ophalen …",
-      "ytDlpProxy": "yt-dlp Proxy",
+      "ytDlpProxy": "yt-dlp-proxy",
       "ytDlpProxyDescription": "HTTP/SOCKS5-proxy voor yt-dlp",
       "transcription": "Transcriptie",
       "transcriptionDescription": "Converteer video-audio naar tekst voor receptextractie",
@@ -1032,7 +1032,7 @@
         "ollama": "Ollama",
         "genericOpenai": "Generieke OpenAI-compatibel"
       },
-      "transcriptionEndpoint": "Endpoint URL",
+      "transcriptionEndpoint": "Endpoint-URL",
       "transcriptionEndpointDescription": "OpenAI-compatibele endpoint met Whisper-ondersteuning, of Ollama endpoint",
       "transcriptionModel": "Model",
       "transcriptionModelDescription": "Model voor transcriptie",
@@ -1077,7 +1077,7 @@
         "lmStudio": "LM Studio",
         "genericOpenai": "Generieke OpenAI-compatibel"
       },
-      "endpoint": "Endpoint URL",
+      "endpoint": "Endpoint-URL",
       "endpointOptional": "Optioneel: eigen Azure resource-URL",
       "apiKey": "API-sleutel",
       "apiKeyPlaceholder": "Voer API-sleutel in...",
@@ -1097,7 +1097,7 @@
       "apiKeyPlaceholder": "Voer API-sleutel in...",
       "apiKeyDescription": "Haal een sleutel op in je account op typesafe.ai",
       "model": "Beslismodel",
-      "endpoint": "Endpoint URL",
+      "endpoint": "Endpoint-URL",
       "endpointDescription": "Voor een proxy of gateway; laat anders leeg.",
       "uses": "Gebruik het Beslismodel voor",
       "usesPlaceholder": "Niets",
@@ -1133,7 +1133,7 @@
       "nutritionEstimation": "Voedingswaarde Schatting Prompt",
       "nutritionEstimationDescription": "Deze prompt wordt gebruikt bij het schatten van voedingsinformatie voor een recept. Beschikbare variabelen: recipeName, servings, ingredients",
       "nutritionEstimationPlaceholder": "Voer de voedingswaarde prompt in...",
-      "autoTagging": "Auto-tagging Prompt",
+      "autoTagging": "Prompt voor automatisch taggen",
       "autoTaggingDescription": "Deze prompt wordt gebruikt om tags te genereren voor geïmporteerde recepten. Definieer taggingregels en een lijst met voorgedefinieerde tags.",
       "autoTaggingPlaceholder": "Voer de auto-tagging prompt in...",
       "autoCategorization": "Prompt voor automatische categorisering",
@@ -1181,65 +1181,65 @@
       "failedToRestore": "Resetten herstellen mislukt"
     },
     "jobQueue": {
-      "title": "Job Queues",
-      "description": "Monitor background jobs across all queues: status, current step, duration, and failures.",
-      "empty": "No jobs found",
+      "title": "Jobwachtrijen",
+      "description": "Volg achtergrondjobs in alle wachtrijen: status, huidige stap, duur en fouten.",
+      "empty": "Geen jobs gevonden",
       "filters": {
-        "queue": "Queue",
-        "allQueues": "All queues"
+        "queue": "Wachtrij",
+        "allQueues": "Alle wachtrijen"
       },
       "status": {
-        "waiting": "Waiting",
-        "active": "Active",
-        "delayed": "Delayed",
-        "completed": "Completed",
-        "failed": "Failed",
-        "cancelled": "Cancelled",
-        "prioritized": "Prioritized",
-        "unknown": "Unknown",
-        "hanging": "Hanging"
+        "waiting": "Wachtend",
+        "active": "Actief",
+        "delayed": "Uitgesteld",
+        "completed": "Voltooid",
+        "failed": "Mislukt",
+        "cancelled": "Geannuleerd",
+        "prioritized": "Met voorrang",
+        "unknown": "Onbekend",
+        "hanging": "Vastgelopen"
       },
       "stepStatus": {
-        "done": "Done",
-        "failed": "Failed",
-        "running": "Running",
-        "skipped": "Skipped",
-        "pending": "Pending"
+        "done": "Klaar",
+        "failed": "Mislukt",
+        "running": "Bezig",
+        "skipped": "Overgeslagen",
+        "pending": "Wachtend"
       },
       "steps": {
-        "dedupe-check": "Check existing",
-        "fetch-allergies": "Fetch allergies",
-        "parsing": "Parse recipe",
-        "saving": "Save recipe",
-        "post-processing": "Post processing",
-        "preparing-images": "Prepare images",
-        "ai-extraction": "AI extraction",
-        "parsing-text": "Parse pasted text",
-        "creating-recipes": "Create recipes",
-        "ai-request": "AI request",
-        "syncing-event": "Sync calendar event",
-        "deleting-event": "Delete calendar event",
-        "running": "Run task",
-        "searching": "Search the shop",
-        "reading-product": "Read the product page",
-        "saving-link": "Save the link",
-        "asking-ai": "Ask AI about the food",
+        "dedupe-check": "Op bestaande controleren",
+        "fetch-allergies": "Allergieën ophalen",
+        "parsing": "Recept verwerken",
+        "saving": "Recept opslaan",
+        "post-processing": "Nabewerking",
+        "preparing-images": "Afbeeldingen voorbereiden",
+        "ai-extraction": "AI-extractie",
+        "parsing-text": "Geplakte tekst verwerken",
+        "creating-recipes": "Recepten aanmaken",
+        "ai-request": "AI-verzoek",
+        "syncing-event": "Agenda-evenement synchroniseren",
+        "deleting-event": "Agenda-evenement verwijderen",
+        "running": "Taak uitvoeren",
+        "searching": "De winkel doorzoeken",
+        "reading-product": "De productpagina lezen",
+        "saving-link": "De koppeling opslaan",
+        "asking-ai": "De AI vragen over het voedingsmiddel",
         "drawing-icon": "Het icoon van het voedingsmiddel tekenen",
         "filling-gaps": "De gaten van het voedingsmiddel aanvullen",
         "naming": "Naam van het ingrediënt opschonen"
       },
       "queues": {
-        "recipe-import": "Recipe import",
-        "image-recipe-import": "Image import",
-        "paste-recipe-import": "Paste import",
-        "nutrition-estimation": "Nutrition estimation",
-        "auto-tagging": "Auto-tagging",
-        "auto-categorization": "Auto-categorization",
-        "allergy-detection": "Allergy detection",
+        "recipe-import": "Receptimport",
+        "image-recipe-import": "Afbeeldingsimport",
+        "paste-recipe-import": "Klembordimport",
+        "nutrition-estimation": "Voedingswaarde schatten",
+        "auto-tagging": "Automatisch taggen",
+        "auto-categorization": "Automatisch categoriseren",
+        "allergy-detection": "Allergieën detecteren",
         "recipe-provenance": "Herkomst van recept",
         "ingredient-linking": "Ingrediëntkoppeling",
-        "caldav-sync": "CalDAV sync",
-        "scheduled-tasks": "Scheduled tasks",
+        "caldav-sync": "CalDAV-synchronisatie",
+        "scheduled-tasks": "Geplande taken",
         "image-generation": "Afbeeldingen genereren",
         "store-lookup": "Winkelopzoeking",
         "ingredient-review": "AI vragen over ingrediënten",
@@ -1247,64 +1247,64 @@
         "ingredient-fill": "Gaten in ingrediënten aanvullen"
       },
       "summary": {
-        "failed": "{count} failed"
+        "failed": "{count} mislukt"
       },
       "table": {
         "job": "Job",
         "status": "Status",
-        "step": "Step",
-        "duration": "Duration",
-        "created": "Created",
-        "runsAt": "Runs {time}"
+        "step": "Stap",
+        "duration": "Duur",
+        "created": "Aangemaakt",
+        "runsAt": "Start {time}"
       },
       "detail": {
-        "title": "Job Details",
-        "notFound": "Job not found. It may have been cleaned up.",
-        "cancelledNote": "An administrator cancelled this job.",
+        "title": "Jobdetails",
+        "notFound": "Job niet gevonden. Mogelijk is deze al opgeruimd.",
+        "cancelledNote": "Een beheerder heeft deze job geannuleerd.",
         "sections": {
-          "error": "Error",
-          "pipelineSteps": "Pipeline Steps",
-          "input": "Input",
+          "error": "Fout",
+          "pipelineSteps": "Pipelinestappen",
+          "input": "Invoer",
           "logs": "Logs",
-          "errors": "Errors"
+          "errors": "Fouten"
         },
         "fields": {
-          "queue": "Queue",
-          "jobId": "Job ID",
-          "description": "Description",
-          "recipe": "Recipe",
-          "created": "Created",
-          "started": "Started",
-          "finished": "Finished",
-          "duration": "Duration",
-          "attempts": "Attempts",
+          "queue": "Wachtrij",
+          "jobId": "Job-ID",
+          "description": "Beschrijving",
+          "recipe": "Recept",
+          "created": "Aangemaakt",
+          "started": "Gestart",
+          "finished": "Afgerond",
+          "duration": "Duur",
+          "attempts": "Pogingen",
           "models": "Modellen",
           "tokens": "Tokens",
-          "runsAt": "Runs at",
-          "nextRun": "Next run"
+          "runsAt": "Start om",
+          "nextRun": "Volgende uitvoering"
         },
         "modelTokens": "{tokens} tokens",
-        "attempt": "Attempt {number}",
-        "stackTrace": "Stack trace"
+        "attempt": "Poging {number}",
+        "stackTrace": "Stacktrace"
       },
       "actions": {
-        "retry": "Retry",
-        "cancel": "Cancel job",
-        "cancelling": "Cancelling…",
-        "remove": "Remove"
+        "retry": "Opnieuw proberen",
+        "cancel": "Job annuleren",
+        "cancelling": "Annuleren…",
+        "remove": "Verwijderen"
       },
       "removeModal": {
-        "message": "Permanently remove this job?",
-        "confirm": "Remove job"
+        "message": "Deze job definitief verwijderen?",
+        "confirm": "Job verwijderen"
       },
       "retention": {
-        "title": "Job Retention",
-        "keepCompleted": "Keep completed jobs",
-        "keepFailed": "Keep failed jobs",
-        "maxAgeDays": "Max age (days)",
+        "title": "Jobs bewaren",
+        "keepCompleted": "Voltooide jobs bewaren",
+        "keepFailed": "Mislukte jobs bewaren",
+        "maxAgeDays": "Max. leeftijd (dagen)",
         "description": "Hoeveel afgeronde jobs per wachtrij bewaard blijven."
       },
-      "pagination": "Page {current} of {total}"
+      "pagination": "Pagina {current} van {total}"
     },
     "cuisineVocabulary": {
       "description": "Keukens zijn een gecureerde woordenlijst die jij beheert. Namen worden in elke taal getoond zoals ze hier staan.",

@@ -65,7 +65,7 @@
     "notFound": "Opskrift ikke fundet",
     "notFoundMessage": "Denne opskrift eksisterer ikke, eller du har ikke adgang til at se den.",
     "prep": "forberedelse",
-    "total": "total",
+    "total": "i alt",
     "planMeal": "Planlæg måltid",
     "recipeActions": "Opskrifthandlinger",
     "instructions": "Fremgangsmåde",
@@ -86,7 +86,7 @@
     "share": "Del",
     "visitOriginal": "Besøg original opskrift",
     "addToCalendar": "Tilføj til kalender",
-    "autoTag": "Auto-tag",
+    "autoTag": "Tag automatisk",
     "autoTagging": "Genererer tags...",
     "autoCategorize": "Kategoriser automatisk",
     "detectAllergies": "Registrér allergener",
@@ -282,7 +282,7 @@
   "timeInputs": {
     "prep": "Forberedelse",
     "cook": "Tilberedning",
-    "total": "Total"
+    "total": "I alt"
   },
   "stepInput": {
     "stepPlaceholder": "Trin {number}: Beskriv trinnet...",

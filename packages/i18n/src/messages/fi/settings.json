@@ -742,8 +742,8 @@
           "namePlaceholder": "esim. Authentik, Keycloak",
           "issuer": "Myöntäjän osoite",
           "issuerPlaceholder": "https://your-idp.com",
-          "clientId": "Client ID",
-          "clientSecret": "Client secret",
+          "clientId": "Asiakastunnus",
+          "clientSecret": "Asiakassalaisuus",
           "wellknown": "Well-known-osoite (valinnainen)",
           "wellknownPlaceholder": "Johdetaan myöntäjästä automaattisesti, jos ei asetettu"
         },
@@ -766,17 +766,17 @@
         "title": "GitHub",
         "subtitle": "GitHub OAuth",
         "fields": {
-          "clientId": "Client ID",
-          "clientSecret": "Client secret"
+          "clientId": "Asiakastunnus",
+          "clientSecret": "Asiakassalaisuus"
         }
       },
       "google": {
         "title": "Google",
         "subtitle": "Google OAuth",
         "fields": {
-          "clientId": "Client ID",
+          "clientId": "Asiakastunnus",
           "clientIdPlaceholder": "*.apps.googleusercontent.com",
-          "clientSecret": "Client secret"
+          "clientSecret": "Asiakassalaisuus"
         }
       },
       "form": {
@@ -1223,7 +1223,7 @@
         "searching": "Hae kaupasta",
         "reading-product": "Lue tuotesivu",
         "saving-link": "Tallenna linkki",
-        "asking-ai": "Ask AI about the food",
+        "asking-ai": "Kysy tekoälyltä ruoka-aineesta",
         "drawing-icon": "Piirrä ruoan kuvake",
         "filling-gaps": "Täydennä ruoka-aineen aukot",
         "naming": "Siivoa ruoka-aineen nimi"

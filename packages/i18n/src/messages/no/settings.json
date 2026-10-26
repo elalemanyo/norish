@@ -380,7 +380,7 @@
       "emptyFiltered": "Ingen {status}-elementer funnet",
       "emptyDefault": "Ingen synkroniseringsposter funnet",
       "errorDetails": "Feildetaljer",
-      "pagination": "Page {current} of {total}"
+      "pagination": "Side {current} av {total}"
     }
   },
   "ingredients": {
@@ -1181,65 +1181,65 @@
       "failedToRestore": "Kunne ikke gjenopprette standardinnstillinger"
     },
     "jobQueue": {
-      "title": "Job Queues",
-      "description": "Monitor background jobs across all queues: status, current step, duration, and failures.",
-      "empty": "No jobs found",
+      "title": "Jobbkøer",
+      "description": "Overvåk bakgrunnsjobber i alle køer: status, gjeldende trinn, varighet og feil.",
+      "empty": "Ingen jobber funnet",
       "filters": {
-        "queue": "Queue",
-        "allQueues": "All queues"
+        "queue": "Kø",
+        "allQueues": "Alle køer"
       },
       "status": {
-        "waiting": "Waiting",
-        "active": "Active",
-        "delayed": "Delayed",
-        "completed": "Completed",
-        "failed": "Failed",
-        "cancelled": "Cancelled",
-        "prioritized": "Prioritized",
-        "unknown": "Unknown",
-        "hanging": "Hanging"
+        "waiting": "Venter",
+        "active": "Aktiv",
+        "delayed": "Utsatt",
+        "completed": "Fullført",
+        "failed": "Mislyktes",
+        "cancelled": "Avbrutt",
+        "prioritized": "Prioritert",
+        "unknown": "Ukjent",
+        "hanging": "Henger"
       },
       "stepStatus": {
-        "done": "Done",
-        "failed": "Failed",
-        "running": "Running",
-        "skipped": "Skipped",
-        "pending": "Pending"
+        "done": "Ferdig",
+        "failed": "Mislyktes",
+        "running": "Kjører",
+        "skipped": "Hoppet over",
+        "pending": "Venter"
       },
       "steps": {
-        "dedupe-check": "Check existing",
-        "fetch-allergies": "Fetch allergies",
-        "parsing": "Parse recipe",
-        "saving": "Save recipe",
-        "post-processing": "Post processing",
-        "preparing-images": "Prepare images",
-        "ai-extraction": "AI extraction",
-        "parsing-text": "Parse pasted text",
-        "creating-recipes": "Create recipes",
-        "ai-request": "AI request",
-        "syncing-event": "Sync calendar event",
-        "deleting-event": "Delete calendar event",
-        "running": "Run task",
-        "searching": "Search the shop",
-        "reading-product": "Read the product page",
-        "saving-link": "Save the link",
-        "asking-ai": "Ask AI about the food",
+        "dedupe-check": "Sjekk eksisterende",
+        "fetch-allergies": "Hent allergier",
+        "parsing": "Analyser oppskrift",
+        "saving": "Lagre oppskrift",
+        "post-processing": "Etterbehandling",
+        "preparing-images": "Klargjør bilder",
+        "ai-extraction": "AI-uttrekking",
+        "parsing-text": "Analyser innlimt tekst",
+        "creating-recipes": "Opprett oppskrifter",
+        "ai-request": "AI-forespørsel",
+        "syncing-event": "Synkroniser kalenderhendelse",
+        "deleting-event": "Slett kalenderhendelse",
+        "running": "Kjør oppgave",
+        "searching": "Søk i butikken",
+        "reading-product": "Les produktsiden",
+        "saving-link": "Lagre lenken",
+        "asking-ai": "Spør AI om matvaren",
         "drawing-icon": "Tegn matvarens ikon",
         "filling-gaps": "Fyll inn matvarens hull",
         "naming": "Rydd opp i matvarens navn"
       },
       "queues": {
-        "recipe-import": "Recipe import",
-        "image-recipe-import": "Image import",
-        "paste-recipe-import": "Paste import",
-        "nutrition-estimation": "Nutrition estimation",
-        "auto-tagging": "Auto-tagging",
-        "auto-categorization": "Auto-categorization",
-        "allergy-detection": "Allergy detection",
+        "recipe-import": "Oppskriftsimport",
+        "image-recipe-import": "Bildeimport",
+        "paste-recipe-import": "Import av innlimt tekst",
+        "nutrition-estimation": "Estimering av næringsinnhold",
+        "auto-tagging": "Automatiske tagger",
+        "auto-categorization": "Automatisk kategorisering",
+        "allergy-detection": "Allergideteksjon",
         "recipe-provenance": "Oppskriftens opprinnelse",
         "ingredient-linking": "Ingredienskobling",
-        "caldav-sync": "CalDAV sync",
-        "scheduled-tasks": "Scheduled tasks",
+        "caldav-sync": "CalDAV-synkronisering",
+        "scheduled-tasks": "Planlagte oppgaver",
         "image-generation": "Bildegenerering",
         "store-lookup": "Butikkoppslag",
         "ingredient-review": "Spør AI om ingredienser",
@@ -1247,64 +1247,64 @@
         "ingredient-fill": "Fyll inn hull i ingredienser"
       },
       "summary": {
-        "failed": "{count} failed"
+        "failed": "{count} mislyktes"
       },
       "table": {
-        "job": "Job",
+        "job": "Jobb",
         "status": "Status",
-        "step": "Step",
-        "duration": "Duration",
-        "created": "Created",
-        "runsAt": "Runs {time}"
+        "step": "Trinn",
+        "duration": "Varighet",
+        "created": "Opprettet",
+        "runsAt": "Kjører {time}"
       },
       "detail": {
-        "title": "Job Details",
-        "notFound": "Job not found. It may have been cleaned up.",
-        "cancelledNote": "An administrator cancelled this job.",
+        "title": "Jobbdetaljer",
+        "notFound": "Fant ikke jobben. Den kan ha blitt ryddet bort.",
+        "cancelledNote": "En administrator avbrøt denne jobben.",
         "sections": {
-          "error": "Error",
-          "pipelineSteps": "Pipeline Steps",
-          "input": "Input",
-          "logs": "Logs",
-          "errors": "Errors"
+          "error": "Feil",
+          "pipelineSteps": "Pipelinetrinn",
+          "input": "Inndata",
+          "logs": "Logg",
+          "errors": "Feil"
         },
         "fields": {
-          "queue": "Queue",
-          "jobId": "Job ID",
-          "description": "Description",
-          "recipe": "Recipe",
-          "created": "Created",
-          "started": "Started",
-          "finished": "Finished",
-          "duration": "Duration",
-          "attempts": "Attempts",
+          "queue": "Kø",
+          "jobId": "Jobb-ID",
+          "description": "Beskrivelse",
+          "recipe": "Oppskrift",
+          "created": "Opprettet",
+          "started": "Startet",
+          "finished": "Ferdig",
+          "duration": "Varighet",
+          "attempts": "Forsøk",
           "models": "Modeller",
           "tokens": "Tokens",
-          "runsAt": "Runs at",
-          "nextRun": "Next run"
+          "runsAt": "Planlagt til",
+          "nextRun": "Neste kjøring"
         },
         "modelTokens": "{tokens} tokens",
-        "attempt": "Attempt {number}",
+        "attempt": "Forsøk {number}",
         "stackTrace": "Stack trace"
       },
       "actions": {
-        "retry": "Retry",
-        "cancel": "Cancel job",
-        "cancelling": "Cancelling…",
-        "remove": "Remove"
+        "retry": "Prøv igjen",
+        "cancel": "Avbryt jobb",
+        "cancelling": "Avbryter…",
+        "remove": "Fjern"
       },
       "removeModal": {
-        "message": "Permanently remove this job?",
-        "confirm": "Remove job"
+        "message": "Fjerne denne jobben permanent?",
+        "confirm": "Fjern jobb"
       },
       "retention": {
-        "title": "Job Retention",
-        "keepCompleted": "Keep completed jobs",
-        "keepFailed": "Keep failed jobs",
-        "maxAgeDays": "Max age (days)",
+        "title": "Oppbevaring av jobber",
+        "keepCompleted": "Behold fullførte jobber",
+        "keepFailed": "Behold mislykkede jobber",
+        "maxAgeDays": "Maks. alder (dager)",
         "description": "Hvor mange fullførte jobber som beholdes per kø."
       },
-      "pagination": "Page {current} of {total}"
+      "pagination": "Side {current} av {total}"
     },
     "cuisineVocabulary": {
       "description": "Kjøkken er en kuratert ordliste du eier. Navn vises nøyaktig slik de står her, på alle språk.",

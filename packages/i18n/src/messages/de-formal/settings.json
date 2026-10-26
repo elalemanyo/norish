@@ -380,7 +380,7 @@
       "emptyFiltered": "Keine {status}-Einträge gefunden",
       "emptyDefault": "Keine Synchronisierungsdatensätze gefunden",
       "errorDetails": "Fehlerdetails",
-      "pagination": "Page {current} of {total}"
+      "pagination": "Seite {current} von {total}"
     }
   },
   "ingredients": {
@@ -646,7 +646,7 @@
         "actions": "Aktionen"
       },
       "roles": {
-        "owner": "Owner",
+        "owner": "Eigentümer",
         "admin": "Admin"
       },
       "noHousehold": "Kein Haushalt",
@@ -950,7 +950,7 @@
         "genericOpenai": "Generisch OpenAI-kompatibel"
       },
       "endpointUrl": "Endpoint-URL",
-      "azureEndpoint": "Azure Resource URL (Optional)",
+      "azureEndpoint": "Azure-Ressourcen-URL (optional)",
       "azureEndpointDescription": "Benutzerdefinierter Azure OpenAI Endpunkt. Leer lassen für den Standard.",
       "model": "Modell",
       "visionModel": "Vision-Modell (Optional)",
@@ -1181,65 +1181,65 @@
       "failedToRestore": "Wiederherstellen der Standard fehlgeschlagen"
     },
     "jobQueue": {
-      "title": "Job Queues",
-      "description": "Monitor background jobs across all queues: status, current step, duration, and failures.",
-      "empty": "No jobs found",
+      "title": "Job-Warteschlangen",
+      "description": "Überwachen Sie Hintergrund-Jobs in allen Warteschlangen: Status, aktueller Schritt, Dauer und Fehler.",
+      "empty": "Keine Jobs gefunden",
       "filters": {
-        "queue": "Queue",
-        "allQueues": "All queues"
+        "queue": "Warteschlange",
+        "allQueues": "Alle Warteschlangen"
       },
       "status": {
-        "waiting": "Waiting",
-        "active": "Active",
-        "delayed": "Delayed",
-        "completed": "Completed",
-        "failed": "Failed",
-        "cancelled": "Cancelled",
-        "prioritized": "Prioritized",
-        "unknown": "Unknown",
-        "hanging": "Hanging"
+        "waiting": "Wartend",
+        "active": "Aktiv",
+        "delayed": "Verzögert",
+        "completed": "Abgeschlossen",
+        "failed": "Fehlgeschlagen",
+        "cancelled": "Abgebrochen",
+        "prioritized": "Priorisiert",
+        "unknown": "Unbekannt",
+        "hanging": "Hängt"
       },
       "stepStatus": {
-        "done": "Done",
-        "failed": "Failed",
-        "running": "Running",
-        "skipped": "Skipped",
-        "pending": "Pending"
+        "done": "Erledigt",
+        "failed": "Fehlgeschlagen",
+        "running": "Läuft",
+        "skipped": "Übersprungen",
+        "pending": "Ausstehend"
       },
       "steps": {
-        "dedupe-check": "Check existing",
-        "fetch-allergies": "Fetch allergies",
-        "parsing": "Parse recipe",
-        "saving": "Save recipe",
-        "post-processing": "Post processing",
-        "preparing-images": "Prepare images",
-        "ai-extraction": "AI extraction",
-        "parsing-text": "Parse pasted text",
-        "creating-recipes": "Create recipes",
-        "ai-request": "AI request",
-        "syncing-event": "Sync calendar event",
-        "deleting-event": "Delete calendar event",
-        "running": "Run task",
-        "searching": "Search the shop",
-        "reading-product": "Read the product page",
-        "saving-link": "Save the link",
-        "asking-ai": "Ask AI about the food",
+        "dedupe-check": "Vorhandene Rezepte prüfen",
+        "fetch-allergies": "Allergien abrufen",
+        "parsing": "Rezept analysieren",
+        "saving": "Rezept speichern",
+        "post-processing": "Nachbearbeitung",
+        "preparing-images": "Bilder vorbereiten",
+        "ai-extraction": "KI-Extraktion",
+        "parsing-text": "Eingefügten Text analysieren",
+        "creating-recipes": "Rezepte erstellen",
+        "ai-request": "KI-Anfrage",
+        "syncing-event": "Kalenderereignis synchronisieren",
+        "deleting-event": "Kalenderereignis löschen",
+        "running": "Aufgabe ausführen",
+        "searching": "Im Shop suchen",
+        "reading-product": "Produktseite lesen",
+        "saving-link": "Link speichern",
+        "asking-ai": "KI zum Lebensmittel fragen",
         "drawing-icon": "Symbol des Lebensmittels zeichnen",
         "filling-gaps": "Lücken des Lebensmittels füllen",
         "naming": "Namen der Zutat bereinigen"
       },
       "queues": {
-        "recipe-import": "Recipe import",
-        "image-recipe-import": "Image import",
-        "paste-recipe-import": "Paste import",
-        "nutrition-estimation": "Nutrition estimation",
-        "auto-tagging": "Auto-tagging",
-        "auto-categorization": "Auto-categorization",
-        "allergy-detection": "Allergy detection",
+        "recipe-import": "Rezeptimport",
+        "image-recipe-import": "Bildimport",
+        "paste-recipe-import": "Import aus Text",
+        "nutrition-estimation": "Nährwertschätzung",
+        "auto-tagging": "Automatische Tags",
+        "auto-categorization": "Automatische Kategorisierung",
+        "allergy-detection": "Allergieerkennung",
         "recipe-provenance": "Rezeptherkunft",
         "ingredient-linking": "Zutatenverknüpfung",
-        "caldav-sync": "CalDAV sync",
-        "scheduled-tasks": "Scheduled tasks",
+        "caldav-sync": "CalDAV-Synchronisierung",
+        "scheduled-tasks": "Geplante Aufgaben",
         "image-generation": "Bildgenerierung",
         "store-lookup": "Geschäftsabfrage",
         "ingredient-review": "KI zu Zutaten fragen",
@@ -1247,64 +1247,64 @@
         "ingredient-fill": "Lücken bei Zutaten füllen"
       },
       "summary": {
-        "failed": "{count} failed"
+        "failed": "{count} fehlgeschlagen"
       },
       "table": {
         "job": "Job",
         "status": "Status",
-        "step": "Step",
-        "duration": "Duration",
-        "created": "Created",
-        "runsAt": "Runs {time}"
+        "step": "Schritt",
+        "duration": "Dauer",
+        "created": "Erstellt",
+        "runsAt": "Läuft {time}"
       },
       "detail": {
-        "title": "Job Details",
-        "notFound": "Job not found. It may have been cleaned up.",
-        "cancelledNote": "An administrator cancelled this job.",
+        "title": "Job-Details",
+        "notFound": "Job nicht gefunden. Möglicherweise wurde er bereits bereinigt.",
+        "cancelledNote": "Ein Administrator hat diesen Job abgebrochen.",
         "sections": {
-          "error": "Error",
-          "pipelineSteps": "Pipeline Steps",
-          "input": "Input",
+          "error": "Fehler",
+          "pipelineSteps": "Pipeline-Schritte",
+          "input": "Eingabe",
           "logs": "Logs",
-          "errors": "Errors"
+          "errors": "Fehler"
         },
         "fields": {
-          "queue": "Queue",
-          "jobId": "Job ID",
-          "description": "Description",
-          "recipe": "Recipe",
-          "created": "Created",
-          "started": "Started",
-          "finished": "Finished",
-          "duration": "Duration",
-          "attempts": "Attempts",
+          "queue": "Warteschlange",
+          "jobId": "Job-ID",
+          "description": "Beschreibung",
+          "recipe": "Rezept",
+          "created": "Erstellt",
+          "started": "Gestartet",
+          "finished": "Beendet",
+          "duration": "Dauer",
+          "attempts": "Versuche",
           "models": "Modelle",
           "tokens": "Token",
-          "runsAt": "Runs at",
-          "nextRun": "Next run"
+          "runsAt": "Läuft um",
+          "nextRun": "Nächster Lauf"
         },
         "modelTokens": "{tokens} Token",
-        "attempt": "Attempt {number}",
-        "stackTrace": "Stack trace"
+        "attempt": "Versuch {number}",
+        "stackTrace": "Stacktrace"
       },
       "actions": {
-        "retry": "Retry",
-        "cancel": "Cancel job",
-        "cancelling": "Cancelling…",
-        "remove": "Remove"
+        "retry": "Erneut versuchen",
+        "cancel": "Job abbrechen",
+        "cancelling": "Wird abgebrochen…",
+        "remove": "Entfernen"
       },
       "removeModal": {
-        "message": "Permanently remove this job?",
-        "confirm": "Remove job"
+        "message": "Diesen Job endgültig entfernen?",
+        "confirm": "Job entfernen"
       },
       "retention": {
-        "title": "Job Retention",
-        "keepCompleted": "Keep completed jobs",
-        "keepFailed": "Keep failed jobs",
-        "maxAgeDays": "Max age (days)",
+        "title": "Job-Aufbewahrung",
+        "keepCompleted": "Abgeschlossene Jobs behalten",
+        "keepFailed": "Fehlgeschlagene Jobs behalten",
+        "maxAgeDays": "Maximales Alter (Tage)",
         "description": "Wie viele abgeschlossene Jobs pro Warteschlange behalten werden."
       },
-      "pagination": "Page {current} of {total}"
+      "pagination": "Seite {current} von {total}"
     },
     "cuisineVocabulary": {
       "description": "Küchen sind ein kuratiertes Vokabular, das Ihnen gehört. Namen werden in jeder Sprache genau so angezeigt, wie sie hier stehen.",

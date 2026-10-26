@@ -100,7 +100,7 @@
     "offlineBanner": "Olet offline-tilassa, näytetään välimuistin tiedot",
     "serverUnreachableBanner": "Norish-palvelinta ei tavoiteta, näytetään välimuistin tiedot",
     "live": "Yhteydessä",
-    "offline": "Offline",
+    "offline": "Offline-tilassa",
     "openDetails": "Yhteyden tiedot"
   },
   "language": {
@@ -237,7 +237,7 @@
     "connection": {
       "heading": "Yhteys",
       "live": "Yhteydessä",
-      "offline": "Offline",
+      "offline": "Offline-tilassa",
       "forced": "Offline (pakotettu)",
       "liveDescription": "Yhteys Norishiin on muodostettu. Muutokset synkronoituvat sitä mukaa kun teet niitä.",
       "offlineDescription": "Norishia ei tavoiteta. Näytetään välimuistin tiedot; muutokset jonotetaan ja synkronoidaan kun yhteys palaa.",

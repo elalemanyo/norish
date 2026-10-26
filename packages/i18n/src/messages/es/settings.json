@@ -7,7 +7,7 @@
     "user": "Usuario",
     "household": "Hogar",
     "caldav": "CalDAV",
-    "admin": "Admin",
+    "admin": "Administración",
     "ingredients": "Ingredientes"
   },
   "user": {
@@ -380,7 +380,7 @@
       "emptyFiltered": "No se han encontrado elementos {status}",
       "emptyDefault": "No hay registros de sincronización",
       "errorDetails": "Detalles del error",
-      "pagination": "Page {current} of {total}"
+      "pagination": "Página {current} de {total}"
     }
   },
   "ingredients": {
@@ -647,7 +647,7 @@
       },
       "roles": {
         "owner": "Propietario",
-        "admin": "Admin"
+        "admin": "Administrador"
       },
       "noHousehold": "Sin hogar",
       "loading": "Cargando usuarios…",
@@ -822,13 +822,13 @@
         "description": "Configura palabras clave usadas para detectar temporizadores en las instrucciones de recetas. Soporta varios idiomas.",
         "enableToggle": "Activar detección de temporizadores",
         "hoursLabel": "Palabras clave para horas",
-        "hoursPlaceholder": "hour, hours, hr, hrs, h",
+        "hoursPlaceholder": "hora, horas, h",
         "hoursHelp": "Palabras clave para horas (p. ej., hour, stunde, heure, uur)",
         "minutesLabel": "Palabras clave para minutos",
-        "minutesPlaceholder": "minute, minutes, min, mins, m",
+        "minutesPlaceholder": "minuto, minutos, min, m",
         "minutesHelp": "Palabras clave para minutos (p. ej., minute, minuten, minuut)",
         "secondsLabel": "Palabras clave para segundos",
-        "secondsPlaceholder": "second, seconds, sec, secs, s",
+        "secondsPlaceholder": "segundo, segundos, seg, s",
         "secondsHelp": "Palabras clave para segundos (p. ej., second, sekunde, seconde)",
         "unsavedChanges": "Cambios sin guardar"
       }
@@ -957,7 +957,7 @@
       "visionModelDescription": "Opcional: usa un modelo diferente para tareas de imagen/visión. Déjalo vacío para usar el modelo anterior.",
       "apiKey": "Clave API",
       "apiKeyPlaceholder": "Introduce la clave API",
-      "temperature": "Temperature: {value}",
+      "temperature": "Temperatura: {value}",
       "temperatureHint": "Más bajo = más centrado, Más alto = más creativo",
       "maxTokens": "Máx. tokens",
       "requestTimeout": "Tiempo de espera de la solicitud (ms)",
@@ -1181,65 +1181,65 @@
       "failedToRestore": "No se pudo restaurar los valores predeterminados"
     },
     "jobQueue": {
-      "title": "Job Queues",
-      "description": "Monitor background jobs across all queues: status, current step, duration, and failures.",
-      "empty": "No jobs found",
+      "title": "Colas de trabajos",
+      "description": "Supervisa los trabajos en segundo plano de todas las colas: estado, paso actual, duración y errores.",
+      "empty": "No se han encontrado trabajos",
       "filters": {
-        "queue": "Queue",
-        "allQueues": "All queues"
+        "queue": "Cola",
+        "allQueues": "Todas las colas"
       },
       "status": {
-        "waiting": "Waiting",
-        "active": "Active",
-        "delayed": "Delayed",
-        "completed": "Completed",
-        "failed": "Failed",
-        "cancelled": "Cancelled",
-        "prioritized": "Prioritized",
-        "unknown": "Unknown",
-        "hanging": "Hanging"
+        "waiting": "En espera",
+        "active": "Activo",
+        "delayed": "Diferido",
+        "completed": "Completado",
+        "failed": "Fallido",
+        "cancelled": "Cancelado",
+        "prioritized": "Priorizado",
+        "unknown": "Desconocido",
+        "hanging": "Atascado"
       },
       "stepStatus": {
-        "done": "Done",
-        "failed": "Failed",
-        "running": "Running",
-        "skipped": "Skipped",
-        "pending": "Pending"
+        "done": "Hecho",
+        "failed": "Fallido",
+        "running": "En curso",
+        "skipped": "Omitido",
+        "pending": "Pendiente"
       },
       "steps": {
-        "dedupe-check": "Check existing",
-        "fetch-allergies": "Fetch allergies",
-        "parsing": "Parse recipe",
-        "saving": "Save recipe",
-        "post-processing": "Post processing",
-        "preparing-images": "Prepare images",
-        "ai-extraction": "AI extraction",
-        "parsing-text": "Parse pasted text",
-        "creating-recipes": "Create recipes",
-        "ai-request": "AI request",
-        "syncing-event": "Sync calendar event",
-        "deleting-event": "Delete calendar event",
-        "running": "Run task",
-        "searching": "Search the shop",
-        "reading-product": "Read the product page",
-        "saving-link": "Save the link",
-        "asking-ai": "Ask AI about the food",
+        "dedupe-check": "Comprobar si ya existe",
+        "fetch-allergies": "Obtener las alergias",
+        "parsing": "Analizar la receta",
+        "saving": "Guardar la receta",
+        "post-processing": "Posprocesar",
+        "preparing-images": "Preparar las imágenes",
+        "ai-extraction": "Extracción con IA",
+        "parsing-text": "Analizar el texto pegado",
+        "creating-recipes": "Crear las recetas",
+        "ai-request": "Solicitud a la IA",
+        "syncing-event": "Sincronizar el evento del calendario",
+        "deleting-event": "Eliminar el evento del calendario",
+        "running": "Ejecutar la tarea",
+        "searching": "Buscar en la tienda",
+        "reading-product": "Leer la página del producto",
+        "saving-link": "Guardar el enlace",
+        "asking-ai": "Preguntar a la IA por el alimento",
         "drawing-icon": "Dibujar el icono del alimento",
         "filling-gaps": "Completar los huecos del alimento",
         "naming": "Limpiar el nombre del alimento"
       },
       "queues": {
-        "recipe-import": "Recipe import",
-        "image-recipe-import": "Image import",
-        "paste-recipe-import": "Paste import",
-        "nutrition-estimation": "Nutrition estimation",
-        "auto-tagging": "Auto-tagging",
-        "auto-categorization": "Auto-categorization",
-        "allergy-detection": "Allergy detection",
+        "recipe-import": "Importación de recetas",
+        "image-recipe-import": "Importación desde imagen",
+        "paste-recipe-import": "Importación desde texto pegado",
+        "nutrition-estimation": "Estimación nutricional",
+        "auto-tagging": "Etiquetado automático",
+        "auto-categorization": "Categorización automática",
+        "allergy-detection": "Detección de alergias",
         "recipe-provenance": "Procedencia de la receta",
         "ingredient-linking": "Vinculación de ingredientes",
-        "caldav-sync": "CalDAV sync",
-        "scheduled-tasks": "Scheduled tasks",
+        "caldav-sync": "Sincronización CalDAV",
+        "scheduled-tasks": "Tareas programadas",
         "image-generation": "Generación de imágenes",
         "store-lookup": "Consulta de tienda",
         "ingredient-review": "Preguntar a la IA sobre ingredientes",
@@ -1247,64 +1247,64 @@
         "ingredient-fill": "Completar huecos de ingredientes"
       },
       "summary": {
-        "failed": "{count} failed"
+        "failed": "Fallidos: {count}"
       },
       "table": {
-        "job": "Job",
-        "status": "Status",
-        "step": "Step",
-        "duration": "Duration",
-        "created": "Created",
-        "runsAt": "Runs {time}"
+        "job": "Trabajo",
+        "status": "Estado",
+        "step": "Paso",
+        "duration": "Duración",
+        "created": "Creado",
+        "runsAt": "Se ejecuta {time}"
       },
       "detail": {
-        "title": "Job Details",
-        "notFound": "Job not found. It may have been cleaned up.",
-        "cancelledNote": "An administrator cancelled this job.",
+        "title": "Detalles del trabajo",
+        "notFound": "No se ha encontrado el trabajo. Puede que ya se haya eliminado.",
+        "cancelledNote": "Un administrador ha cancelado este trabajo.",
         "sections": {
           "error": "Error",
-          "pipelineSteps": "Pipeline Steps",
-          "input": "Input",
-          "logs": "Logs",
-          "errors": "Errors"
+          "pipelineSteps": "Pasos del proceso",
+          "input": "Entrada",
+          "logs": "Registros",
+          "errors": "Errores"
         },
         "fields": {
-          "queue": "Queue",
-          "jobId": "Job ID",
-          "description": "Description",
-          "recipe": "Recipe",
-          "created": "Created",
-          "started": "Started",
-          "finished": "Finished",
-          "duration": "Duration",
-          "attempts": "Attempts",
+          "queue": "Cola",
+          "jobId": "ID del trabajo",
+          "description": "Descripción",
+          "recipe": "Receta",
+          "created": "Creado",
+          "started": "Iniciado",
+          "finished": "Finalizado",
+          "duration": "Duración",
+          "attempts": "Intentos",
           "models": "Modelos",
           "tokens": "Tokens",
-          "runsAt": "Runs at",
-          "nextRun": "Next run"
+          "runsAt": "Ejecución programada",
+          "nextRun": "Próxima ejecución"
         },
         "modelTokens": "{tokens} tokens",
-        "attempt": "Attempt {number}",
-        "stackTrace": "Stack trace"
+        "attempt": "Intento {number}",
+        "stackTrace": "Traza de la pila"
       },
       "actions": {
-        "retry": "Retry",
-        "cancel": "Cancel job",
-        "cancelling": "Cancelling…",
-        "remove": "Remove"
+        "retry": "Reintentar",
+        "cancel": "Cancelar trabajo",
+        "cancelling": "Cancelando…",
+        "remove": "Eliminar"
       },
       "removeModal": {
-        "message": "Permanently remove this job?",
-        "confirm": "Remove job"
+        "message": "¿Eliminar este trabajo definitivamente?",
+        "confirm": "Eliminar trabajo"
       },
       "retention": {
-        "title": "Job Retention",
-        "keepCompleted": "Keep completed jobs",
-        "keepFailed": "Keep failed jobs",
-        "maxAgeDays": "Max age (days)",
+        "title": "Conservación de trabajos",
+        "keepCompleted": "Conservar trabajos completados",
+        "keepFailed": "Conservar trabajos fallidos",
+        "maxAgeDays": "Antigüedad máxima (días)",
         "description": "Cuántos trabajos terminados se conservan por cola."
       },
-      "pagination": "Page {current} of {total}"
+      "pagination": "Página {current} de {total}"
     },
     "cuisineVocabulary": {
       "description": "Las cocinas son un vocabulario curado que tú controlas. Los nombres se muestran tal como se escriben aquí, en todos los idiomas.",

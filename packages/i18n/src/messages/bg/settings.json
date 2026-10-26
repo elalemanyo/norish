@@ -459,8 +459,8 @@
       "fat": "Мазнини",
       "carbs": "Въглехидрати",
       "protein": "Протеини",
-      "kcal": "{value} kcal",
-      "grams": "{value} g",
+      "kcal": "{value} ккал",
+      "grams": "{value} г",
       "spoonGrams": {
         "teaspoon": "{value} г в чаена лъжица",
         "tablespoon": "{value} г в супена лъжица",
@@ -490,10 +490,10 @@
       "pickFood": "Храна от наборите данни",
       "typeLabel": "От етикет",
       "label": {
-        "calories": "Калории (kcal)",
-        "fat": "Мазнини (g)",
-        "carbs": "Въглехидрати (g)",
-        "protein": "Протеини (g)",
+        "calories": "Калории (ккал)",
+        "fat": "Мазнини (г)",
+        "carbs": "Въглехидрати (г)",
+        "protein": "Протеини (г)",
         "pieceGrams": "Едно парче тежи (г)",
         "spoonGrams": {
           "teaspoon": "Чаена лъжица тежи (г)",
@@ -524,7 +524,7 @@
         "hundredMl": "100 мл"
       },
       "spoonAsk": "Добавете тегло",
-      "summary": "{value} kcal на 100 г",
+      "summary": "{value} ккал на 100 г",
       "summaryNone": "Още няма хранителни стойности",
       "current": "Сега {value} · {source}",
       "currentNone": "Norish още няма нищо за това"
@@ -1223,7 +1223,7 @@
         "searching": "Търсене в магазина",
         "reading-product": "Четене на продуктовата страница",
         "saving-link": "Запазване на връзката",
-        "asking-ai": "Ask AI about the food",
+        "asking-ai": "Попитай AI за храната",
         "drawing-icon": "Нарисувай иконата на храната",
         "filling-gaps": "Попълване на липсите на продукта",
         "naming": "Изчисти името на храната"

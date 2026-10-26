@@ -1194,7 +1194,7 @@
         "delayed": "Adiado",
         "completed": "Concluído",
         "failed": "Falhou",
-        "cancelled": "Cancelled",
+        "cancelled": "Cancelado",
         "prioritized": "Priorizado",
         "unknown": "Desconhecido",
         "hanging": "Travado"
@@ -1260,7 +1260,7 @@
       "detail": {
         "title": "Detalhes do trabalho",
         "notFound": "Trabalho não encontrado. Ele pode ter sido removido na limpeza.",
-        "cancelledNote": "An administrator cancelled this job.",
+        "cancelledNote": "Um administrador cancelou este trabalho.",
         "sections": {
           "error": "Erro",
           "pipelineSteps": "Etapas do pipeline",
@@ -1289,8 +1289,8 @@
       },
       "actions": {
         "retry": "Tentar novamente",
-        "cancel": "Cancel job",
-        "cancelling": "Cancelling…",
+        "cancel": "Cancelar trabalho",
+        "cancelling": "Cancelando…",
         "remove": "Remover"
       },
       "removeModal": {

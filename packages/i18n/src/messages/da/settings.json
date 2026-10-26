@@ -380,7 +380,7 @@
       "emptyFiltered": "Ingen {status}-elementer fundet",
       "emptyDefault": "Ingen synkroniseringsposter fundet",
       "errorDetails": "Fejldetaljer",
-      "pagination": "Page {current} of {total}"
+      "pagination": "Side {current} af {total}"
     }
   },
   "ingredients": {
@@ -1181,65 +1181,65 @@
       "failedToRestore": "Kunne ikke gendanne standardindstillinger"
     },
     "jobQueue": {
-      "title": "Job Queues",
-      "description": "Monitor background jobs across all queues: status, current step, duration, and failures.",
-      "empty": "No jobs found",
+      "title": "Jobkøer",
+      "description": "Overvåg baggrundsjob på tværs af alle køer: status, aktuelt trin, varighed og fejl.",
+      "empty": "Ingen job fundet",
       "filters": {
-        "queue": "Queue",
-        "allQueues": "All queues"
+        "queue": "Kø",
+        "allQueues": "Alle køer"
       },
       "status": {
-        "waiting": "Waiting",
-        "active": "Active",
-        "delayed": "Delayed",
-        "completed": "Completed",
-        "failed": "Failed",
-        "cancelled": "Cancelled",
-        "prioritized": "Prioritized",
-        "unknown": "Unknown",
-        "hanging": "Hanging"
+        "waiting": "Venter",
+        "active": "Aktiv",
+        "delayed": "Udskudt",
+        "completed": "Fuldført",
+        "failed": "Mislykkedes",
+        "cancelled": "Annulleret",
+        "prioritized": "Prioriteret",
+        "unknown": "Ukendt",
+        "hanging": "Hænger"
       },
       "stepStatus": {
-        "done": "Done",
-        "failed": "Failed",
-        "running": "Running",
-        "skipped": "Skipped",
-        "pending": "Pending"
+        "done": "Færdig",
+        "failed": "Mislykkedes",
+        "running": "Kører",
+        "skipped": "Sprunget over",
+        "pending": "Afventer"
       },
       "steps": {
-        "dedupe-check": "Check existing",
-        "fetch-allergies": "Fetch allergies",
-        "parsing": "Parse recipe",
-        "saving": "Save recipe",
-        "post-processing": "Post processing",
-        "preparing-images": "Prepare images",
-        "ai-extraction": "AI extraction",
-        "parsing-text": "Parse pasted text",
-        "creating-recipes": "Create recipes",
-        "ai-request": "AI request",
-        "syncing-event": "Sync calendar event",
-        "deleting-event": "Delete calendar event",
-        "running": "Run task",
-        "searching": "Search the shop",
-        "reading-product": "Read the product page",
-        "saving-link": "Save the link",
-        "asking-ai": "Ask AI about the food",
+        "dedupe-check": "Tjek eksisterende",
+        "fetch-allergies": "Hent allergier",
+        "parsing": "Analysér opskrift",
+        "saving": "Gem opskrift",
+        "post-processing": "Efterbehandling",
+        "preparing-images": "Forbered billeder",
+        "ai-extraction": "AI-udtrækning",
+        "parsing-text": "Analysér indsat tekst",
+        "creating-recipes": "Opret opskrifter",
+        "ai-request": "AI-forespørgsel",
+        "syncing-event": "Synkroniser kalenderbegivenhed",
+        "deleting-event": "Slet kalenderbegivenhed",
+        "running": "Kør opgave",
+        "searching": "Søg i butikken",
+        "reading-product": "Læs produktsiden",
+        "saving-link": "Gem linket",
+        "asking-ai": "Spørg AI om fødevaren",
         "drawing-icon": "Tegn fødevarens ikon",
         "filling-gaps": "Udfyld fødevarens huller",
         "naming": "Ryd op i fødevarens navn"
       },
       "queues": {
-        "recipe-import": "Recipe import",
-        "image-recipe-import": "Image import",
-        "paste-recipe-import": "Paste import",
-        "nutrition-estimation": "Nutrition estimation",
-        "auto-tagging": "Auto-tagging",
-        "auto-categorization": "Auto-categorization",
-        "allergy-detection": "Allergy detection",
+        "recipe-import": "Opskriftsimport",
+        "image-recipe-import": "Billedimport",
+        "paste-recipe-import": "Import af indsat tekst",
+        "nutrition-estimation": "Estimering af næringsindhold",
+        "auto-tagging": "Automatiske tags",
+        "auto-categorization": "Automatisk kategorisering",
+        "allergy-detection": "Allergiregistrering",
         "recipe-provenance": "Opskriftens oprindelse",
         "ingredient-linking": "Ingredienstilknytning",
-        "caldav-sync": "CalDAV sync",
-        "scheduled-tasks": "Scheduled tasks",
+        "caldav-sync": "CalDAV-synkronisering",
+        "scheduled-tasks": "Planlagte opgaver",
         "image-generation": "Billedgenerering",
         "store-lookup": "Butiksopslag",
         "ingredient-review": "Spørg AI om ingredienser",
@@ -1247,64 +1247,64 @@
         "ingredient-fill": "Udfyld huller i ingredienser"
       },
       "summary": {
-        "failed": "{count} failed"
+        "failed": "{count} mislykkedes"
       },
       "table": {
         "job": "Job",
         "status": "Status",
-        "step": "Step",
-        "duration": "Duration",
-        "created": "Created",
-        "runsAt": "Runs {time}"
+        "step": "Trin",
+        "duration": "Varighed",
+        "created": "Oprettet",
+        "runsAt": "Kører {time}"
       },
       "detail": {
-        "title": "Job Details",
-        "notFound": "Job not found. It may have been cleaned up.",
-        "cancelledNote": "An administrator cancelled this job.",
+        "title": "Jobdetaljer",
+        "notFound": "Jobbet blev ikke fundet. Det er muligvis blevet ryddet op.",
+        "cancelledNote": "En administrator annullerede dette job.",
         "sections": {
-          "error": "Error",
-          "pipelineSteps": "Pipeline Steps",
+          "error": "Fejl",
+          "pipelineSteps": "Pipelinetrin",
           "input": "Input",
-          "logs": "Logs",
-          "errors": "Errors"
+          "logs": "Log",
+          "errors": "Fejl"
         },
         "fields": {
-          "queue": "Queue",
-          "jobId": "Job ID",
-          "description": "Description",
-          "recipe": "Recipe",
-          "created": "Created",
-          "started": "Started",
-          "finished": "Finished",
-          "duration": "Duration",
-          "attempts": "Attempts",
+          "queue": "Kø",
+          "jobId": "Job-id",
+          "description": "Beskrivelse",
+          "recipe": "Opskrift",
+          "created": "Oprettet",
+          "started": "Startet",
+          "finished": "Afsluttet",
+          "duration": "Varighed",
+          "attempts": "Forsøg",
           "models": "Modeller",
           "tokens": "Tokens",
-          "runsAt": "Runs at",
-          "nextRun": "Next run"
+          "runsAt": "Planlagt til",
+          "nextRun": "Næste kørsel"
         },
         "modelTokens": "{tokens} tokens",
-        "attempt": "Attempt {number}",
+        "attempt": "Forsøg {number}",
         "stackTrace": "Stack trace"
       },
       "actions": {
-        "retry": "Retry",
-        "cancel": "Cancel job",
-        "cancelling": "Cancelling…",
-        "remove": "Remove"
+        "retry": "Prøv igen",
+        "cancel": "Annuller job",
+        "cancelling": "Annullerer…",
+        "remove": "Fjern"
       },
       "removeModal": {
-        "message": "Permanently remove this job?",
-        "confirm": "Remove job"
+        "message": "Fjern dette job permanent?",
+        "confirm": "Fjern job"
       },
       "retention": {
-        "title": "Job Retention",
-        "keepCompleted": "Keep completed jobs",
-        "keepFailed": "Keep failed jobs",
-        "maxAgeDays": "Max age (days)",
+        "title": "Opbevaring af job",
+        "keepCompleted": "Behold fuldførte job",
+        "keepFailed": "Behold mislykkede job",
+        "maxAgeDays": "Maks. alder (dage)",
         "description": "Hvor mange færdige job der gemmes pr. kø."
       },
-      "pagination": "Page {current} of {total}"
+      "pagination": "Side {current} af {total}"
     },
     "cuisineVocabulary": {
       "description": "Køkkener er et kurateret ordforråd, du ejer. Navne vises præcis som skrevet her, på alle sprog.",

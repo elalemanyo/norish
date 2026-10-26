@@ -380,7 +380,7 @@
       "emptyFiltered": "Brak elementów o statusie: {status}",
       "emptyDefault": "Brak rekordów synchronizacji",
       "errorDetails": "Szczegóły błędu",
-      "pagination": "Page {current} of {total}"
+      "pagination": "Strona {current} z {total}"
     }
   },
   "ingredients": {
@@ -647,7 +647,7 @@
       },
       "roles": {
         "owner": "Właściciel",
-        "admin": "Admin"
+        "admin": "Administrator"
       },
       "noHousehold": "Brak gospodarstwa",
       "loading": "Ładowanie użytkowników…",
@@ -822,13 +822,13 @@
         "description": "Skonfiguruj słowa kluczowe używane do wykrywania timerów w instrukcjach. Obsługuje wiele języków.",
         "enableToggle": "Włącz wykrywanie timerów",
         "hoursLabel": "Słowa kluczowe godzin",
-        "hoursPlaceholder": "hour, hours, hr, hrs, h",
+        "hoursPlaceholder": "godzina, godziny, godzin, godz., h",
         "hoursHelp": "Słowa kluczowe dla godzin (np. hour, stunde, heure, uur)",
         "minutesLabel": "Słowa kluczowe minut",
-        "minutesPlaceholder": "minute, minutes, min, mins, m",
+        "minutesPlaceholder": "minuta, minuty, minut, min, m",
         "minutesHelp": "Słowa kluczowe dla minut (np. minute, minuten, minuut)",
         "secondsLabel": "Słowa kluczowe sekund",
-        "secondsPlaceholder": "second, seconds, sec, secs, s",
+        "secondsPlaceholder": "sekunda, sekundy, sekund, sek., s",
         "secondsHelp": "Słowa kluczowe dla sekund (np. second, sekunde, seconde)",
         "unsavedChanges": "Niezapisane zmiany"
       }
@@ -1181,65 +1181,65 @@
       "failedToRestore": "Nie udało się przywrócić domyślnych"
     },
     "jobQueue": {
-      "title": "Job Queues",
-      "description": "Monitor background jobs across all queues: status, current step, duration, and failures.",
-      "empty": "No jobs found",
+      "title": "Kolejki zadań",
+      "description": "Monitoruj zadania w tle we wszystkich kolejkach: status, bieżący krok, czas trwania i błędy.",
+      "empty": "Nie znaleziono zadań",
       "filters": {
-        "queue": "Queue",
-        "allQueues": "All queues"
+        "queue": "Kolejka",
+        "allQueues": "Wszystkie kolejki"
       },
       "status": {
-        "waiting": "Waiting",
-        "active": "Active",
-        "delayed": "Delayed",
-        "completed": "Completed",
-        "failed": "Failed",
-        "cancelled": "Cancelled",
-        "prioritized": "Prioritized",
-        "unknown": "Unknown",
-        "hanging": "Hanging"
+        "waiting": "Oczekuje",
+        "active": "Aktywne",
+        "delayed": "Opóźnione",
+        "completed": "Zakończone",
+        "failed": "Nieudane",
+        "cancelled": "Anulowane",
+        "prioritized": "Priorytetowe",
+        "unknown": "Nieznane",
+        "hanging": "Zawieszone"
       },
       "stepStatus": {
-        "done": "Done",
-        "failed": "Failed",
-        "running": "Running",
-        "skipped": "Skipped",
-        "pending": "Pending"
+        "done": "Ukończony",
+        "failed": "Nieudany",
+        "running": "W toku",
+        "skipped": "Pominięty",
+        "pending": "Oczekuje"
       },
       "steps": {
-        "dedupe-check": "Check existing",
-        "fetch-allergies": "Fetch allergies",
-        "parsing": "Parse recipe",
-        "saving": "Save recipe",
-        "post-processing": "Post processing",
-        "preparing-images": "Prepare images",
-        "ai-extraction": "AI extraction",
-        "parsing-text": "Parse pasted text",
-        "creating-recipes": "Create recipes",
-        "ai-request": "AI request",
-        "syncing-event": "Sync calendar event",
-        "deleting-event": "Delete calendar event",
-        "running": "Run task",
-        "searching": "Search the shop",
-        "reading-product": "Read the product page",
-        "saving-link": "Save the link",
-        "asking-ai": "Ask AI about the food",
+        "dedupe-check": "Sprawdź istniejące",
+        "fetch-allergies": "Pobierz alergie",
+        "parsing": "Przeanalizuj przepis",
+        "saving": "Zapisz przepis",
+        "post-processing": "Przetwarzanie końcowe",
+        "preparing-images": "Przygotuj obrazy",
+        "ai-extraction": "Ekstrakcja AI",
+        "parsing-text": "Przeanalizuj wklejony tekst",
+        "creating-recipes": "Utwórz przepisy",
+        "ai-request": "Żądanie do AI",
+        "syncing-event": "Synchronizuj wydarzenie kalendarza",
+        "deleting-event": "Usuń wydarzenie kalendarza",
+        "running": "Uruchom zadanie",
+        "searching": "Szukaj w sklepie",
+        "reading-product": "Odczytaj stronę produktu",
+        "saving-link": "Zapisz link",
+        "asking-ai": "Zapytaj AI o produkt",
         "drawing-icon": "Narysuj ikonę produktu",
         "filling-gaps": "Uzupełnij braki produktu",
         "naming": "Uporządkuj nazwę produktu"
       },
       "queues": {
-        "recipe-import": "Recipe import",
-        "image-recipe-import": "Image import",
-        "paste-recipe-import": "Paste import",
-        "nutrition-estimation": "Nutrition estimation",
-        "auto-tagging": "Auto-tagging",
-        "auto-categorization": "Auto-categorization",
-        "allergy-detection": "Allergy detection",
+        "recipe-import": "Import przepisów",
+        "image-recipe-import": "Import z obrazu",
+        "paste-recipe-import": "Import z wklejonego tekstu",
+        "nutrition-estimation": "Szacowanie wartości odżywczych",
+        "auto-tagging": "Automatyczne tagowanie",
+        "auto-categorization": "Automatyczna kategoryzacja",
+        "allergy-detection": "Wykrywanie alergenów",
         "recipe-provenance": "Pochodzenie przepisu",
         "ingredient-linking": "Wiązanie składników",
-        "caldav-sync": "CalDAV sync",
-        "scheduled-tasks": "Scheduled tasks",
+        "caldav-sync": "Synchronizacja CalDAV",
+        "scheduled-tasks": "Zaplanowane zadania",
         "image-generation": "Generowanie obrazów",
         "store-lookup": "Wyszukiwanie w sklepie",
         "ingredient-review": "Zapytaj AI o składniki",
@@ -1247,64 +1247,64 @@
         "ingredient-fill": "Uzupełnianie braków składników"
       },
       "summary": {
-        "failed": "{count} failed"
+        "failed": "Nieudane: {count}"
       },
       "table": {
-        "job": "Job",
+        "job": "Zadanie",
         "status": "Status",
-        "step": "Step",
-        "duration": "Duration",
-        "created": "Created",
-        "runsAt": "Runs {time}"
+        "step": "Krok",
+        "duration": "Czas trwania",
+        "created": "Utworzono",
+        "runsAt": "Uruchomi się {time}"
       },
       "detail": {
-        "title": "Job Details",
-        "notFound": "Job not found. It may have been cleaned up.",
-        "cancelledNote": "An administrator cancelled this job.",
+        "title": "Szczegóły zadania",
+        "notFound": "Nie znaleziono zadania. Mogło zostać usunięte podczas czyszczenia.",
+        "cancelledNote": "Administrator anulował to zadanie.",
         "sections": {
-          "error": "Error",
-          "pipelineSteps": "Pipeline Steps",
-          "input": "Input",
-          "logs": "Logs",
-          "errors": "Errors"
+          "error": "Błąd",
+          "pipelineSteps": "Kroki przetwarzania",
+          "input": "Dane wejściowe",
+          "logs": "Logi",
+          "errors": "Błędy"
         },
         "fields": {
-          "queue": "Queue",
-          "jobId": "Job ID",
-          "description": "Description",
-          "recipe": "Recipe",
-          "created": "Created",
-          "started": "Started",
-          "finished": "Finished",
-          "duration": "Duration",
-          "attempts": "Attempts",
+          "queue": "Kolejka",
+          "jobId": "ID zadania",
+          "description": "Opis",
+          "recipe": "Przepis",
+          "created": "Utworzono",
+          "started": "Rozpoczęto",
+          "finished": "Zakończono",
+          "duration": "Czas trwania",
+          "attempts": "Próby",
           "models": "Modele",
           "tokens": "Tokeny",
-          "runsAt": "Runs at",
-          "nextRun": "Next run"
+          "runsAt": "Zaplanowano na",
+          "nextRun": "Następne uruchomienie"
         },
         "modelTokens": "{tokens} tokenów",
-        "attempt": "Attempt {number}",
-        "stackTrace": "Stack trace"
+        "attempt": "Próba {number}",
+        "stackTrace": "Ślad stosu"
       },
       "actions": {
-        "retry": "Retry",
-        "cancel": "Cancel job",
-        "cancelling": "Cancelling…",
-        "remove": "Remove"
+        "retry": "Ponów",
+        "cancel": "Anuluj zadanie",
+        "cancelling": "Anulowanie…",
+        "remove": "Usuń"
       },
       "removeModal": {
-        "message": "Permanently remove this job?",
-        "confirm": "Remove job"
+        "message": "Trwale usunąć to zadanie?",
+        "confirm": "Usuń zadanie"
       },
       "retention": {
-        "title": "Job Retention",
-        "keepCompleted": "Keep completed jobs",
-        "keepFailed": "Keep failed jobs",
-        "maxAgeDays": "Max age (days)",
+        "title": "Przechowywanie zadań",
+        "keepCompleted": "Zachowuj zakończone zadania",
+        "keepFailed": "Zachowuj nieudane zadania",
+        "maxAgeDays": "Maks. wiek (dni)",
         "description": "Ile zakończonych zadań przechowywać w każdej kolejce."
       },
-      "pagination": "Page {current} of {total}"
+      "pagination": "Strona {current} z {total}"
     },
     "cuisineVocabulary": {
       "description": "Kuchnie to wyselekcjonowany słownik, który należy do Ciebie. Nazwy są pokazywane dokładnie tak, jak je tu zapiszesz, we wszystkich językach.",

@@ -79,14 +79,14 @@
     "increaseServings": "Meer porties"
   },
   "actions": {
-    "plan": "Plan",
+    "plan": "Plannen",
     "groceries": "Boodschappen",
     "edit": "Bewerken",
     "delete": "Verwijder",
     "share": "Delen",
     "visitOriginal": "Bekijk Origineel Recept",
     "addToCalendar": "Toevoegen aan Agenda",
-    "autoTag": "Auto-tag",
+    "autoTag": "Automatisch taggen",
     "autoTagging": "Tags genereren...",
     "autoCategorize": "Auto Categoriseren",
     "detectAllergies": "Detecteer Allergieën",
@@ -325,7 +325,7 @@
     "batchImported": "Recepten geïmporteerd",
     "batchImportedDescription": "{count} recepten geïmporteerd uit archief",
     "view": "Bekijk",
-    "open": "Open"
+    "open": "Openen"
   },
   "tags": {
     "panel": {

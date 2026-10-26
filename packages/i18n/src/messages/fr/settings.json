@@ -40,7 +40,7 @@
       "title": "Profil",
       "nameLabel": "Nom",
       "namePlaceholder": "Votre nom",
-      "emailLabel": "Email",
+      "emailLabel": "E-mail",
       "avatarHint": "Cliquez sur votre avatar pour changer l'image",
       "deleteAvatar": "Supprimer la photo de profil",
       "saveChanges": "Enregistrer les modifications"
@@ -380,7 +380,7 @@
       "emptyFiltered": "Aucun élément {status} trouvé",
       "emptyDefault": "Aucun enregistrement de synchronisation",
       "errorDetails": "Détails de l’erreur",
-      "pagination": "Page {current} of {total}"
+      "pagination": "Page {current} sur {total}"
     }
   },
   "ingredients": {
@@ -945,8 +945,8 @@
         "deepseek": "DeepSeek",
         "perplexity": "Perplexity",
         "groq": "Groq",
-        "ollama": "Ollama (Local)",
-        "lmStudio": "LM Studio (Local)",
+        "ollama": "Ollama (local)",
+        "lmStudio": "LM Studio (local)",
         "genericOpenai": "Compatible OpenAI générique"
       },
       "endpointUrl": "URL de l'endpoint",
@@ -1018,7 +1018,7 @@
       "ytDlpVersionMissing": "Aucun binaire yt-dlp trouvé",
       "ytDlpVersionUnknown": "Vérification impossible",
       "ytDlpVersionLoading": "Vérification …",
-      "ytDlpProxy": "yt-dlp Proxy",
+      "ytDlpProxy": "Proxy yt-dlp",
       "ytDlpProxyDescription": "Proxy HTTP/SOCKS5 pour yt-dlp",
       "transcription": "Transcription",
       "transcriptionDescription": "Convertit l’audio en texte pour extraire les recettes",
@@ -1073,7 +1073,7 @@
         "openai": "OpenAI",
         "google": "Google AI",
         "azure": "Azure OpenAI",
-        "ollama": "Ollama (Local)",
+        "ollama": "Ollama (local)",
         "lmStudio": "LM Studio",
         "genericOpenai": "Compatible OpenAI générique"
       },
@@ -1181,65 +1181,65 @@
       "failedToRestore": "Échec de la restauration"
     },
     "jobQueue": {
-      "title": "Job Queues",
-      "description": "Monitor background jobs across all queues: status, current step, duration, and failures.",
-      "empty": "No jobs found",
+      "title": "Files de tâches",
+      "description": "Surveillez les tâches d’arrière-plan de toutes les files : statut, étape en cours, durée et échecs.",
+      "empty": "Aucune tâche trouvée",
       "filters": {
-        "queue": "Queue",
-        "allQueues": "All queues"
+        "queue": "File",
+        "allQueues": "Toutes les files"
       },
       "status": {
-        "waiting": "Waiting",
+        "waiting": "En attente",
         "active": "Active",
-        "delayed": "Delayed",
-        "completed": "Completed",
-        "failed": "Failed",
-        "cancelled": "Cancelled",
-        "prioritized": "Prioritized",
-        "unknown": "Unknown",
-        "hanging": "Hanging"
+        "delayed": "Différée",
+        "completed": "Terminée",
+        "failed": "Échouée",
+        "cancelled": "Annulée",
+        "prioritized": "Prioritaire",
+        "unknown": "Inconnu",
+        "hanging": "Bloquée"
       },
       "stepStatus": {
-        "done": "Done",
-        "failed": "Failed",
-        "running": "Running",
-        "skipped": "Skipped",
-        "pending": "Pending"
+        "done": "Terminée",
+        "failed": "Échouée",
+        "running": "En cours",
+        "skipped": "Ignorée",
+        "pending": "En attente"
       },
       "steps": {
-        "dedupe-check": "Check existing",
-        "fetch-allergies": "Fetch allergies",
-        "parsing": "Parse recipe",
-        "saving": "Save recipe",
-        "post-processing": "Post processing",
-        "preparing-images": "Prepare images",
-        "ai-extraction": "AI extraction",
-        "parsing-text": "Parse pasted text",
-        "creating-recipes": "Create recipes",
-        "ai-request": "AI request",
-        "syncing-event": "Sync calendar event",
-        "deleting-event": "Delete calendar event",
-        "running": "Run task",
-        "searching": "Search the shop",
-        "reading-product": "Read the product page",
-        "saving-link": "Save the link",
-        "asking-ai": "Ask AI about the food",
+        "dedupe-check": "Vérifier les doublons",
+        "fetch-allergies": "Récupérer les allergies",
+        "parsing": "Analyser la recette",
+        "saving": "Enregistrer la recette",
+        "post-processing": "Post-traitement",
+        "preparing-images": "Préparer les images",
+        "ai-extraction": "Extraction par IA",
+        "parsing-text": "Analyser le texte collé",
+        "creating-recipes": "Créer les recettes",
+        "ai-request": "Requête IA",
+        "syncing-event": "Synchroniser l’événement du calendrier",
+        "deleting-event": "Supprimer l’événement du calendrier",
+        "running": "Exécuter la tâche",
+        "searching": "Chercher dans la boutique",
+        "reading-product": "Lire la page du produit",
+        "saving-link": "Enregistrer le lien",
+        "asking-ai": "Interroger l’IA sur l’aliment",
         "drawing-icon": "Dessiner l’icône de l’aliment",
         "filling-gaps": "Compléter les manques de l’aliment",
         "naming": "Nettoyer le nom de l’aliment"
       },
       "queues": {
-        "recipe-import": "Recipe import",
-        "image-recipe-import": "Image import",
-        "paste-recipe-import": "Paste import",
-        "nutrition-estimation": "Nutrition estimation",
-        "auto-tagging": "Auto-tagging",
-        "auto-categorization": "Auto-categorization",
-        "allergy-detection": "Allergy detection",
+        "recipe-import": "Import de recettes",
+        "image-recipe-import": "Import d’images",
+        "paste-recipe-import": "Import par collage",
+        "nutrition-estimation": "Estimation nutritionnelle",
+        "auto-tagging": "Étiquetage automatique",
+        "auto-categorization": "Catégorisation automatique",
+        "allergy-detection": "Détection des allergies",
         "recipe-provenance": "Provenance de la recette",
         "ingredient-linking": "Liaison des ingrédients",
-        "caldav-sync": "CalDAV sync",
-        "scheduled-tasks": "Scheduled tasks",
+        "caldav-sync": "Synchronisation CalDAV",
+        "scheduled-tasks": "Tâches planifiées",
         "image-generation": "Génération d'images",
         "store-lookup": "Recherche en boutique",
         "ingredient-review": "Demander à l'IA sur les ingrédients",
@@ -1247,64 +1247,64 @@
         "ingredient-fill": "Complétion des manques des ingrédients"
       },
       "summary": {
-        "failed": "{count} failed"
+        "failed": "{count} en échec"
       },
       "table": {
-        "job": "Job",
-        "status": "Status",
-        "step": "Step",
-        "duration": "Duration",
-        "created": "Created",
-        "runsAt": "Runs {time}"
+        "job": "Tâche",
+        "status": "Statut",
+        "step": "Étape",
+        "duration": "Durée",
+        "created": "Créée",
+        "runsAt": "Exécution {time}"
       },
       "detail": {
-        "title": "Job Details",
-        "notFound": "Job not found. It may have been cleaned up.",
-        "cancelledNote": "An administrator cancelled this job.",
+        "title": "Détails de la tâche",
+        "notFound": "Tâche introuvable. Elle a peut-être été nettoyée.",
+        "cancelledNote": "Un administrateur a annulé cette tâche.",
         "sections": {
-          "error": "Error",
-          "pipelineSteps": "Pipeline Steps",
-          "input": "Input",
-          "logs": "Logs",
-          "errors": "Errors"
+          "error": "Erreur",
+          "pipelineSteps": "Étapes du pipeline",
+          "input": "Entrée",
+          "logs": "Journaux",
+          "errors": "Erreurs"
         },
         "fields": {
-          "queue": "Queue",
-          "jobId": "Job ID",
+          "queue": "File",
+          "jobId": "ID de la tâche",
           "description": "Description",
-          "recipe": "Recipe",
-          "created": "Created",
-          "started": "Started",
-          "finished": "Finished",
-          "duration": "Duration",
-          "attempts": "Attempts",
+          "recipe": "Recette",
+          "created": "Créée",
+          "started": "Démarrée",
+          "finished": "Terminée",
+          "duration": "Durée",
+          "attempts": "Tentatives",
           "models": "Modèles",
           "tokens": "Tokens",
-          "runsAt": "Runs at",
-          "nextRun": "Next run"
+          "runsAt": "Exécution à",
+          "nextRun": "Prochaine exécution"
         },
         "modelTokens": "{tokens} tokens",
-        "attempt": "Attempt {number}",
-        "stackTrace": "Stack trace"
+        "attempt": "Tentative {number}",
+        "stackTrace": "Trace de pile"
       },
       "actions": {
-        "retry": "Retry",
-        "cancel": "Cancel job",
-        "cancelling": "Cancelling…",
-        "remove": "Remove"
+        "retry": "Réessayer",
+        "cancel": "Annuler la tâche",
+        "cancelling": "Annulation…",
+        "remove": "Supprimer"
       },
       "removeModal": {
-        "message": "Permanently remove this job?",
-        "confirm": "Remove job"
+        "message": "Supprimer définitivement cette tâche ?",
+        "confirm": "Supprimer la tâche"
       },
       "retention": {
-        "title": "Job Retention",
-        "keepCompleted": "Keep completed jobs",
-        "keepFailed": "Keep failed jobs",
-        "maxAgeDays": "Max age (days)",
+        "title": "Conservation des tâches",
+        "keepCompleted": "Conserver les tâches terminées",
+        "keepFailed": "Conserver les tâches échouées",
+        "maxAgeDays": "Âge max. (jours)",
         "description": "Nombre de tâches terminées à conserver par file d'attente."
       },
-      "pagination": "Page {current} of {total}"
+      "pagination": "Page {current} sur {total}"
     },
     "cuisineVocabulary": {
       "description": "Les cuisines forment un vocabulaire organisé qui vous appartient. Les noms s'affichent exactement comme écrits ici, dans toutes les langues.",

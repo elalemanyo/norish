@@ -380,7 +380,7 @@
       "emptyFiltered": "{status} 항목을 찾을 수 없습니다.",
       "emptyDefault": "동기화 기록을 찾을 수 없습니다.",
       "errorDetails": "오류 세부정보",
-      "pagination": "Page {current} of {total}"
+      "pagination": "{total}페이지 중 {current}페이지"
     }
   },
   "ingredients": {
@@ -1181,65 +1181,65 @@
       "failedToRestore": "기본값을 복원하지 못했습니다."
     },
     "jobQueue": {
-      "title": "Job Queues",
-      "description": "Monitor background jobs across all queues: status, current step, duration, and failures.",
-      "empty": "No jobs found",
+      "title": "작업 대기열",
+      "description": "모든 대기열의 백그라운드 작업 상태, 현재 단계, 소요 시간, 실패를 모니터링합니다.",
+      "empty": "작업을 찾을 수 없습니다",
       "filters": {
-        "queue": "Queue",
-        "allQueues": "All queues"
+        "queue": "대기열",
+        "allQueues": "모든 대기열"
       },
       "status": {
-        "waiting": "Waiting",
-        "active": "Active",
-        "delayed": "Delayed",
-        "completed": "Completed",
-        "failed": "Failed",
-        "cancelled": "Cancelled",
-        "prioritized": "Prioritized",
-        "unknown": "Unknown",
-        "hanging": "Hanging"
+        "waiting": "대기 중",
+        "active": "실행 중",
+        "delayed": "지연됨",
+        "completed": "완료됨",
+        "failed": "실패",
+        "cancelled": "취소됨",
+        "prioritized": "우선 처리",
+        "unknown": "알 수 없음",
+        "hanging": "멈춤"
       },
       "stepStatus": {
-        "done": "Done",
-        "failed": "Failed",
-        "running": "Running",
-        "skipped": "Skipped",
-        "pending": "Pending"
+        "done": "완료",
+        "failed": "실패",
+        "running": "실행 중",
+        "skipped": "건너뜀",
+        "pending": "대기 중"
       },
       "steps": {
-        "dedupe-check": "Check existing",
-        "fetch-allergies": "Fetch allergies",
-        "parsing": "Parse recipe",
-        "saving": "Save recipe",
-        "post-processing": "Post processing",
-        "preparing-images": "Prepare images",
-        "ai-extraction": "AI extraction",
-        "parsing-text": "Parse pasted text",
-        "creating-recipes": "Create recipes",
-        "ai-request": "AI request",
-        "syncing-event": "Sync calendar event",
-        "deleting-event": "Delete calendar event",
-        "running": "Run task",
-        "searching": "Search the shop",
-        "reading-product": "Read the product page",
-        "saving-link": "Save the link",
-        "asking-ai": "Ask AI about the food",
+        "dedupe-check": "기존 항목 확인",
+        "fetch-allergies": "알레르기 정보 가져오기",
+        "parsing": "레시피 분석",
+        "saving": "레시피 저장",
+        "post-processing": "후처리",
+        "preparing-images": "이미지 준비",
+        "ai-extraction": "AI 추출",
+        "parsing-text": "붙여넣은 텍스트 분석",
+        "creating-recipes": "레시피 생성",
+        "ai-request": "AI 요청",
+        "syncing-event": "캘린더 이벤트 동기화",
+        "deleting-event": "캘린더 이벤트 삭제",
+        "running": "작업 실행",
+        "searching": "매장 검색",
+        "reading-product": "상품 페이지 읽기",
+        "saving-link": "링크 저장",
+        "asking-ai": "AI에게 식품에 대해 묻기",
         "drawing-icon": "식품 아이콘 그리기",
         "filling-gaps": "식재료의 빈 정보 채우기",
         "naming": "식품 이름 정리"
       },
       "queues": {
-        "recipe-import": "Recipe import",
-        "image-recipe-import": "Image import",
-        "paste-recipe-import": "Paste import",
-        "nutrition-estimation": "Nutrition estimation",
-        "auto-tagging": "Auto-tagging",
-        "auto-categorization": "Auto-categorization",
-        "allergy-detection": "Allergy detection",
+        "recipe-import": "레시피 가져오기",
+        "image-recipe-import": "이미지 가져오기",
+        "paste-recipe-import": "붙여넣기 가져오기",
+        "nutrition-estimation": "영양 정보 추정",
+        "auto-tagging": "자동 태그 지정",
+        "auto-categorization": "자동 분류",
+        "allergy-detection": "알레르기 감지",
         "recipe-provenance": "레시피 유래",
         "ingredient-linking": "재료 연결",
-        "caldav-sync": "CalDAV sync",
-        "scheduled-tasks": "Scheduled tasks",
+        "caldav-sync": "CalDAV 동기화",
+        "scheduled-tasks": "예약된 작업",
         "image-generation": "이미지 생성",
         "store-lookup": "매장 조회",
         "ingredient-review": "AI에게 재료 묻기",
@@ -1247,64 +1247,64 @@
         "ingredient-fill": "식재료 빈 정보 채우기"
       },
       "summary": {
-        "failed": "{count} failed"
+        "failed": "{count}개 실패"
       },
       "table": {
-        "job": "Job",
-        "status": "Status",
-        "step": "Step",
-        "duration": "Duration",
-        "created": "Created",
-        "runsAt": "Runs {time}"
+        "job": "작업",
+        "status": "상태",
+        "step": "단계",
+        "duration": "소요 시간",
+        "created": "생성",
+        "runsAt": "실행 예정: {time}"
       },
       "detail": {
-        "title": "Job Details",
-        "notFound": "Job not found. It may have been cleaned up.",
-        "cancelledNote": "An administrator cancelled this job.",
+        "title": "작업 세부정보",
+        "notFound": "작업을 찾을 수 없습니다. 정리되었을 수 있습니다.",
+        "cancelledNote": "관리자가 이 작업을 취소했습니다.",
         "sections": {
-          "error": "Error",
-          "pipelineSteps": "Pipeline Steps",
-          "input": "Input",
-          "logs": "Logs",
-          "errors": "Errors"
+          "error": "오류",
+          "pipelineSteps": "파이프라인 단계",
+          "input": "입력",
+          "logs": "로그",
+          "errors": "오류 목록"
         },
         "fields": {
-          "queue": "Queue",
-          "jobId": "Job ID",
-          "description": "Description",
-          "recipe": "Recipe",
-          "created": "Created",
-          "started": "Started",
-          "finished": "Finished",
-          "duration": "Duration",
-          "attempts": "Attempts",
+          "queue": "대기열",
+          "jobId": "작업 ID",
+          "description": "설명",
+          "recipe": "레시피",
+          "created": "생성",
+          "started": "시작",
+          "finished": "종료",
+          "duration": "소요 시간",
+          "attempts": "시도 횟수",
           "models": "모델",
           "tokens": "토큰",
-          "runsAt": "Runs at",
-          "nextRun": "Next run"
+          "runsAt": "실행 시각",
+          "nextRun": "다음 실행"
         },
         "modelTokens": "{tokens} 토큰",
-        "attempt": "Attempt {number}",
-        "stackTrace": "Stack trace"
+        "attempt": "{number}번째 시도",
+        "stackTrace": "스택 트레이스"
       },
       "actions": {
-        "retry": "Retry",
-        "cancel": "Cancel job",
-        "cancelling": "Cancelling…",
-        "remove": "Remove"
+        "retry": "다시 시도",
+        "cancel": "작업 취소",
+        "cancelling": "취소 중…",
+        "remove": "삭제"
       },
       "removeModal": {
-        "message": "Permanently remove this job?",
-        "confirm": "Remove job"
+        "message": "이 작업을 영구적으로 삭제하시겠습니까?",
+        "confirm": "작업 삭제"
       },
       "retention": {
-        "title": "Job Retention",
-        "keepCompleted": "Keep completed jobs",
-        "keepFailed": "Keep failed jobs",
-        "maxAgeDays": "Max age (days)",
+        "title": "작업 보관",
+        "keepCompleted": "보관할 완료된 작업",
+        "keepFailed": "보관할 실패한 작업",
+        "maxAgeDays": "최대 보관 기간(일)",
         "description": "대기열마다 보관할 완료된 작업 수입니다."
       },
-      "pagination": "Page {current} of {total}"
+      "pagination": "{total}페이지 중 {current}페이지"
     },
     "cuisineVocabulary": {
       "description": "요리는 관리자가 소유하는 선별된 어휘 목록입니다. 이름은 모든 언어에서 여기 적힌 그대로 표시됩니다.",

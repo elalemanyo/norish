@@ -202,9 +202,9 @@
         "options": {
           "off": "Не преобразовывать",
           "metric": "Метрическая",
-          "us": "US",
+          "us": "Американская",
           "metricWithAI": "Метрическая с ИИ",
-          "usWithAI": "US с ИИ"
+          "usWithAI": "Американская с ИИ"
         }
       }
     },
@@ -314,7 +314,7 @@
       "serverUrlDescription": "Базовый URL вашего CalDAV-сервера (например, https://dav.example.com)",
       "serverUrlPlaceholder": "https://dav.example.com",
       "usernameLabel": "Имя пользователя",
-      "usernamePlaceholder": "username",
+      "usernamePlaceholder": "имя пользователя",
       "passwordLabel": "Пароль",
       "passwordPlaceholder": "Введите пароль",
       "calendarLabel": "Календарь",
@@ -380,7 +380,7 @@
       "emptyFiltered": "Элементы со статусом «{status}» не найдены",
       "emptyDefault": "Записи синхронизации не найдены",
       "errorDetails": "Подробности ошибки",
-      "pagination": "Page {current} of {total}"
+      "pagination": "Страница {current} из {total}"
     }
   },
   "ingredients": {
@@ -459,8 +459,8 @@
       "fat": "Жиры",
       "carbs": "Углеводы",
       "protein": "Белки",
-      "kcal": "{value} kcal",
-      "grams": "{value} g",
+      "kcal": "{value} ккал",
+      "grams": "{value} г",
       "spoonGrams": {
         "teaspoon": "{value} г в чайной ложке",
         "tablespoon": "{value} г в столовой ложке",
@@ -490,10 +490,10 @@
       "pickFood": "Продукт из наборов данных",
       "typeLabel": "С этикетки",
       "label": {
-        "calories": "Калории (kcal)",
-        "fat": "Жиры (g)",
-        "carbs": "Углеводы (g)",
-        "protein": "Белки (g)",
+        "calories": "Калории (ккал)",
+        "fat": "Жиры (г)",
+        "carbs": "Углеводы (г)",
+        "protein": "Белки (г)",
         "pieceGrams": "Одна штука весит (г)",
         "spoonGrams": {
           "teaspoon": "Чайная ложка весит (г)",
@@ -822,13 +822,13 @@
         "description": "Настройте ключевые слова, используемые для обнаружения таймеров в инструкциях рецепта. Поддерживает несколько языков.",
         "enableToggle": "Включить определение таймеров",
         "hoursLabel": "Ключевые слова часов",
-        "hoursPlaceholder": "hour, hours, hr, hrs, h",
+        "hoursPlaceholder": "час, часа, часов, ч",
         "hoursHelp": "Ключевые слова для часов (например, hour, stunde, heure, uur)",
         "minutesLabel": "Ключевые слова минут",
-        "minutesPlaceholder": "minute, minutes, min, mins, m",
+        "minutesPlaceholder": "минута, минуты, минут, мин",
         "minutesHelp": "Ключевые слова для минут (например, minute, minuten, minuut)",
         "secondsLabel": "Ключевые слова секунд",
-        "secondsPlaceholder": "second, seconds, sec, secs, s",
+        "secondsPlaceholder": "секунда, секунды, секунд, сек",
         "secondsHelp": "Ключевые слова для секунд (например, second, sekunde, seconde)",
         "unsavedChanges": "Несохранённые изменения"
       }
@@ -1018,7 +1018,7 @@
       "ytDlpVersionMissing": "Двоичный файл yt-dlp не найден",
       "ytDlpVersionUnknown": "Не удалось проверить",
       "ytDlpVersionLoading": "Проверка …",
-      "ytDlpProxy": "yt-dlp Proxy",
+      "ytDlpProxy": "Прокси yt-dlp",
       "ytDlpProxyDescription": "HTTP/SOCKS5-прокси для yt-dlp",
       "transcription": "Транскрибация",
       "transcriptionDescription": "Преобразование аудио в текст для извлечения рецептов",
@@ -1181,65 +1181,65 @@
       "failedToRestore": "Не удалось восстановить значения по умолчанию"
     },
     "jobQueue": {
-      "title": "Job Queues",
-      "description": "Monitor background jobs across all queues: status, current step, duration, and failures.",
-      "empty": "No jobs found",
+      "title": "Очереди задач",
+      "description": "Отслеживайте фоновые задачи во всех очередях: статус, текущий шаг, длительность и сбои.",
+      "empty": "Задачи не найдены",
       "filters": {
-        "queue": "Queue",
-        "allQueues": "All queues"
+        "queue": "Очередь",
+        "allQueues": "Все очереди"
       },
       "status": {
-        "waiting": "Waiting",
-        "active": "Active",
-        "delayed": "Delayed",
-        "completed": "Completed",
-        "failed": "Failed",
-        "cancelled": "Cancelled",
-        "prioritized": "Prioritized",
-        "unknown": "Unknown",
-        "hanging": "Hanging"
+        "waiting": "Ожидает",
+        "active": "Выполняется",
+        "delayed": "Отложена",
+        "completed": "Завершена",
+        "failed": "Сбой",
+        "cancelled": "Отменена",
+        "prioritized": "С приоритетом",
+        "unknown": "Неизвестно",
+        "hanging": "Зависла"
       },
       "stepStatus": {
-        "done": "Done",
-        "failed": "Failed",
-        "running": "Running",
-        "skipped": "Skipped",
-        "pending": "Pending"
+        "done": "Готово",
+        "failed": "Сбой",
+        "running": "Выполняется",
+        "skipped": "Пропущен",
+        "pending": "Ожидает"
       },
       "steps": {
-        "dedupe-check": "Check existing",
-        "fetch-allergies": "Fetch allergies",
-        "parsing": "Parse recipe",
-        "saving": "Save recipe",
-        "post-processing": "Post processing",
-        "preparing-images": "Prepare images",
-        "ai-extraction": "AI extraction",
-        "parsing-text": "Parse pasted text",
-        "creating-recipes": "Create recipes",
-        "ai-request": "AI request",
-        "syncing-event": "Sync calendar event",
-        "deleting-event": "Delete calendar event",
-        "running": "Run task",
-        "searching": "Search the shop",
-        "reading-product": "Read the product page",
-        "saving-link": "Save the link",
-        "asking-ai": "Ask AI about the food",
+        "dedupe-check": "Проверить на дубликаты",
+        "fetch-allergies": "Получить аллергены",
+        "parsing": "Разобрать рецепт",
+        "saving": "Сохранить рецепт",
+        "post-processing": "Постобработка",
+        "preparing-images": "Подготовить изображения",
+        "ai-extraction": "Извлечение с помощью ИИ",
+        "parsing-text": "Разобрать вставленный текст",
+        "creating-recipes": "Создать рецепты",
+        "ai-request": "Запрос к ИИ",
+        "syncing-event": "Синхронизировать событие календаря",
+        "deleting-event": "Удалить событие календаря",
+        "running": "Выполнить задачу",
+        "searching": "Искать в магазине",
+        "reading-product": "Прочитать страницу товара",
+        "saving-link": "Сохранить ссылку",
+        "asking-ai": "Спросить ИИ о продукте",
         "drawing-icon": "Нарисовать значок продукта",
         "filling-gaps": "Заполнить пробелы продукта",
         "naming": "Очистить название продукта"
       },
       "queues": {
-        "recipe-import": "Recipe import",
-        "image-recipe-import": "Image import",
-        "paste-recipe-import": "Paste import",
-        "nutrition-estimation": "Nutrition estimation",
-        "auto-tagging": "Auto-tagging",
-        "auto-categorization": "Auto-categorization",
-        "allergy-detection": "Allergy detection",
+        "recipe-import": "Импорт рецептов",
+        "image-recipe-import": "Импорт из изображений",
+        "paste-recipe-import": "Импорт вставленного текста",
+        "nutrition-estimation": "Оценка пищевой ценности",
+        "auto-tagging": "Автоматические теги",
+        "auto-categorization": "Автоматическая категоризация",
+        "allergy-detection": "Определение аллергенов",
         "recipe-provenance": "Происхождение рецепта",
         "ingredient-linking": "Связывание ингредиентов",
-        "caldav-sync": "CalDAV sync",
-        "scheduled-tasks": "Scheduled tasks",
+        "caldav-sync": "Синхронизация CalDAV",
+        "scheduled-tasks": "Задачи по расписанию",
         "image-generation": "Генерация изображений",
         "store-lookup": "Поиск в магазине",
         "ingredient-review": "Спросить ИИ об ингредиентах",
@@ -1247,64 +1247,64 @@
         "ingredient-fill": "Заполнение пробелов ингредиентов"
       },
       "summary": {
-        "failed": "{count} failed"
+        "failed": "Сбоев: {count}"
       },
       "table": {
-        "job": "Job",
-        "status": "Status",
-        "step": "Step",
-        "duration": "Duration",
-        "created": "Created",
-        "runsAt": "Runs {time}"
+        "job": "Задача",
+        "status": "Статус",
+        "step": "Шаг",
+        "duration": "Длительность",
+        "created": "Создана",
+        "runsAt": "Запуск {time}"
       },
       "detail": {
-        "title": "Job Details",
-        "notFound": "Job not found. It may have been cleaned up.",
-        "cancelledNote": "An administrator cancelled this job.",
+        "title": "Подробности задачи",
+        "notFound": "Задача не найдена. Возможно, она была удалена при очистке.",
+        "cancelledNote": "Администратор отменил эту задачу.",
         "sections": {
-          "error": "Error",
-          "pipelineSteps": "Pipeline Steps",
-          "input": "Input",
-          "logs": "Logs",
-          "errors": "Errors"
+          "error": "Ошибка",
+          "pipelineSteps": "Этапы обработки",
+          "input": "Входные данные",
+          "logs": "Журнал",
+          "errors": "Ошибки"
         },
         "fields": {
-          "queue": "Queue",
-          "jobId": "Job ID",
-          "description": "Description",
-          "recipe": "Recipe",
-          "created": "Created",
-          "started": "Started",
-          "finished": "Finished",
-          "duration": "Duration",
-          "attempts": "Attempts",
+          "queue": "Очередь",
+          "jobId": "ID задачи",
+          "description": "Описание",
+          "recipe": "Рецепт",
+          "created": "Создана",
+          "started": "Начата",
+          "finished": "Завершена",
+          "duration": "Длительность",
+          "attempts": "Попытки",
           "models": "Модели",
           "tokens": "Токены",
-          "runsAt": "Runs at",
-          "nextRun": "Next run"
+          "runsAt": "Запуск",
+          "nextRun": "Следующий запуск"
         },
         "modelTokens": "{tokens} токенов",
-        "attempt": "Attempt {number}",
-        "stackTrace": "Stack trace"
+        "attempt": "Попытка {number}",
+        "stackTrace": "Трассировка стека"
       },
       "actions": {
-        "retry": "Retry",
-        "cancel": "Cancel job",
-        "cancelling": "Cancelling…",
-        "remove": "Remove"
+        "retry": "Повторить",
+        "cancel": "Отменить задачу",
+        "cancelling": "Отмена…",
+        "remove": "Удалить"
       },
       "removeModal": {
-        "message": "Permanently remove this job?",
-        "confirm": "Remove job"
+        "message": "Безвозвратно удалить эту задачу?",
+        "confirm": "Удалить задачу"
       },
       "retention": {
-        "title": "Job Retention",
-        "keepCompleted": "Keep completed jobs",
-        "keepFailed": "Keep failed jobs",
-        "maxAgeDays": "Max age (days)",
+        "title": "Хранение задач",
+        "keepCompleted": "Хранить завершённые задачи",
+        "keepFailed": "Хранить задачи со сбоем",
+        "maxAgeDays": "Макс. срок (дни)",
         "description": "Сколько завершённых задач хранить в каждой очереди."
       },
-      "pagination": "Page {current} of {total}"
+      "pagination": "Страница {current} из {total}"
     },
     "cuisineVocabulary": {
       "description": "Кухни, это выверенный словарь, которым владеете вы. Названия показываются ровно так, как записаны здесь, на всех языках.",
