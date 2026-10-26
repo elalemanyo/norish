@@ -73,10 +73,10 @@ AI leaves alone an ingredient you marked distinct, renamed or gave a parent,
 every ingredient from the catalogue source, and one no recipe uses, which it
 also never merges another into or files another under.
 
-A Clean up catalogue run over the **Whole catalogue** also asks about the
-ingredients from the catalogue source, and ignores what people decided or
-undid for that run. It never deletes one from the catalogue source. It also
-checks the translations people, imports and merges added to them. A
+A Clean up catalogue run over the **Whole catalogue** ignores what people
+decided or undid for that run. It leaves the ingredients from the catalogue
+source as they are, and only checks the translations people, imports and
+merges added to them. A
 translation that names no food, like "boneless" on chicken breast, is removed
 and goes on the list of texts that are not a food. One that names another food,
 like "kippendijen" on chicken breast, moves to that food. Recipe lines and

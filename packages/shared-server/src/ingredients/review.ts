@@ -40,15 +40,20 @@ export type { ReviewOutcome };
 export type CleanUpOutcome = ReviewOutcome & { spellings?: SpellingCheckOutcome };
 
 /**
- * A whole-catalogue Clean up of one food (CONTEXT.md), overriding a person's decisions and undos;
- * a seeded food's added spellings are checked first.
+ * A whole-catalogue Clean up of one food (CONTEXT.md), overriding a person's decisions and undos.
+ * A seeded food is the catalogue's own: only the spellings added to it are checked.
  */
 export async function cleanUpOverWholeCatalogue(ingredientId: string): Promise<CleanUpOutcome> {
   return await overridingDecisions(async () => {
-    const seeded = (await findCatalogueIngredient(ingredientId))?.seeded;
-    const spellings = seeded ? await checkSpellingsOf(ingredientId) : null;
+    if (!(await findCatalogueIngredient(ingredientId))?.seeded)
+      return await askAIAbout(ingredientId);
 
-    return { ...(await askAIAbout(ingredientId)), ...(spellings && { spellings }) };
+    return {
+      outcome: "skipped",
+      reason: "seeded",
+      ...noTrace(),
+      spellings: await checkSpellingsOf(ingredientId),
+    };
   });
 }
 

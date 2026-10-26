@@ -79,11 +79,10 @@ qual deu um pai, em nenhum ingrediente da origem do catálogo, nem em um que
 nenhuma receita usa; também nunca mescla outro ingrediente nele nem coloca
 outro sob ele.
 
-Uma execução de Limpar o catálogo sobre o **Catálogo inteiro** também consulta
-a IA sobre os ingredientes da origem do catálogo e, nessa execução, ignora o que
-as pessoas decidiram ou desfizeram. Ela nunca exclui um ingrediente da origem
-do catálogo. Também verifica as traduções que pessoas, importações e mesclagens
-adicionaram a eles. Uma tradução que não nomeia nenhum alimento, como
+Uma execução de Limpar o catálogo sobre o **Catálogo inteiro** ignora, nessa
+execução, o que as pessoas decidiram ou desfizeram. Ela deixa os ingredientes da
+origem do catálogo como estão e só verifica as traduções que pessoas,
+importações e mesclagens adicionaram a eles. Uma tradução que não nomeia nenhum alimento, como
 "boneless" em chicken breast, é removida e entra na lista de textos que não são
 um alimento. Uma que nomeia outro alimento, como "kippendijen" em chicken
 breast, passa para esse alimento. Linhas de receita e itens de compra que

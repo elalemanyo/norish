@@ -129,12 +129,23 @@ describe("Plain Names", () => {
     });
   });
 
-  it("settles a name the plain name differs from only in case, keeping its casing", async () => {
+  it("takes the plain name's casing where only the casing differs", async () => {
     const chips = await food("Tortilla Chips");
 
     readsAs("tortilla chips");
-    await expect(giveItsPlainName(chips)).resolves.toEqual({ outcome: "plain" });
-    expect(await row(chips)).toMatchObject({ name: "Tortilla Chips", nameSettled: true });
+    await expect(giveItsPlainName(chips)).resolves.toEqual({
+      outcome: "rename",
+      to: "tortilla chips",
+    });
+    expect(await row(chips)).toMatchObject({ name: "tortilla chips", nameSettled: true });
+  });
+
+  it("settles a name the plain name differs from only in accents or marks, keeping its own", async () => {
+    const cream = await food("crème fraîche");
+
+    readsAs("creme fraiche");
+    await expect(giveItsPlainName(cream)).resolves.toEqual({ outcome: "plain" });
+    expect(await row(cream)).toMatchObject({ name: "crème fraîche", nameSettled: true });
     expect(await listAIChanges()).toEqual([]);
   });
 

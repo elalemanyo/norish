@@ -2,7 +2,7 @@ import type { IngredientReviewJobData } from "@norish/queue/contracts/job-types"
 import {
   findCatalogueIngredientNames,
   listAskableIngredientIds,
-  listListedIngredientIds,
+  listWholeCatalogueCleanUpIds,
 } from "@norish/db/repositories/ingredient-catalogue";
 import {
   getAutomaticIngredientsConfig,
@@ -36,7 +36,7 @@ export type CleanUpScope = "recipe-foods" | "whole-catalogue";
 /** The foods a Clean up over the scope asks about. */
 export async function listCleanUpFoods(scope: CleanUpScope): Promise<string[]> {
   return scope === "whole-catalogue"
-    ? await listListedIngredientIds()
+    ? await listWholeCatalogueCleanUpIds()
     : await listAskableIngredientIds();
 }
 

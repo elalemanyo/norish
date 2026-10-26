@@ -93,8 +93,9 @@ opções vêm desligadas por padrão:
 **Limpar o catálogo** pergunta à IA sobre os ingredientes que já estão no
 catálogo. Escolha **Alimentos das receitas** para os que as receitas trouxeram e
 sobre os quais ninguém decidiu, ou **Catálogo inteiro** para todos os
-ingredientes, inclusive os embutidos. Uma execução no catálogo inteiro ignora o
-que as pessoas decidiram ou desfizeram, e nunca exclui um ingrediente embutido.
+ingredientes que alguém adicionou. Uma execução no catálogo inteiro ignora o
+que as pessoas decidiram ou desfizeram. Ela deixa os ingredientes embutidos como
+estão e só verifica as traduções adicionadas a eles.
 A caixa de diálogo mostra sobre quantos ingredientes a IA vai perguntar.
 
 ![Limpar o catálogo](/img/screenshots/admin-clean-up-catalogue.png)

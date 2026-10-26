@@ -90,9 +90,10 @@ pantry item adds an ingredient. All options are off by default:
 
 **Clean up catalogue** asks AI about the ingredients already in the catalogue.
 Choose **Recipe foods** for the ones recipes brought in that nobody decided
-about, or **Whole catalogue** for every ingredient, built-in ones too. A
-whole-catalogue run ignores what people decided or undid, and never deletes a
-built-in ingredient. The dialog shows how many ingredients AI will ask about.
+about, or **Whole catalogue** for every ingredient someone added. A
+whole-catalogue run ignores what people decided or undid. It leaves built-in
+ingredients as they are and only checks the translations added to them. The
+dialog shows how many ingredients AI will ask about.
 
 ![Clean up catalogue](/img/screenshots/admin-clean-up-catalogue.png)
 

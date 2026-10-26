@@ -19,7 +19,7 @@ import { listAIChanges } from "@norish/db/repositories/ingredient-ai-changes";
 import { findIngredientByAliasId } from "@norish/db/repositories/ingredient-aliases";
 import {
   listAskableIngredientIds,
-  listListedIngredientIds,
+  listWholeCatalogueCleanUpIds,
 } from "@norish/db/repositories/ingredient-catalogue";
 import { listJunkFolds } from "@norish/db/repositories/ingredient-junk-pile";
 import {
@@ -2306,17 +2306,21 @@ describe("asking AI about an Ingredient", () => {
       return { food, butter: (await listSeededIngredientIds()).get("en:butter")! };
     }
 
-    it("asks recipe foods no person decided about, or every listed food, seeded ones included", async () => {
+    it("asks recipe foods no person decided about, or every listed own food and the seeded foods given a spelling", async () => {
       const { food, butter } = await underButter("peanut butter");
       const frankfurter = await kept("frankfurter");
       const grocery = await unnamed("reserve eten");
-      const listed = await listListedIngredientIds();
+      const whole = await listWholeCatalogueCleanUpIds();
 
       await expect(listAskableIngredientIds()).resolves.toEqual([food.ingredientId]);
-      expect(listed).toEqual(
-        expect.arrayContaining([food.ingredientId, butter, frankfurter.ingredientId])
-      );
-      expect(listed).not.toContain(grocery.ingredientId);
+      expect(whole).toEqual(expect.arrayContaining([food.ingredientId, frankfurter.ingredientId]));
+      expect(whole).not.toContain(grocery.ingredientId);
+      expect(whole).not.toContain(butter);
+
+      await getTestDb()
+        .insert(ingredientAliases)
+        .values({ text: "roomboter", fold: "roomboter", ingredientId: butter });
+      await expect(listWholeCatalogueCleanUpIds()).resolves.toContain(butter);
     });
 
     it("over the whole catalogue asks about a food a person parented, keeping the marker", async () => {
@@ -2365,18 +2369,15 @@ describe("asking AI about an Ingredient", () => {
       });
     });
 
-    it("never deletes or splits a seeded food, and checks its spellings", async () => {
+    it("asks AI nothing about a seeded food, and checks only the spellings added to it", async () => {
       const { butter } = await underButter("peanut butter");
-      const answered = [() => readsNoFood(true), () => splits(["milk", "cream"], "together", true)];
 
-      for (const answer of answered) {
-        answer();
-        await expect(cleanUpOverWholeCatalogue(butter)).resolves.toMatchObject({
-          outcome: "skipped",
-          reason: "seeded",
-          spellings: { outcome: "skipped", reason: "none" },
-        });
-      }
+      await expect(cleanUpOverWholeCatalogue(butter)).resolves.toMatchObject({
+        outcome: "skipped",
+        reason: "seeded",
+        spellings: { outcome: "skipped", reason: "none" },
+      });
+      expect(resolutionRequests()).toBe(0);
       await expect(
         getTestDb()
           .select({ id: ingredients.id })

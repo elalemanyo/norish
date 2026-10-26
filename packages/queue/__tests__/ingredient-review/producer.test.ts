@@ -24,7 +24,7 @@ const catalogue = vi.hoisted(() => ({
       new Map(ids.filter((id) => id !== "gone").map((id) => [id, `${id}!`]))
   ),
   listAskableIngredientIds: vi.fn(async () => ["uien"]),
-  listListedIngredientIds: vi.fn(async () => ["uien", "onion"]),
+  listWholeCatalogueCleanUpIds: vi.fn(async () => ["uien", "onion"]),
 }));
 const icons = vi.hoisted(() => ({
   listFoodsShowingNoIcon: vi.fn(async (ids: readonly string[]) =>

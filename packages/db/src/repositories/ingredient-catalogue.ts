@@ -340,7 +340,34 @@ export async function listAskableIngredientIds(): Promise<string[]> {
   return rows.map((row) => row.id);
 }
 
-/** Every listed food, seeded ones included: what a Clean up over the whole catalogue asks about. */
+/**
+ * What a Clean up over the whole catalogue asks about: every listed own food, and each seeded food
+ * a person, an import or a merge added a spelling to, for that spelling's check alone.
+ */
+export async function listWholeCatalogueCleanUpIds(): Promise<string[]> {
+  const added = db
+    .select({ one: sql`1` })
+    .from(ingredientAliases)
+    .where(
+      and(
+        eq(ingredientAliases.ingredientId, sql`${ingredients}.id`),
+        eq(ingredientAliases.seeded, false)
+      )
+    );
+  const rows = await db
+    .select({ id: ingredients.id })
+    .from(ingredients)
+    .where(
+      or(
+        and(isNull(ingredients.offId), ingredientIsListed()),
+        and(isNotNull(ingredients.offId), exists(added))
+      )
+    );
+
+  return rows.map((row) => row.id);
+}
+
+/** Every listed food, seeded ones included: what Fill gaps fills. */
 export async function listListedIngredientIds(): Promise<string[]> {
   const rows = await db
     .select({ id: ingredients.id })
