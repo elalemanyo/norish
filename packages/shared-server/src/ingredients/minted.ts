@@ -29,12 +29,14 @@ export function onIngredientsMinted(listener: MintedListener | undefined): void 
 
 /** Say these Ingredients were just minted. Never rejects: the mint has been written by now. */
 export async function announceMinted(ingredientIds: readonly string[]): Promise<void> {
-  const listener = g[LISTENER_KEY];
-
-  if (!listener || ingredientIds.length === 0) return;
+  if (ingredientIds.length === 0) return;
   const holding = held.getStore();
 
+  // Held whether anyone listens or not: the write's own `afterWrite` gets them too.
   if (holding) return void holding.push(...ingredientIds);
+  const listener = g[LISTENER_KEY];
+
+  if (!listener) return;
   try {
     await listener([...ingredientIds]);
   } catch (error) {
@@ -44,14 +46,25 @@ export async function announceMinted(ingredientIds: readonly string[]): Promise<
 
 /**
  * Run a resolve and the write it makes, announcing its mints once the write is done: the pass
- * reads which rows name a food, so it must not read them before they are written.
+ * reads which rows name a food, so it must not read them before they are written. `afterWrite`
+ * gets the mints first, also once written.
  */
-export async function announcingAfter<T>(run: () => Promise<T>): Promise<T> {
+export async function announcingAfter<T>(
+  run: () => Promise<T>,
+  afterWrite?: MintedListener
+): Promise<T> {
   const minted: string[] = [];
 
   try {
     return await held.run(minted, run);
   } finally {
+    if (afterWrite && minted.length > 0) {
+      try {
+        await afterWrite([...minted]);
+      } catch (error) {
+        log.warn({ err: error, ingredientIds: minted }, "Could not settle new Ingredients");
+      }
+    }
     await announceMinted(minted);
   }
 }

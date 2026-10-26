@@ -36,7 +36,12 @@ export const SPELLING_CASES: ReadonlyArray<readonly [string, string, boolean]> =
   ["chilli flakes", "chilli flakes (optional)", true],
   ["chilli flakes", "chilli flakes optional", true],
   ["salt", "salt and pepper to taste", false],
-  ["cream", "cream to taste with sugar", false],
+  // Read up to a note, as the words before it are a food: "with sugar" sweetens the cream.
+  ["cream", "cream to taste with sugar", true],
+  ["olie", "olie om te bakken", true],
+  ["pesto", "lekker met pesto", false],
+  // Spanish "en" is a note, Dutch "en" joins foods: a word that joins foods is never a note.
+  ["kip", "kip en ananas", false],
   ["garlic cloves", "garlic cloves crushed", true],
   ["onion", "onion finely chopped", true],
   ["onion", "finely chopped onion", true],

@@ -22,7 +22,10 @@ import { setConfig } from "@norish/db/repositories/server-config";
 import { ingredients } from "@norish/db/schema";
 import { resolveGroceryNames } from "@norish/shared-server/ingredients/groceries";
 import { onIngredientsMinted } from "@norish/shared-server/ingredients/minted";
-import { withResolvedIngredients } from "@norish/shared-server/ingredients/recipe-lines";
+import {
+  createResolvedRecipe,
+  withResolvedIngredients,
+} from "@norish/shared-server/ingredients/recipe-lines";
 import {
   cleanIngredientText,
   findIngredientFor,
@@ -240,10 +243,10 @@ describe("ingredient resolver", () => {
   });
 
   it("keeps a units-map phrase inside the name", async () => {
-    const cream = await resolveOne("cream");
+    const sweetened = await resolveOne("cream with sugar");
 
     expect((await resolveOne("cream to taste with sugar")).ingredientId).not.toBe(
-      cream.ingredientId
+      sweetened.ingredientId
     );
   });
 
@@ -266,7 +269,7 @@ describe("ingredient resolver", () => {
       nutmeg.ingredientId
     );
     expect((await resolveOne("a smidgen nutmeg")).ingredientId).toBe(nutmeg.ingredientId);
-    expect((await resolveOne("nutmeg to taste")).ingredientId).not.toBe(nutmeg.ingredientId);
+    expect((await resolveOne("a splash of nutmeg")).ingredientId).not.toBe(nutmeg.ingredientId);
   });
 
   it("recognises a known food under preparation written without a comma, and a container", async () => {
@@ -290,6 +293,27 @@ describe("ingredient resolver", () => {
     );
     // A quantity an import left at the start goes first, and then the can is at the start.
     expect((await resolveOne("400g can chickpeas")).ingredientId).toBe(chickpeas.ingredientId);
+  });
+
+  it("reads a name up to its note where a known food comes before it and none after", async () => {
+    const [oil, chicken, rice] = await resolveIngredients(["olie", "kip", "rijst"], { userId });
+    const [frying, served, both, joined] = await resolveIngredients(
+      ["olie om te bakken", "lekker met pesto", "kip met rijst", "kip en ananas"],
+      { userId }
+    );
+
+    expect(frying).toMatchObject({ ingredientId: oil!.ingredientId, aliasId: oil!.aliasId });
+    await expect(findIngredientFor("olie om te bakken")).resolves.toMatchObject({
+      ingredientId: oil!.ingredientId,
+    });
+    // The words before a note name a food only where one is known: "lekker" is none.
+    await expect(findIngredientByAliasId(served!.aliasId)).resolves.toMatchObject({
+      name: "lekker met pesto",
+    });
+    // A food after the note keeps the name whole.
+    expect([chicken!.ingredientId, rice!.ingredientId]).not.toContain(both!.ingredientId);
+    // Spanish "en" is in, Dutch "en" and: a word that joins foods is no note.
+    expect(joined!.ingredientId).not.toBe(chicken!.ingredientId);
   });
 
   it("names a new food for its text without such preparation, and keeps the text as a spelling", async () => {
@@ -458,6 +482,29 @@ describe("ingredient resolver", () => {
       expect(recipe?.recipeIngredients).toMatchObject([
         { ingredientName: "onions, diced", ingredientId: onions.ingredientId, amount: 2 },
       ]);
+    });
+
+    it("files a food a recipe minted under one a later recipe mints that its words name", async () => {
+      const recipe = (text: string) =>
+        createResolvedRecipe(
+          crypto.randomUUID(),
+          userId,
+          { name: "Soup", systemUsed: "metric", recipeIngredients: [line(text, 0)] },
+          { userId }
+        );
+
+      await recipe("verse krieltjes");
+      await recipe("krieltjes");
+
+      const variant = await findIngredientFor("verse krieltjes");
+      const parent = await findIngredientFor("krieltjes");
+      const [row] = await getTestDb()
+        .select({ parentId: ingredients.parentId })
+        .from(ingredients)
+        .where(eq(ingredients.id, variant!.ingredientId));
+
+      expect(parent!.ingredientId).not.toBe(variant!.ingredientId);
+      expect(row?.parentId).toBe(parent!.ingredientId);
     });
 
     it("resolves a line from the food an import names, keeping the line's own text", async () => {

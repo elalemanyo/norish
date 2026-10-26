@@ -31,8 +31,11 @@ modo de preparo e símbolos soltos. "finely chopped onions" corresponde a
 "onion", "4 el bosui" corresponde a "bosui", "gyoza vellen ((ontdooid))"
 corresponde a "gyoza vellen", e o erro de digitação "parmezan" corresponde a
 "parmezaan". Um nome que junta alimentos nomeia cada um deles: "zout en peper"
-é sal e pimenta, e "boter of olie" é manteiga ou óleo. Um nome que não
-corresponde a nada vira um ingrediente novo, com o seu nome limpo.
+é sal e pimenta, e "boter of olie" é manteiga ou óleo. Um nome com uma nota
+depois de um alimento conhecido é esse alimento: "olie om te bakken" é olie. Um
+nome que não corresponde a nada vira um ingrediente novo, com o seu nome limpo,
+classificado sob outro ingrediente com que o nome termina, como "roodschillige
+krieltjes" sob "krieltjes".
 
 O Norish também mantém uma lista de textos que não são um alimento: o que a IA
 excluiu por não ser um, o que você marcou como não sendo um, e palavras comuns

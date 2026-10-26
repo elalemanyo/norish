@@ -15,7 +15,7 @@ import { ingredientAliases } from "@norish/db/schema";
 import { listIngredients, setParent } from "@norish/shared-server/ingredients/catalogue";
 import { resolveIngredients } from "@norish/shared-server/ingredients/resolver";
 
-import { getTestDb } from "../../../db/__tests__/helpers/db-test-helpers";
+import { getTestDb, nameInATestRecipe } from "../../../db/__tests__/helpers/db-test-helpers";
 import { RepositoryTestBase } from "../../../db/__tests__/helpers/repository-test-base";
 import { seedEntry, seedEntryIn } from "../helpers/seed-entries";
 
@@ -93,7 +93,7 @@ describe("a mint's parent from the words of its text", () => {
     });
   });
 
-  it("files nothing where the text ends in no seeded spelling, or in one a person minted", async () => {
+  it("files nothing where the text ends in no listed spelling, nor in one only a hidden food has", async () => {
     await resolveIngredients(["saffron"], { userId: actor.userId }, "upgrade");
 
     expect(await mintOne("dragon fruit")).toMatchObject({ flagged: true, parent: null });
@@ -102,7 +102,7 @@ describe("a mint's parent from the words of its text", () => {
 
   it("reads only the words before in, met or with, which may name the parent whole", async () => {
     expect(await mintOne("tonijnstukken in olijfolie")).toMatchObject({ parent: null });
-    expect(await mintOne("sardines in water")).toMatchObject({
+    expect(await mintOne("gerookte sardines in water")).toMatchObject({
       parent: { id: seeded.get("en:sardine") },
     });
     expect(await mintOne("kip met rijst")).toMatchObject({
@@ -120,14 +120,39 @@ describe("a mint's parent from the words of its text", () => {
     ]);
     seeded = await listSeededIngredientIds();
 
+    // A known food before the note is the line's own food: these name more.
     for (const [text, offId] of [
-      ["greek yogurt for topping", "en:greek-yogurt"],
-      ["olijven naar keuze", "en:olive"],
-      ["tonijn uit blik", "en:tuna"],
+      ["vanilla greek yogurt for topping", "en:greek-yogurt"],
+      ["zwarte olijven naar keuze", "en:olive"],
+      ["witte tonijn uit blik", "en:tuna"],
     ] as const) {
       expect(await mintOne(text)).toMatchObject({ parent: { id: seeded.get(offId) } });
     }
     expect(await listAIChanges()).toHaveLength(0);
+  });
+
+  it("files under a listed own food its words name where no seeded food is found", async () => {
+    const own = async (text: string) => {
+      const [food] = await resolveIngredients([text], { userId: actor.userId }, "upgrade");
+
+      await nameInATestRecipe(actor.userId, food!.aliasId, text);
+
+      return food!;
+    };
+    const krieltjes = await own("krieltjes");
+
+    await own("gerookte paprika");
+
+    expect(await mintOne("roodschillige krieltjes")).toMatchObject({
+      parent: { id: krieltjes.ingredientId },
+    });
+    expect(await mintOne("barbecue mini-krieltjes")).toMatchObject({
+      parent: { id: krieltjes.ingredientId },
+    });
+    // A seeded spelling goes first, however much shorter.
+    expect(await mintOne("zoete gerookte paprika")).toMatchObject({
+      parent: { id: seeded.get("en:paprika") },
+    });
   });
 
   it("files a parent the name starts with quietly where only cuts, forms and sizes follow", async () => {
@@ -246,7 +271,7 @@ describe("a mint's parent from the words of its text", () => {
       expect(await mintOne(text)).toMatchObject({ flagged: true, parent: null });
     }
     // The words read up to a note are the whole name, so its parent ends it, at any length.
-    expect(await mintOne("olie om te bakken")).toMatchObject({
+    expect(await mintOne("neutrale olie om te bakken")).toMatchObject({
       parent: { id: seeded.get("en:oil") },
     });
     expect(await mintOne("rode ui")).toMatchObject({ parent: { id: seeded.get("en:onion") } });

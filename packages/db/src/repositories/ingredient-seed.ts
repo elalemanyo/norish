@@ -1,5 +1,5 @@
 import type { SQL } from "drizzle-orm";
-import { and, eq, inArray, isNotNull, isNull, sql } from "drizzle-orm";
+import { and, eq, inArray, isNotNull, isNull, like, not, or, sql } from "drizzle-orm";
 
 import type { DbTransaction } from "@norish/db/drizzle";
 import type { NutritionCodes } from "@norish/db/schema";
@@ -21,6 +21,7 @@ import {
   vouchForOpenAIChanges,
   wasParentUndone,
 } from "./ingredient-ai-changes";
+import { likeLiteral } from "./ingredient-aliases";
 import {
   deleteCatalogueAlias,
   ingredientIsListed,
@@ -590,6 +591,44 @@ export async function listUndecidedMints(): Promise<UndecidedMint[]> {
   }
 
   return [...byId.values()];
+}
+
+/**
+ * The undecided listed own foods without a parent, `ids` aside, a spelling of which holds a
+ * spelling of one of `ids` as whole words: the earlier variants those new foods may be the parent of.
+ */
+export async function listParentlessMintsSpelledWith(
+  ids: readonly string[]
+): Promise<Array<{ id: string; name: string }>> {
+  if (ids.length === 0) return [];
+  const spelled = await db
+    .select({ fold: ingredientAliases.fold })
+    .from(ingredientAliases)
+    .where(inArray(ingredientAliases.ingredientId, [...ids]));
+
+  if (spelled.length === 0) return [];
+  const holds = spelled.flatMap(({ fold }) =>
+    [`% ${likeLiteral(fold)}`, `${likeLiteral(fold)} %`, `% ${likeLiteral(fold)} %`].map(
+      (pattern) => like(ingredientAliases.fold, pattern)
+    )
+  );
+
+  return await db
+    .selectDistinct({ id: ingredients.id, name: ingredients.name })
+    .from(ingredients)
+    .innerJoin(ingredientAliases, eq(ingredientAliases.ingredientId, ingredients.id))
+    .where(
+      and(
+        isNull(ingredients.offId),
+        isNull(ingredients.parentId),
+        eq(ingredients.keptDistinct, false),
+        eq(ingredients.parentChosen, false),
+        not(inArray(ingredients.id, [...ids])),
+        sql`not ${parentIsOpenAnswer}`,
+        ingredientIsListed(),
+        or(...holds)
+      )
+    );
 }
 
 /**

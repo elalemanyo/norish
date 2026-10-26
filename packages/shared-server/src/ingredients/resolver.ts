@@ -7,13 +7,17 @@ import { isStaleIngredientReference } from "@norish/db/repositories/constraint-v
 import {
   addIngredientAliases,
   findAliasesNearFold,
+  findFoodSpellingsByFolds,
   findIngredientAliasesByFolds,
   findIngredientsNamed,
-  findSeededFoodSpellingsByFolds,
   mintIngredientWithAliases,
 } from "@norish/db/repositories/ingredient-aliases";
 import { findIngredientIdsAmong } from "@norish/db/repositories/ingredient-catalogue";
 import { listJunkFolds } from "@norish/db/repositories/ingredient-junk-pile";
+import {
+  fileUndecidedMint,
+  listParentlessMintsSpelledWith,
+} from "@norish/db/repositories/ingredient-seed";
 import { getIngredientWords, getUnits } from "@norish/shared-server/config/server-config-loader";
 import { dbLogger } from "@norish/shared-server/logger";
 import { stripHtmlTags } from "@norish/shared/lib/helpers";
@@ -25,6 +29,8 @@ import {
   inflectedReadings,
   ingredientAliasFold,
   joinedParts,
+  noteAt,
+  notedParts,
   spellingKeys,
   spellingRules,
   wholeSpellingKeys,
@@ -41,7 +47,7 @@ import { announceMinted, announcingAfter } from "./minted";
  * Which rules the first two rungs and the parent from words follow. Raised whenever they change, so
  * the startup pass looks at undecided mints again under the new rules (`recheckUndecidedMints`).
  */
-export const RUNG_VERSION = 11;
+export const RUNG_VERSION = 12;
 
 /** Who the resolution is for: the owner of anything it mints. */
 export interface ResolveActor {
@@ -69,6 +75,8 @@ interface Spelling extends SpellingKeys {
   text: string;
   key: string;
   inflected: string[];
+  /** Where it ends before a note ("olie om te bakken"): the folds of the words before and after it. */
+  noted: { head: string[]; rest: string[] } | null;
   rules: ResolverRules;
 }
 
@@ -125,12 +133,30 @@ function withoutJunkPieces(text: string, rules: ResolverRules): string {
     .join(" ");
 }
 
+/** The folds a name's words before and after its note are read by (`notedParts`). */
+function notedReadings(key: string, rules: ResolverRules): Spelling["noted"] {
+  const parts = notedParts(key, rules);
+
+  if (!parts) return null;
+  const readings = (fold: string) => (fold ? [fold, ...inflectedReadings(fold, rules, true)] : []);
+  const rest = spellingKeys(parts.rest, rules);
+
+  return { head: readings(parts.head), rest: readings(rest.plainFold || rest.fold) };
+}
+
 /** A text read on its pieces not on the junk pile: "boneless, skinless chicken" is "skinless chicken". */
 function spellingOf(text: string, rules: ResolverRules, keysOf = spellingKeys): Spelling {
   const keys = keysOf(withoutJunkPieces(text, rules), rules);
   const key = keys.plainFold || keys.fold;
 
-  return { text, ...keys, key, inflected: inflectedReadings(key, rules, true), rules };
+  return {
+    text,
+    ...keys,
+    key,
+    inflected: inflectedReadings(key, rules, true),
+    noted: notedReadings(key, rules),
+    rules,
+  };
 }
 
 /** How long built rules are reused: a pass over an instance's history asks thousands of times a minute. */
@@ -172,6 +198,8 @@ async function knownAliases(
       spelling.bareFold,
       spelling.plainFold,
       ...spelling.inflected,
+      ...(spelling.noted?.head ?? []),
+      ...(spelling.noted?.rest ?? []),
     ])
   );
 
@@ -192,6 +220,21 @@ function matchKnown(
     (spelling.plainFold ? known.get(spelling.plainFold) : undefined) ??
     spelling.inflected.map((reading) => known.get(reading)).find((row) => row !== undefined)
   );
+}
+
+/**
+ * Rungs 1 and 2, then the words before a note, where they name a known food and the words after it
+ * none: "olie om te bakken" is olie, "kip met rijst" stays whole. Never names a mint.
+ */
+function matchRead(
+  spelling: Spelling,
+  known: ReadonlyMap<string, IngredientAliasRow>
+): IngredientAliasRow | undefined {
+  const whole = matchKnown(spelling, known);
+
+  if (whole || !spelling.noted || spelling.noted.rest.some((fold) => known.has(fold))) return whole;
+
+  return spelling.noted.head.map((fold) => known.get(fold)).find((row) => row !== undefined);
 }
 
 /** The as-written text a caller hands in, cleaned the way every stored name is. */
@@ -408,7 +451,7 @@ async function resolveTexts(
   const asWritten = texts.map((text) => spellingOf(cleanIngredientText(text), rules));
   const { spellings, known, byWords } = await readByWords(asWritten, rules, splitJoined);
   const unknown = spellings.filter(
-    (spelling) => !matchKnown(spelling, known) && !byWords.has(spelling)
+    (spelling) => !matchRead(spelling, known) && !byWords.has(spelling)
   );
   const slips = await findSlips(mode === "person" || mode === "upgrade" ? unknown : []);
   const resolved = new Map<Spelling, ResolvedFoods>();
@@ -426,7 +469,7 @@ async function resolveTexts(
       continue;
     }
 
-    const match = matchKnown(spelling, known);
+    const match = matchRead(spelling, known);
 
     if (!match && mode === "repoint") continue;
     if (!match) {
@@ -465,6 +508,19 @@ async function resolveTexts(
   if (mode !== "upgrade") await announceMinted([...minted]);
 
   return asWritten.map((spelling) => resolved.get(spelling) ?? null);
+}
+
+/**
+ * File the parentless undecided foods minted before these under the one their words now find
+ * ("verse krieltjes" once "krieltjes" is minted), as the recheck would: a mint finds only foods
+ * already there. Once written, as a parent must be listed.
+ */
+async function adoptEarlierVariants(mintedIds: readonly string[]): Promise<void> {
+  for (const variant of await listParentlessMintsSpelledWith(mintedIds)) {
+    const parentId = await (await readName(variant.name)).parent(variant.id);
+
+    if (parentId && mintedIds.includes(parentId)) await fileUndecidedMint(variant.id, parentId);
+  }
 }
 
 /**
@@ -535,12 +591,13 @@ async function mint(
 
 /**
  * The longest seeded spelling a mint's words end with (or its singular), or start with before forms
- * and sizes alone, read up to a word a name ends before ("in", "om"); else null.
+ * and sizes alone, read up to a word a name ends before ("in", "om"); else the longest a listed
+ * own food has ("krieltjes" for "verse krieltjes"), never `exceptId`'s own; else null.
  */
-async function parentFromWords(spelling: Spelling): Promise<string | null> {
+async function parentFromWords(spelling: Spelling, exceptId?: string): Promise<string | null> {
   const { rules } = spelling;
   const all = spelling.key.split(" ");
-  const cut = all.findIndex((word, index) => index > 0 && rules.endsBefore.has(word));
+  const cut = noteAt(all, rules);
   const words = cut > 0 ? all.slice(0, cut) : all;
   const windows: string[] = [];
 
@@ -566,14 +623,13 @@ async function parentFromWords(spelling: Spelling): Promise<string | null> {
 
   if (windows.length === 0) return null;
 
-  const seeded = new Map(
-    (await findSeededFoodSpellingsByFolds(windows))
-      .filter((row) => norishReads(row.locale))
-      .map((row) => [row.fold, row.ingredientId])
-  );
-
-  for (const window of windows) {
-    const id = seeded.get(window);
+  for (const among of ["seeded", "listed"] as const) {
+    const spelled = new Map(
+      (await findFoodSpellingsByFolds(windows, among))
+        .filter((row) => norishReads(row.locale) && row.ingredientId !== exceptId)
+        .map((row) => [row.fold, row.ingredientId])
+    );
+    const id = windows.map((window) => spelled.get(window)).find((found) => found !== undefined);
 
     if (id) return id;
   }
@@ -587,8 +643,8 @@ export interface NameRead {
   plain: { text: string; fold: string } | null;
   /** The clean spelling it reduces to, as a mint or a join adds it, read with junk kept. */
   clean: { text: string; fold: string };
-  /** The parent its words would file it under. */
-  parent: () => Promise<string | null>;
+  /** The parent its words would file it under, never the food `exceptId` itself. */
+  parent: (exceptId?: string) => Promise<string | null>;
   /** Where joined ("zout en peper") and every part is a known food but `ownId`: those and the join. */
   parts: (ownId: string) => Promise<{ parts: ResolvedIngredient[]; joined: LineJoin } | null>;
 }
@@ -607,7 +663,7 @@ export async function readName(text: string): Promise<NameRead> {
         ? { text: spelling.plain, fold: spelling.plainFold }
         : null,
     clean: cleanAlias(withJunk),
-    parent: () => parentFromWords(spelling),
+    parent: (exceptId) => parentFromWords(spelling, exceptId),
     parts: async (ownId) => {
       const named = (await readByWords([withJunk], junkKept, true, ownId)).byWords.get(withJunk);
 
@@ -639,7 +695,7 @@ export async function findIngredientFor(text: string): Promise<IngredientRef | n
   if (!cleaned) return null;
 
   const spelling = spellingOf(cleaned, await currentRules());
-  const match = matchKnown(spelling, await knownAliases([spelling]));
+  const match = matchRead(spelling, await knownAliases([spelling]));
 
   return match ? refOf(match) : null;
 }
@@ -769,5 +825,5 @@ export function writeResolved<R, T>(
 
       return await write(await resolve());
     }
-  });
+  }, adoptEarlierVariants);
 }

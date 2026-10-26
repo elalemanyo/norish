@@ -532,6 +532,27 @@ export function wholeSpellingKeys(text: string, rules = BASE_SPELLING_RULES): Sp
   return { ...keys, plain: keys.bare, plainFold: keys.bareFold || keys.fold };
 }
 
+/** Where a key's words end before a note ("in", "om", "for"), from its second word; else -1. */
+export function noteAt(words: readonly string[], rules: SpellingRules): number {
+  return words.findIndex((word, index) => index > 0 && rules.endsBefore.has(word));
+}
+
+/**
+ * A key's words before its note and after it ("olie om te bakken": "olie", "te bakken"); none
+ * where the note's word also joins foods somewhere: Spanish "en" (in) is Dutch "and".
+ */
+export function notedParts(
+  key: string,
+  rules: SpellingRules
+): { head: string; rest: string } | null {
+  const words = key.split(" ");
+  const at = noteAt(words, rules);
+
+  if (at < 0 || rules.joiningWords.has(words[at]!)) return null;
+
+  return { head: words.slice(0, at).join(" "), rest: words.slice(at + 1).join(" ") };
+}
+
 /** `foodKey` with the size and preparation words kept, as AI's names are read: "sliced ham" stays. */
 export function wholeFoodKey(text: string | null | undefined, rules = BASE_SPELLING_RULES): string {
   return text?.trim() ? wholeSpellingKeys(text, rules).plainFold : "";

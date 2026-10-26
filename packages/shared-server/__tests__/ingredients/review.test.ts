@@ -359,8 +359,8 @@ describe("asking AI about an Ingredient", () => {
   });
 
   it("files a food under the parent AI is unsure of, flags it, and lists the change to keep or undo", async () => {
-    const onion = await kept("onion");
     const red = await flagged("red onion");
+    const onion = await kept("onion");
 
     reads({ englishName: "red onion", parents: ["onion"], sure: false });
 
@@ -1470,8 +1470,8 @@ describe("asking AI about an Ingredient", () => {
   });
 
   it("leaves the food, its flag and its changes as they were when no answer comes", async () => {
-    await kept("onion");
     const red = await flagged("red onion");
+    await kept("onion");
 
     reads({ englishName: "red onion", parents: ["onion"], sure: false });
     await askAIAbout(red.ingredientId);
@@ -1563,9 +1563,9 @@ describe("asking AI about an Ingredient", () => {
   });
 
   it("never makes a merge or a parent a person undid again", async () => {
+    const red = await flagged("red onion");
     const onion = await kept("onion");
     const bulbs = await flagged("onion bulbs");
-    const red = await flagged("red onion");
 
     reads({ englishName: "onion", sure: true });
     await askAIAbout(bulbs.ingredientId);
@@ -1593,8 +1593,8 @@ describe("asking AI about an Ingredient", () => {
   });
 
   it("asks a food kept from an unsure change no more", async () => {
-    await kept("onion");
     const red = await flagged("red onion");
+    await kept("onion");
 
     reads({ englishName: "red onion", parents: ["onion"], sure: false });
     await askAIAbout(red.ingredientId);

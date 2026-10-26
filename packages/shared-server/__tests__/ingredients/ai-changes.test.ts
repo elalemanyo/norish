@@ -144,9 +144,9 @@ describe("keeping and undoing AI Changes", () => {
   });
 
   it("goes back past every parent AI replaced, to where the food was before AI", async () => {
+    const red = await mint("red onion");
     const onion = await mint("onion");
     const allium = await mint("allium");
-    const red = await mint("red onion");
 
     await parentByAI(red.ingredientId, allium.ingredientId, false);
     await parentByAI(red.ingredientId, onion.ingredientId, true);
@@ -183,9 +183,9 @@ describe("keeping and undoing AI Changes", () => {
   });
 
   it("leaves a parent a person set since: Undo only remembers", async () => {
+    const red = await mint("red onion");
     const onion = await mint("onion");
     const allium = await mint("allium");
-    const red = await mint("red onion");
 
     await parentByAI(red.ingredientId, onion.ingredientId, false);
     const change = await onlyChange();
@@ -221,8 +221,8 @@ describe("keeping and undoing AI Changes", () => {
   });
 
   it("keeps what AI was unsure of when a person looks after the food themselves", async () => {
-    const onion = await mint("onion");
     const red = await mint("red onion");
+    const onion = await mint("onion");
 
     await parentByAI(red.ingredientId, onion.ingredientId, false);
     await markDistinct(actor, red.ingredientId);
@@ -280,8 +280,8 @@ describe("keeping and undoing AI Changes", () => {
   });
 
   it("refuses a change already undone", async () => {
-    const onion = await mint("onion");
     const red = await mint("red onion");
+    const onion = await mint("onion");
 
     await parentByAI(red.ingredientId, onion.ingredientId, false);
     const change = await onlyChange();
@@ -323,9 +323,9 @@ describe("keeping and undoing AI Changes", () => {
   });
 
   it("follows a parent merged away to the food it joined, and goes with a parent deleted", async () => {
+    const red = await mint("red onion");
     const onion = await mint("onion");
     const allium = await mint("allium");
-    const red = await mint("red onion");
     const admin = { ...actor, isServerAdmin: true };
 
     await parentByAI(red.ingredientId, onion.ingredientId, false);
@@ -337,8 +337,8 @@ describe("keeping and undoing AI Changes", () => {
   });
 
   it("lets a Keep or an Undo wait for an answer about the same food rather than deadlock", async () => {
-    const onion = await mint("onion");
     const red = await mint("red onion");
+    const onion = await mint("onion");
 
     await parentByAI(red.ingredientId, onion.ingredientId, false);
     const change = await onlyChange();
@@ -384,9 +384,9 @@ describe("keeping and undoing AI Changes", () => {
   });
 
   it("sweeps the handled changes older than a month, keeping the undone and the open ones", async () => {
+    const red = await mint("red onion");
     const onion = await mint("onion");
     const uien = await mint("uien");
-    const red = await mint("red onion");
     const leek = await mint("leek");
     const tonijn = await mint("Lekkerste Tonijn");
     const shallot = await mint("shallot");

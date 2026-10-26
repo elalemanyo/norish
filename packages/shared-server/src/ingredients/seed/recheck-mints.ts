@@ -46,7 +46,7 @@ export async function recheckUndecidedMints(): Promise<RecheckOutcome> {
     // A parent AI gave or took is AI's to change.
     if (mint.answered || mint.parentId !== null) continue;
 
-    const parentId = await read.parent();
+    const parentId = await read.parent(mint.id);
 
     if (parentId && (await fileUndecidedMint(mint.id, parentId))) outcome.filed += 1;
   }

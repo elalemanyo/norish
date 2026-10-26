@@ -237,6 +237,17 @@ describe("looking at old undecided mints again", () => {
     ).toEqual([[answered, seeded.get("en:tea")]]);
   });
 
+  it("files the variants of a legacy mint under it, as its words name it", async () => {
+    const krieltjes = await legacyMint("krieltjes");
+    const red = await legacyMint("roodschillige krieltjes");
+    const peeled = await legacyMint("krieltjes in de schil");
+
+    await expect(recheckUndecidedMintsOnRungChange()).resolves.toEqual({ merged: 0, filed: 2 });
+    expect(await shown(red)).toMatchObject({ parent: { id: krieltjes } });
+    expect(await shown(peeled)).toMatchObject({ parent: { id: krieltjes } });
+    expect(await shown(krieltjes)).toMatchObject({ parent: null });
+  });
+
   it("leaves a mint AI took a parent from without one, sure or not", async () => {
     const legacy = await legacyMint("ground cumin");
 

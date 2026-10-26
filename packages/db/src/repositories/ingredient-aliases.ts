@@ -15,6 +15,7 @@ import { slipLengths } from "@norish/shared/lib/name-slips";
 
 import type { LineResolution } from "./ingredients";
 import { isConstraintViolation } from "./constraint-violation";
+import { ingredientIsListed } from "./ingredient-catalogue";
 
 /**
  * The Ingredient Alias rows the resolver reads and writes; only the resolver
@@ -96,6 +97,11 @@ export async function findIngredientsNamed(
     .orderBy(ingredients.id, asc(ingredientAliases.createdAt));
 }
 
+/** A text a LIKE pattern matches as written: its wildcards and escapes escaped. */
+export function likeLiteral(part: string): string {
+  return part.replace(/[\\%_]/g, "\\$&");
+}
+
 /**
  * The spellings `fold` could be a slip of the fingers from (`@norish/shared/lib/name-slips`): of a
  * length a slip reaches, sharing its first or last letters, so one slip anywhere in it is found.
@@ -103,7 +109,6 @@ export async function findIngredientsNamed(
 export async function findAliasesNearFold(fold: string): Promise<IngredientAliasRow[]> {
   const { min, max } = slipLengths(fold);
   const ends = Math.min(3, Math.floor((fold.length - 1) / 2));
-  const literal = (part: string) => part.replace(/[\\%_]/g, "\\$&");
 
   return await db
     .select(aliasColumns)
@@ -112,8 +117,8 @@ export async function findAliasesNearFold(fold: string): Promise<IngredientAlias
       and(
         between(sql`length(${ingredientAliases.fold})`, min, max),
         or(
-          like(ingredientAliases.fold, `${literal(fold.slice(0, ends))}%`),
-          like(ingredientAliases.fold, `%${literal(fold.slice(-ends))}`)
+          like(ingredientAliases.fold, `${likeLiteral(fold.slice(0, ends))}%`),
+          like(ingredientAliases.fold, `%${likeLiteral(fold.slice(-ends))}`)
         )
       )
     );
@@ -121,10 +126,12 @@ export async function findAliasesNearFold(fold: string): Promise<IngredientAlias
 
 /**
  * The seeded foods' spellings among these folds (the seed's, and any a seeded food gained by a
- * merge or a person), which a mint's last words may file it under.
+ * merge or a person), or the listed foods' (seeded, or a recipe line names it), which a mint's
+ * last words may file it under.
  */
-export async function findSeededFoodSpellingsByFolds(
-  folds: readonly string[]
+export async function findFoodSpellingsByFolds(
+  folds: readonly string[],
+  among: "seeded" | "listed"
 ): Promise<IngredientAliasRow[]> {
   const unique = Array.from(new Set(folds.filter((fold) => fold.length > 0)));
 
@@ -134,7 +141,12 @@ export async function findSeededFoodSpellingsByFolds(
     .select(aliasColumns)
     .from(ingredientAliases)
     .innerJoin(ingredients, eq(ingredients.id, ingredientAliases.ingredientId))
-    .where(and(inArray(ingredientAliases.fold, unique), isNotNull(ingredients.offId)));
+    .where(
+      and(
+        inArray(ingredientAliases.fold, unique),
+        among === "seeded" ? isNotNull(ingredients.offId) : ingredientIsListed()
+      )
+    );
 }
 
 export async function findIngredientByAliasId(aliasId: string): Promise<IngredientRow | null> {

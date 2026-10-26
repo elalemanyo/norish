@@ -29,8 +29,10 @@ ingredient, ignoring plurals, amounts, units, preparation and stray marks.
 "finely chopped onions" matches "onion", "4 el bosui" matches "bosui",
 "gyoza vellen ((ontdooid))" matches "gyoza vellen", and the slip "parmezan"
 matches "parmezaan". A name that joins foods names each of them: "zout en
-peper" is salt and pepper, and "boter of olie" is butter or oil. A name nothing
-matches becomes a new ingredient, under its clean name.
+peper" is salt and pepper, and "boter of olie" is butter or oil. A name with a
+note after a known food is that food: "olie om te bakken" is olie. A name nothing
+matches becomes a new ingredient, under its clean name, filed under another
+ingredient its name ends with, like "roodschillige krieltjes" under "krieltjes".
 
 Norish also keeps a list of texts that are not a food: what AI deleted as one,
 what you marked as one, and common words like "to taste", "boneless" or
