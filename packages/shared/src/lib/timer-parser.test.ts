@@ -18,6 +18,23 @@ describe("parseTimerDurations", () => {
       ]);
     });
 
+    it.each([
+      ["Hornear 1 hora", 3600],
+      ["Cozinhe por 20 minutos", 1200],
+      ["Mexa por 30 segundos", 30],
+      ["Laat 45 seconden rusten", 45],
+      ["Piecz 2 godziny", 7200],
+      ["Gotuj 5 minuty", 300],
+      ["Варите 2 часа", 7200],
+      ["Тушите 15 минут", 900],
+      ["Печете 10 минути", 600],
+      ["Мешайте 30 секунды", 30],
+    ])("detects the shipped languages' own words in %s", (text, durationSeconds) => {
+      expect(parseTimerDurations(text, defaultTimerKeywords)[0]?.durationSeconds).toBe(
+        durationSeconds
+      );
+    });
+
     it("detects simple minutes", () => {
       const matches = parseTimerDurations("Bake for 20 minutes");
 
