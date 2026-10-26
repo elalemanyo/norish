@@ -67,7 +67,7 @@ that `main` ships.
 
 ## Publishing a new build
 
-The **Publish Obscura image** workflow (`.github/workflows/obscura-image.yml`)
+The **Publish browser images** workflow (`.github/workflows/browser-images.yml`)
 runs on every push to `main` or `rc/**` that changes this directory. It
 publishes the pinned tag when the registry doesn't have it yet, building
 `linux/amd64` and `linux/arm64` on native runners and assembling the

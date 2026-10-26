@@ -12,8 +12,8 @@ memory, Chromium crashes under concurrent renders.
 
 `pin.env` and the Dockerfile's `ARG` defaults record the upstream release, its
 archive and its digest. To upgrade, change both, bump `CHROMIUM_IMAGE_TAG` and
-the tag in `docker/docker-compose.example.yml`, and push. The **Publish Chromium
-image** workflow publishes the new tag and moves `latest` from `main`.
+the tag in `docker/docker-compose.example.yml`, and push. The **Publish browser
+images** workflow publishes the new tag and moves `latest` from `main`.
 
 ```bash
 set -a; . docker/chromium/pin.env; set +a
