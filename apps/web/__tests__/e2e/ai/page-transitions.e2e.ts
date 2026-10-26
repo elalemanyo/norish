@@ -386,6 +386,8 @@ for (const reducedMotion of ["reduce", "no-preference"] as const) {
       await page.goto("/login");
       await page.getByLabel("Email").fill(OWNER.email);
       await page.getByLabel("Password").fill(OWNER.password);
+      // A slow CPU paints the app mid-parse; the transition must still capture the whole shell.
+      await (await context.newCDPSession(page)).send("Emulation.setCPUThrottlingRate", { rate: 8 });
       await page.getByRole("button", { name: "Sign in", exact: true }).click();
 
       await expect(page).toHaveURL(/\/$/, { timeout: 15_000 });

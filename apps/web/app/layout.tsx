@@ -54,6 +54,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           // eslint-disable-next-line @eslint-react/dom-no-dangerously-set-innerhtml
           dangerouslySetInnerHTML={{ __html: `${TIME_ZONE_COOKIE_WRITE}\n${SIGN_IN_REVEAL}` }}
         />
+        {/* Chrome paints a document while parsing it, and sign-in's transition captures that first
+            paint, so rendering waits for the shell's end marker (the page may still be streaming). */}
+        <link blocking="render" href="#shell-parsed" rel="expect" />
       </head>
       <body className="bg-background text-foreground min-h-dvh font-sans antialiased">
         <AppThemeProvider>
@@ -62,6 +65,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           </NextIntlClientProvider>
         </AppThemeProvider>
         <RegisterServiceWorker />
+        <template id="shell-parsed" />
       </body>
     </html>
   );
