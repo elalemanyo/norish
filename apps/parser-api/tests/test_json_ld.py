@@ -24,6 +24,11 @@ class ParserJsonLdTests(unittest.TestCase):
         assert response.ok, response
         self.assertEqual(response.recipe["title"], "Perfect Roast Chicken")
 
+    def test_drops_an_empty_tag_whatever_its_end_tag_holds(self) -> None:
+        html = '<script type="application/ld+json"></SCRIPT >'
+
+        self.assertEqual(EMPTY_SCRIPT.sub(_drop_empty_json_ld, html), "")
+
     def test_empty_tag_search_stays_linear_on_unclosed_tags(self) -> None:
         # Each takes half a minute under the old [^>]* pattern.
         for html in ("<script" * 50_000, "<script " + "application/ld+json" * 50_000):

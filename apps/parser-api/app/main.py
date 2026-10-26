@@ -340,7 +340,7 @@ def _map_failure_code(error: Exception) -> FailureCode:
 
 # extruct drops every JSON-LD block on a page when one tag is empty. `[^<>]` keeps the match
 # linear: no scan runs past the next tag, and the type is checked outside the pattern.
-EMPTY_SCRIPT = re.compile(r"<script\b([^<>]*)>\s*</script>", re.IGNORECASE)
+EMPTY_SCRIPT = re.compile(r"<script\b([^<>]*)>\s*</script[^<>]*>", re.IGNORECASE)
 
 
 def _drop_empty_json_ld(match: re.Match[str]) -> str:
