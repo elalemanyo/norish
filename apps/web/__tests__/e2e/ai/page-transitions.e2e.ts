@@ -176,6 +176,9 @@ test("moving from a recipe to its editor slides the page", async ({ page }) => {
 
   await recordViewTransitions(page.context());
   await page.goto(`/recipes/${id}`);
+  // React skips a slide when other work lands before it starts, such as the offline warm-up's
+  // fetch that follows a page load, so the page settles first.
+  await page.waitForLoadState("networkidle");
   await page.getByRole("button", { name: "Actions" }).first().click();
   await page.getByRole("menuitem", { name: "Edit" }).click();
   await expect(page).toHaveURL(new RegExp(`/recipes/edit/${id}$`));
