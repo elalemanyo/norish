@@ -112,6 +112,11 @@
     "message": "Hon nosar runt för att hitta dit du ville gå.",
     "imageAlt": "Nora ser förvirrad ut"
   },
+  "errorPage": {
+    "title": "Något gick fel.",
+    "message": "Norish stötte på ett fel på den här sidan.",
+    "retry": "Försök igen"
+  },
   "import": {
     "url": {
       "title": "Importera recept",
@@ -178,12 +183,15 @@
     "daily": "Varje dag",
     "weekly": "Varje vecka",
     "monthly": "Varje månad",
+    "yearly": "Varje år",
     "day": "dag",
     "days": "dagar",
     "week": "vecka",
     "weeks": "veckor",
     "month": "månad",
     "months": "månader",
+    "year": "år",
+    "years": "år",
     "next": "Nästa:",
     "every": "Varje",
     "everyOther": "Varannan",

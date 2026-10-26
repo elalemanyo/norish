@@ -319,6 +319,9 @@
     "imported": "Receptet har importerats",
     "failed": "Receptåtgärden misslyckades",
     "failedDescription": "Något gick fel när receptet bearbetades. Teknisk information finns i webbläsarens konsol.",
+    "incomplete": "Receptet kan vara ofullständigt. Jämför det med källan.",
+    "notARecipe": "Den här sidan ser inte ut som ett recept.",
+    "privateAddress": "Import från privata nätverksadresser är inte tillåten på den här servern.",
     "batchImported": "Recepten har importerats",
     "batchImportedDescription": "{count} recept importerade från arkivet",
     "view": "Visa",
@@ -423,5 +426,13 @@
     "removeImage": "Ta bort bild",
     "imageUploadFailed": "Det gick inte att ladda upp bilden.",
     "imageNeedsConnection": "Du kan byta bilder när du är online igen."
+  },
+  "print": {
+    "title": "Skriv ut recept",
+    "includePhoto": "Ta med foto",
+    "textSize": "Textstorlek",
+    "print": "Skriv ut / Spara som PDF",
+    "continued": "forts.",
+    "perServing": "Per portion"
   }
 }

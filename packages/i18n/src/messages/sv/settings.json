@@ -11,6 +11,31 @@
     "ingredients": "Ingredienser"
   },
   "user": {
+    "signInMethods": {
+      "title": "Inloggningsmetoder",
+      "description": "Koppla ditt konto till SSO.",
+      "password": "Lösenord",
+      "addAnother": "Lägg till ett annat sätt att logga in",
+      "addProvider": "Koppla {provider}",
+      "added": "Tillagd {date}",
+      "remove": "Koppla från",
+      "unavailable": "Inte tillgänglig just nu",
+      "changePassword": "Byt lösenord",
+      "currentPassword": "Nuvarande lösenord",
+      "newPassword": "Nytt lösenord",
+      "confirmPassword": "Bekräfta nytt lösenord",
+      "signOutOthers": "Logga ut andra sessioner",
+      "passwordChanged": "Lösenordet har ändrats.",
+      "errors": {
+        "usedByAnotherAccount": "Den här inloggningen används redan av ett annat konto.",
+        "lastMethod": "Du behöver minst ett sätt att logga in.",
+        "signInAgain": "Logga in igen för att koppla från den här.",
+        "addFailed": "Det gick inte att lägga till inloggningsmetoden.",
+        "removeFailed": "Det gick inte att koppla från inloggningsmetoden.",
+        "wrongPassword": "Det nuvarande lösenordet är fel.",
+        "changeFailed": "Det gick inte att byta lösenord. Försök igen."
+      }
+    },
     "profile": {
       "title": "Profil",
       "nameLabel": "Namn",
@@ -75,6 +100,7 @@
       "accountsDescription": "Namnge kontona om du har flera inloggningar på samma webbplats. Varje import använder ett slumpmässigt valt konto för webbplatsen, så att alla importer inte belastar samma inloggning. En token utan kontonamn skickas med varje import för sin domän.",
       "domain": "Domän",
       "domainPlaceholder": "T.ex. instagram.com",
+      "domainNotFull": "Ange hela domänen, till exempel instagram.com.",
       "account": "Konto",
       "accountPlaceholder": "T.ex. mitt_kontonamn (valfritt)",
       "accountShared": "Alla konton",
@@ -376,14 +402,12 @@
     "flagged": "Flaggad",
     "flagReasons": {
       "unknown": "Norish kunde inte avgöra om detta är ett eget livsmedel.",
-      "ai-off": "AI är avstängt, så det har inte kontrollerats om detta är ett livsmedel Norish redan känner till.",
       "unknown-food": "Inget känt livsmedel delar något ord med det här namnet, så AI tillfrågades inte.",
       "ai-unsure": "AI tillfrågades om detta är ett känt livsmedel men kunde inte avgöra det.",
-      "ai-unavailable": "AI svarade inte i tid när det här namnet lades till.",
-      "ai-key-rejected": "AI-leverantören nekade API-nyckeln, så AI kunde inte kontrollera det här namnet.",
       "food-gone": "AI matchade detta med ett livsmedel som hann slås ihop med ett annat innan namnet kunde kopplas till det.",
       "upgrade": "Inget känt livsmedel kunde matchas.",
-      "seed-ambiguous": "Katalogen innehåller flera livsmedel som detta kan vara."
+      "seed-ambiguous": "Katalogen innehåller flera livsmedel som detta kan vara.",
+      "ai-junk": "AI bedömde att detta inte är ett livsmedel, till exempel ett köksredskap eller en del av en receptrad."
     },
     "empty": "Inga ingredienser hittades",
     "emptyFlagged": "Inget är flaggat",
@@ -391,52 +415,13 @@
     "delete": "Ta bort",
     "deleteTitle": "Ta bort {name}?",
     "deleteConfirm": "Översättningarna och det ditt hushåll har lärt Norish om ingrediensen tas också bort. En ingrediens som fortfarande används i ett recept, inköpslistan eller skafferiet kan inte tas bort. Slå ihop den med en annan istället.",
+    "deleteTouches": {
+      "recipeLines": "{count, plural, one {# receptrad behåller sin text utan den} other {# receptrader behåller sin text utan den}}",
+      "groceries": "{count, plural, one {# inköpsvara behåller sin text utan den} other {# inköpsvaror behåller sin text utan den}}",
+      "pantry": "{count, plural, one {# vara i skafferiet tas bort} other {# varor i skafferiet tas bort}}"
+    },
     "markDistinct": "Markera som eget livsmedel",
     "summary": "{spellings, plural, one {# översättning} other {# översättningar}}{kinds, plural, =0 {} one {, # sort} other {, # sorter}}{parent, select, none {} other {, överordnad: {parent}}}",
-    "askAI": "Fråga AI",
-    "fixCatalogue": "Rätta katalogen",
-    "askAIRound": {
-      "intro": "AI kontrollerar var flaggade ingredienser hör hemma och rättar inkonsekventa namn. Inget ändras förrän du bekräftar ett förslag.",
-      "scopeLabel": "Vad som ska rättas",
-      "scopes": {
-        "unsuggested": "Kontrollera flaggade ingredienser",
-        "suggested": "Kontrollera förslagen igen",
-        "name": "Rensa namn"
-      },
-      "hints": {
-        "unsuggested": "Letar efter dubbletter, underordnade ingredienser eller egna livsmedel.",
-        "suggested": "Kontrollerar flaggade ingredienser igen.",
-        "name": "Rensar ingrediensnamnen så att bara ingrediensen återstår. Flaggade ingredienser inkluderas om rutan ovan är markerad."
-      },
-      "scopeSize": "{count, plural, =0 {Inga ingredienser} one {# ingrediens · cirka {tokens} token} other {# ingredienser · cirka {tokens} token}}",
-      "modelTokens": "cirka {tokens} token",
-      "basisMeasured": "Baserat på förbrukningen vid den senaste körningen."
-    },
-    "roundProgress": "Frågar AI · {done, number} av {total, number}",
-    "roundSection": {
-      "title": "Frågar AI",
-      "progress": "{done, number} av {total, number}",
-      "waiting": "{count, plural, one {# ingrediens väntar} other {# ingredienser väntar}}"
-    },
-    "reviewing": "Frågar AI…",
-    "aiOutcomes": {
-      "parent": "AI föreslår att {name} klassificeras som en sorts {of}.",
-      "distinct": "AI föreslår att {name} är ett eget livsmedel.",
-      "unsure": "AI kan fortfarande inte avgöra vad {name} är.",
-      "notFlagged": "{name} är inte flaggad.",
-      "skippedNotFlagged": "{name} var inte längre flaggad.",
-      "skippedForbidden": "Du har inte behörighet att ändra {name}.",
-      "skippedNotFound": "{name} hade tagits bort när AI kom fram till den.",
-      "failed": "Frågan om {name} misslyckades.",
-      "merge": "AI föreslår att {name} slås ihop med {into}."
-    },
-    "aiTrace": {
-      "readAs": "AI tolkade det som ”{name}”.",
-      "compared": "Jämfördes med: {names}.",
-      "comparedNothing": "Det fanns inget känt livsmedel att jämföra med.",
-      "fromWords": "Baserat på namnet.",
-      "noFood": "AI hittade inget livsmedel i det här namnet."
-    },
     "addAlias": "Lägg till översättning",
     "removeAlias": "Ta bort {alias}",
     "mergeInto": "Slå ihop med…",
@@ -491,7 +476,8 @@
         "name": "{food} · {dataset}, matchat efter namn",
         "householdFood": "{food} · {dataset}, valt av ditt hushåll",
         "household": "Ditt hushålls egna värden",
-        "taxonomy": "Open Food Facts"
+        "taxonomy": "Open Food Facts",
+        "ai": "Uppskattat av AI"
       },
       "correct": "Rätta",
       "correctTitle": "Rätta {name}",
@@ -550,8 +536,6 @@
       "name-taken": "En annan ingrediens har redan det här namnet",
       "spelling-taken": "Den här översättningen tillhör redan en annan ingrediens",
       "last-alias": "En ingrediens måste ha minst en översättning",
-      "alias-in-use": "Recept eller inköpslistor använder fortfarande den här översättningen",
-      "ingredient-in-use": "Recept, inköpslistor eller skafferiet använder fortfarande den här ingrediensen",
       "same-ingredient": "En ingrediens kan inte slås ihop med sig själv",
       "cycle": "En ingrediens kan inte vara en variant av sig själv",
       "empty": "Ange ett namn",
@@ -569,51 +553,31 @@
       "none": "Används inte längre"
     },
     "keepAlias": "Behåll {alias}",
-    "reportOutcomes": {
-      "parent": "Klassificerad under en överordnad ingrediens",
-      "distinct": "Eget livsmedel",
-      "unsure": "Osäkert",
-      "skipped": "Överhoppad",
-      "failed": "Misslyckades",
-      "merge": "Slå ihop"
-    },
+    "junkTitle": "Markera {alias} som inte ett livsmedel?",
+    "junkBody": "Ingen annan ingrediens har den här översättningen. Nya recept hoppar över text som markerats som inte ett livsmedel.",
+    "junkRemove": "Ta bara bort",
+    "junkMark": "Inte ett livsmedel",
     "expandKinds": "Visa sorter av {name}",
     "collapseKinds": "Dölj sorter av {name}",
     "layoutSection": "Layout",
     "asTree": "Hierarkisk vy",
     "showOnly": "Visa endast",
     "standaloneOnly": "Utan överordnad ingrediens eller sorter",
-    "findParent": "Hitta överordnad ingrediens med AI",
-    "findParentsAll": "Hitta överordnade ingredienser med AI",
-    "suggestion": {
-      "merge": "Slå ihop {name} med {into}",
-      "parent": "Klassificera {name} under {of}",
-      "distinct": "Behåll {name} som ett eget livsmedel",
-      "filedFromName": "{name} klassificerad under {of}",
-      "rename": "Byt namn på {name} till {to}"
-    },
-    "suggestionsTitle": "Förslag",
-    "suggestionsEmpty": "Inget väntar på dig.",
-    "suggestionsNone": "Inget förslag",
-    "suggestionsOpen": "{count, plural, =0 {Förslag} one {# förslag} other {# förslag}}",
-    "suggestionsFailed": "{count, plural, one {# förslag} other {# förslag}} kunde inte tillämpas: {reason}",
-    "confirmSuggestion": "Bekräfta",
-    "dismissSuggestion": "Avvisa",
-    "confirmAll": "Bekräfta alla ({count})",
-    "dismissAll": "Avvisa alla",
-    "suggestedByAI": "Föreslaget av AI",
-    "suggestedFromName": "Baserat på namnet",
-    "proposal": {
-      "merge": "Slå ihop med {into}",
-      "parent": "Klassificera under {of}",
-      "distinct": "Eget livsmedel",
-      "rename": "Byt namn till {to}"
-    },
-    "skippedReasons": {
-      "notFlagged": "Inte längre flaggad",
-      "forbidden": "Du saknar behörighet att redigera",
-      "notFound": "Finns inte längre",
-      "settled": "Namnet är redan fastställt eller ett förslag väntar"
+    "changedByAI": {
+      "title": "Ändrat av AI",
+      "open": "{count, plural, =0 {Ändrat av AI} other {Ändrat av AI · # att kontrollera}}",
+      "unsure": "Osäkert",
+      "sure": "Ändrat",
+      "empty": "AI har inte ändrat något den senaste månaden.",
+      "keep": "Behåll",
+      "undo": "Ångra",
+      "merge": "{from} slogs ihop med den",
+      "parent": "Klassificerad under {of}",
+      "parentDropped": "Inte längre under {of}",
+      "plainName": "Namnet ändrat från {from}",
+      "notAFood": "Borttagen eftersom den inte är ett livsmedel. Dess receptrader och inköpsvaror behåller sin text.",
+      "spellingRemoved": "Översättningen {from} togs bort",
+      "spellingMoved": "Översättningen {from} flyttades till {of}"
     },
     "icon": {
       "change": "Byt ikon",
@@ -622,20 +586,6 @@
       "failed": "Det gick inte att skapa en ikon av den bilden.",
       "generate": "Skapa med AI",
       "generateFailed": "Det gick inte att skapa ikonen."
-    },
-    "drawIcons": {
-      "open": "Skapa ikoner",
-      "title": "Skapa ikoner",
-      "intro": "Bildleverantören skapar en ikon för varje livsmedel och den börjar användas direkt. Du kan ge ett livsmedel en annan ikon i dess panel.",
-      "scopeLabel": "Vilka livsmedel",
-      "scopes": {
-        "bare": "Endast livsmedel som helt saknar ikon",
-        "unowned": "Alla livsmedel utan en egen ikon"
-      },
-      "scopeSize": "{count, plural, =0 {Inga ikoner} one {# ikon} other {# ikoner}}",
-      "start": "Skapa ikoner",
-      "progress": "Skapar ikoner · {done, number} av {total, number}",
-      "drawing": "Skapar ikon…"
     }
   },
   "admin": {
@@ -927,6 +877,58 @@
         "aiDisabled": "AI är avstängt på servern. Aktivera AI först.",
         "error": "Det gick inte att starta kompletteringen",
         "imageCount": "{count, plural, =0 {Körningen skapar inga bilder.} one {Körningen skapar # bild.} other {Körningen skapar # bilder.}}"
+      },
+      "ingredientCatalogue": {
+        "title": "Ingredienskatalog",
+        "subtitle": "Vad AI gör med nya ingredienser",
+        "automatic": "Automatiskt för nya ingredienser",
+        "automaticDescription": "Vad AI gör när en ingrediens läggs till i katalogen.",
+        "automaticPlaceholder": "Inget körs automatiskt",
+        "kinds": {
+          "cleanUp": "Städa nya ingredienser",
+          "cleanUpDescription": "Slå ihop stavningar, ange överordnad ingrediens och rensat namn, ta bort det som inte är livsmedel",
+          "nutrition": "Fyll i saknade näringsvärden",
+          "nutritionDescription": "Uppskatta makronäringsämnen per 100 g där ingrediensen saknar dem",
+          "conversions": "Fyll i saknade omvandlingar",
+          "conversionsDescription": "Uppskatta densitet och styckvikt där ingrediensen saknar dem",
+          "icon": "Skapa saknade ikoner",
+          "iconDescription": "Endast för ingredienser som inte har någon ikon att visa, inte heller från sin överordnade ingrediens"
+        },
+        "cleanUpCatalogue": {
+          "title": "Städa katalogen",
+          "description": "Fråga AI om ingredienserna som redan finns i katalogen.",
+          "running": "En städning pågår. Följ den under Jobbköer.",
+          "button": "Städa katalogen",
+          "intro": "AI slår ihop stavningar, anger överordnade ingredienser och rensade namn och tar bort det som inte är livsmedel. Varje ändring listas under Ändrat av AI, med Ångra.",
+          "scopeLabel": "Vilka ingredienser",
+          "scopes": {
+            "recipe-foods": "Livsmedel från recept",
+            "recipe-foods-description": "Ingredienser som recept har fört in och som ingen har tagit ställning till",
+            "whole-catalogue": "Hela katalogen",
+            "whole-catalogue-description": "Alla ingredienser, även inbyggda, och det som någon har bestämt eller ångrat skrivs över. Inbyggda ingredienser tas aldrig bort."
+          },
+          "count": "{count, plural, one {AI kommer att fråga om # ingrediens.} other {AI kommer att fråga om # ingredienser.}}",
+          "start": "Städa",
+          "started": "{count, plural, one {Städar # ingrediens} other {Städar # ingredienser}}",
+          "error": "Det gick inte att starta städningen"
+        },
+        "fillGaps": {
+          "title": "Fyll luckor",
+          "description": "Låt AI fylla i det som ingredienserna saknar.",
+          "running": "Fyll luckor körs. Följ det under Jobbköer.",
+          "button": "Fyll luckor",
+          "intro": "För varje ingrediens i katalogen fyller AI bara i det som ingrediensen inte har något eget av. Det som en ingrediens redan har ersätts aldrig.",
+          "kindsLabel": "Vad som ska fyllas i",
+          "kinds": {
+            "nutrition": "Näringsvärden",
+            "conversions": "Omvandlingar",
+            "icons": "Ikoner"
+          },
+          "count": "{count, plural, =0 {Inget att fylla i} one {# ingrediens} other {# ingredienser}}",
+          "start": "Fyll luckor",
+          "started": "Fyller luckor. Följ det under Jobbköer.",
+          "error": "Det gick inte att börja fylla luckor"
+        }
       }
     },
     "aiConfig": {
@@ -983,14 +985,6 @@
         "imageGeneration": "Bildgenerering",
         "imageGenerationDescription": "Skapa en bild av rätten för nya recept som helt saknar bild"
       },
-      "automaticIngredients": "Automatiskt för nya ingredienser",
-      "automaticIngredientsDescription": "Vad som händer när nya ingredienser läggs till i katalogen.",
-      "automaticIngredientsKinds": {
-        "plainName": "Rensa namnet",
-        "plainNameDescription": "Ta bort det som inte är livsmedlet, till exempel mängder och förpackningskoder",
-        "icon": "Skapa en ikon",
-        "iconDescription": "Endast för livsmedel som inte har någon ikon att visa, inte heller från sin överordnade ingrediens"
-      },
       "tagStrategy": "Taggstrategi",
       "tagStrategyDescription": "Vilka taggar automatisk taggning får använda, oavsett om den körs automatiskt eller manuellt",
       "tagStrategies": {
@@ -1029,11 +1023,11 @@
       "transcription": "Transkribering",
       "transcriptionDescription": "Omvandla videoljud till text för receptextrahering",
       "transcriptionProvider": "Transkriberingsleverantör",
-      "transcriptionProviderDescription": "Endast OpenAI och OpenAI-kompatibla API:er stöder Whisper-transkribering",
       "transcriptionProviders": {
         "disabled": "Avstängd",
         "openai": "OpenAI Whisper",
         "groq": "Groq Whisper",
+        "mistral": "Mistral Voxtral",
         "azure": "Azure OpenAI Whisper",
         "ollama": "Ollama",
         "genericOpenai": "Generell OpenAI-kompatibel"
@@ -1049,6 +1043,27 @@
       "transcriptionApiKeyOptional": "API-nyckel (valfritt)",
       "transcriptionApiKeyOptionalDescription": "De flesta lokala Whisper-servrar kräver ingen API-nyckel",
       "transcriptionApiKeyOptionalPlaceholder": "Lämna tomt för lokala servrar"
+    },
+    "pageRenderers": {
+      "title": "Sidrenderare",
+      "description": "Webbläsare som läser sidor som en vanlig hämtning inte klarar. Obscura provas först, sedan Chromium-webbläsaren och sist lösaren.",
+      "obscura": "Obscura",
+      "obscuraDescription": "Den headless-webbläsare som ingår i Norish.",
+      "obscuraEndpoint": "Obscura-adress",
+      "cdpToken": "CDP-token",
+      "cdpTokenDescription": "Samma token som på obscura-tjänsten.",
+      "chromium": "Chromium-webbläsare",
+      "chromiumDescription": "Valfri Chromium med en CDP-adress.",
+      "chromiumEndpoint": "Chromium-adress",
+      "solver": "FlareSolverr eller Byparr",
+      "solverDescription": "Provas när webbläsarna misslyckas. Den får aldrig autentiseringstoken för webbplatser.",
+      "solverEndpoint": "Lösarens adress",
+      "allowPrivateAddresses": "Tillåt privata adresser",
+      "allowPrivateAddressesDescription": "Låt importer nå ditt lokala nätverk. Obscura nekar dessa oavsett.",
+      "navigationTimeout": "Tidsgräns för navigering (ms)",
+      "navigationTimeoutDescription": "Hur lång tid en renderare får på sig att läsa in en sida.",
+      "saved": "Sidrenderarna har sparats",
+      "error": "Det gick inte att spara sidrenderarna"
     },
     "imageGenerationConfig": {
       "description": "Bilder behöver en egen leverantör eftersom de flesta AI-leverantörer inte kan skapa bilder.",
@@ -1103,8 +1118,7 @@
         "validateEnrichmentsDescription": "Kontrollera varje kompletterings påståenden innan de sparas"
       },
       "testConnection": "Testa anslutning",
-      "connectionSuccess": "Anslutningen lyckades",
-      "aiDisabledHint": "AI är avstängt på servern. Aktivera det i AI-konfigurationen för att testa och använda beslutsmodellen."
+      "connectionSuccess": "Anslutningen lyckades"
     },
     "promptsConfig": {
       "recipeExtraction": "Prompt för receptextrahering",
@@ -1137,6 +1151,9 @@
       "ingredientResolution": "Prompt för identifiering av ingredienser",
       "ingredientResolutionDescription": "Används för att avgöra om ett nytt ingrediensnamn är ett livsmedel som Norish redan känner till",
       "ingredientResolutionPlaceholder": "Prompt för att känna igen ingrediensnamn...",
+      "ingredientMatch": "Prompt för matchning av ingredienser",
+      "ingredientMatchDescription": "Skickas till språkmodellen när AI:s namn hittar flera livsmedel i katalogen, eller bara livsmedel som skiljer sig med en eller två bokstäver, med namnet och de livsmedlen tillagda efteråt. Anger vilket av dem namnet är, om något.",
+      "ingredientMatchPlaceholder": "Prompt för att matcha ingrediensnamn mot livsmedel i katalogen...",
       "imageGenerationBrief": "Prompt för bildbeskrivning",
       "imageGenerationBriefDescription": "Används för att göra om ett recept till en kort bildbeskrivning innan bilden skapas. Receptet läggs till efter prompten.",
       "imageGenerationBriefPlaceholder": "Prompt för att skriva bildbeskrivningen...",
@@ -1148,7 +1165,13 @@
       "ingredientIconStylePlaceholder": "Prompt för ingrediensikonernas stil...",
       "ingredientPlainName": "Prompt för rensning av ingrediensnamn",
       "ingredientPlainNameDescription": "Skickas till språkmodellen när AI rensar ett ingrediensnamn, med namnet och alternativa stavningar tillagda efteråt. Anger vad som ska tas bort och behållas.",
-      "ingredientPlainNamePlaceholder": "Prompt för att rensa ingrediensnamn..."
+      "ingredientPlainNamePlaceholder": "Prompt för att rensa ingrediensnamn...",
+      "ingredientSpellingCheck": "Prompt för kontroll av ingrediensöversättningar",
+      "ingredientSpellingCheckDescription": "Skickas till språkmodellen vid en städning av hela katalogen, för varje ingrediens i katalogen med översättningar som personer, importer eller sammanslagningar har lagt till, med ingrediensen, de översättningarna och en receptrad som använder var och en tillagda efteråt. Anger vilka av dem som namnger ingrediensen, inget livsmedel eller ett annat livsmedel.",
+      "ingredientSpellingCheckPlaceholder": "Prompt för att kontrollera ingrediensöversättningar...",
+      "ingredientNutrition": "Prompt för ingrediensers näringsvärden",
+      "ingredientNutritionDescription": "Skickas till språkmodellen för en ingrediens som saknar näringsvärden, densitet eller styckvikt, där AI får fylla i dem, med ingrediensen och vad den är en sorts variant av tillagda efteråt. Uppskattar bara det som ingrediensen saknar.",
+      "ingredientNutritionPlaceholder": "Prompt för att uppskatta en ingrediens näringsvärden..."
     },
     "unsavedChanges": "Osparade ändringar",
     "jsonEditor": {
@@ -1171,7 +1194,7 @@
         "delayed": "Fördröjt",
         "completed": "Klart",
         "failed": "Misslyckat",
-        "paused": "Pausat",
+        "cancelled": "Avbrutet",
         "prioritized": "Prioriterat",
         "unknown": "Okänt",
         "hanging": "Har hängt sig"
@@ -1202,6 +1225,7 @@
         "saving-link": "Spara länken",
         "asking-ai": "Fråga AI om livsmedlet",
         "drawing-icon": "Skapa livsmedlets ikon",
+        "filling-gaps": "Fyll livsmedlets luckor",
         "naming": "Rensa livsmedlets namn"
       },
       "queues": {
@@ -1220,7 +1244,7 @@
         "store-lookup": "Butikssökning",
         "ingredient-review": "Fråga AI om ingredienser",
         "ingredient-icons": "Skapa ingrediensikoner",
-        "new-ingredients": "Nya ingredienser"
+        "ingredient-fill": "Fyll luckor i ingredienser"
       },
       "summary": {
         "failed": "{count} misslyckade"
@@ -1236,6 +1260,7 @@
       "detail": {
         "title": "Jobbinformation",
         "notFound": "Jobbet hittades inte. Det kan ha rensats bort.",
+        "cancelledNote": "En administratör avbröt det här jobbet.",
         "sections": {
           "error": "Fel",
           "pipelineSteps": "Bearbetningssteg",
@@ -1264,6 +1289,8 @@
       },
       "actions": {
         "retry": "Försök igen",
+        "cancel": "Avbryt jobb",
+        "cancelling": "Avbryter…",
         "remove": "Ta bort"
       },
       "removeModal": {

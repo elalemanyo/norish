@@ -9,9 +9,7 @@
   "editNote": {
     "title": "Redigera anteckning",
     "noteLabel": "Anteckning",
-    "notePlaceholder": "Skriv en anteckning...",
-    "date": "Datum",
-    "slot": "Måltid"
+    "notePlaceholder": "Skriv en anteckning..."
   },
   "navigation": {
     "previousMonth": "Föregående månad",
