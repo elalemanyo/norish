@@ -8,7 +8,8 @@ vi.mock("next-intl", () => ({
   useTranslations: () => (key: string) => key,
   useFormatter: () => ({
     dateTime: (date: Date) => date.toISOString(),
-    relativeTime: (date: Date) => `${Math.round((Date.now() - date.getTime()) / 60_000)} minutes ago`,
+    relativeTime: (date: Date) =>
+      `${Math.round((Date.now() - date.getTime()) / 60_000)} minutes ago`,
   }),
 }));
 

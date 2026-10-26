@@ -300,8 +300,7 @@ export default function JobQueueCard() {
               hideOnNarrow: true,
               label: t("table.created"),
               className: "text-muted text-xs",
-              render: (job: AdminJobRowDTO) =>
-                format.relativeTime(new Date(job.createdAt)),
+              render: (job: AdminJobRowDTO) => format.relativeTime(new Date(job.createdAt)),
             },
           ]}
           emptyState={t("empty")}
