@@ -308,6 +308,17 @@ After adding a new locale folder, update `packages/i18n/src/messages.ts` and add
 
 If you skip this, iOS/Android bundling can fail with an "Invalid call" error from dynamic `import(...)`.
 
+### 2.2 Teach Norish the Language's Words
+
+Recipes and groceries are read in every language, so add your language's words too:
+
+- `packages/config/src/units.default.json` - unit names (a test fails when one is missing)
+- `packages/config/src/timer-keywords.default.json` - hour, minute and second words
+- `packages/config/src/ingredient-words.default.json` - preparation, size and joining words
+- `packages/config/src/recurrence-config.default.json` - "every week" and weekday words
+- `packages/config/src/content-indicators.default.json` - words that mark a recipe page
+- `packages/shared/src/lib/ingredient-names.ts` (`CATALOGUE_LANGUAGES`) and `packages/shared-server/src/ingredients/seed/junk-pile.ts` - catalogue names and text that is not a food
+
 ### 3. Verify Translations
 
 Run the locale check to ensure all keys are present:
