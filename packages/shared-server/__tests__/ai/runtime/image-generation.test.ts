@@ -158,6 +158,39 @@ describe("generateImage", () => {
     expect(width).toBeGreaterThan(height ?? Number.NaN);
   });
 
+  it("draws the square where the model refuses the landscape, and asks for it from then on", async () => {
+    // Gemini behind an OpenAI-compatible endpoint takes only 1024x1024, and its refusal names nothing.
+    reply = () =>
+      captured.at(-1)?.body.size === "1024x1024"
+        ? { status: 200, body: { data: [{ b64_json: imageBase64 }] } }
+        : { status: 400, body: { error: { message: "Request contains an invalid argument." } } };
+
+    await generateImage({ prompt: "image-generation-style", sections: [] });
+    await generateImage({ prompt: "image-generation-style", sections: [] });
+
+    expect(captured.map((request) => request.body.size)).toEqual([
+      "1280x720",
+      "1024x1024",
+      "1024x1024",
+    ]);
+  });
+
+  it("reports the landscape's refusal when the square is refused too, and remembers nothing", async () => {
+    reply = () => ({ status: 400, body: { error: { message: "content policy refusal" } } });
+
+    await expect(generateImage({ prompt: "image-generation-style" })).rejects.toThrow(
+      /content policy refusal/
+    );
+    await generateImage({ prompt: "image-generation-style" }).catch(() => undefined);
+
+    expect(captured.map((request) => request.body.size)).toEqual([
+      "1280x720",
+      "1024x1024",
+      "1280x720",
+      "1024x1024",
+    ]);
+  });
+
   it("draws through Ollama's native generate route with a landscape width and height", async () => {
     // ai-sdk-ollama gained an image model on the AI SDK 7 line, so Ollama
     // joined the providers that can draw; it answers `images` rather than

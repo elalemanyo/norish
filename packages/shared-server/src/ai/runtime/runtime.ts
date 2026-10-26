@@ -71,9 +71,12 @@ import {
 } from "./errors";
 import {
   imageModelKey,
+  isRequestRefusal,
   refusedImageParameter,
   refusedImageParameters,
+  refusesLandscape,
   rememberRefusedImageParameter,
+  rememberRefusedLandscape,
 } from "./image-parameter-fallback";
 import { forgetKeyRejection, noteKeyRejection } from "./key-rejections";
 import { recordModelUse, requestSignal } from "./model-use-ledger";
@@ -679,11 +682,11 @@ export async function generateImage(options: GenerateImageOptions): Promise<Gene
 
     const providerOptions =
       tier || transparent ? imageModel.preferences?.({ tier, transparent }) : undefined;
-    const draw = () =>
+    const draw = (asked: "landscape" | "square") =>
       generateImageWithModel({
         model: imageModel.model,
         prompt,
-        ...imageModel[shape],
+        ...imageModel[asked],
         ...(providerOptions ? { providerOptions } : {}),
         // Image calls are billed per request, so the SDK's silent in-call
         // retries are disabled: the queue's attempts are the one retry budget.
@@ -691,6 +694,9 @@ export async function generateImage(options: GenerateImageOptions): Promise<Gene
         abortSignal: requestSignal(aiConfig.timeoutMs),
       });
     const key = imageModelKey(provider, model);
+    let asked: "landscape" | "square" =
+      shape === "landscape" && refusesLandscape(key) ? "square" : shape;
+    let landscapeRefusal: unknown;
     let result: Awaited<ReturnType<typeof draw>> | undefined;
 
     // A model that refuses a parameter it may go without is asked again
@@ -698,18 +704,32 @@ export async function generateImage(options: GenerateImageOptions): Promise<Gene
     // request is not billed.
     while (!result) {
       try {
-        result = await draw();
+        result = await draw(asked);
       } catch (error) {
         const refused = refusedImageParameter(error);
 
-        if (!refused || refusedImageParameters(key).has(refused)) throw error;
-        aiLogger.warn(
-          { feature: promptName, provider, model, parameter: refused },
-          "Image model refused a parameter; asking again without it"
-        );
-        rememberRefusedImageParameter(key, refused);
+        if (refused && !refusedImageParameters(key).has(refused)) {
+          aiLogger.warn(
+            { feature: promptName, provider, model, parameter: refused },
+            "Image model refused a parameter; asking again without it"
+          );
+          rememberRefusedImageParameter(key, refused);
+        } else if (asked === "landscape" && isRequestRefusal(error)) {
+          // The refusal names no parameter, so the size is the likely one; if
+          // the square is refused too, the landscape's refusal is reported.
+          aiLogger.warn(
+            { feature: promptName, provider, model },
+            "Image model refused the landscape; asking for the square"
+          );
+          landscapeRefusal = error;
+          asked = "square";
+        } else {
+          throw landscapeRefusal && isRequestRefusal(error) ? landscapeRefusal : error;
+        }
       }
     }
+
+    if (landscapeRefusal) rememberRefusedLandscape(key);
 
     const bytes = Buffer.from(result.image.uint8Array);
 

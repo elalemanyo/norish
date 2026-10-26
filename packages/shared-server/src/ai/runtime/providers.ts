@@ -297,8 +297,7 @@ const SQUARE: ImageShape = { size: "1024x1024" };
 /**
  * The widest landscape OpenAI's image models accept. The DALL·E family tops
  * out at 1792×1024, the gpt-image family at 1536×1024; a model this guess is
- * wrong about fails at request time with the provider's own message, exactly
- * as a mistyped model name does (ADR-0024).
+ * wrong about refuses it and is asked for the square instead (ADR-0014).
  */
 function openAILandscapeSize(model: string): `${number}x${number}` {
   return model.startsWith("dall-e") ? "1792x1024" : "1536x1024";
@@ -409,7 +408,8 @@ export function createImageModelFromConfig(config: {
         model: compatible.imageModel(model),
         providerName: provider === "lm-studio" ? "LM Studio" : "Generic OpenAI",
         // No published size list to lean on, so ask for exactly the stored
-        // shape: self-hosted image servers generally accept arbitrary sizes.
+        // shape: self-hosted image servers generally accept arbitrary sizes,
+        // and one that refuses it is asked for the square.
         landscape: { size: "1280x720" },
         square: SQUARE,
       };
