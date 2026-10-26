@@ -59,10 +59,12 @@ async function recordViewTransitions(context: BrowserContext): Promise<void> {
 
       return from.trim().startsWith("-") ? "back" : "forward";
     };
+    // React skips a pending transition when other work arrives before it starts, so a skip is
+    // recorded too: a failure then tells a skipped slide from one never started.
     const record = (transition: ViewTransition) =>
       transition.ready.then(
         () => seen.push({ types: [...transition.types], animations: animations(), slide: slide() }),
-        () => {}
+        () => seen.push({ types: [...transition.types], animations: ["skipped"], slide: null })
       );
     const start = document.startViewTransition.bind(document);
 
