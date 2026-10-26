@@ -41,7 +41,8 @@ it matches an ingredient name to a food. The list is per locale:
 - `endsBefore`: where a name ends, like "in" in "tuna in olive oil", which is
   tuna, or "for" in "greek yogurt for topping"
 - `forms`: cuts and forms after a food's name, like "blokjes" in "mango
-  blokjes". A new ingredient named so is filed under the food
+  blokjes". A new ingredient named so is filed under the food. A cut alone is
+  never a parent, so "peen julienne" goes under carrot
 - `notFoods`: words that are never a food on their own, like "and" or "with"
 - `inflections`: plural and diminutive endings, so "onions" becomes "onion" and
   "cherries" becomes "cherry"

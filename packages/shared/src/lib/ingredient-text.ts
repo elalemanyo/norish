@@ -30,8 +30,8 @@ function isAmountAlone(text: string): boolean {
 /**
  * Whether a recipe line's text names no food: a heading, a text with no
  * letter or digit in any script (")", "—"), the "[object Object]" an old
- * import wrote where it meant a name, or an amount alone. Kept as written,
- * and given no alias.
+ * import wrote where it meant a name (after a "null" amount or not), or an
+ * amount alone. Kept as written, and given no alias.
  */
 export function namesNoFood(text: string | null | undefined): boolean {
   const trimmed = (text ?? "").trim();
@@ -39,7 +39,7 @@ export function namesNoFood(text: string | null | undefined): boolean {
   return (
     isIngredientHeading(trimmed) ||
     !/[\p{L}\p{N}]/u.test(trimmed) ||
-    trimmed === "[object Object]" ||
+    /^(?:null\s+)*\[object Object\]$/iu.test(trimmed) ||
     isAmountAlone(trimmed)
   );
 }

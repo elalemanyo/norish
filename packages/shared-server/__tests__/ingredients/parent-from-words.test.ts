@@ -159,6 +159,18 @@ describe("a mint's parent from the words of its text", () => {
     expect(await listAIChanges()).toHaveLength(0);
   });
 
+  it("never files under a cut alone, though another language spells a food with it", async () => {
+    await applyIngredientSeed([
+      seedEntryIn("en:ling", ["ling", "en"], ["julienne", "fr"]),
+      seedEntryIn("en:carrot", ["carrot", "en"], ["peen", "nl"]),
+    ]);
+    seeded = await listSeededIngredientIds();
+
+    expect(await mintOne("peen julienne")).toMatchObject({
+      parent: { id: seeded.get("en:carrot") },
+    });
+  });
+
   it("never files under a word of recipe language another language spells a food with", async () => {
     await applyIngredientSeed([
       seedEntry("en:duck", "duck", "and"),

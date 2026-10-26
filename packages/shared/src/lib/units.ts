@@ -82,7 +82,7 @@ const TABLE: UnitEntry[] = [
       "кг",
       "킬로그램",
     ],
-    mapIds: [],
+    mapIds: ["kilogram"],
   },
   {
     id: "milligram",

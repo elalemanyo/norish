@@ -84,6 +84,9 @@ const NOTE = /[([][^()[\]]*\bnotes?\b[^()[\]]*[)\]]/giu;
 /** A bracket a price or note left empty. */
 const EMPTY_BRACKETS = /\(\s*\)|\[\s*\]|\{\s*\}/g;
 
+/** The "null" an old import wrote before a name for an amount it lacked ("null zout"). */
+const OLD_IMPORT_NULL = /^\s*(?:null\s+)+/iu;
+
 /**
  * The text a spelling is read from, without stray marks, doubled brackets, prices and notes
  * (ADR-0037); cleaned until nothing changes, so cleaning it again reads the same.
@@ -99,6 +102,7 @@ export function cleanSpelling(text: string): string {
         .replace(NOTE, " ")
         .replace(DOUBLED_BRACKETS, " ")
         .replace(EMPTY_BRACKETS, " ")
+        .replace(OLD_IMPORT_NULL, " ")
     );
   }
 

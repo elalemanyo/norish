@@ -85,6 +85,8 @@ describe("spelling keys", () => {
     expect(spellingKeys("baking soda 0,02 €", phrases).fold).toBe("baking soda");
     expect(spellingKeys("sugar (Note 1)", phrases).fold).toBe("sugar");
     expect(spellingKeys("sugar (see notes 2 & 3)", phrases).fold).toBe("sugar");
+    // An old import wrote a missing amount as "null" before the name.
+    expect(spellingKeys("null zout", phrases)).toMatchObject({ fold: "zout", plain: "zout" });
     for (const text of ["+ eggs", "/ eggs", "- eggs", ": eggs"]) {
       expect(spellingKeys(text, phrases)).toMatchObject({ bare: "eggs", plain: "eggs" });
     }
@@ -216,6 +218,10 @@ describe("spelling keys", () => {
     });
     expect(foodKey("heaped tablespoons peanut butter", phrases)).toBe("peanut butter");
     expect(foodKey("cup of milk", phrases)).toBe("milk");
+    expect(foodKey("1 kilo krieltjes", phrases)).toBe("krieltjes");
+    expect(foodKey("kilo krieltjes", phrases)).toBe("krieltjes");
+    expect(foodKey("2 tbs olive oil", phrases)).toBe("olive oil");
+    expect(foodKey("2 koffielepels suiker", phrases)).toBe("suiker");
     // A one-letter spelling is left alone: "T-bone", "L. reuteri".
     expect(foodKey("T-bone steak", phrases)).toBe("t bone steak");
     // A measure alone stands, as any text does.
@@ -257,6 +263,9 @@ describe("spelling keys", () => {
     expect(foodKey("olive oil, a splash", phrases)).toBe("olive oil");
     expect(foodKey("a splash of olive oil", phrases)).toBe("olive oil");
     expect(foodKey("a handful of basil", phrases)).toBe("basil");
+    expect(foodKey("handjevol basilicum", phrases)).toBe("basilicum");
+    expect(foodKey("snuf zout", phrases)).toBe("zout");
+    expect(foodKey("flinke snuf nootmuskaat", phrases)).toBe("nootmuskaat");
   });
 
   it("strips what the administrator's units map says, and nothing without one", () => {

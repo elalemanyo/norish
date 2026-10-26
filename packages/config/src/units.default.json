@@ -487,6 +487,181 @@
       "грамів"
     ]
   },
+  "kilogram": {
+    "short": [
+      {
+        "locale": "en",
+        "name": "kg"
+      },
+      {
+        "locale": "de",
+        "name": "kg"
+      },
+      {
+        "locale": "nl",
+        "name": "kg"
+      },
+      {
+        "locale": "ko",
+        "name": "kg"
+      },
+      {
+        "locale": "da",
+        "name": "kg"
+      },
+      {
+        "locale": "it",
+        "name": "kg"
+      },
+      {
+        "locale": "fr",
+        "name": "kg"
+      },
+      {
+        "locale": "es",
+        "name": "kg"
+      },
+      {
+        "locale": "ru",
+        "name": "кг"
+      },
+      {
+        "locale": "pl",
+        "name": "kg"
+      },
+      {
+        "locale": "no",
+        "name": "kg"
+      },
+      {
+        "locale": "pt",
+        "name": "kg"
+      },
+      {
+        "locale": "bg",
+        "name": "кг"
+      },
+      {
+        "locale": "fi",
+        "name": "kg"
+      },
+      {
+        "locale": "uk",
+        "name": "кг"
+      },
+      {
+        "locale": "sv",
+        "name": "kg"
+      }
+    ],
+    "plural": [
+      {
+        "locale": "en",
+        "name": "kilograms"
+      },
+      {
+        "locale": "de",
+        "name": "kg"
+      },
+      {
+        "locale": "nl",
+        "name": "kilo"
+      },
+      {
+        "locale": "ko",
+        "name": "킬로그램"
+      },
+      {
+        "locale": "da",
+        "name": "kg"
+      },
+      {
+        "locale": "it",
+        "name": "kg"
+      },
+      {
+        "locale": "fr",
+        "name": "kilogrammes"
+      },
+      {
+        "locale": "es",
+        "name": "kilogramos"
+      },
+      {
+        "locale": "ru",
+        "name": "килограммы"
+      },
+      {
+        "locale": "pl",
+        "name": "kilogramy"
+      },
+      {
+        "locale": "no",
+        "name": "kilo"
+      },
+      {
+        "locale": "pt",
+        "name": "quilogramas"
+      },
+      {
+        "locale": "bg",
+        "name": "килограма"
+      },
+      {
+        "locale": "fi",
+        "name": "kilogrammaa"
+      },
+      {
+        "locale": "uk",
+        "name": "кг"
+      },
+      {
+        "locale": "sv",
+        "name": "kilo"
+      }
+    ],
+    "alternates": [
+      "kg",
+      "kg.",
+      "kgs",
+      "kilo",
+      "kilos",
+      "kilogram",
+      "kilograms",
+      "kilogramm",
+      "kilogramme",
+      "kilogrammes",
+      "kilogrammo",
+      "kilogrammi",
+      "chilo",
+      "chilogrammo",
+      "chilogrammi",
+      "kilogramo",
+      "kilogramos",
+      "quilo",
+      "quilos",
+      "quilograma",
+      "quilogramas",
+      "kilogramy",
+      "kilogramów",
+      "kiloa",
+      "kilogramma",
+      "kilogrammaa",
+      "кг",
+      "кило",
+      "килограмм",
+      "килограммы",
+      "килограммов",
+      "килограм",
+      "килограма",
+      "кілограм",
+      "кілограми",
+      "кілограмів",
+      "кіло",
+      "킬로그램",
+      "킬로"
+    ]
+  },
   "teaspoon": {
     "short": [
       {
@@ -680,7 +855,10 @@
       "чайну ложку",
       "tsk",
       "teskedar",
-      "tesked"
+      "tesked",
+      "koffielepel",
+      "koffielepels",
+      "kaffeelöffel"
     ]
   },
   "tablespoon": {
@@ -878,7 +1056,8 @@
       "столову ложку",
       "msk",
       "matskedar",
-      "matsked"
+      "matsked",
+      "tbs"
     ]
   },
   "knife_tip": {
@@ -1227,7 +1406,8 @@
       "дрібок",
       "дрібку",
       "nypa",
-      "nypor"
+      "nypor",
+      "snuf"
     ]
   },
   "piece": {
@@ -3504,7 +3684,8 @@
       "жмень",
       "жменю",
       "näve",
-      "nävar"
+      "nävar",
+      "handjevol"
     ]
   },
   "splash": {
@@ -8046,7 +8227,10 @@
       "великих щіпок",
       "велику щіпку",
       "rejäl nypa",
-      "rejäla nypor"
+      "rejäla nypor",
+      "flinke snuf",
+      "flink snufje",
+      "flinke snufjes"
     ]
   },
   "large_splash": {

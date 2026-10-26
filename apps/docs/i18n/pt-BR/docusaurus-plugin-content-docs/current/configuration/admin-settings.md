@@ -46,7 +46,8 @@ idioma:
   atum, ou "para" em "iogurte grego para cobertura"
 - `forms`: cortes e formas depois do nome de um alimento, como "blokjes" em
   "mango blokjes". Um ingrediente novo com um nome assim é colocado sob o
-  alimento
+  alimento. Um corte sozinho nunca é um pai, então "peen julienne" fica sob
+  cenoura
 - `notFoods`: palavras que nunca são um alimento sozinhas, como "e" ou "com"
 - `inflections`: terminações de plural e diminutivo, para que "cebolas" vire
   "cebola" e "cerejas" vire "cereja"

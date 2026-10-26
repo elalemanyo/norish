@@ -70,6 +70,7 @@
     ],
     "sizes": ["large", "medium", "small", "big"],
     "forms": [
+      "julienne",
       "bits",
       "chunks",
       "cube",
@@ -163,6 +164,7 @@
     "approximately": ["ongeveer", "ong.", "circa", "ca.", "plm.", "zo'n"],
     "sizes": ["groot", "grote", "middelgroot", "middelgrote", "klein", "kleine"],
     "forms": [
+      "julienne",
       "blokjes",
       "blokken",
       "bolletjes",
@@ -258,6 +260,7 @@
     "approximately": ["etwa", "ca.", "circa", "ungefähr", "rund"],
     "sizes": ["groß", "große", "mittelgroß", "mittelgroße", "klein", "kleine"],
     "forms": [
+      "Julienne",
       "Würfel",
       "Würfelchen",
       "Streifen",
@@ -358,6 +361,7 @@
     "approximately": ["environ", "env.", "ca."],
     "sizes": ["gros", "grosse", "grand", "grande", "moyen", "moyenne", "petit", "petite"],
     "forms": [
+      "julienne",
       "filet",
       "filets",
       "cubes",
@@ -433,6 +437,7 @@
     "approximately": ["aproximadamente", "aprox.", "unos", "unas", "ca."],
     "sizes": ["grande", "grandes", "mediano", "mediana", "pequeño", "pequeña"],
     "forms": [
+      "juliana",
       "tiras",
       "dados",
       "cubos",
@@ -509,6 +514,7 @@
     "approximately": ["circa", "ca."],
     "sizes": ["grande", "grandi", "medio", "media", "piccolo", "piccola"],
     "forms": [
+      "julienne",
       "cubetti",
       "dadini",
       "fette",
@@ -571,6 +577,7 @@
     "approximately": ["aproximadamente", "aprox.", "cerca", "ca."],
     "sizes": ["grande", "grandes", "médio", "média", "pequeno", "pequena"],
     "forms": [
+      "juliana",
       "cubos",
       "tiras",
       "fatias",
@@ -612,7 +619,7 @@
     "notFoods": ["og", "eller", "en", "et", "til", "med", "mere"],
     "approximately": ["ca.", "cirka", "omkring"],
     "sizes": ["stor", "store", "mellemstor", "mellemstore", "lille", "små"],
-    "forms": ["strimler", "tern", "skiver", "stykker", "filet", "fileter", "stave"],
+    "forms": ["julienne", "strimler", "tern", "skiver", "stykker", "filet", "fileter", "stave"],
     "inflections": [
       ["erne", ""],
       ["ene", ""],
@@ -642,7 +649,17 @@
     "notFoods": ["og", "eller", "en", "et", "til", "med", "mer"],
     "approximately": ["ca.", "cirka", "omtrent"],
     "sizes": ["stor", "store", "middels", "liten", "lite", "små"],
-    "forms": ["strimler", "terninger", "skiver", "biter", "filet", "fileter", "båter", "staver"],
+    "forms": [
+      "julienne",
+      "strimler",
+      "terninger",
+      "skiver",
+      "biter",
+      "filet",
+      "fileter",
+      "båter",
+      "staver"
+    ],
     "inflections": [
       ["ene", ""],
       ["er", ""],
@@ -672,7 +689,16 @@
     "notFoods": ["ja", "tai"],
     "approximately": ["noin", "n."],
     "sizes": ["iso", "suuri", "keskikokoinen", "pieni"],
-    "forms": ["suikaleet", "kuutiot", "viipaleet", "palat", "filee", "fileet", "lohkot"],
+    "forms": [
+      "julienne",
+      "suikaleet",
+      "kuutiot",
+      "viipaleet",
+      "palat",
+      "filee",
+      "fileet",
+      "lohkot"
+    ],
     "inflections": [["t", ""]]
   },
   "pl": {
@@ -709,7 +735,17 @@
     "notFoods": ["i", "lub", "z", "na", "do", "w"],
     "approximately": ["około", "ok."],
     "sizes": ["duży", "duża", "duże", "średni", "średnia", "średnie", "mały", "mała", "małe"],
-    "forms": ["kostki", "plastry", "plasterki", "paski", "kawałki", "filet", "filety", "ćwiartki"],
+    "forms": [
+      "julienne",
+      "kostki",
+      "plastry",
+      "plasterki",
+      "paski",
+      "kawałki",
+      "filet",
+      "filety",
+      "ćwiartki"
+    ],
     "inflections": [
       ["ki", "ka"],
       ["e", "a"],
@@ -764,7 +800,7 @@
       "крупный",
       "крупная"
     ],
-    "forms": ["кубики", "ломтики", "полоски", "кусочки", "филе", "дольки", "фарш"],
+    "forms": ["жюльен", "кубики", "ломтики", "полоски", "кусочки", "филе", "дольки", "фарш"],
     "inflections": [
       ["ы", ""],
       ["ы", "а"],
@@ -802,7 +838,7 @@
     "notFoods": ["и", "или", "с", "за", "в"],
     "approximately": ["около", "приблизително"],
     "sizes": ["голям", "голяма", "голямо", "среден", "средна", "средно", "малък", "малка", "малко"],
-    "forms": ["кубчета", "филе", "филета", "резени", "ленти", "парчета", "кайма"],
+    "forms": ["жулиен", "кубчета", "филе", "филета", "резени", "ленти", "парчета", "кайма"],
     "inflections": [
       ["ове", ""],
       ["и", "а"],
@@ -819,7 +855,7 @@
     "notFoods": [],
     "approximately": ["약"],
     "sizes": ["큰", "중간", "작은"],
-    "forms": ["슬라이스", "큐브", "조각"],
+    "forms": ["채", "슬라이스", "큐브", "조각"],
     "inflections": []
   },
   "uk": {
@@ -913,7 +949,7 @@
       "невелике",
       "невеликі"
     ],
-    "forms": ["кубики", "скибочки", "смужки", "шматочки", "філе", "часточки", "фарш"],
+    "forms": ["жульєн", "кубики", "скибочки", "смужки", "шматочки", "філе", "часточки", "фарш"],
     "inflections": [
       ["ці", "ець"],
       ["ки", "ок"],
@@ -961,7 +997,7 @@
     "notFoods": ["och", "eller", "en", "ett", "till", "med", "mer", "lite"],
     "approximately": ["ca.", "cirka", "ungefär"],
     "sizes": ["stor", "stora", "medelstor", "medelstora", "liten", "litet", "små"],
-    "forms": ["strimlor", "tärningar", "skivor", "bitar", "filé", "filéer", "stavar"],
+    "forms": ["julienne", "strimlor", "tärningar", "skivor", "bitar", "filé", "filéer", "stavar"],
     "inflections": [
       ["or", "a"],
       ["ar", ""],

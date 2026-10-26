@@ -41,7 +41,7 @@ import { announceMinted, announcingAfter } from "./minted";
  * Which rules the first two rungs and the parent from words follow. Raised whenever they change, so
  * the startup pass looks at undecided mints again under the new rules (`recheckUndecidedMints`).
  */
-export const RUNG_VERSION = 10;
+export const RUNG_VERSION = 11;
 
 /** Who the resolution is for: the owner of anything it mints. */
 export interface ResolveActor {
@@ -549,7 +549,9 @@ async function parentFromWords(spelling: Spelling): Promise<string | null> {
   for (let length = words.length; length >= 1; length -= 1) {
     // Where the window the words end with starts.
     const tail = words.length - length;
-    const readable = (start: number) => !(length === 1 && rules.notFoods.has(words[start]!));
+    // One word that is no food, or a cut ("julienne"), is no parent alone.
+    const readable = (start: number) =>
+      !(length === 1 && (rules.notFoods.has(words[start]!) || rules.forms.has(words[start]!)));
     const formed =
       tail > 0 &&
       readable(0) &&

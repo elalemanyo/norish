@@ -39,7 +39,7 @@ import { readName } from "../resolver";
 import { oncePerVersion } from "./catalogue-seed";
 
 /** Raised when a release needs the cleanup to run again. */
-export const CLEANUP_VERSION = 5;
+export const CLEANUP_VERSION = 6;
 
 /** How many variants one round removes; each round commits, so a boot cut short resumes. */
 // ponytail: ~2 ms a variant, ~2.5 min for production's 71k; set-based if ticket 12 finds it slow.

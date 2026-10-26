@@ -396,6 +396,24 @@ describe("the first-start cleanup", () => {
     expect(await lineSpellings(line.id)).toEqual(["zout"]);
   });
 
+  it("cleans the spellings an old import's null or a weight left, and their lines follow", async () => {
+    const nulled = await oldMint("null zout", ["null zout"]);
+    const weighed = await oldMint("kilo krieltjes", ["kilo krieltjes"]);
+    const recipe = await createTestRecipe(userId);
+    const salt = await insertTestRecipeLine({ recipeId: recipe.id, name: "null zout" }, [
+      nulled.aliasIds[0]!,
+    ]);
+    const potatoes = await insertTestRecipeLine(
+      { recipeId: recipe.id, name: "kilo krieltjes", amount: "1", order: "1" },
+      [weighed.aliasIds[0]!]
+    );
+
+    await cleanUpCatalogueOnFirstStart();
+    expect(await exists(nulled.ingredientId)).toBe(false);
+    expect(await lineSpellings(salt.id)).toEqual(["zout"]);
+    expect(await lineSpellings(potatoes.id)).toEqual(["krieltjes"]);
+  });
+
   it("keeps the flag of the food a variant joins, as no one decided that merge", async () => {
     const mint = await oldMint("kokosbloesemsuiker", ["kokosbloesemsuiker"]);
     const variant = await oldMint("kokosbloesemsuiker naar smaak", [
