@@ -31,7 +31,8 @@ modo de preparo e símbolos soltos. "finely chopped onions" corresponde a
 "onion", "4 el bosui" corresponde a "bosui", "gyoza vellen ((ontdooid))"
 corresponde a "gyoza vellen", e o erro de digitação "parmezan" corresponde a
 "parmezaan". Um nome que junta alimentos nomeia cada um deles: "zout en peper"
-é sal e pimenta, e "boter of olie" é manteiga ou óleo. Um nome com uma nota
+é sal e pimenta, "boter of olie" e "boter/olie" são manteiga ou óleo, e "peper,
+zout en tijm" é pimenta, sal e tomilho. Um nome com uma nota
 depois de um alimento conhecido é esse alimento: "olie om te bakken" é olie. Um
 nome que não corresponde a nada vira um ingrediente novo, com o seu nome limpo,
 classificado sob outro ingrediente com que o nome termina, como "roodschillige

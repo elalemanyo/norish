@@ -305,6 +305,28 @@ describe("spelling keys", () => {
     ]);
   });
 
+  it("splits at a slash as or and a plus as and, spaced or between two letters", () => {
+    expect(joinedParts("Salt/pepper", phrases)).toMatchObject({
+      parts: ["Salt", "pepper"],
+      joined: "alternatives",
+    });
+    expect(joinedParts("crème fraîche / sour cream", phrases)).toMatchObject({
+      parts: ["crème fraîche", "sour cream"],
+      joined: "alternatives",
+    });
+    expect(joinedParts("salt + black pepper", phrases)).toMatchObject({
+      parts: ["salt", "black pepper"],
+      joined: "together",
+    });
+    expect(joinedParts("salt&pepper", phrases)?.joined).toBe("together");
+    // A joining word written with a slash stays one word, and a fraction is no join.
+    expect(joinedParts("thighs and/or drumsticks", phrases)?.parts).toEqual([
+      "thighs",
+      "drumsticks",
+    ]);
+    expect(joinedParts("1/2 lemon", phrases)).toBeNull();
+  });
+
   it("never splits inside brackets, at an edge, or where and and or are mixed", () => {
     expect(joinedParts("kip (dij en borst)", phrases)).toBeNull();
     expect(joinedParts("and pepper", phrases)).toBeNull();

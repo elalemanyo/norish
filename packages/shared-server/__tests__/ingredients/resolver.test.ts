@@ -768,6 +768,42 @@ describe("ingredient resolver", () => {
       return (await getRecipeFull(recipeId))!.recipeIngredients;
     }
 
+    it("splits as the plain name reads, at a slash or a plus, and a comma list at its known foods", async () => {
+      const salt = await food("salt", "en");
+      const pepper = await food("pepper", "en");
+      const thyme = await food("thyme", "en");
+      const onions = await food("onions", "en");
+      const both = [
+        { ingredientId: salt, name: "salt" },
+        { ingredientId: pepper, name: "pepper" },
+      ];
+
+      expect(
+        await saved([
+          "pinch of salt and pepper",
+          "salt/pepper",
+          "salt + pepper",
+          "pepper, salt and thyme, to taste",
+          "pepper, salt, homemade spice blend",
+          "onions, diced",
+        ])
+      ).toMatchObject([
+        { joined: "together", foods: both },
+        { joined: "alternatives", foods: both },
+        { joined: "together", foods: both },
+        {
+          joined: "together",
+          foods: [
+            { ingredientId: pepper, name: "pepper" },
+            { ingredientId: salt, name: "salt" },
+            { ingredientId: thyme, name: "thyme" },
+          ],
+        },
+        { joined: "together", foods: [both[1], both[0]] },
+        { joined: null, ingredientId: onions },
+      ]);
+    });
+
     it("points a line at each food its words join, together or as alternatives, keeping its text", async () => {
       const zout = await food("zout", "nl");
       const peper = await food("peper", "nl");

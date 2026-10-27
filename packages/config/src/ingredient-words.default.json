@@ -36,8 +36,8 @@
       "lightly"
     ],
     "joiners": ["and"],
-    "together": ["and", "&"],
-    "alternatives": ["or", "and/or"],
+    "together": ["and", "&", "+"],
+    "alternatives": ["or", "and/or", "/"],
     "connectors": ["of"],
     "endsBefore": ["in", "with", "for", "to", "circa", "ca", "per"],
     "notFoods": [
@@ -143,8 +143,8 @@
       "dun"
     ],
     "joiners": ["en"],
-    "together": ["en", "&"],
-    "alternatives": ["of", "en/of"],
+    "together": ["en", "&", "+"],
+    "alternatives": ["of", "en/of", "/"],
     "connectors": ["van"],
     "endsBefore": [
       "in",
@@ -225,8 +225,8 @@
       "dünn"
     ],
     "joiners": ["und"],
-    "together": ["und", "&"],
-    "alternatives": ["oder", "und/oder"],
+    "together": ["und", "&", "+"],
+    "alternatives": ["oder", "und/oder", "/"],
     "connectors": ["von"],
     "endsBefore": [
       "in",
@@ -339,8 +339,8 @@
       "grossièrement"
     ],
     "joiners": ["et"],
-    "together": ["et", "&"],
-    "alternatives": ["ou", "et/ou"],
+    "together": ["et", "&", "+"],
+    "alternatives": ["ou", "et/ou", "/"],
     "connectors": ["de", "d", "du", "des"],
     "endsBefore": ["dans", "avec", "au", "aux", "pour", "selon", "environ", "par"],
     "notFoods": [
@@ -415,8 +415,8 @@
       "finamente"
     ],
     "joiners": ["y"],
-    "together": ["y", "&"],
-    "alternatives": ["o", "u", "y/o"],
+    "together": ["y", "&", "+"],
+    "alternatives": ["o", "u", "y/o", "/"],
     "connectors": ["de", "del"],
     "endsBefore": ["en", "con", "para", "por", "aprox"],
     "notFoods": [
@@ -490,8 +490,8 @@
       "finemente"
     ],
     "joiners": ["e"],
-    "together": ["e", "ed", "&"],
-    "alternatives": ["o", "oppure", "e/o"],
+    "together": ["e", "ed", "&", "+"],
+    "alternatives": ["o", "oppure", "e/o", "/"],
     "connectors": ["di", "del", "della", "dello", "dei", "degli", "delle"],
     "endsBefore": ["in", "con", "per", "circa"],
     "notFoods": [
@@ -569,8 +569,8 @@
       "finamente"
     ],
     "joiners": ["e"],
-    "together": ["e", "&"],
-    "alternatives": ["ou", "e/ou"],
+    "together": ["e", "&", "+"],
+    "alternatives": ["ou", "e/ou", "/"],
     "connectors": ["de", "do", "da", "dos", "das"],
     "endsBefore": ["em", "com", "para", "por", "cerca"],
     "notFoods": ["e", "ou", "um", "uma", "o", "a", "os", "as", "de", "do", "da", "para", "com"],
@@ -612,8 +612,8 @@
       "fint"
     ],
     "joiners": ["og"],
-    "together": ["og", "&"],
-    "alternatives": ["eller", "og/eller"],
+    "together": ["og", "&", "+"],
+    "alternatives": ["eller", "og/eller", "/"],
     "connectors": ["af"],
     "endsBefore": ["i", "med", "til", "ca", "pr"],
     "notFoods": ["og", "eller", "en", "et", "til", "med", "mere"],
@@ -642,8 +642,8 @@
       "fint"
     ],
     "joiners": ["og"],
-    "together": ["og", "&"],
-    "alternatives": ["eller", "og/eller"],
+    "together": ["og", "&", "+"],
+    "alternatives": ["eller", "og/eller", "/"],
     "connectors": ["av"],
     "endsBefore": ["i", "med", "til", "ca", "pr"],
     "notFoods": ["og", "eller", "en", "et", "til", "med", "mer"],
@@ -682,8 +682,8 @@
       "karkeasti"
     ],
     "joiners": ["ja"],
-    "together": ["ja", "&"],
-    "alternatives": ["tai", "ja/tai"],
+    "together": ["ja", "&", "+"],
+    "alternatives": ["tai", "ja/tai", "/"],
     "connectors": [],
     "endsBefore": ["noin", "esim"],
     "notFoods": ["ja", "tai"],
@@ -728,8 +728,8 @@
       "grubo"
     ],
     "joiners": ["i"],
-    "together": ["i", "oraz", "&"],
-    "alternatives": ["lub", "albo"],
+    "together": ["i", "oraz", "&", "+"],
+    "alternatives": ["lub", "albo", "/"],
     "connectors": [],
     "endsBefore": ["w", "z", "do", "dla", "około", "ok"],
     "notFoods": ["i", "lub", "z", "na", "do", "w"],
@@ -781,8 +781,8 @@
       "крупно"
     ],
     "joiners": ["и"],
-    "together": ["и", "&"],
-    "alternatives": ["или", "либо"],
+    "together": ["и", "&", "+"],
+    "alternatives": ["или", "либо", "/"],
     "connectors": [],
     "endsBefore": ["в", "с", "для", "около", "по"],
     "notFoods": ["и", "или", "с", "на", "для", "в"],
@@ -831,8 +831,8 @@
       "едро"
     ],
     "joiners": ["и"],
-    "together": ["и", "&"],
-    "alternatives": ["или"],
+    "together": ["и", "&", "+"],
+    "alternatives": ["или", "/"],
     "connectors": [],
     "endsBefore": ["в", "с", "за", "около", "по"],
     "notFoods": ["и", "или", "с", "за", "в"],
@@ -848,8 +848,8 @@
   "ko": {
     "preparation": ["채썬", "썬", "깐", "녹인", "으깬"],
     "joiners": [],
-    "together": ["및", "&"],
-    "alternatives": ["또는", "혹은"],
+    "together": ["및", "&", "+"],
+    "alternatives": ["또는", "혹은", "/"],
     "connectors": [],
     "endsBefore": [],
     "notFoods": [],
@@ -908,8 +908,8 @@
       "скибочками"
     ],
     "joiners": ["і", "й", "та"],
-    "together": ["і", "й", "та", "&"],
-    "alternatives": ["або", "чи"],
+    "together": ["і", "й", "та", "&", "+"],
+    "alternatives": ["або", "чи", "/"],
     "connectors": [],
     "endsBefore": ["з", "із", "зі", "в", "у", "для", "близько", "по"],
     "notFoods": [
@@ -990,8 +990,8 @@
       "fint"
     ],
     "joiners": ["och"],
-    "together": ["och", "&"],
-    "alternatives": ["eller", "och/eller"],
+    "together": ["och", "&", "+"],
+    "alternatives": ["eller", "och/eller", "/"],
     "connectors": ["av"],
     "endsBefore": ["i", "med", "till", "ca", "per"],
     "notFoods": ["och", "eller", "en", "ett", "till", "med", "mer", "lite"],

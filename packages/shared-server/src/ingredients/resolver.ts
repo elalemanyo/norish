@@ -404,6 +404,40 @@ function foodsByWords(
   return { foods, joined: joinOf(foods, parts.joined) };
 }
 
+/** A comma list's pieces, each cut at its "and" words ("peper, zout en tijm"), where two or more. */
+function listedPieces(clean: string, rules: ResolverRules): Spelling[] | null {
+  const pieces = commaPieces(clean)
+    .flatMap((piece) => {
+      const parts = joinedParts(piece, rules);
+
+      return parts?.joined === "together" ? parts.parts : [piece];
+    })
+    .filter((piece) => piece.trim());
+
+  return pieces.length > 1 ? pieces.map((piece) => spellingOf(piece, rules)) : null;
+}
+
+/**
+ * The foods a comma list's known pieces name, where two or more; the other pieces are preparation
+ * or a note ("onions, diced" stays onions).
+ */
+function foodsInList(
+  pieces: readonly Spelling[] | undefined,
+  known: ReadonlyMap<string, IngredientAliasRow>
+): { foods: ResolvedIngredient[]; joined: LineJoin } | undefined {
+  const foods = distinctFoods(
+    (pieces ?? []).flatMap((piece) => {
+      const alias = matchKnown(piece, known);
+
+      return alias
+        ? [{ aliasId: alias.aliasId, ingredientId: alias.ingredientId, text: piece.text }]
+        : [];
+    })
+  );
+
+  return foods.length > 1 ? { foods, joined: "together" } : undefined;
+}
+
 /**
  * The aliases spellings and, with `splitJoined`, their joined parts match (none of `exceptId`), and
  * the foods the words name for each spelling not known whole. One query; mints nothing.
@@ -415,23 +449,37 @@ async function readByWords(
   exceptId?: string
 ) {
   const spellings = asWritten.filter((spelling) => !spellingNamesNoFood(spelling));
+  const splitting = splitJoined ? spellings : [];
+  // Split as the plain name reads, so a leading "pinch of" joins no foods to "salt and pepper".
   const splits = new Map(
-    (splitJoined ? spellings : []).flatMap((spelling) => {
-      const spelled = spelledParts(spelling.clean, rules);
+    splitting.flatMap((spelling) => {
+      const spelled = spelledParts(spelling.plain || spelling.clean, rules);
 
       return spelled ? [[spelling, spelled] as const] : [];
+    })
+  );
+  const lists = new Map(
+    splitting.flatMap((spelling) => {
+      const pieces = listedPieces(spelling.clean, rules);
+
+      return pieces ? [[spelling, pieces] as const] : [];
     })
   );
   const known = await knownAliases([
     ...spellings,
     ...[...splits.values()].flatMap((found) => found.readings.flat()),
+    ...[...lists.values()].flat(),
   ]);
 
   for (const [fold, row] of known) if (row.ingredientId === exceptId) known.delete(fold);
 
   const byWords = new Map(
-    [...splits].flatMap(([spelling, found]) => {
-      const foods = matchKnown(spelling, known) ? undefined : foodsByWords(found, known);
+    splitting.flatMap((spelling) => {
+      const found = !matchKnown(spelling, known) && splits.get(spelling);
+      // A list is read past its first comma, which rung 2 cuts at: only the whole text beats it.
+      const foods =
+        (found && foodsByWords(found, known)) ||
+        (known.has(spelling.fold) ? undefined : foodsInList(lists.get(spelling), known));
 
       return foods ? [[spelling, foods] as const] : [];
     })

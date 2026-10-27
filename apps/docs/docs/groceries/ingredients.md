@@ -29,7 +29,8 @@ ingredient, ignoring plurals, amounts, units, preparation and stray marks.
 "finely chopped onions" matches "onion", "4 el bosui" matches "bosui",
 "gyoza vellen ((ontdooid))" matches "gyoza vellen", and the slip "parmezan"
 matches "parmezaan". A name that joins foods names each of them: "zout en
-peper" is salt and pepper, and "boter of olie" is butter or oil. A name with a
+peper" is salt and pepper, "boter of olie" and "boter/olie" are butter or oil,
+and "peper, zout en tijm" is pepper, salt and thyme. A name with a
 note after a known food is that food: "olie om te bakken" is olie. A name nothing
 matches becomes a new ingredient, under its clean name, filed under another
 ingredient its name ends with, like "roodschillige krieltjes" under "krieltjes".

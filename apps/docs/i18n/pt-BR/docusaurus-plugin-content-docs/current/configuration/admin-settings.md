@@ -39,7 +39,8 @@ idioma:
   de noz-moscada"
 - `joiners`: palavras entre duas preparações, como "e" em "descascado e cortado"
 - `together` e `alternatives`: palavras entre dois alimentos, como "e" em "sal e
-  pimenta" e "ou" em "manteiga ou óleo". Uma linha de receita só é dividida ali
+  pimenta" e "ou" em "manteiga ou óleo". "&" e "+" são "e", "/" é "ou", também
+  escritos sem espaços ("sal/pimenta"). Uma linha de receita só é dividida ali
   quando cada parte é um alimento conhecido, e nunca onde o Norish conhece o
   nome inteiro ("mac and cheese")
 - `endsBefore`: onde um nome termina, como "em" em "atum em azeite", que é

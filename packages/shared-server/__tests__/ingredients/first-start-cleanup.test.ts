@@ -284,6 +284,26 @@ describe("the first-start cleanup", () => {
     expect(await exists(oils.ingredientId)).toBe(true);
   });
 
+  it("splits a food an older version minted whole at a slash or a plus", async () => {
+    const pair = await oldMint("Salt/pepper", ["Salt/pepper"]);
+    const plus = await oldMint("salt + black pepper", ["salt + black pepper"]);
+
+    await mintTestFood("black pepper", { locale: "en" });
+    const recipe = await createTestRecipe(userId);
+    const pairLine = await insertTestRecipeLine(
+      { recipeId: recipe.id, name: "Salt & pepper", order: "0" },
+      [pair.aliasIds[0]!]
+    );
+    const plusLine = await insertTestRecipeLine(
+      { recipeId: recipe.id, name: "salt + black pepper", order: "1" },
+      [plus.aliasIds[0]!]
+    );
+
+    await expect(cleanUpCatalogueOnFirstStart()).resolves.toMatchObject({ split: 2 });
+    expect(await lineSpellings(pairLine.id)).toEqual(["salt", "pepper"]);
+    expect(await lineSpellings(plusLine.id)).toEqual(["salt", "black pepper"]);
+  });
+
   it("leaves a joined food whose whole name another food spells, as a line would read it", async () => {
     await mintIngredientWithAliases({
       name: "salt and pepper",

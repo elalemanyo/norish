@@ -567,6 +567,13 @@ export interface JoinedParts {
   words: Array<JoiningWord & { text: string }>;
 }
 
+/** A token cut at a mark between two letters ("salt/pepper"), unless it joins foods whole ("and/or"). */
+function gluedParts(token: string, rules: SpellingRules): string[] {
+  if (rules.joiningWords.has(ingredientAliasFold(token))) return [token];
+
+  return token.split(/(?<=\p{L})([/&+])(?=\p{L})/u);
+}
+
 /**
  * A name's parts at its joining words, outside brackets; null where none stands between two
  * parts or "and" and "or" are mixed. Whether the parts are foods is the resolver's to say.
@@ -578,8 +585,11 @@ export function joinedParts(
   const parts: string[][] = [[]];
   const words: JoinedParts["words"] = [];
   let depth = 0;
+  const tokens = cleanSpelling(text)
+    .split(" ")
+    .flatMap((token) => gluedParts(token, rules));
 
-  for (const token of cleanSpelling(text).split(" ")) {
+  for (const token of tokens) {
     const brackets = token.replace(/[^()[\]{}]/g, "");
     const word =
       depth === 0 && !brackets ? rules.joiningWords.get(ingredientAliasFold(token)) : undefined;

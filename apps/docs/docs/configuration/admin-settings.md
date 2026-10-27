@@ -35,9 +35,10 @@ it matches an ingredient name to a food. The list is per locale:
 - `joiners`: words between two preparations, like "and" in "peeled and
   chopped"
 - `together` and `alternatives`: words between two foods, like "en" in "zout
-  en peper" and "of" in "boter of olie". A recipe line is split there only when
-  each part is a known food, and never where Norish knows the whole name ("mac
-  and cheese")
+  en peper" and "of" in "boter of olie". "&" and "+" are "and", "/" is "or",
+  also written without spaces ("salt/pepper"). A recipe line is split there only
+  when each part is a known food, and never where Norish knows the whole name
+  ("mac and cheese")
 - `endsBefore`: where a name ends, like "in" in "tuna in olive oil", which is
   tuna, or "for" in "greek yogurt for topping"
 - `forms`: cuts and forms after a food's name, like "blokjes" in "mango
