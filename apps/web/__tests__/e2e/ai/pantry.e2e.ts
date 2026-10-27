@@ -149,6 +149,8 @@ test("the Library's pantry filter keeps the recipes the Pantry has every food fo
   // The filter is stored; the later tests read the whole Library.
   await toggleFilter("Reset");
   await expect(page.getByText(RECIPE).first()).toBeVisible();
+  // The next test starts where the one before this left off.
+  await openPantry();
 });
 
 test("Put on the list files a grocery under its Store, and ticking it off is the restock", async () => {
