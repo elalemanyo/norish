@@ -146,7 +146,7 @@
       "title": "Tuo kuvasta",
       "dropzone": "Pudota kuvat tähän tai selaa napsauttamalla",
       "paste": "liittääksesi",
-      "formats": "Tukee JPG-, PNG- ja WebP-muotoja. Enintään 10 Mt tiedostoa kohden.",
+      "formats": "Tukee JPG-, PNG-, WebP- ja PDF-muotoja. Enintään 10 Mt tiedostoa kohden.",
       "invalidType": "Virheellinen tiedostotyyppi",
       "notSupported": "{name} ei ole tuettu kuvamuoto",
       "tooLarge": "Tiedosto on liian suuri",

@@ -146,7 +146,7 @@
       "title": "Import from Image",
       "dropzone": "Drop images here or click to browse",
       "paste": "to paste",
-      "formats": "Supports JPG, PNG, WebP. Max 10MB per file.",
+      "formats": "Supports JPG, PNG, WebP, PDF. Max 10MB per file.",
       "invalidType": "Invalid file type",
       "notSupported": "{name} is not a supported image format",
       "tooLarge": "File too large",

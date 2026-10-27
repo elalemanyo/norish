@@ -146,7 +146,7 @@
       "title": "Importer fra bilde",
       "dropzone": "Slipp bilder her eller klikk for å bla",
       "paste": "for å lime inn",
-      "formats": "Støtter JPG, PNG, WebP. Maks. 10 MB per fil.",
+      "formats": "Støtter JPG, PNG, WebP, PDF. Maks. 10 MB per fil.",
       "invalidType": "Ugyldig filtype",
       "notSupported": "{name} er ikke et støttet bildeformat",
       "tooLarge": "Filen er for stor",

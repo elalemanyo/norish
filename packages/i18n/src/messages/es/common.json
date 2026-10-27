@@ -141,7 +141,7 @@
       "title": "Importar desde imagen",
       "dropzone": "Arrastra imágenes aquí o haz clic para buscar",
       "paste": "para pegar",
-      "formats": "Compatibles: JPG, PNG, WebP. Máx. 10MB por archivo.",
+      "formats": "Compatibles: JPG, PNG, WebP, PDF. Máx. 10MB por archivo.",
       "invalidType": "Tipo de archivo no válido",
       "notSupported": "{name} no es un formato de imagen compatible",
       "tooLarge": "Archivo demasiado grande",

@@ -146,7 +146,7 @@
       "title": "Importeren vanuit afbeelding",
       "dropzone": "Sleep afbeeldingen hierheen of klik om te bladeren",
       "paste": "om te plakken",
-      "formats": "Ondersteunt JPG, PNG, WebP. Maximaal 10MB per bestand.",
+      "formats": "Ondersteunt JPG, PNG, WebP, PDF. Maximaal 10MB per bestand.",
       "invalidType": "Ongeldig bestandstype",
       "notSupported": "{name} is geen ondersteund afbeeldingsformaat",
       "tooLarge": "Bestand te groot",

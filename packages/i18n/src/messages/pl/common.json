@@ -146,7 +146,7 @@
       "title": "Importuj z obrazu",
       "dropzone": "Upuść obrazy tutaj lub kliknij",
       "paste": "aby wkleić",
-      "formats": "Obsługuje JPG, PNG, WebP. Max 10MB.",
+      "formats": "Obsługuje JPG, PNG, WebP, PDF. Max 10MB.",
       "invalidType": "Nieprawidłowy typ pliku",
       "notSupported": "{name} nie jest obsługiwanym formatem",
       "tooLarge": "Plik za duży",

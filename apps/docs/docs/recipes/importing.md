@@ -28,8 +28,8 @@ Video links from YouTube, Instagram, TikTok and other sites import too when
 
 - **Add Recipe => Paste** takes a recipe as plain text or as
   [JSON-LD](https://schema.org/Recipe).
-- **Add Recipe => Image** reads a recipe from photos or screenshots, up to 10
-  images into one recipe.
+- **Add Recipe => Image** reads a recipe from photos, screenshots or a PDF, up
+  to 10 images or PDF pages into one recipe.
 
 :::note
 Plain text and images need an [AI provider](../configuration/ai-provider.md).

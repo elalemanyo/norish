@@ -146,7 +146,7 @@
       "title": "이미지에서 가져오기",
       "dropzone": "여기에 이미지를 놓거나 클릭하여 찾아보세요.",
       "paste": "붙여넣기",
-      "formats": "파일 당 최대 10MB 용량의 JPG, PNG, WebP를 지원합니다.",
+      "formats": "파일 당 최대 10MB 용량의 JPG, PNG, WebP, PDF를 지원합니다.",
       "invalidType": "잘못된 파일 형식",
       "notSupported": "{name}은(는) 지원되지 않는 이미지 형식입니다.",
       "tooLarge": "파일이 너무 큽니다.",

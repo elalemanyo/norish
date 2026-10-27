@@ -146,7 +146,7 @@
       "title": "Importera från bild",
       "dropzone": "Släpp bilder här eller klicka för att välja",
       "paste": "för att klistra in",
-      "formats": "Stöder JPG, PNG och WebP. Högst 10 MB per fil.",
+      "formats": "Stöder JPG, PNG, WebP och PDF. Högst 10 MB per fil.",
       "invalidType": "Ogiltig filtyp",
       "notSupported": "{name} har ett bildformat som inte stöds",
       "tooLarge": "Filen är för stor",

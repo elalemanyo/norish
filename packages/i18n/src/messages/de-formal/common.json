@@ -146,7 +146,7 @@
       "title": "Aus Bild importieren",
       "dropzone": "Bilder hier ablegen oder klicken zum Durchsuchen",
       "paste": "zum Einfügen",
-      "formats": "Unterstützt JPG, PNG, WebP. Max 10 MB pro Datei.",
+      "formats": "Unterstützt JPG, PNG, WebP, PDF. Max 10 MB pro Datei.",
       "invalidType": "Ungültiger Dateityp",
       "notSupported": "{name} ist kein unterstütztes Bildformat",
       "tooLarge": "Datei zu groß",

@@ -68,6 +68,11 @@ allowBuilds:
   ssh2: false
   workerd: false
 
+# pdf.js renders PDF imports in the browser; its Node canvas is a 28 MB native
+# binary nothing here runs.
+ignoredOptionalDependencies:
+  - "@napi-rs/canvas"
+
 overrides:
   # One copy each of tRPC and TanStack Query across the workspaces and the
   # packages built on them (trpc-to-openapi, query-persist-client-core), at
