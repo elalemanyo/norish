@@ -30,6 +30,7 @@ const connectionManager = vi.hoisted(() => ({
 }));
 
 vi.mock("@norish/auth/session", () => ({ getVerifiedSession }));
+vi.mock("@norish/auth/api-key-rate-limit", () => ({ apiKeyRetryAfter: () => null }));
 vi.mock("@norish/config/env-config-server", () => ({
   SERVER_CONFIG: {
     NODE_ENV: "production",
