@@ -321,6 +321,12 @@ describe("the first-start cleanup", () => {
     );
 
     await markDistinct({ userId, householdUserIds: null, isServerAdmin: false }, kept.ingredientId);
+    // A parent 0.25 marked as a person's is no decision: its mark goes first.
+    await setParent(
+      { userId, householdUserIds: null, isServerAdmin: false },
+      frying.ingredientId,
+      oil.ingredientId
+    );
     await cleanUpCatalogueOnFirstStart();
 
     expect(await exists(frying.ingredientId)).toBe(false);

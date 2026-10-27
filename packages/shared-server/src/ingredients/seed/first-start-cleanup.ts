@@ -100,6 +100,11 @@ async function cleanUpCatalogue(from: number): Promise<CleanupOutcome> {
     retired: 0,
     reread: 0,
   };
+  // 7, first. 0.25 marked a confirmed suggestion as a person's parent, so its marks go on an
+  // instance's first cleanup, after this boot's passes that file only unmarked foods; the steps
+  // below then read those foods as undecided.
+  if (from === 0) outcome.unmarked = await underTreeLock(unmarkChosenParents);
+
   const spellings = await listSpellingsForCleanup();
   const variants: Variant[] = [];
 
@@ -178,10 +183,6 @@ async function cleanUpCatalogue(from: number): Promise<CleanupOutcome> {
 
   // 6. A hidden food has no flag (`unflagHiddenFoods`).
   outcome.unflagged = await underTreeLock(unflagHiddenFoods);
-
-  // 7. 0.25 marked a confirmed suggestion as a person's parent, so its marks go on an instance's
-  // first cleanup, after this boot's passes that file only unmarked foods (corrections, mints).
-  if (from === 0) outcome.unmarked = await underTreeLock(unmarkChosenParents);
 
   // 8. A flag says only that AI changed a food unsure (`clearRetiredFlags`).
   outcome.retired = await underTreeLock(clearRetiredFlags);

@@ -17,3 +17,7 @@
 - `CLEANUP_VERSION` 8.
 - Tests: `first-start-cleanup.test.ts` (a note food merges, a kept one stays; a comma line reads both foods while an unchanged line keeps its version; the junk-pile test still holds).
 - Docs: ADR-0037 amendment, the release notes' first-start upgrade note, pt-BR.
+
+## Checked on the 0.25 production copy (2026-10-27)
+
+Restored from `~/Documents/norish-prod-db-26-10-17` (copied, never mounted) as `m85b_upgrade`, AI off, and run through the boot's catalogue steps: 5.3 s. The cleanup removed 472 spellings, split 68 foods and pointed 154 lines at what they read now. "tonijn uit blik", "tomaten in blik", "witte bonen in blik" and "kikkererwten uit blik" read their foods, "peper, zout" reads pepper and salt, and every "Salt & pepper" line both. A first run left the note foods alone: 0.25 had marked their parents as a person's, and the cleanup cleared those marks only at step 7, after step 1 read the foods as decided. Step 7 now runs first. Kept apart by rule: foods Mike kept distinct ("melted", "deegroller", "kippenbouillon met laag zoutgehalte"), and notes whose words after them name a known food ("zalmfilets op de huid", "kikkererwten in pot").
