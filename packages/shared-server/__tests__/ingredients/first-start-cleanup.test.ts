@@ -25,6 +25,7 @@ import {
   ingredients,
   pantryIngredients,
   recipeIngredientFoods,
+  recipeIngredients,
   recurringGroceries,
   serverConfig,
 } from "@norish/db/schema";
@@ -192,6 +193,7 @@ describe("the first-start cleanup", () => {
       unflagged: 1,
       unmarked: 0,
       retired: 0,
+      reread: 0,
     });
 
     // 1. Seeded stray marks go; balanced brackets stay.
@@ -302,6 +304,60 @@ describe("the first-start cleanup", () => {
     await expect(cleanUpCatalogueOnFirstStart()).resolves.toMatchObject({ split: 2 });
     expect(await lineSpellings(pairLine.id)).toEqual(["salt", "pepper"]);
     expect(await lineSpellings(plusLine.id)).toEqual(["salt", "black pepper"]);
+  });
+
+  it("merges a food named for a known food and a note into it, unless a person kept it", async () => {
+    const oil = await mintTestFood("olie", { locale: "nl" });
+    const frying = await oldMint("olie om te bakken", ["olie om te bakken"]);
+    const kept = await oldMint("zout naar keuze", ["zout naar keuze"]);
+    const recipe = await createTestRecipe(userId);
+    const fryingLine = await insertTestRecipeLine(
+      { recipeId: recipe.id, name: "olie om te bakken", order: "0" },
+      [frying.aliasIds[0]!]
+    );
+    const keptLine = await insertTestRecipeLine(
+      { recipeId: recipe.id, name: "zout naar keuze", order: "1" },
+      [kept.aliasIds[0]!]
+    );
+
+    await markDistinct({ userId, householdUserIds: null, isServerAdmin: false }, kept.ingredientId);
+    await cleanUpCatalogueOnFirstStart();
+
+    expect(await exists(frying.ingredientId)).toBe(false);
+    expect(await lineSpellings(fryingLine.id)).toEqual(["olie"]);
+    expect(await getSpellingTexts(oil.ingredientId)).toEqual(["olie"]);
+    expect(await lineSpellings(keptLine.id)).toEqual(["zout naar keuze"]);
+  });
+
+  it("reads every line again, writing only those that read other foods now", async () => {
+    const spelled = async (fold: string) =>
+      (
+        await getTestDb()
+          .select({ id: ingredientAliases.id })
+          .from(ingredientAliases)
+          .where(eq(ingredientAliases.fold, fold))
+      )[0]!.id;
+    const recipe = await createTestRecipe(userId);
+    // An earlier version read a comma list as its first piece.
+    const list = await insertTestRecipeLine(
+      { recipeId: recipe.id, name: "peper, zout", order: "0" },
+      [await spelled("peper")]
+    );
+    const same = await insertTestRecipeLine({ recipeId: recipe.id, name: "zout", order: "1" }, [
+      await spelled("zout"),
+    ]);
+    const version = async (id: string) =>
+      (
+        await getTestDb()
+          .select({ version: recipeIngredients.version })
+          .from(recipeIngredients)
+          .where(eq(recipeIngredients.id, id))
+      )[0]!.version;
+    const sameBefore = await version(same.id);
+
+    await expect(cleanUpCatalogueOnFirstStart()).resolves.toMatchObject({ reread: 1 });
+    expect(await lineSpellings(list.id)).toEqual(["peper", "zout"]);
+    expect(await version(same.id)).toBe(sameBefore);
   });
 
   it("leaves a joined food whose whole name another food spells, as a line would read it", async () => {

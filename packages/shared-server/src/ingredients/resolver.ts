@@ -748,6 +748,23 @@ export async function findIngredientFor(text: string): Promise<IngredientRef | n
 }
 
 /**
+ * The spelling of the known food a text names before its note, where the words after it name
+ * none ("olie om te bakken" is olie), ignoring what spells the whole text; else null.
+ */
+export async function findFoodBeforeNote(text: string): Promise<IngredientAliasRow | null> {
+  const spelling = spellingOf(cleanIngredientText(text), await currentRules());
+
+  if (!spelling.noted) return null;
+  const known = await knownAliases([spelling]);
+
+  if (spelling.noted.rest.some((fold) => known.has(fold))) return null;
+
+  return (
+    spelling.noted.head.map((fold) => known.get(fold)).find((row) => row !== undefined) ?? null
+  );
+}
+
+/**
  * A food a name finds, scored `EXACT` by its own spelling, less by a slip (`slipsNear`), and the
  * spelling of it that matched.
  */

@@ -35,15 +35,18 @@ import { ingredientAliasFold, withoutStrayMarks } from "@norish/shared/lib/spell
 
 import type { ResolvedIngredient } from "../resolver";
 import { resolveAgain } from "../resolve-again";
-import { readName } from "../resolver";
+import { findFoodBeforeNote, readName } from "../resolver";
 import { oncePerVersion } from "./catalogue-seed";
 
 /** Raised when a release needs the cleanup to run again. */
-export const CLEANUP_VERSION = 7;
+export const CLEANUP_VERSION = 8;
 
 /** How many variants one round removes; each round commits, so a boot cut short resumes. */
 // ponytail: ~2 ms a variant, ~2.5 min for production's 71k; set-based if ticket 12 finds it slow.
 const REMOVED_PER_ROUND = 200;
+
+/** How many lines a round of the read-again step resolves and writes in one transaction. */
+const REREAD_PER_ROUND = 500;
 
 export interface CleanupOutcome {
   /** Seeded spellings whose stray marks went (1). */
@@ -64,6 +67,8 @@ export interface CleanupOutcome {
   unmarked: number;
   /** Foods whose flag said AI was waiting, off or failing, which is no flag now (8). */
   retired: number;
+  /** Lines naming a food that read other foods under today's rules, and were pointed there (9). */
+  reread: number;
 }
 
 /** An own spelling that is not its own clean name. */
@@ -93,6 +98,7 @@ async function cleanUpCatalogue(from: number): Promise<CleanupOutcome> {
     unflagged: 0,
     unmarked: 0,
     retired: 0,
+    reread: 0,
   };
   const spellings = await listSpellingsForCleanup();
   const variants: Variant[] = [];
@@ -113,6 +119,13 @@ async function cleanUpCatalogue(from: number): Promise<CleanupOutcome> {
 
     if (clean.text !== spelling.text || clean.fold !== spelling.fold) {
       variants.push({ ...spelling, clean });
+      continue;
+    }
+    // An undecided food's spelling read up to its note ("olie om te bakken") is that known food's.
+    const noted = spelling.undecided ? await findFoodBeforeNote(spelling.text) : null;
+
+    if (noted && noted.ingredientId !== spelling.ingredientId) {
+      variants.push({ ...spelling, clean: { text: noted.text, fold: noted.fold } });
     }
   }
 
@@ -172,6 +185,18 @@ async function cleanUpCatalogue(from: number): Promise<CleanupOutcome> {
 
   // 8. A flag says only that AI changed a food unsure (`clearRetiredFlags`).
   outcome.retired = await underTreeLock(clearRetiredFlags);
+
+  // 9. Every line naming a food is read again under today's rules (a comma list, a slash), as an
+  // import would read it now; placed spellings are read first, and a line reading none keeps its.
+  const lines = await findLinesNamingAFood();
+
+  for (let start = 0; start < lines.length; start += REREAD_PER_ROUND) {
+    outcome.reread += await resolveAgain(
+      { lines: lines.slice(start, start + REREAD_PER_ROUND), groceries: [], recurring: [] },
+      "upgrade",
+      { refine: true }
+    );
+  }
 
   return outcome;
 }

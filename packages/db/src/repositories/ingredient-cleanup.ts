@@ -34,6 +34,8 @@ export interface CleanupSpelling {
   fold: string;
   seeded: boolean;
   ingredientId: string;
+  /** Its food is an own one no person kept distinct, named or parented. */
+  undecided: boolean;
 }
 
 /** Every spelling, oldest first, so the oldest of several with one clean name keeps it. */
@@ -45,8 +47,15 @@ export async function listSpellingsForCleanup(): Promise<CleanupSpelling[]> {
       fold: ingredientAliases.fold,
       seeded: ingredientAliases.seeded,
       ingredientId: ingredientAliases.ingredientId,
+      undecided: sql<boolean>`(${and(
+        isNull(ingredients.offId),
+        eq(ingredients.keptDistinct, false),
+        eq(ingredients.nameChosen, false),
+        eq(ingredients.parentChosen, false)
+      )})`,
     })
     .from(ingredientAliases)
+    .innerJoin(ingredients, eq(ingredients.id, ingredientAliases.ingredientId))
     .orderBy(asc(ingredientAliases.createdAt), asc(ingredientAliases.id));
 }
 

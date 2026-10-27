@@ -1,6 +1,7 @@
 import type { NamingRow, NamingRows } from "@norish/db/repositories/ingredient-cleanup";
 import type { GroceryPart } from "@norish/db/repositories/ingredient-relocation";
 import { withTransaction } from "@norish/db/drizzle";
+import { findRecipeLineAliases } from "@norish/db/repositories/ingredient-aliases";
 import { repointLines } from "@norish/db/repositories/ingredient-cleanup";
 import { writeGroceryParts } from "@norish/db/repositories/ingredient-relocation";
 import { getUnits } from "@norish/shared-server/config/server-config-loader";
@@ -11,15 +12,18 @@ import { resolveIngredients, resolveLineFoods, typedParts, writeResolved } from 
 
 /**
  * Point each row at what its text resolves to in `mode`, minting for its owner unless repointing;
- * a Grocery naming several foods becomes one per food (`typedParts`).
+ * a Grocery naming several foods becomes one per food (`typedParts`). With `refine`, only a line
+ * that now reads other foods is written: one reading the same or none keeps its own. Answers how
+ * many lines were written.
  */
 export async function resolveAgain(
   rows: NamingRows,
-  mode: Exclude<ResolveMode, "split">
-): Promise<void> {
+  mode: Exclude<ResolveMode, "split">,
+  { refine = false }: { refine?: boolean } = {}
+): Promise<number> {
   const mint = mode !== "repoint";
 
-  await writeResolved(
+  return await writeResolved(
     async () => {
       const units = await getUnits();
       const lines = await resolveByOwner(rows.lines, async (owned, userId) => {
@@ -34,8 +38,9 @@ export async function resolveAgain(
           const resolved = foods[index];
 
           // A line naming no food, by its text or (minting) its junk, loses the heir's food.
-          if (!texts[index] || (mint && !resolved))
-            return [{ id: line.id, aliasIds: [], joined: null }];
+          if (!texts[index] || (mint && !resolved)) {
+            return refine ? [] : [{ id: line.id, aliasIds: [], joined: null }];
+          }
 
           return resolved
             ? [
@@ -82,8 +87,10 @@ export async function resolveAgain(
           });
         });
 
+      const before = refine ? await findRecipeLineAliases(lines.map((line) => line.id)) : null;
+
       return {
-        lines,
+        lines: before ? lines.filter((line) => !readsAsBefore(line, before.get(line.id))) : lines,
         groceries: await groceriesOf(rows.groceries),
         recurring: await groceriesOf(rows.recurring),
       };
@@ -93,7 +100,22 @@ export async function resolveAgain(
         await repointLines(tx, resolved.lines);
         await writeGroceryParts(tx, "groceries", resolved.groceries);
         await writeGroceryParts(tx, "recurring", resolved.recurring);
+
+        return resolved.lines.length;
       })
+  );
+}
+
+/** Whether a line read again names the foods it named, joined as they were. */
+function readsAsBefore(
+  line: { aliasIds: readonly string[]; joined: string | null },
+  before: { foods: ReadonlyArray<{ aliasId: string }>; joined: string | null } | undefined
+): boolean {
+  return (
+    before !== undefined &&
+    before.joined === line.joined &&
+    before.foods.length === line.aliasIds.length &&
+    before.foods.every((food, index) => food.aliasId === line.aliasIds[index])
   );
 }
 
