@@ -264,6 +264,9 @@ describe("spelling keys", () => {
     expect(foodKey("a splash of olive oil", phrases)).toBe("olive oil");
     expect(foodKey("a handful of basil", phrases)).toBe("basil");
     expect(foodKey("handjevol basilicum", phrases)).toBe("basilicum");
+    expect(foodKey("toppings as desired", phrases)).toBe("toppings");
+    expect(foodKey("water, as needed", phrases)).toBe("water");
+    expect(foodKey("kaas naar wens", phrases)).toBe("kaas");
     expect(foodKey("snuf zout", phrases)).toBe("zout");
     expect(foodKey("flinke snuf nootmuskaat", phrases)).toBe("nootmuskaat");
   });

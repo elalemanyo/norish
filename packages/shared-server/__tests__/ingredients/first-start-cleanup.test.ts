@@ -363,6 +363,7 @@ describe("the first-start cleanup", () => {
     const tin = await oldMint("Bakvorm", ["Bakvorm"]);
     // Nothing names it, but every spelling it has names no food.
     const chopped = await oldMint("chopped", ["chopped"]);
+    const toppings = await oldMint("toppings as desired", ["toppings as desired"]);
     const recipe = await createTestRecipe(userId);
     const line = await insertTestRecipeLine({ recipeId: recipe.id, name: "melted", order: "0" }, [
       melted.aliasIds[0]!,
@@ -371,20 +372,27 @@ describe("the first-start cleanup", () => {
       { recipeId: recipe.id, name: "Bakvorm met opstaande randen, ca 24 x 34", order: "1" },
       [tin.aliasIds[0]!]
     );
+    const toppingsLine = await insertTestRecipeLine(
+      { recipeId: recipe.id, name: "toppings as desired", order: "2" },
+      [toppings.aliasIds[0]!]
+    );
 
     await markDistinct(
       { userId, householdUserIds: null, isServerAdmin: false },
       melted.ingredientId
     );
     await withTransaction((tx) =>
-      addToJunkPile(tx, ["melted", "bakvorm", "chopped"], { reason: "seed" })
+      addToJunkPile(tx, ["melted", "bakvorm", "chopped", "toppings"], { reason: "seed" })
     );
     forgetSpellingRules();
 
-    await expect(cleanUpCatalogueOnFirstStart()).resolves.toMatchObject({ reread: 2, deleted: 3 });
+    await expect(cleanUpCatalogueOnFirstStart()).resolves.toMatchObject({ reread: 3, deleted: 4 });
     expect(await lineSpellings(line.id)).toEqual([]);
     expect(await lineSpellings(tinLine.id)).toEqual([]);
-    for (const food of [melted, tin, chopped]) expect(await exists(food.ingredientId)).toBe(false);
+    expect(await lineSpellings(toppingsLine.id)).toEqual([]);
+    for (const food of [melted, tin, chopped, toppings]) {
+      expect(await exists(food.ingredientId)).toBe(false);
+    }
   });
 
   it("reads every line again, writing only those that read other foods now", async () => {

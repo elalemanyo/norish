@@ -342,6 +342,30 @@ export const JUNK_SEED_CONCEPTS: Readonly<
       sv: "kavel",
     },
   },
+  // A recipe's open choice ("toppings as desired"), no food until someone picks one.
+  toppings: {
+    version: 2,
+    texts: {
+      en: ["toppings", "topping"],
+      nl: ["toppings", "topping"],
+      de: ["Toppings", "Topping"],
+      fr: ["garnitures", "garniture"],
+      es: ["toppings", "coberturas"],
+      ru: "топпинги",
+      ko: "토핑",
+      nb: "toppinger",
+      no: "toppinger",
+      nn: "toppingar",
+      pl: "dodatki",
+      da: "toppings",
+      it: ["topping", "guarnizioni"],
+      pt: ["toppings", "coberturas"],
+      bg: "топинги",
+      fi: "täytteet",
+      uk: "топінги",
+      sv: "toppingar",
+    },
+  },
 };
 
 /** Broken text an import can leave, the same in every language. */
