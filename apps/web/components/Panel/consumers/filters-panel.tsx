@@ -370,6 +370,7 @@ export default function FiltersPanel({ open, onOpenChange }: FiltersPanelProps) 
               {t("pantry")}
             </h3>
             <Button
+              aria-pressed={localPantryOnly}
               className="h-9 min-w-16 rounded-full px-3 text-xs"
               size="sm"
               variant={localPantryOnly ? "primary" : "tertiary"}

@@ -128,6 +128,29 @@ test("the field narrows the kept foods, adds a catalogue food as picked, and add
   await field.fill("");
 });
 
+test("the Library's pantry filter keeps the recipes the Pantry has every food for", async () => {
+  async function toggleFilter(button: "All ingredients at home" | "Reset") {
+    await page.getByRole("button", { name: "Filters" }).click();
+
+    const filters = page.getByRole("dialog", { name: "Filters" });
+
+    await filters.getByRole("button", { name: button }).click();
+
+    if (button !== "Reset") await filters.getByRole("button", { name: "Apply" }).click();
+  }
+
+  await page.goto("/");
+  await toggleFilter("All ingredients at home");
+
+  // Garlic and olive oil are kept, chicken breast is not; the heading names no food.
+  await expect(page.getByText("Pantry pasta").first()).toBeVisible();
+  await expect(page.getByText(RECIPE)).toHaveCount(0);
+
+  // The filter is stored; the later tests read the whole Library.
+  await toggleFilter("Reset");
+  await expect(page.getByText(RECIPE).first()).toBeVisible();
+});
+
 test("Put on the list files a grocery under its Store, and ticking it off is the restock", async () => {
   await keptRow("olive oil").getByRole("button", { name: "Add to groceries" }).click();
 
