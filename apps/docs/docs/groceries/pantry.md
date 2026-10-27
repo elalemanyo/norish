@@ -19,10 +19,13 @@ When you add a recipe to your groceries, foods in your pantry are left off and
 listed under **In your pantry**. Press the box icon on any other line to add
 that food to your pantry.
 
+In the recipe filters, **All ingredients at home** shows only the recipes your
+pantry has every ingredient for.
+
 ## Limitations
 
 - It has no amounts or expiry dates. When something runs out, put it on the
   list.
 - It matches whole ingredients, so "salt" never matches "salted butter".
-- Only adding a recipe checks the pantry. Groceries you type yourself are always
-  added.
+- Only adding a recipe and the recipe filter check the pantry. Groceries you
+  type yourself are always added.

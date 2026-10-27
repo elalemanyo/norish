@@ -58,6 +58,8 @@
     "searchTags": "Recherche étiquettes",
     "favoritesAndRating": "Favoris et évaluation",
     "favorites": "Favoris",
+    "pantry": "Garde-manger",
+    "pantryOnly": "Tous les ingrédients à la maison",
     "cookingTime": "Temps de cuisson",
     "cookingTimeUnder15": "<15 min",
     "cookingTimeUnder30": "<30 min",

@@ -10,6 +10,7 @@ import { useRecipesFiltersContext } from "@/context/recipes-filters-context";
 import { useTagsQuery } from "@/hooks/config";
 import { useHiddenItemVisibility } from "@/hooks/user/use-hidden-item-visibility";
 import {
+  ArchiveBoxIcon,
   ArrowRightIcon,
   CheckIcon,
   HeartIcon,
@@ -120,6 +121,7 @@ export default function FiltersPanel({ open, onOpenChange }: FiltersPanelProps) 
   );
   const [localInput, setLocalInput] = useState(filters.rawInput);
   const [localFavoritesOnly, setLocalFavoritesOnly] = useState(filters.showFavoritesOnly);
+  const [localPantryOnly, setLocalPantryOnly] = useState(filters.showPantryOnly);
   const [localMinRating, setLocalMinRating] = useState<number | null>(filters.minRating);
   const [localMaxCookingTime, setLocalMaxCookingTime] = useState<number | null>(
     filters.maxCookingTime ?? null
@@ -138,6 +140,7 @@ export default function FiltersPanel({ open, onOpenChange }: FiltersPanelProps) 
     setLocalSortMode(normalizeSortMode(filters.sortMode));
     setLocalInput(filters.rawInput);
     setLocalFavoritesOnly(filters.showFavoritesOnly);
+    setLocalPantryOnly(filters.showPantryOnly);
     setLocalMinRating(filters.minRating);
     setLocalMaxCookingTime(filters.maxCookingTime ?? null);
     setLocalSearchFields([...filters.searchFields]);
@@ -178,6 +181,7 @@ export default function FiltersPanel({ open, onOpenChange }: FiltersPanelProps) 
     setLocalSortMode("dateDesc");
     setLocalInput("");
     setLocalFavoritesOnly(false);
+    setLocalPantryOnly(false);
     setLocalMinRating(null);
     setLocalMaxCookingTime(null);
     setLocalSearchFields([...DEFAULT_RECIPE_FILTERS.searchFields]);
@@ -191,6 +195,7 @@ export default function FiltersPanel({ open, onOpenChange }: FiltersPanelProps) 
       sortMode: localSortMode,
       rawInput: localInput,
       showFavoritesOnly: showFavorites ? localFavoritesOnly : false,
+      showPantryOnly: localPantryOnly,
       minRating: showRatings ? localMinRating : null,
       maxCookingTime: localMaxCookingTime,
       searchFields: localSearchFields,
@@ -204,6 +209,7 @@ export default function FiltersPanel({ open, onOpenChange }: FiltersPanelProps) 
     localSortMode,
     localInput,
     localFavoritesOnly,
+    localPantryOnly,
     localMinRating,
     localMaxCookingTime,
     localSearchFields,
@@ -357,6 +363,22 @@ export default function FiltersPanel({ open, onOpenChange }: FiltersPanelProps) 
               </div>
             </section>
           )}
+
+          {/* Pantry */}
+          <section>
+            <h3 className="text-muted mb-2 text-[11px] font-medium tracking-wide uppercase">
+              {t("pantry")}
+            </h3>
+            <Button
+              className="h-9 min-w-16 rounded-full px-3 text-xs"
+              size="sm"
+              variant={localPantryOnly ? "primary" : "tertiary"}
+              onPress={() => setLocalPantryOnly(!localPantryOnly)}
+            >
+              <ArchiveBoxIcon className="size-3.5" />
+              {t("pantryOnly")}
+            </Button>
+          </section>
 
           {/* Cooking time */}
           <section>

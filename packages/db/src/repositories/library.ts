@@ -11,6 +11,7 @@ import type {
   SortOrder,
 } from "@norish/shared/contracts";
 import { db } from "@norish/db/drizzle";
+import { viewerAndHouseholdIds } from "@norish/shared/lib/household";
 
 import type { RecipeListContext } from "./recipes";
 import {
@@ -22,6 +23,7 @@ import {
   tags as tagsTable,
 } from "../schema";
 import { cookbookTitleMatch, listCookbooksByIds } from "./cookbooks";
+import { pantryCoversRecipeSql } from "./pantry-coverage";
 import { buildOwnerPolicyCondition, listDashboardRecipesByIds, recipeSearchSql } from "./recipes";
 
 export type LibraryListParams = {
@@ -36,6 +38,7 @@ export type LibraryListParams = {
   maxCookingTime?: number;
   categories?: RecipeCategory[];
   favoritesOnly?: boolean;
+  pantryOnly?: boolean;
   type?: LibraryTypeFilter;
 };
 
@@ -65,7 +68,8 @@ function hasRecipeOnlyFilter(params: LibraryListParams): boolean {
     params.maxCookingTime !== undefined ||
     (params.categories?.length ?? 0) > 0 ||
     (params.tags?.length ?? 0) > 0 ||
-    params.favoritesOnly === true
+    params.favoritesOnly === true ||
+    params.pantryOnly === true
   );
 }
 
@@ -88,7 +92,7 @@ function rowsOf<T>(result: unknown): T[] {
  * against them; a reader who unticks Title in "Search in" takes cookbooks out
  * of search entirely, which is the honest reading of that control (ADR-0026).
  *
- * Recipe-only filters — rating, cooking time, categories, tags, favourites —
+ * Recipe-only filters — rating, cooking time, categories, tags, favourites, pantry —
  * drop cookbooks out the same way a recipe missing that data drops out.
  *
  * The recipe branch's correlated subqueries spell `"recipes"."…"` by hand:
@@ -111,6 +115,7 @@ export async function listLibrary(
     maxCookingTime,
     categories,
     favoritesOnly,
+    pantryOnly,
     type = "all",
   } = params;
 
@@ -166,6 +171,10 @@ export async function listLibrary(
         SELECT 1 FROM ${recipeFavorites} AS favorite
         WHERE favorite.recipe_id = "recipes"."id" AND favorite.user_id = ${ctx.userId}
       )`);
+    }
+
+    if (pantryOnly) {
+      conditions.push(pantryCoversRecipeSql(viewerAndHouseholdIds(ctx)));
     }
 
     if (tags?.length) {

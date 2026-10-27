@@ -17,6 +17,8 @@ export type CanonicalRecipeFilters = {
   filterMode: FilterMode;
   sortMode: SortOrder;
   showFavoritesOnly: boolean;
+  /** Only recipes the household's Pantry covers every food of (#679). */
+  showPantryOnly: boolean;
   minRating: number | null;
   maxCookingTime: number | null;
   categories: RecipeCategory[];
@@ -48,6 +50,7 @@ export const DEFAULT_PERSISTED_RECIPE_FILTERS: PersistedRecipeFilters = {
   filterMode: "AND",
   sortMode: "dateDesc",
   showFavoritesOnly: false,
+  showPantryOnly: false,
   minRating: null,
   maxCookingTime: null,
   categories: [],
@@ -105,6 +108,7 @@ export function normalizePersistedRecipeFilters(data: unknown): PersistedRecipeF
       )
     : null;
   const showFavoritesOnly = typeof d.showFavoritesOnly === "boolean" ? d.showFavoritesOnly : null;
+  const showPantryOnly = typeof d.showPantryOnly === "boolean" ? d.showPantryOnly : null;
   const minRating =
     d.minRating === null || (typeof d.minRating === "number" && d.minRating >= 0)
       ? (d.minRating as number | null)
@@ -134,6 +138,7 @@ export function normalizePersistedRecipeFilters(data: unknown): PersistedRecipeF
     searchTags: searchTags ?? DEFAULT_PERSISTED_RECIPE_FILTERS.searchTags,
     searchFields: searchFields ?? [...DEFAULT_PERSISTED_RECIPE_FILTERS.searchFields],
     showFavoritesOnly: showFavoritesOnly ?? DEFAULT_PERSISTED_RECIPE_FILTERS.showFavoritesOnly,
+    showPantryOnly: showPantryOnly ?? DEFAULT_PERSISTED_RECIPE_FILTERS.showPantryOnly,
     minRating: minRating ?? DEFAULT_PERSISTED_RECIPE_FILTERS.minRating,
     maxCookingTime: maxCookingTime ?? DEFAULT_PERSISTED_RECIPE_FILTERS.maxCookingTime,
     categories: categories ?? DEFAULT_PERSISTED_RECIPE_FILTERS.categories,
@@ -168,7 +173,8 @@ export function hasAppliedRecipeFilters(filters: CanonicalRecipeFilters): boolea
     filters.rawInput.trim().length > 0 ||
     filters.searchTags.length > 0 ||
     filters.categories.length > 0 ||
-    filters.maxCookingTime !== null
+    filters.maxCookingTime !== null ||
+    filters.showPantryOnly
   );
 }
 
@@ -186,6 +192,7 @@ export function toRecipesQueryFilters(filters: CanonicalRecipeFilters) {
     // Recipe-only, and honoured by the Library union in SQL so a page of it
     // is correct. The older recipe list ignores the field.
     favoritesOnly: filters.showFavoritesOnly,
+    pantryOnly: filters.showPantryOnly,
   };
 }
 

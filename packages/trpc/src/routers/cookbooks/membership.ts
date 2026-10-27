@@ -118,7 +118,11 @@ const recipes = authedProcedure
       input.minRating,
       input.maxCookingTime,
       input.categories,
-      { cookbookId: input.cookbookId, favoritesOnly: input.favoritesOnly }
+      {
+        cookbookId: input.cookbookId,
+        favoritesOnly: input.favoritesOnly,
+        pantryOnly: input.pantryOnly,
+      }
     );
 
     return {

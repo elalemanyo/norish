@@ -29,6 +29,7 @@ const list = authedProcedure
       maxCookingTime: input.maxCookingTime,
       categories: input.categories,
       favoritesOnly: input.favoritesOnly,
+      pantryOnly: input.pantryOnly,
       type: input.type,
     });
 

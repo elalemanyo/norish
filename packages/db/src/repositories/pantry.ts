@@ -9,6 +9,7 @@ import { ingredients, pantryIngredients } from "@norish/db/schema";
 import { PantryIngredientSelectSchema, PantrySuggestionSchema } from "@norish/shared/contracts/zod";
 
 import { findLocaleNames } from "./ingredient-aliases";
+import { coveredCte } from "./pantry-coverage";
 
 const PantryIngredientsSchema = z.array(PantryIngredientSelectSchema);
 
@@ -238,13 +239,7 @@ export async function listPantrySuggestions(userIds: string[]): Promise<PantrySu
     sql`, `
   );
   const rows = await db.execute<{ ingredient_id: string; name: string; recipe_count: number }>(sql`
-    with recursive covered(ingredient_id, depth) as (
-      select p.ingredient_id, 0 from pantry_ingredients p where p.user_id in (${members})
-      union
-      select i.parent_id, c.depth + 1 from covered c
-      join ingredients i on i.id = c.ingredient_id
-      where i.parent_id is not null and c.depth < 32
-    ),
+    with recursive ${coveredCte(userIds)},
     used as (
       select a.ingredient_id, count(distinct r.id)::int as recipe_count
       from recipes r

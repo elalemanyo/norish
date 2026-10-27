@@ -17,9 +17,20 @@ import { addRecipeToCookbook, createCookbook } from "@norish/db/repositories/coo
 import { listLibrary } from "@norish/db/repositories/library";
 import { deleteRecipeById } from "@norish/db/repositories/recipes";
 import { deleteConfig, setConfig } from "@norish/db/repositories/server-config";
-import { cookbooks as cookbooksTable, recipeRatings } from "@norish/db/schema";
+import {
+  cookbooks as cookbooksTable,
+  ingredients,
+  pantryIngredients,
+  recipeRatings,
+} from "@norish/db/schema";
 
-import { createTestRecipe, createTestUser, getTestDb } from "../../../helpers/db-test-helpers";
+import { resolveIngredients } from "../../../../../shared-server/src/ingredients/resolver";
+import {
+  createTestRecipe,
+  createTestUser,
+  getTestDb,
+  insertTestRecipeLine,
+} from "../../../helpers/db-test-helpers";
 import { RepositoryTestBase } from "../../../helpers/repository-test-base";
 
 type PermissionLevel = "everyone" | "household" | "owner";
@@ -281,6 +292,7 @@ describe("the Library union", () => {
         { categories: ["Dinner"] as const },
         { tags: ["vegetarian"] },
         { favoritesOnly: true },
+        { pantryOnly: true },
       ]) {
         const result = await listLibrary(viewer(ownerId), { ...base, ...params });
 
@@ -309,6 +321,64 @@ describe("the Library union", () => {
       expect(
         result.items.map((item) => (item.kind === "recipe" ? item.recipe.id : ""))
       ).not.toContain(unrated.id);
+    });
+  });
+
+  describe("the pantry filter", () => {
+    it("keeps the recipes whose every food line the household's Pantry covers", async () => {
+      const housemate = await createTestUser({ name: "Housemate" });
+      const names = ["onion", "red onion", "olive oil", "butter", "salt", "garlic", "black garlic"];
+      const resolved = await resolveIngredients(names, { userId: ownerId });
+      const food = Object.fromEntries(names.map((name, i) => [name, resolved[i]!]));
+      const db = getTestDb();
+
+      for (const [child, parent] of [
+        ["red onion", "onion"],
+        ["black garlic", "garlic"],
+      ] as const) {
+        await db
+          .update(ingredients)
+          .set({ parentId: food[parent]!.ingredientId })
+          .where(eq(ingredients.id, food[child]!.ingredientId));
+      }
+
+      // A housemate keeps them: the Pantry is the household's.
+      await db.insert(pantryIngredients).values(
+        ["red onion", "olive oil", "garlic"].map((name) => ({
+          userId: housemate.id,
+          ingredientId: food[name]!.ingredientId,
+          ingredientAliasId: food[name]!.aliasId,
+        }))
+      );
+
+      async function recipe(name: string, lines: Array<[string[], "together" | "alternatives"?]>) {
+        const made = await createTestRecipe(ownerId, { name });
+
+        await insertTestRecipeLine({ recipeId: made.id, name: "# For the pan" });
+
+        for (const [foods, joined] of lines) {
+          await insertTestRecipeLine(
+            { recipeId: made.id, name: foods.join(" or "), joined },
+            foods.map((name) => food[name]!.aliasId)
+          );
+        }
+      }
+
+      // Red onion covers onion; a line of alternatives needs any one of them.
+      await recipe("Covered", [[["onion"]], [["butter", "olive oil"], "alternatives"]]);
+      await recipe("Missing salt", [[["onion"]], [["salt"]]]);
+      await recipe("Needs both", [[["olive oil", "salt"], "together"]]);
+      // Garlic never covers a kind of it.
+      await recipe("Wrong kind", [[["black garlic"]]]);
+      await recipe("Names no food", []);
+
+      const result = await listLibrary(viewer(ownerId, [ownerId, housemate.id]), {
+        ...base,
+        pantryOnly: true,
+      });
+
+      expect(titles(result.items)).toEqual(["Covered"]);
+      expect(result.total).toBe(1);
     });
   });
 

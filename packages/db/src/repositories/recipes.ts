@@ -62,6 +62,7 @@ import {
   writeRecipeLineFoodsTx,
 } from "./ingredients";
 import { appliedOutcome, staleOutcome } from "./mutation-outcomes";
+import { pantryCoversRecipeSql } from "./pantry-coverage";
 import { PRIMARY_IMAGE_SQL } from "./recipe-primary-image";
 import { getConfig } from "./server-config";
 import {
@@ -543,7 +544,7 @@ export async function listRecipes(
    * Library applies, which is what makes a cookbook's count and its list
    * agree by construction (ADR-0027).
    */
-  options?: { cookbookId?: string; favoritesOnly?: boolean }
+  options?: { cookbookId?: string; favoritesOnly?: boolean; pantryOnly?: boolean }
 ): Promise<{ recipes: RecipeDashboardDTO[]; total: number }> {
   const whereConditions: any[] = [];
 
@@ -563,6 +564,10 @@ export async function listRecipes(
         WHERE favorite.recipe_id = "recipes"."id" AND favorite.user_id = ${ctx.userId}
       )`
     );
+  }
+
+  if (options?.pantryOnly) {
+    whereConditions.push(pantryCoversRecipeSql(viewerAndHouseholdIds(ctx)));
   }
 
   if (options?.cookbookId) {

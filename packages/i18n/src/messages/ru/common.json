@@ -58,6 +58,8 @@
     "searchTags": "Поиск тегов",
     "favoritesAndRating": "Избранное и рейтинг",
     "favorites": "Избранное",
+    "pantry": "Кладовая",
+    "pantryOnly": "Все ингредиенты дома",
     "cookingTime": "Время приготовления",
     "cookingTimeUnder15": "<15 мин",
     "cookingTimeUnder30": "<30 мин",

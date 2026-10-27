@@ -17,6 +17,7 @@ function listQueryInput(
     minRating,
     maxCookingTime,
     favoritesOnly = false,
+    pantryOnly = false,
   }: ListQueryFilters,
   limit: number
 ) {
@@ -31,6 +32,7 @@ function listQueryInput(
     minRating,
     maxCookingTime,
     favoritesOnly,
+    pantryOnly,
   };
 }
 
