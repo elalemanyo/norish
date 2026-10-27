@@ -608,6 +608,19 @@ export async function setUserDevicePreferences(
     .where(eq(users.id, userId));
 }
 
+/**
+ * Clear the user's Changed by AI as of the database's clock, which also stamps the changes. The
+ * profile's version is left alone, as a Device Preference's is.
+ */
+export async function markAIChangesCleared(userId: string): Promise<void> {
+  await db
+    .update(users)
+    .set({
+      preferences: sql`coalesce(${users.preferences}, '{}'::jsonb) || jsonb_build_object('aiChangesClearedAt', now())`,
+    })
+    .where(eq(users.id, userId));
+}
+
 /** Update user preferences by atomically merging provided JSONB updates. */
 export async function updateUserPreferences(
   userId: string,

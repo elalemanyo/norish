@@ -98,7 +98,8 @@ AI**. See [Nutrition](../recipes/nutrition.md#where-the-numbers-come-from).
 month. Changes AI was not sure of come first, with **Keep** and **Undo**, and
 flag their ingredient until you choose. **Undo** puts back what the change took,
 deleted ingredients and their lines included, and AI never makes that change
-again.
+again. **Keep all** and **Undo all** at the bottom answer every change AI was
+not sure of at once, and **Clear** stops listing the rest to you.
 
 ![Changed by AI](/img/screenshots/ingredients-changed-by-ai.png)
 

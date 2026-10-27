@@ -7,6 +7,7 @@ import { PanelPortal } from "@/components/Panel/Panel";
 import {
   ArrowPathIcon,
   ArrowRightIcon,
+  ArrowUturnLeftIcon,
   CheckIcon,
   DocumentDuplicateIcon,
   MinusIcon,
@@ -35,7 +36,8 @@ type ActionKind =
   | "random"
   | "remove"
   | "reset"
-  | "save";
+  | "save"
+  | "undo";
 
 type ActionConfig = {
   icon: ActionIcon;
@@ -64,6 +66,7 @@ const ACTION_CONFIG: Record<ActionKind, ActionConfig> = {
   remove: { icon: XMarkIcon, variant: "danger-soft" },
   reset: { icon: ArrowPathIcon, variant: "tertiary", className: WARNING_SOFT },
   save: { icon: CheckIcon, variant: "primary" },
+  undo: { icon: ArrowUturnLeftIcon, variant: "danger-soft" },
 };
 
 function classNames(...classes: Array<string | undefined>) {

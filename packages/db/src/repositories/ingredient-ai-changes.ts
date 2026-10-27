@@ -140,15 +140,17 @@ function toStoredChange(row: ChangeRow): StoredAIChange {
   };
 }
 
-/** Open changes first, longest waiting first; then the last month's others, newest first. */
-export async function listAIChanges(): Promise<StoredAIChange[]> {
+/**
+ * Open changes first, longest waiting first; then the last month's others, newest first, those
+ * made before `clearedAt` left out.
+ */
+export async function listAIChanges(clearedAt?: Date): Promise<StoredAIChange[]> {
+  const settled = and(
+    sql`${ingredientAIChanges.createdAt} > now() - ${LISTED_FOR}`,
+    clearedAt ? gt(ingredientAIChanges.createdAt, clearedAt) : undefined
+  );
   const rows = await selectChanges()
-    .where(
-      and(
-        isNull(ingredientAIChanges.undoneAt),
-        sql`(${open} or ${ingredientAIChanges.createdAt} > now() - ${LISTED_FOR})`
-      )
-    )
+    .where(and(isNull(ingredientAIChanges.undoneAt), or(open, settled)))
     .orderBy(
       desc(sql`${open}`),
       sql`case when ${open} then ${ingredientAIChanges.createdAt} end asc`,

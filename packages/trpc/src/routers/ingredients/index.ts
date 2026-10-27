@@ -9,10 +9,12 @@ import type {
 import type { SpoonMeasure } from "@norish/shared/lib/spoon-measure";
 import { SERVER_CONFIG } from "@norish/config/env-config-server";
 import { listIngredientUses } from "@norish/db/repositories/ingredient-catalogue";
+import { markAIChangesCleared } from "@norish/db/repositories/users";
 import { canDrawImages } from "@norish/shared-server/config/server-config-loader";
 import {
   keepAIChange as keepCatalogueAIChange,
   listAIChangesFor,
+  settleAIChanges as settleCatalogueAIChanges,
   undoAIChange as undoCatalogueAIChange,
 } from "@norish/shared-server/ingredients/ai-changes";
 import {
@@ -236,6 +238,25 @@ const undoAIChange = authedProcedure.input(aiChangeId).mutation(({ ctx, input })
 
   return asEditResult(() => undoCatalogueAIChange(viewerOf(ctx), input.changeId));
 });
+
+/** Clear Changed by AI for the viewer: what is settled by now is no longer listed to them. */
+const clearAIChanges = authedProcedure.mutation(async ({ ctx }) => {
+  await markAIChangesCleared(ctx.user.id);
+
+  return { success: true as const };
+});
+
+/** Keep all or Undo all: each change as its own Keep or Undo would, refused ones skipped. */
+const settleAIChanges = authedProcedure
+  .input(z.object({ changeIds: z.array(z.uuid()).max(5000), how: z.enum(["keep", "undo"]) }))
+  .mutation(({ ctx, input }) => {
+    log.info(
+      { userId: ctx.user.id, how: input.how, count: input.changeIds.length },
+      "Settling AI Changes"
+    );
+
+    return asEditResult(() => settleCatalogueAIChanges(viewerOf(ctx), input.changeIds, input.how));
+  });
 
 /**
  * Which Ingredient Icon each of these foods shows, by address, or null for
@@ -493,6 +514,8 @@ export const ingredientsRouter = router({
   aiChanges,
   keepAIChange,
   undoAIChange,
+  settleAIChanges,
+  clearAIChanges,
   merge,
   moveAlias,
   setParent,

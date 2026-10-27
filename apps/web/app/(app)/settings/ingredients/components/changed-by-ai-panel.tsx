@@ -8,6 +8,7 @@ import { IngredientPanel } from "@/components/ingredients/ingredient-panel";
 import { changeMessage } from "@/components/ingredients/review-copy";
 import { isOpenChange, useAIChanges } from "@/components/ingredients/use-ai-changes";
 import Panel from "@/components/Panel/Panel";
+import { ActionButton, ActionButtonGroup } from "@/components/shared/action-button";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { useLocale, useTranslations } from "next-intl";
 import { twMerge } from "tailwind-merge";
@@ -113,8 +114,8 @@ function VirtualRows({
 }
 
 /**
- * Changed by AI: the last month's AI Changes, open ones first with Keep and Undo. A name opens
- * its panel.
+ * Changed by AI: the last month's AI Changes, open ones first with Keep and Undo, and Keep all
+ * and Undo all for them; Clear stops listing the rest. A name opens its panel.
  */
 export function ChangedByAIPanel({
   open,
@@ -128,7 +129,14 @@ export function ChangedByAIPanel({
 }) {
   const t = useTranslations("settings.ingredients");
   const locale = useLocale();
-  const { changes, keep, undo } = useAIChanges();
+  const { changes, keep, undo, keepAll, undoAll, clear } = useAIChanges();
+  // What Keep all and Undo all answer: the open changes the viewer may act on.
+  const actionable = useMemo(
+    () => changes.filter((change) => isOpenChange(change) && change.canAct),
+    [changes]
+  );
+  const anySettled = changes.some((change) => !isOpenChange(change));
+  const answerAll = actionable.length > 1;
   // The food whose own panel is open over this one.
   const [openId, setOpenId] = useState<string | null>(null);
 
@@ -228,6 +236,46 @@ export function ChangedByAIPanel({
       <Panel.Body>
         <VirtualRows render={renderRow} rows={rows} />
       </Panel.Body>
+      {answerAll || anySettled ? (
+        <Panel.Footer>
+          <ActionButtonGroup
+            start={
+              answerAll ? (
+                <ActionButton
+                  action="undo"
+                  data-testid="ingredient-ai-changes-undo-all"
+                  onPress={() => void undoAll(actionable)}
+                >
+                  {t("changedByAI.undoAll")}
+                </ActionButton>
+              ) : undefined
+            }
+          >
+            {anySettled ? (
+              <ActionButton
+                action="dismiss"
+                data-testid="ingredient-ai-changes-clear"
+                onPress={() => {
+                  // Nothing left to check: the panel would only say AI changed nothing.
+                  if (!changes.some(isOpenChange)) onClose();
+                  void clear();
+                }}
+              >
+                {t("changedByAI.clear")}
+              </ActionButton>
+            ) : null}
+            {answerAll ? (
+              <ActionButton
+                action="apply"
+                data-testid="ingredient-ai-changes-keep-all"
+                onPress={() => void keepAll(actionable)}
+              >
+                {t("changedByAI.keepAll")}
+              </ActionButton>
+            ) : null}
+          </ActionButtonGroup>
+        </Panel.Footer>
+      ) : null}
 
       <IngredientPanel
         nested

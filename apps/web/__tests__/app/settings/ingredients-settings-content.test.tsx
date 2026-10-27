@@ -44,6 +44,8 @@ const mutations = {
   remove: vi.fn(async () => ({ success: true })),
   keepAIChange: vi.fn(async () => ({ success: true })),
   undoAIChange: vi.fn(async () => ({ success: true })),
+  settleAIChanges: vi.fn(async () => ({ success: true })),
+  clearAIChanges: vi.fn(async () => ({ success: true })),
 };
 const invalidateQueries = vi.fn();
 /**
@@ -109,6 +111,8 @@ vi.mock("@/app/providers/trpc-provider", () => ({
       },
       keepAIChange: { mutationOptions: () => ({ name: "keepAIChange" }) },
       undoAIChange: { mutationOptions: () => ({ name: "undoAIChange" }) },
+      settleAIChanges: { mutationOptions: () => ({ name: "settleAIChanges" }) },
+      clearAIChanges: { mutationOptions: () => ({ name: "clearAIChanges" }) },
       list: {
         infiniteQueryOptions: (input: unknown) => {
           listInputs.push(input);
@@ -1190,6 +1194,64 @@ describe("IngredientsSettingsContent", () => {
     // A change the viewer may not undo is listed all the same, with nothing to press.
     expect(within(mine!).getByTestId("ingredient-ai-change-undo")).toBeInTheDocument();
     expect(within(theirs!).queryByTestId("ingredient-ai-change-undo")).toBeNull();
+  });
+
+  it("keeps or undoes every open change the viewer may act on from Changed by AI's footer", async () => {
+    const open = () => [
+      { ...change("c1", "merge", "onion", { sure: false }), createdAt: new Date(1) },
+      { ...change("c2", "merge", "leek", { sure: false }), createdAt: new Date(2) },
+      { ...change("c3", "merge", "garlic", { sure: false }), canAct: false },
+      change("c4", "parent", "red onion", { target: "onion" }),
+    ];
+
+    changes = open();
+    const { rerender } = render(<IngredientsSettingsContent />);
+
+    await act(async () => {
+      fireEvent.click(screen.getByTestId("ingredients-ai-changes-open"));
+    });
+    await act(async () => {
+      fireEvent.click(screen.getByTestId("ingredient-ai-changes-keep-all"));
+    });
+    expect(mutations.settleAIChanges).toHaveBeenCalledWith({
+      how: "keep",
+      changeIds: ["c1", "c2"],
+    });
+    // Kept, nothing is left open for the footer to answer.
+    expect(screen.queryByTestId("ingredient-ai-changes-keep-all")).toBeNull();
+
+    changes = open();
+    rerender(<IngredientsSettingsContent />);
+    await act(async () => {
+      fireEvent.click(screen.getByTestId("ingredient-ai-changes-undo-all"));
+    });
+    // Newest first, so no change is undone under a later one.
+    expect(mutations.settleAIChanges).toHaveBeenLastCalledWith({
+      how: "undo",
+      changeIds: ["c2", "c1"],
+    });
+  });
+
+  it("clears what is settled from Changed by AI, leaving what is still to check", async () => {
+    changes = [
+      change("c1", "merge", "onion", { sure: false }),
+      change("c2", "parent", "red onion", { target: "onion" }),
+    ];
+    render(<IngredientsSettingsContent />);
+    await act(async () => {
+      fireEvent.click(screen.getByTestId("ingredients-ai-changes-open"));
+    });
+    await act(async () => {
+      fireEvent.click(screen.getByTestId("ingredient-ai-changes-clear"));
+    });
+
+    expect(mutations.clearAIChanges).toHaveBeenCalled();
+    expect(
+      within(screen.getByRole("dialog", { name: "changedByAI.title" }))
+        .getAllByTestId("ingredient-ai-change")
+        .map((row) => row.dataset.sure)
+    ).toEqual(["false"]);
+    expect(screen.queryByTestId("ingredient-ai-changes-clear")).toBeNull();
   });
 
   it("opens a food's own panel from its name in Changed by AI, over it", async () => {

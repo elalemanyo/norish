@@ -18,6 +18,7 @@ import {
 } from "@norish/db/repositories/ingredient-ai-changes";
 import { findIngredientByAliasId } from "@norish/db/repositories/ingredient-aliases";
 import { findIngredientAncestors, lockTree } from "@norish/db/repositories/ingredient-relocation";
+import { markAIChangesCleared } from "@norish/db/repositories/users";
 import { ingredientAIChanges, ingredients } from "@norish/db/schema";
 import { isAIEnabled } from "@norish/shared-server/config/server-config-loader";
 import {
@@ -28,6 +29,7 @@ import {
   mergeByAI,
   parentByAI,
   renameByAI,
+  settleAIChanges,
   undoAIChange,
 } from "@norish/shared-server/ingredients/ai-changes";
 import {
@@ -288,6 +290,49 @@ describe("keeping and undoing AI Changes", () => {
 
     await undoAIChange(actor, change.id);
     await expect(undoAIChange(actor, change.id)).rejects.toMatchObject({ refusal: "not-found" });
+  });
+
+  it("settles many at once: one gone is skipped, one refused is thrown after the rest", async () => {
+    const stranger = await createTestUser();
+    const strangers = { userId: stranger.id, householdUserIds: null, isServerAdmin: false };
+    const onion = await mint("onion");
+    const uien = await mint("uien");
+    const leek = await mint("leek", stranger.id);
+    const prei = await mint("prei", stranger.id);
+
+    await mergeByAI(uien.ingredientId, onion.ingredientId, false);
+    await mergeByAI(prei.ingredientId, leek.ingredientId, false);
+    const [mine, theirs] = await listAIChanges();
+
+    await expect(
+      settleAIChanges(strangers, [mine!.id, theirs!.id, theirs!.id], "undo")
+    ).rejects.toMatchObject({ refusal: "forbidden" });
+    // Theirs is undone despite the refusal before it; its repeat, gone by then, was skipped.
+    expect((await listAIChanges()).map((change) => change.id)).toEqual([mine!.id]);
+    await settleAIChanges(actor, [mine!.id], "keep");
+    expect(await listAIChanges()).toMatchObject([{ id: mine!.id, kept: true }]);
+  });
+
+  it("stops listing to who cleared Changed by AI what was settled by then, never an open one", async () => {
+    const stranger = await createTestUser();
+    const strangers = { userId: stranger.id, householdUserIds: null, isServerAdmin: false };
+    const onion = await mint("onion");
+    const uien = await mint("uien");
+    const allium = await mint("allium");
+    const red = await mint("red onion");
+    const prei = await mint("prei");
+
+    await mergeByAI(uien.ingredientId, onion.ingredientId, true);
+    await parentByAI(red.ingredientId, allium.ingredientId, false);
+    await markAIChangesCleared(actor.userId);
+    await mergeByAI(prei.ingredientId, onion.ingredientId, true);
+
+    expect(await listAIChangesFor(actor)).toMatchObject([
+      { kind: "parent", sure: false },
+      { kind: "merge", from: "prei" },
+    ]);
+    // Cleared for the person who cleared it alone.
+    expect(await listAIChangesFor(strangers)).toHaveLength(3);
   });
 
   it("leaves a flag a sure change never raised when that change is undone", async () => {

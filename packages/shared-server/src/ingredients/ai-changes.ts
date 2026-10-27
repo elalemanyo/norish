@@ -60,6 +60,7 @@ import {
   setCatalogueIngredientParent,
   splitCatalogueIngredient,
 } from "@norish/db/repositories/ingredient-relocation";
+import { getUserPreferences } from "@norish/db/repositories/users";
 import { getIngredientPermissionPolicy } from "@norish/shared-server/config/server-config-loader";
 import { distinctFoods } from "@norish/shared/lib/line-foods";
 
@@ -71,7 +72,7 @@ import {
   moveToFoodNamedFor,
   refusedOn,
 } from "./catalogue";
-import { ingredientChanges } from "./changes";
+import { announcingTogether, ingredientChanges } from "./changes";
 import { announceMinted } from "./minted";
 import { resolveAgain } from "./resolve-again";
 import { forgetSpellingRules } from "./resolver";
@@ -447,9 +448,15 @@ async function mayActOn(actor: CatalogueActor, change: StoredAIChange): Promise<
   return mayEditOwnedRow(edit, actor, subjectOf(change).ownerId);
 }
 
-/** Everything Changed by AI lists, each saying whether the viewer may act on it. */
+/**
+ * Everything Changed by AI lists to the viewer, each saying whether they may act on it: what was
+ * settled before they cleared it is left out.
+ */
 export async function listAIChangesFor(actor: CatalogueActor): Promise<AIChangeItem[]> {
-  const [{ edit }, changes] = await Promise.all([getIngredientPermissionPolicy(), listAIChanges()]);
+  const [{ edit }, changes] = await Promise.all([
+    getIngredientPermissionPolicy(),
+    getUserPreferences(actor.userId).then((prefs) => listAIChanges(prefs.aiChangesClearedAt)),
+  ]);
   const names = await findLocaleNames(
     changes.flatMap((change) =>
       [change.ingredient?.id, change.target?.id, change.dropped?.id].filter(
@@ -539,6 +546,35 @@ export async function undoAIChange(
   if (piled > 0) forgetSpellingRules();
 
   return edit;
+}
+
+/**
+ * Keep all or Undo all: each change on its own, announced as one refetch. One already gone is
+ * skipped; the first refused is thrown once the rest are settled.
+ */
+export async function settleAIChanges(
+  actor: CatalogueActor,
+  changeIds: readonly string[],
+  how: "keep" | "undo"
+): Promise<void> {
+  const settle = how === "keep" ? keepAIChange : undoAIChange;
+  const refusals = await announcingTogether(async () => {
+    const refused: CatalogueEditError[] = [];
+
+    // ponytail: one transaction per change, in a single request; move to a job if lists grow slow.
+    for (const changeId of changeIds) {
+      try {
+        await settle(actor, changeId);
+      } catch (error) {
+        if (!(error instanceof CatalogueEditError)) throw error;
+        if (error.refusal !== "not-found") refused.push(error);
+      }
+    }
+
+    return refused;
+  });
+
+  if (refusals[0]) throw refusals[0];
 }
 
 /** The folds a change took out of the catalogue: a deleted food's spellings, or a removed one. */
