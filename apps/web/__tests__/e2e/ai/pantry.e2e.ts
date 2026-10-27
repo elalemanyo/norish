@@ -128,8 +128,8 @@ test("the field narrows the kept foods, adds a catalogue food as picked, and add
   await field.fill("");
 });
 
-test("the Library's pantry filter keeps the recipes the Pantry has every food for", async () => {
-  async function toggleFilter(button: "All ingredients at home" | "Reset") {
+test("the Library's pantry filter lists the recipes by how much is at home", async () => {
+  async function toggleFilter(button: "Ingredients at home" | "Reset") {
     await page.getByRole("button", { name: "Filters" }).click();
 
     const filters = page.getByRole("dialog", { name: "Filters" });
@@ -139,16 +139,24 @@ test("the Library's pantry filter keeps the recipes the Pantry has every food fo
     if (button !== "Reset") await filters.getByRole("button", { name: "Apply" }).click();
   }
 
+  const card = (name: string) => page.locator("[data-recipe-card]").filter({ hasText: name });
+
   await page.goto("/");
-  await toggleFilter("All ingredients at home");
+  await toggleFilter("Ingredients at home");
 
   // Garlic and olive oil are kept, chicken breast is not; the heading names no food.
-  await expect(page.getByText("Pantry pasta").first()).toBeVisible();
-  await expect(page.getByText(RECIPE)).toHaveCount(0);
+  await expect(card("Pantry pasta")).toContainText("100% of the ingredients at home");
+  await expect(card(RECIPE)).toContainText("50% of the ingredients at home");
+
+  const names = await page.locator("[data-recipe-card]").allInnerTexts();
+
+  expect(names.findIndex((text) => text.includes("Pantry pasta"))).toBeLessThan(
+    names.findIndex((text) => text.includes(RECIPE))
+  );
 
   // The filter is stored; the later tests read the whole Library.
   await toggleFilter("Reset");
-  await expect(page.getByText(RECIPE).first()).toBeVisible();
+  await expect(card(RECIPE)).not.toContainText("of the ingredients at home");
   // The next test starts where the one before this left off.
   await openPantry();
 });

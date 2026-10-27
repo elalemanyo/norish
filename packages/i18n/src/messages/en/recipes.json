@@ -50,7 +50,8 @@
     "viewGroceries": "View groceries",
     "addToCalendar": "Add to calendar",
     "deleteRecipe": "Delete recipe",
-    "recipeOptions": "Recipe options"
+    "recipeOptions": "Recipe options",
+    "pantryCoverage": "{percent} of the ingredients at home"
   },
   "detail": {
     "viewOriginal": "View original recipe",

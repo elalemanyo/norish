@@ -1157,6 +1157,12 @@
                           },
                           "ratingCount": {
                             "type": "number"
+                          },
+                          "pantryCoverage": {
+                            "description": "Share of the recipe's ingredient lines the household's pantry covers, 0 to 1. Only lists filtered to the pantry in the app carry it.",
+                            "type": "number",
+                            "minimum": 0,
+                            "maximum": 1
                           }
                         },
                         "required": [
@@ -1931,6 +1937,12 @@
                             },
                             "ratingCount": {
                               "type": "number"
+                            },
+                            "pantryCoverage": {
+                              "description": "Share of the recipe's ingredient lines the household's pantry covers, 0 to 1. Only lists filtered to the pantry in the app carry it.",
+                              "type": "number",
+                              "minimum": 0,
+                              "maximum": 1
                             }
                           },
                           "required": [
@@ -2272,6 +2284,12 @@
                             },
                             "ratingCount": {
                               "type": "number"
+                            },
+                            "pantryCoverage": {
+                              "description": "Share of the recipe's ingredient lines the household's pantry covers, 0 to 1. Only lists filtered to the pantry in the app carry it.",
+                              "type": "number",
+                              "minimum": 0,
+                              "maximum": 1
                             }
                           },
                           "required": [

@@ -50,7 +50,8 @@
     "viewGroceries": "Näytä ostokset",
     "addToCalendar": "Lisää kalenteriin",
     "deleteRecipe": "Poista resepti",
-    "recipeOptions": "Reseptin asetukset"
+    "recipeOptions": "Reseptin asetukset",
+    "pantryCoverage": "{percent} aineksista kotona"
   },
   "detail": {
     "viewOriginal": "Näytä alkuperäinen resepti",

@@ -15,7 +15,7 @@ import type { RecipeListContext } from "@norish/db/repositories/recipes";
 import { ServerConfigKeys } from "@norish/config/zod/server-config";
 import { addRecipeToCookbook, createCookbook } from "@norish/db/repositories/cookbooks";
 import { listLibrary } from "@norish/db/repositories/library";
-import { deleteRecipeById } from "@norish/db/repositories/recipes";
+import { deleteRecipeById, listRecipes } from "@norish/db/repositories/recipes";
 import { deleteConfig, setConfig } from "@norish/db/repositories/server-config";
 import {
   cookbooks as cookbooksTable,
@@ -325,7 +325,7 @@ describe("the Library union", () => {
   });
 
   describe("the pantry filter", () => {
-    it("keeps the recipes whose every food line the household's Pantry covers", async () => {
+    it("keeps the recipes the household's Pantry covers a line of, most complete first", async () => {
       const housemate = await createTestUser({ name: "Housemate" });
       const names = ["onion", "red onion", "olive oil", "butter", "salt", "garlic", "black garlic"];
       const resolved = await resolveIngredients(names, { userId: ownerId });
@@ -372,13 +372,38 @@ describe("the Library union", () => {
       await recipe("Wrong kind", [[["black garlic"]]]);
       await recipe("Names no food", []);
 
-      const result = await listLibrary(viewer(ownerId, [ownerId, housemate.id]), {
-        ...base,
-        pantryOnly: true,
-      });
+      const household = viewer(ownerId, [ownerId, housemate.id]);
+      const result = await listLibrary(household, { ...base, pantryOnly: true });
+      const coverage = result.items.map((item) =>
+        item.kind === "recipe" ? [item.recipe.name, item.recipe.pantryCoverage] : []
+      );
 
-      expect(titles(result.items)).toEqual(["Covered"]);
-      expect(result.total).toBe(1);
+      // Nothing at home, or no food named, leaves a recipe out.
+      expect(coverage).toEqual([
+        ["Covered", 1],
+        ["Missing salt", 0.5],
+      ]);
+      expect(result.total).toBe(2);
+
+      // A cookbook's page orders its members the same way.
+      const members = await listRecipes(
+        household,
+        50,
+        0,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        { pantryOnly: true }
+      );
+
+      expect(members.recipes.map((recipe) => [recipe.name, recipe.pantryCoverage])).toEqual(
+        coverage
+      );
     });
   });
 

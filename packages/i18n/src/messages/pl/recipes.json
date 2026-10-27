@@ -50,7 +50,8 @@
     "viewGroceries": "Zobacz zakupy",
     "addToCalendar": "Dodaj do kalendarza",
     "deleteRecipe": "Usuń przepis",
-    "recipeOptions": "Opcje przepisu"
+    "recipeOptions": "Opcje przepisu",
+    "pantryCoverage": "{percent} składników w domu"
   },
   "detail": {
     "viewOriginal": "Zobacz oryginalny przepis",

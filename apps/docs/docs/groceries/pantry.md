@@ -19,8 +19,9 @@ When you add a recipe to your groceries, foods in your pantry are left off and
 listed under **In your pantry**. Press the box icon on any other line to add
 that food to your pantry.
 
-In the recipe filters, **All ingredients at home** shows only the recipes your
-pantry has every ingredient for.
+In the recipe filters, **Ingredients at home** lists the recipes your pantry has
+ingredients for, the most complete first. Each card shows the share of its
+ingredients you have.
 
 ## Limitations
 

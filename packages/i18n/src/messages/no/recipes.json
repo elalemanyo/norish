@@ -50,7 +50,8 @@
     "viewGroceries": "Se handleliste",
     "addToCalendar": "Legg til i kalender",
     "deleteRecipe": "Slett oppskrift",
-    "recipeOptions": "Oppskriftsvalg"
+    "recipeOptions": "Oppskriftsvalg",
+    "pantryCoverage": "{percent} av ingrediensene hjemme"
   },
   "detail": {
     "viewOriginal": "Se original oppskrift",

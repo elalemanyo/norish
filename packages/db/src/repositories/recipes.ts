@@ -62,7 +62,7 @@ import {
   writeRecipeLineFoodsTx,
 } from "./ingredients";
 import { appliedOutcome, staleOutcome } from "./mutation-outcomes";
-import { pantryCoversRecipeSql } from "./pantry-coverage";
+import { pantryCoverageSql } from "./pantry-coverage";
 import { PRIMARY_IMAGE_SQL } from "./recipe-primary-image";
 import { getConfig } from "./server-config";
 import {
@@ -477,6 +477,7 @@ type DashboardRow = {
   notes: string | null;
   url: string | null;
   image: string | null;
+  pantryCoverage?: number | null;
   servings: number | null;
   prepMinutes: number | null;
   cookMinutes: number | null;
@@ -522,6 +523,7 @@ function toDashboardRecipe(r: DashboardRow) {
     averageRating:
       ratingCount > 0 ? ratingValues.reduce((sum, value) => sum + value, 0) / ratingCount : null,
     ratingCount,
+    ...(typeof r.pantryCoverage === "number" ? { pantryCoverage: r.pantryCoverage } : {}),
   };
 }
 
@@ -566,8 +568,13 @@ export async function listRecipes(
     );
   }
 
-  if (options?.pantryOnly) {
-    whereConditions.push(pantryCoversRecipeSql(viewerAndHouseholdIds(ctx)));
+  // Members with something at home, most complete first, as the Library orders them.
+  const pantryCoverage = options?.pantryOnly
+    ? pantryCoverageSql(viewerAndHouseholdIds(ctx))
+    : undefined;
+
+  if (pantryCoverage) {
+    whereConditions.push(sql`${pantryCoverage} > 0`);
   }
 
   if (options?.cookbookId) {
@@ -654,11 +661,11 @@ export async function listRecipes(
   const baseOrderBy = sortMap[sortMode as keyof typeof sortMap] ?? desc(recipes.createdAt);
 
   // When searching, order by relevance rank first (descending), then by the selected sort
-  const orderBy = searchRank
-    ? baseOrderBy
-      ? [desc(searchRank), baseOrderBy]
-      : desc(searchRank)
-    : baseOrderBy;
+  const orderBy = [
+    ...(pantryCoverage ? [desc(pantryCoverage)] : []),
+    ...(searchRank ? [desc(searchRank)] : []),
+    ...(baseOrderBy ? [baseOrderBy] : []),
+  ];
 
   const [rows, totalCount] = await Promise.all([
     db.query.recipes.findMany({
@@ -666,10 +673,11 @@ export async function listRecipes(
       extras: {
         // The resolved primary: the first gallery image.
         image: PRIMARY_IMAGE_SQL.as("image"),
+        pantryCoverage: (pantryCoverage ?? sql<null>`NULL::real`).as("pantry_coverage"),
       },
       with: DASHBOARD_WITH,
       where: whereClause,
-      orderBy,
+      orderBy: orderBy.length > 0 ? orderBy : undefined,
       limit,
       offset,
     }),

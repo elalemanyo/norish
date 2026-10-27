@@ -12,6 +12,7 @@ vi.mock("next/navigation", () => ({
 
 vi.mock("next-intl", () => ({
   useTranslations: () => (key: string) => key,
+  useFormatter: () => ({ number: String }),
 }));
 
 vi.mock("@/context/permissions-context", () => ({

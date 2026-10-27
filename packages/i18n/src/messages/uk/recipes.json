@@ -50,7 +50,8 @@
     "viewGroceries": "Переглянути покупки",
     "addToCalendar": "Додати в календар",
     "deleteRecipe": "Видалити рецепт",
-    "recipeOptions": "Параметри рецепта"
+    "recipeOptions": "Параметри рецепта",
+    "pantryCoverage": "{percent} інгредієнтів вдома"
   },
   "detail": {
     "viewOriginal": "Переглянути оригінальний рецепт",

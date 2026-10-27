@@ -50,7 +50,8 @@
     "viewGroceries": "Se indkøbsliste",
     "addToCalendar": "Tilføj til kalender",
     "deleteRecipe": "Slet opskrift",
-    "recipeOptions": "Opskriftsindstillinger"
+    "recipeOptions": "Opskriftsindstillinger",
+    "pantryCoverage": "{percent} af ingredienserne er hjemme"
   },
   "detail": {
     "viewOriginal": "Se original opskrift",

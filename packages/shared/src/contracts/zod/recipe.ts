@@ -61,6 +61,14 @@ export const RecipeDashboardSchema = RecipeSelectBaseSchema.omit({
   author: AuthorSchema,
   averageRating: z.number().nullable().optional(),
   ratingCount: z.number().optional(),
+  pantryCoverage: z
+    .number()
+    .min(0)
+    .max(1)
+    .optional()
+    .describe(
+      "Share of the recipe's ingredient lines the household's pantry covers, 0 to 1. Only lists filtered to the pantry in the app carry it."
+    ),
 });
 
 /**

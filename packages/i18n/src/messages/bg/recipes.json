@@ -50,7 +50,8 @@
     "viewGroceries": "Виж продуктите",
     "addToCalendar": "Добави в календара",
     "deleteRecipe": "Изтрий рецептата",
-    "recipeOptions": "Опции за рецептата"
+    "recipeOptions": "Опции за рецептата",
+    "pantryCoverage": "{percent} от съставките са вкъщи"
   },
   "detail": {
     "viewOriginal": "Виж оригиналната рецепта",

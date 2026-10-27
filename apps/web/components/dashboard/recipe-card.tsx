@@ -14,6 +14,7 @@ import { useHiddenItemVisibility } from "@/hooks/user/use-hidden-item-visibility
 import { withOrigin } from "@/lib/back-destination";
 import { useAppStore } from "@/stores/useAppStore";
 import {
+  ArchiveBoxIcon,
   CalendarDaysIcon,
   ClockIcon,
   EllipsisHorizontalIcon,
@@ -25,7 +26,7 @@ import {
 } from "@heroicons/react/20/solid";
 import { PhotoIcon } from "@heroicons/react/24/outline";
 import { Button, Card, Chip, Tooltip, useOverlayState } from "@heroui/react";
-import { useTranslations } from "next-intl";
+import { useFormatter, useTranslations } from "next-intl";
 
 import { RecipeDashboardDTO } from "@norish/shared/contracts";
 import { RECIPE_DASHBOARD_KEYS } from "@norish/shared/contracts/zod";
@@ -139,6 +140,7 @@ function RecipeCardComponent({
   } = useOverlayState();
   const t = useTranslations("recipes.card");
   const tCookbooks = useTranslations("recipes.cookbooks");
+  const format = useFormatter();
   const { showRatings, showFavorites } = useHiddenItemVisibility();
 
   // Automatically prefetch recipe when card enters viewport
@@ -299,8 +301,22 @@ function RecipeCardComponent({
       </div>
     );
 
+  const pantryPercent =
+    recipe.pantryCoverage === undefined
+      ? null
+      : format.number(recipe.pantryCoverage, { style: "percent" });
+
   const facts = (
     <>
+      {pantryPercent && (
+        <CardFact
+          icon={ArchiveBoxIcon}
+          iconClassName={recipe.pantryCoverage === 1 ? "text-success" : "text-muted"}
+        >
+          <span aria-hidden>{pantryPercent}</span>
+          <span className="sr-only">{t("pantryCoverage", { percent: pantryPercent })}</span>
+        </CardFact>
+      )}
       {typeof averageRating === "number" && averageRating > 0 && showRatings && (
         <CardFact icon={StarIcon} iconClassName="text-warning">
           {Math.round(averageRating)}
