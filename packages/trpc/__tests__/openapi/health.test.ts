@@ -2,6 +2,8 @@
 
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+import { apiKeyRateLimited } from "@norish/auth/api-key-rate-limit";
+
 import { getOpenApiDocument, handleOpenApiRequest } from "../../src/openapi";
 
 process.env.NODE_ENV = "development";
@@ -102,6 +104,17 @@ describe("openapi health endpoint", () => {
         code: "UNAUTHORIZED",
       })
     );
+  });
+
+  it("answers a rate-limited API key with 429 and Retry-After, not 401", async () => {
+    getSessionMock.mockRejectedValue(apiKeyRateLimited(1200));
+
+    const response = await handleOpenApiRequest(
+      new Request("http://localhost/api/v1/groceries", { headers: { "x-api-key": "key" } })
+    );
+
+    expect(response.status).toBe(429);
+    expect(response.headers.get("Retry-After")).toBe("1200");
   });
 
   it("documents the protected endpoints as requiring security", () => {

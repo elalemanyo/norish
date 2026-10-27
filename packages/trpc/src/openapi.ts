@@ -1,6 +1,7 @@
 import { createOpenApiFetchHandler, generateOpenApiDocument } from "trpc-to-openapi";
 
 import type { OperationId } from "@norish/shared/contracts/realtime/envelope";
+import { apiKeyRetryAfter } from "@norish/auth/api-key-rate-limit";
 import { isOperationId } from "@norish/shared/lib/operation-helpers";
 
 import { createHttpContextFromHeaders } from "./context";
@@ -82,6 +83,11 @@ export function handleOpenApiRequest(req: Request) {
     router: openApiRouter,
     req,
     createContext: () => createOpenApiContext(req),
+    responseMeta: ({ errors }) => {
+      const retryAfter = apiKeyRetryAfter(errors[0]?.cause);
+
+      return retryAfter ? { headers: { "Retry-After": retryAfter } } : {};
+    },
   });
 }
 

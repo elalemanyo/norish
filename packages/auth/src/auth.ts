@@ -21,6 +21,7 @@ import { authLogger } from "@norish/shared-server/logger";
 import { keepsOfferedSignInMethod, LAST_SIGN_IN_METHOD } from "@norish/shared/contracts/dto/auth";
 import { addBasePath } from "@norish/shared/lib/base-path";
 
+import { consumeApiKeyRequest } from "./api-key-rate-limit";
 import {
   getPendingOIDCProfile,
   mergeOIDCTokenClaims,
@@ -513,11 +514,8 @@ function createBetterAuth() {
 
       apiKey({
         enableSessionForAPIKeys: true,
-        rateLimit: {
-          enabled: true,
-          timeWindow: 1000 * 60 * 60 * 1,
-          maxRequests: 500,
-        },
+        rateLimit: { enabled: false },
+        customAPIKeyValidator: ({ key }) => consumeApiKeyRequest(key),
         apiKeyHeaders: [...API_KEY_HEADERS],
       }),
 
