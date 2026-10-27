@@ -14,7 +14,7 @@
 
 - `ingredient-words.default.json`: "+" beside "&" in every language's `together`, "/" in every `alternatives`. `joinedParts` (`gluedParts`) splits a token at "/", "&" or "+" between two letters, never a token that is a joining word itself ("and/or", "en/of"), so "1/2" and "and/or" stay whole.
 - `readByWords` splits the plain name (`spelling.plain || spelling.clean`), so a leading "pinch of" is gone before the words are read.
-- `listedPieces`/`foodsInList`: a comma list's pieces, each also split at its "and" words, name the known foods among them, together, where two or more; other pieces are dropped. Only a known spelling of the whole text as written beats a list, since rung 2's comma cut would always find the first piece.
+- `laterPieces`/`knownFoodsIn`: a comma list's first piece is the line's food as rung 2 reads it, known or minted; the later pieces that are known foods join it, together, each piece also split at its "and" words; other pieces are dropped. Only a known spelling of the whole text as written is no list. Mike, 2026-10-27: a first piece no food is known for must not be lost ("kippendijfilet, zout, peper").
 - `CLEANUP_VERSION` 7: the first-start cleanup splits own foods minted whole ("Salt/pepper", "salt + black pepper") and their lines follow.
 - Tests: `spelling-keys.test.ts` (slash, plus, glued marks, "and/or", "1/2"), `resolver.test.ts` (plain-name split, slash, plus, comma lists, "onions, diced"), `first-start-cleanup.test.ts` (old whole foods split).
 - Docs: CONTEXT.md (Alias), ADR-0037 amendment, release notes (a fixes line, the Ingredient words upgrade note), admin settings, Ingredients page, pt-BR docs.

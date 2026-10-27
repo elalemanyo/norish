@@ -404,38 +404,29 @@ function foodsByWords(
   return { foods, joined: joinOf(foods, parts.joined) };
 }
 
-/** A comma list's pieces, each cut at its "and" words ("peper, zout en tijm"), where two or more. */
-function listedPieces(clean: string, rules: ResolverRules): Spelling[] | null {
-  const pieces = commaPieces(clean)
+/** A comma list's pieces after the first, each cut at its "and" words ("peper, zout en tijm"). */
+function laterPieces(clean: string, rules: ResolverRules): Spelling[] {
+  return commaPieces(clean)
+    .slice(1)
     .flatMap((piece) => {
       const parts = joinedParts(piece, rules);
 
       return parts?.joined === "together" ? parts.parts : [piece];
     })
-    .filter((piece) => piece.trim());
-
-  return pieces.length > 1 ? pieces.map((piece) => spellingOf(piece, rules)) : null;
+    .filter((piece) => piece.trim())
+    .map((piece) => spellingOf(piece, rules));
 }
 
-/**
- * The foods a comma list's known pieces name, where two or more; the other pieces are preparation
- * or a note ("onions, diced" stays onions).
- */
-function foodsInList(
-  pieces: readonly Spelling[] | undefined,
+/** The known foods among a comma list's later pieces; the others are preparation ("diced"). */
+function knownFoodsIn(
+  pieces: readonly Spelling[],
   known: ReadonlyMap<string, IngredientAliasRow>
-): { foods: ResolvedIngredient[]; joined: LineJoin } | undefined {
-  const foods = distinctFoods(
-    (pieces ?? []).flatMap((piece) => {
-      const alias = matchKnown(piece, known);
+): IngredientAliasRow[] {
+  return pieces.flatMap((piece) => {
+    const alias = matchKnown(piece, known);
 
-      return alias
-        ? [{ aliasId: alias.aliasId, ingredientId: alias.ingredientId, text: piece.text }]
-        : [];
-    })
-  );
-
-  return foods.length > 1 ? { foods, joined: "together" } : undefined;
+    return alias ? [alias] : [];
+  });
 }
 
 /**
@@ -459,11 +450,7 @@ async function readByWords(
     })
   );
   const lists = new Map(
-    splitting.flatMap((spelling) => {
-      const pieces = listedPieces(spelling.clean, rules);
-
-      return pieces ? [[spelling, pieces] as const] : [];
-    })
+    splitting.map((spelling) => [spelling, laterPieces(spelling.clean, rules)] as const)
   );
   const known = await knownAliases([
     ...spellings,
@@ -474,18 +461,23 @@ async function readByWords(
   for (const [fold, row] of known) if (row.ingredientId === exceptId) known.delete(fold);
 
   const byWords = new Map(
-    splitting.flatMap((spelling) => {
-      const found = !matchKnown(spelling, known) && splits.get(spelling);
-      // A list is read past its first comma, which rung 2 cuts at: only the whole text beats it.
-      const foods =
-        (found && foodsByWords(found, known)) ||
-        (known.has(spelling.fold) ? undefined : foodsInList(lists.get(spelling), known));
+    [...splits].flatMap(([spelling, found]) => {
+      const foods = matchKnown(spelling, known) ? undefined : foodsByWords(found, known);
 
       return foods ? [[spelling, foods] as const] : [];
     })
   );
+  // The first piece of a comma list is the food rung 2 reads; the known ones after it join it.
+  // Only the whole text as written, known, is no list.
+  const later = new Map(
+    [...lists].flatMap(([spelling, pieces]) => {
+      const foods = known.has(spelling.fold) ? [] : knownFoodsIn(pieces, known);
 
-  return { spellings, known, byWords };
+      return foods.length > 0 ? [[spelling, foods] as const] : [];
+    })
+  );
+
+  return { spellings, known, byWords, later };
 }
 
 /** `splitJoined` reads a text not known whole by its joining words before anything is minted. */
@@ -497,23 +489,34 @@ async function resolveTexts(
 ): Promise<Array<ResolvedFoods | null>> {
   const rules = await currentRules();
   const asWritten = texts.map((text) => spellingOf(cleanIngredientText(text), rules));
-  const { spellings, known, byWords } = await readByWords(asWritten, rules, splitJoined);
+  const { spellings, known, byWords, later } = await readByWords(asWritten, rules, splitJoined);
   const unknown = spellings.filter(
     (spelling) => !matchRead(spelling, known) && !byWords.has(spelling)
   );
   const slips = await findSlips(mode === "person" || mode === "upgrade" ? unknown : []);
   const resolved = new Map<Spelling, ResolvedFoods>();
   const minted = new Set<string>();
+  // A comma list's later known foods join the foods its first piece names, all needed together.
+  const listed = (
+    spelling: Spelling,
+    foods: IngredientRef[],
+    joined: LineJoin | null
+  ): ResolvedFoods => {
+    const more = joined === "alternatives" ? [] : (later.get(spelling) ?? []).map(refOf);
+    const all = distinctFoods([...foods, ...more]);
+
+    return {
+      text: spelling.text,
+      foods: all,
+      joined: more.length > 0 ? joinOf(all, "together") : joined,
+    };
+  };
 
   for (const spelling of spellings) {
     const named = byWords.get(spelling);
 
     if (named) {
-      resolved.set(spelling, {
-        text: spelling.text,
-        foods: named.foods.map(refOf),
-        joined: named.joined,
-      });
+      resolved.set(spelling, listed(spelling, named.foods.map(refOf), named.joined));
       continue;
     }
 
@@ -545,11 +548,7 @@ async function resolveTexts(
 
     const alias = match ?? matchKnown(spelling, known)!;
 
-    resolved.set(spelling, {
-      text: spelling.text,
-      foods: [refOf(alias)],
-      joined: null,
-    });
+    resolved.set(spelling, listed(spelling, [refOf(alias)], null));
   }
 
   // AI's pass follows a mint for someone's action, never a startup pass's.

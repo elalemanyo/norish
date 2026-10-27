@@ -768,7 +768,7 @@ describe("ingredient resolver", () => {
       return (await getRecipeFull(recipeId))!.recipeIngredients;
     }
 
-    it("splits as the plain name reads, at a slash or a plus, and a comma list at its known foods", async () => {
+    it("splits as the plain name reads, at a slash or a plus, and adds a comma list's known foods to its first", async () => {
       const salt = await food("salt", "en");
       const pepper = await food("pepper", "en");
       const thyme = await food("thyme", "en");
@@ -786,6 +786,8 @@ describe("ingredient resolver", () => {
           "pepper, salt and thyme, to taste",
           "pepper, salt, homemade spice blend",
           "onions, diced",
+          "kippendijfilet, salt, pepper",
+          "kippendijfilet, salt",
         ])
       ).toMatchObject([
         { joined: "together", foods: both },
@@ -801,6 +803,9 @@ describe("ingredient resolver", () => {
         },
         { joined: "together", foods: [both[1], both[0]] },
         { joined: null, ingredientId: onions },
+        // The first piece is the line's food, new or not; the known ones after it join it.
+        { joined: "together", foods: [{ name: "kippendijfilet" }, ...both] },
+        { joined: "together", foods: [{ name: "kippendijfilet" }, both[0]] },
       ]);
     });
 
