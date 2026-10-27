@@ -2,6 +2,7 @@ import type { NamingRow, NamingRows } from "@norish/db/repositories/ingredient-c
 import type { GroceryPart } from "@norish/db/repositories/ingredient-relocation";
 import { withTransaction } from "@norish/db/drizzle";
 import { findRecipeLineAliases } from "@norish/db/repositories/ingredient-aliases";
+import { findIngredientIdsAmong } from "@norish/db/repositories/ingredient-catalogue";
 import { repointLines } from "@norish/db/repositories/ingredient-cleanup";
 import { writeGroceryParts } from "@norish/db/repositories/ingredient-relocation";
 import { getUnits } from "@norish/shared-server/config/server-config-loader";
@@ -13,8 +14,8 @@ import { resolveIngredients, resolveLineFoods, typedParts, writeResolved } from 
 /**
  * Point each row at what its text resolves to in `mode`, minting for its owner unless repointing;
  * a Grocery naming several foods becomes one per food (`typedParts`). With `refine`, only a line
- * that now reads other foods is written: one reading the same or none keeps its own. Answers how
- * many lines were written.
+ * that now reads other foods is written, and one reading none keeps a seeded food (its spelling is
+ * AI's spelling check's to judge). Answers how many lines were written.
  */
 export async function resolveAgain(
   rows: NamingRows,
@@ -39,7 +40,7 @@ export async function resolveAgain(
 
           // A line naming no food, by its text or (minting) its junk, loses the heir's food.
           if (!texts[index] || (mint && !resolved)) {
-            return refine ? [] : [{ id: line.id, aliasIds: [], joined: null }];
+            return [{ id: line.id, aliasIds: [], joined: null }];
           }
 
           return resolved
@@ -88,9 +89,22 @@ export async function resolveAgain(
         });
 
       const before = refine ? await findRecipeLineAliases(lines.map((line) => line.id)) : null;
+      const seeded = before
+        ? await findIngredientIdsAmong(
+            [...before.values()].flatMap((line) => line.foods.map((food) => food.ingredientId)),
+            "seeded"
+          )
+        : new Set<string>();
+      const written = (line: (typeof lines)[number]) => {
+        const was = before?.get(line.id);
+
+        if (readsAsBefore(line, was)) return false;
+
+        return !(line.aliasIds.length === 0 && was?.foods.some((f) => seeded.has(f.ingredientId)));
+      };
 
       return {
-        lines: before ? lines.filter((line) => !readsAsBefore(line, before.get(line.id))) : lines,
+        lines: before ? lines.filter(written) : lines,
         groceries: await groceriesOf(rows.groceries),
         recurring: await groceriesOf(rows.recurring),
       };

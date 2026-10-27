@@ -50,11 +50,11 @@ async function main() {
   await recheckUndecidedMintsOnBoot();
   log.info("-".repeat(50));
 
+  // Texts that name no food, which new lines are read without; before the cleanup, whose reading
+  // of every line again leaves such a line no own food.
+  await seedJunkPileOnBoot();
   // What earlier versions left in the catalogue, cleaned once per release that changes the cleanup.
   await cleanUpCatalogueOnBoot();
-  // Texts that name no food, which new lines are read without; after the cleanup, which reads
-  // spellings as earlier releases left them.
-  await seedJunkPileOnBoot();
   log.info("-".repeat(50));
 
   // Ingredient Nutrition's source numbers, when this release carries new ones.

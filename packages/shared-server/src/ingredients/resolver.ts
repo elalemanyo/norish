@@ -242,9 +242,18 @@ export function cleanIngredientText(text: string): string {
   return stripHtmlTags(text).replace(/\s+/g, " ").trim();
 }
 
-/** Whether a text names no food as written or once cleaned (`namesNoFood`): markup alone, ")", "($0.02)". */
+/**
+ * Whether a text names no food as written or once cleaned (`namesNoFood`): markup alone, ")",
+ * "($0.02)", or junk before its note ("Bakvorm met opstaande randen").
+ */
 function spellingNamesNoFood(spelling: Spelling): boolean {
-  return namesNoFood(spelling.text) || namesNoFood(spelling.clean);
+  const head = spelling.noted?.head[0];
+
+  return (
+    namesNoFood(spelling.text) ||
+    namesNoFood(spelling.clean) ||
+    (head !== undefined && spelling.rules.junk.has(head))
+  );
 }
 
 /**

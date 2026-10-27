@@ -194,6 +194,7 @@ describe("the first-start cleanup", () => {
       unmarked: 0,
       retired: 0,
       reread: 0,
+      deleted: 0,
     });
 
     // 1. Seeded stray marks go; balanced brackets stay.
@@ -306,7 +307,7 @@ describe("the first-start cleanup", () => {
     expect(await lineSpellings(plusLine.id)).toEqual(["salt", "black pepper"]);
   });
 
-  it("merges a food named for a known food and a note into it, unless a person kept it", async () => {
+  it("merges a food named for a known food and a note into it, kept distinct or not", async () => {
     const oil = await mintTestFood("olie", { locale: "nl" });
     const frying = await oldMint("olie om te bakken", ["olie om te bakken"]);
     const kept = await oldMint("zout naar keuze", ["zout naar keuze"]);
@@ -332,7 +333,58 @@ describe("the first-start cleanup", () => {
     expect(await exists(frying.ingredientId)).toBe(false);
     expect(await lineSpellings(fryingLine.id)).toEqual(["olie"]);
     expect(await getSpellingTexts(oil.ingredientId)).toEqual(["olie"]);
-    expect(await lineSpellings(keptLine.id)).toEqual(["zout naar keuze"]);
+    expect(await exists(kept.ingredientId)).toBe(false);
+    expect(await lineSpellings(keptLine.id)).toEqual(["zout"]);
+  });
+
+  it("leaves a food named for a known food and a note whose parent a person chose since 0.25", async () => {
+    const oil = await mintTestFood("olie", { locale: "nl" });
+    const frying = await oldMint("olie om te bakken", ["olie om te bakken"]);
+    const line = await insertTestRecipeLine(
+      { recipeId: (await createTestRecipe(userId)).id, name: "olie om te bakken" },
+      [frying.aliasIds[0]!]
+    );
+
+    await setParent(
+      { userId, householdUserIds: null, isServerAdmin: false },
+      frying.ingredientId,
+      oil.ingredientId
+    );
+    // Not the first cleanup: no 0.25 marks are cleared.
+    await updateIngredientSeedState({ cleanupVersion: CLEANUP_VERSION - 1 });
+    await cleanUpCatalogueOnFirstStart();
+
+    expect(await lineSpellings(line.id)).toEqual(["olie om te bakken"]);
+    expect(await exists(frying.ingredientId)).toBe(true);
+  });
+
+  it("takes an own food from the lines that now name no food, kept distinct or not, and deletes it", async () => {
+    const melted = await oldMint("melted", ["melted"]);
+    const tin = await oldMint("Bakvorm", ["Bakvorm"]);
+    // Nothing names it, but every spelling it has names no food.
+    const chopped = await oldMint("chopped", ["chopped"]);
+    const recipe = await createTestRecipe(userId);
+    const line = await insertTestRecipeLine({ recipeId: recipe.id, name: "melted", order: "0" }, [
+      melted.aliasIds[0]!,
+    ]);
+    const tinLine = await insertTestRecipeLine(
+      { recipeId: recipe.id, name: "Bakvorm met opstaande randen, ca 24 x 34", order: "1" },
+      [tin.aliasIds[0]!]
+    );
+
+    await markDistinct(
+      { userId, householdUserIds: null, isServerAdmin: false },
+      melted.ingredientId
+    );
+    await withTransaction((tx) =>
+      addToJunkPile(tx, ["melted", "bakvorm", "chopped"], { reason: "seed" })
+    );
+    forgetSpellingRules();
+
+    await expect(cleanUpCatalogueOnFirstStart()).resolves.toMatchObject({ reread: 2, deleted: 3 });
+    expect(await lineSpellings(line.id)).toEqual([]);
+    expect(await lineSpellings(tinLine.id)).toEqual([]);
+    for (const food of [melted, tin, chopped]) expect(await exists(food.ingredientId)).toBe(false);
   });
 
   it("reads every line again, writing only those that read other foods now", async () => {

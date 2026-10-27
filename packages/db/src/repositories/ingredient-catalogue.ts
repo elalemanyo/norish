@@ -23,6 +23,7 @@ import { db } from "@norish/db/drizzle";
 import {
   groceries,
   ingredientAliases,
+  ingredientJunkPile,
   ingredients,
   pantryIngredients,
   recipeIngredientFoods,
@@ -713,6 +714,42 @@ export function ingredientIsNamed(): SQL {
     any(recurringGroceries, naming.recurringGroceries),
     any(pantryIngredients, naming.pantry)
   )})`;
+}
+
+/**
+ * Delete the own Ingredients nothing names and no one's parent among `ids` (whose rows moved to
+ * other foods), and those whose every spelling is on the junk pile ("chopped"). Answers how many
+ * went. The caller holds the tree lock.
+ */
+export async function deleteUnnamedOwnFoods(
+  tx: DbTransaction,
+  ids: readonly string[]
+): Promise<number> {
+  const notJunk = db
+    .select({ one: sql`1` })
+    .from(ingredientAliases)
+    .where(
+      and(
+        eq(ingredientAliases.ingredientId, sql`${ingredients}.id`),
+        sql`${ingredientAliases.fold} not in (select ${ingredientJunkPile.fold} from ${ingredientJunkPile})`
+      )
+    );
+  const deleted = await tx
+    .delete(ingredients)
+    .where(
+      and(
+        or(
+          ids.length > 0 ? inArray(ingredients.id, [...new Set(ids)]) : undefined,
+          sql`not exists (${notJunk})`
+        ),
+        isNull(ingredients.offId),
+        sql`not ${ingredientIsNamed()}`,
+        sql`not exists (select 1 from ${ingredients} c where c.parent_id = ${ingredients}.id)`
+      )
+    )
+    .returning({ id: ingredients.id });
+
+  return deleted.length;
 }
 
 /**
